@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "baanschema-ortools"
+version = "0.1.0"
+description = "Baanschema optimizer met OR-Tools"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "ortools>=9.9,<11",
+]
+
+[project.scripts]
+baanschema = "baanschema.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

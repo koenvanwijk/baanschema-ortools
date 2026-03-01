@@ -1,0 +1,10 @@
+{
+  "courts": ["baan-1", "baan-2"],
+  "slots": ["slot-1", "slot-2", "slot-3"],
+  "matches": [
+    {"id": "M1", "players": ["A", "B", "C", "D"]},
+    {"id": "M2", "players": ["E", "F", "G", "H"]},
+    {"id": "M3", "players": ["A", "E", "I", "J"]},
+    {"id": "M4", "players": ["B", "F", "K", "L"]}
+  ]
+}
