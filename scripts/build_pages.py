@@ -15,6 +15,8 @@ DOCS = ROOT / "docs"
 
 
 def main() -> None:
+    DOCS.mkdir(parents=True, exist_ok=True)
+
     problem = load_problem(EXAMPLE)
     result = solve_schedule(problem)
 
