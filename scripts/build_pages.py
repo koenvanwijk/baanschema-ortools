@@ -25,6 +25,8 @@ class TeamDay:
     singles: int
     doubles: int
     mix: int
+    home_team: str
+    away_team: str
 
 
 @dataclass
@@ -65,6 +67,17 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
             if not matches or not duration:
                 continue
 
+            team1 = (row.get("Team 1") or "").strip()
+            team2 = (row.get("Team 2") or "").strip()
+            team3 = (row.get("Team 3") or "").strip().upper()
+            home_team = team1
+            away_team = team2
+            if team3 == "THUIS":
+                if team1.upper().startswith("MIERLO"):
+                    home_team, away_team = team1, team2
+                elif team2.upper().startswith("MIERLO"):
+                    home_team, away_team = team2, team1
+
             teams.append(
                 TeamDay(
                     date=date,
@@ -75,6 +88,8 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
                     singles=_to_int(row.get("Singles") or ""),
                     doubles=_to_int(row.get("Doubles") or ""),
                     mix=_to_int(row.get("Mix") or ""),
+                    home_team=home_team,
+                    away_team=away_team,
                 )
             )
     return teams, reservations
@@ -299,6 +314,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                             {
                                 "schema": tname,
                                 "team_short": short_team_name(tname),
+                                "home_team": team.home_team,
+                                "away_team": team.away_team,
                                 "part": p["label"],
                                 "kind": p["kind"],
                                 "start": mins_to_hhmm(start),
@@ -315,6 +332,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                         {
                             "schema": tname,
                             "team_short": short_team_name(tname),
+                            "home_team": team.home_team,
+                            "away_team": team.away_team,
                             "part": p["label"],
                             "kind": p["kind"],
                             "start": "NIET_GELUKT",
@@ -324,6 +343,32 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                     )
 
     return sorted(out, key=lambda x: (x["start"], x["court"] or 99, x["schema"], x["part"]))
+
+
+def render_day_summary(rows: list[dict]) -> str:
+    valid = [r for r in rows if r["start"] != "NIET_GELUKT"]
+    by_team: dict[str, list[dict]] = defaultdict(list)
+    for r in valid:
+        if r.get("part") == "COMP":
+            continue
+        by_team[r["schema"]].append(r)
+
+    if not by_team:
+        return ""
+
+    items = []
+    for schema, rr in sorted(by_team.items(), key=lambda kv: min(hhmm_to_mins(x["start"]) for x in kv[1])):
+        first_start = mins_to_hhmm(min(hhmm_to_mins(x["start"]) for x in rr))
+        last_end = mins_to_hhmm(max(hhmm_to_mins(x["end"]) for x in rr))
+        team_short = rr[0].get("team_short", short_team_name(schema))
+        home = rr[0].get("home_team", "")
+        away = rr[0].get("away_team", "")
+        matchup = f"{home} vs {away}" if home or away else "-"
+        items.append(
+            f"<li><strong>{html.escape(team_short)}</strong>: {html.escape(matchup)} — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
+        )
+
+    return "<div class='summary'><h3>Teams vandaag</h3><ul>" + "".join(items) + "</ul></div>"
 
 
 def render_grid(rows: list[dict]) -> str:
@@ -404,7 +449,7 @@ def main() -> None:
             failed_html = "<p><strong>Niet gelukt:</strong> " + ", ".join(
                 html.escape(f"{r['team_short']} {r['part']}") for r in failed
             ) + "</p>"
-        sections.append(f"<h2>{html.escape(d)}</h2>{failed_html}{render_grid(rows)}")
+        sections.append(f"<h2>{html.escape(d)}</h2>{failed_html}{render_day_summary(rows)}{render_grid(rows)}")
 
     page = f"""<!doctype html>
 <html lang='nl'>
@@ -413,6 +458,10 @@ def main() -> None:
 <style>
 body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto;padding:0 1rem}}
 .small{{color:#666}}
+.summary{{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:.7rem .9rem;margin:.5rem 0 1rem 0}}
+.summary h3{{margin:.2rem 0 .5rem 0;font-size:1rem}}
+.summary ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
+.summary li{{margin:.25rem 0}}
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:max-content;min-width:100%}}
 .grid th,.grid td{{border:1px solid #ececec;padding:.35rem .45rem;vertical-align:top}}
