@@ -177,7 +177,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
     start_pref = 8 * 60 + 30  # optie 1: starten vanaf 08:30
     fallback_start = 8 * 60 + 30
     latest_start = 19 * 60 + 30
-    first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
+    first_match_latest = 16 * 60  # tijdelijke versoepeling: eerste teamwedstrijd mag tot 16:00 starten
     step = 15
     courts = list(range(1, 11))
 
@@ -395,7 +395,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1: starten vanaf 08:30. Planner optimaliseert primair op maximale baanbezetting (naast-elkaar spelen is ondergeschikt).</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1 + 2: starten vanaf 08:30 en eerste teamstart toegestaan tot 16:00. Planner optimaliseert primair op maximale baanbezetting.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
