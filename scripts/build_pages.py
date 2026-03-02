@@ -174,8 +174,8 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
 
 
 def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[dict]:
-    start_pref = 9 * 60  # liefst 09:00
-    fallback_start = 8 * 60 + 30  # alleen indien nodig
+    start_pref = 8 * 60 + 30  # optie 1: starten vanaf 08:30
+    fallback_start = 8 * 60 + 30
     latest_start = 19 * 60 + 30
     first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
     step = 15
@@ -395,7 +395,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Planner start zo vroeg mogelijk vanaf 09:00 en optimaliseert primair op maximale baanbezetting (naast-elkaar spelen is ondergeschikt).</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1: starten vanaf 08:30. Planner optimaliseert primair op maximale baanbezetting (naast-elkaar spelen is ondergeschikt).</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
