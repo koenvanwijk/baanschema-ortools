@@ -98,7 +98,21 @@ def color_for(name: str) -> str:
 
 
 def short_team_name(schema: str) -> str:
-    return schema.split("–", 1)[0].strip()[:18]
+    s = schema
+    s = s.replace("Jongens 13 t/m 17 jaar Zondag", "JO13-17")
+    s = s.replace("Meisjes 13 t/m 17 jaar Zondag", "ME13-17")
+    s = s.replace("Junioren 11 t/m 14 jaar Zondag", "JU11-14")
+    s = s.replace("Gemengd Zondag", "GEM")
+    s = s.replace("Heren Zondag", "HEREN")
+    s = s.replace("Groen Zondag", "GROEN")
+
+    parts = [p.strip() for p in s.split("–")]
+    if len(parts) >= 3:
+        base = parts[0]
+        klasse = parts[1].replace("klasse", "").strip()
+        afdeling = parts[2].replace("Afdeling", "afd").strip().replace("  ", " ")
+        return f"{base} {klasse} {afdeling}".strip()
+    return parts[0][:24]
 
 
 def build_rounds(team: TeamDay) -> list[list[dict]]:
@@ -218,7 +232,7 @@ def render_grid(rows: list[dict]) -> str:
     if not valid:
         return "<p>Geen planbare wedstrijden.</p>"
 
-    start_min = min(hhmm_to_mins(r["start"]) for r in valid)
+    start_min = 9 * 60
     end_min = max(hhmm_to_mins(r["end"]) for r in valid)
     times = list(range(start_min, end_min + 1, 15))
 
