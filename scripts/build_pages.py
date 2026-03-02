@@ -187,7 +187,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         "12-04-2026": 16 * 60,
         "19-04-2026": 16 * 60,
         "10-05-2026": 16 * 60,
-        "17-05-2026": 16 * 60 + 30,
+        "17-05-2026": 17 * 60,
         "25-05-2026": 16 * 60,
     }
     step = 15
