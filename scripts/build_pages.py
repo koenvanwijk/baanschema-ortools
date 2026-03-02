@@ -263,6 +263,12 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
 
     ordered = sorted(items, key=team_priority)
 
+    def first_start_earliest(team: TeamDay) -> int:
+        s = team.schema.lower()
+        if "gemengd zondag" in s:
+            return 10 * 60  # gemengd later laten starten
+        return fallback_start
+
     for team in ordered:
         rounds = build_rounds(team)
         tname = team.schema
@@ -275,9 +281,10 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
             # eerste teampartij moet uiterlijk om 15:00 starten
             first_latest = first_match_latest_by_date.get(date, first_match_latest)
             latest_for_round = first_latest if idx == 0 else latest_start
+            earliest_for_round = first_start_earliest(team) if idx == 0 else fallback_start
             candidate_starts = [
-                range(start_pref, latest_for_round + 1, step),
-                range(fallback_start, latest_for_round + 1, step),
+                range(max(start_pref, earliest_for_round), latest_for_round + 1, step),
+                range(max(fallback_start, earliest_for_round), latest_for_round + 1, step),
             ]
 
             for start_range in candidate_starts:
@@ -473,7 +480,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming tot 16:00 op kneldatums. Volgorde is jong naar oud; gemengde teams starten later dan jeugd maar niet als allerlaatste.</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming op kneldatums. Volgorde is jong naar oud; gemengde teams starten later (vanaf 10:00) waar mogelijk.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
