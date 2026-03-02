@@ -165,6 +165,8 @@ def short_team_name(schema: str) -> str:
     parts = [p.strip() for p in s.split("–")]
     if len(parts) >= 3:
         base = re.sub(r"\s*\([^)]*\)", "", parts[0]).strip()
+        if base.startswith("GRO Groen"):
+            base = base.replace("GRO Groen", "GRO", 1)
         klasse = re.sub(r"\s*\([^)]*\)", "", parts[1]).replace("klasse", "").strip()
         afdeling = parts[2].replace("Afdeling", "Afd").strip().replace("  ", " ")
         afdeling = afdeling.replace("Afd ", "Afd")
