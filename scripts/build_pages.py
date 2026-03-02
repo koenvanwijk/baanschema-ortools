@@ -207,7 +207,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         "12-04-2026": 16 * 60,
         "19-04-2026": 17 * 60,
         "10-05-2026": 17 * 60,
-        "17-05-2026": 18 * 60,
+        "17-05-2026": 18 * 60 + 30,
         "25-05-2026": 16 * 60,
     }
     step = 15  # starts op kwartieren
@@ -256,9 +256,9 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         elif "jongens 13 t/m 17" in s or "meisjes 13 t/m 17" in s:
             p = 2
         elif "gemengd zondag" in s:
-            p = 2  # na jeugd, maar niet als allerlaatste
+            p = 3  # na JO/ME
         else:
-            p = 3
+            p = 4
         return (p, -t.matches)
 
     ordered = sorted(items, key=team_priority)
@@ -267,6 +267,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         s = team.schema.lower()
         if "gemengd zondag" in s:
             return 10 * 60  # gemengd later laten starten
+        if "jongens 13 t/m 17" in s or "meisjes 13 t/m 17" in s:
+            return 9 * 60 + 15  # JO/ME actief vroeg proberen
         return fallback_start
 
     for team in ordered:

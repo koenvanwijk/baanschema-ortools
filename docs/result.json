@@ -49,7 +49,7 @@
       "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 3",
       "away_team": "MIERLO 2",
-      "part": "S1",
+      "part": "S3",
       "kind": "S",
       "start": "08:30",
       "end": "10:00",
@@ -60,7 +60,7 @@
       "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 3",
       "away_team": "MIERLO 2",
-      "part": "S2",
+      "part": "S4",
       "kind": "S",
       "start": "08:30",
       "end": "10:00",
@@ -125,15 +125,290 @@
       "court": 5
     },
     {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "MIERLO 2",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "MIERLO 2",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "SET `77 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "SET `77 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "SET `77 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "SET `77 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 9
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "MIERLO 5",
+      "part": "M1",
+      "kind": "M",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 10
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "MIERLO 2",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "MIERLO 2",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 7
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:00",
+      "end": "12:30",
+      "court": 2
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:00",
+      "end": "12:30",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "SET `77 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "SET `77 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 4
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 5
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "SHAILE 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "SHAILE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 10
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "SHAILE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "SHAILE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 7
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "WOLFSBOSCH 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:30",
+      "end": "14:00",
+      "court": 2
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "WOLFSBOSCH 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:30",
+      "end": "14:00",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 4
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "WOLFSBOSCH 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 5
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "WOLFSBOSCH 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 8
+    },
+    {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
       "team_short": "GEM 2e Afd5",
       "home_team": "MIERLO 1",
       "away_team": "DE PETTELAER 1",
       "part": "S1",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 4
+      "start": "13:00",
+      "end": "14:30",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -142,9 +417,31 @@
       "away_team": "DE PETTELAER 1",
       "part": "S2",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 5
+      "start": "13:00",
+      "end": "14:30",
+      "court": 10
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "SHAILE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "SHAILE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -153,9 +450,9 @@
       "away_team": "DE PETTELAER 1",
       "part": "S3",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 6
+      "start": "14:00",
+      "end": "15:30",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -164,9 +461,31 @@
       "away_team": "DE PETTELAER 1",
       "part": "S4",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 7
+      "start": "14:00",
+      "end": "15:30",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "WOLFSBOSCH 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "WOLFSBOSCH 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 4
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -175,9 +494,9 @@
       "away_team": "DE PETTELAER 1",
       "part": "M1",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 8
+      "start": "14:30",
+      "end": "16:00",
+      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -186,8 +505,19 @@
       "away_team": "DE PETTELAER 1",
       "part": "M2",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 8
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "MIERLO 5",
+      "part": "S1",
+      "kind": "S",
+      "start": "14:30",
+      "end": "16:00",
       "court": 9
     },
     {
@@ -195,33 +525,11 @@
       "team_short": "GEM 5e Afd10",
       "home_team": "MIERLO 4",
       "away_team": "MIERLO 5",
-      "part": "M1",
-      "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
+      "part": "S2",
+      "kind": "S",
+      "start": "14:30",
+      "end": "16:00",
       "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "MIERLO 2",
-      "part": "S3",
-      "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "MIERLO 2",
-      "part": "S4",
-      "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
-      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -230,9 +538,9 @@
       "away_team": "DE PETTELAER 1",
       "part": "D1",
       "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 1
+      "start": "15:30",
+      "end": "17:00",
+      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -241,301 +549,15 @@
       "away_team": "DE PETTELAER 1",
       "part": "D2",
       "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "SET `77 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "SET `77 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "15:30",
+      "end": "17:00",
       "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "SET `77 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "SET `77 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 9
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "MIERLO 2",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:30",
-      "end": "14:00",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "MIERLO 2",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:30",
-      "end": "14:00",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "SET `77 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 1
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "SET `77 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "SHAILE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "SHAILE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 7
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "SHAILE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "SHAILE 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "WOLFSBOSCH 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:00",
-      "end": "15:30",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "WOLFSBOSCH 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:00",
-      "end": "15:30",
-      "court": 3
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "SHAILE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "WOLFSBOSCH 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
       "team_short": "GEM 5e Afd10",
       "home_team": "MIERLO 4",
       "away_team": "MIERLO 5",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "SHAILE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 8
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "WOLFSBOSCH 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 9
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "MIERLO 5",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "WOLFSBOSCH 1",
       "part": "D1",
       "kind": "D",
       "start": "16:00",
@@ -543,37 +565,15 @@
       "court": 1
     },
     {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "WOLFSBOSCH 1",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "MIERLO 5",
       "part": "D2",
       "kind": "D",
       "start": "16:00",
       "end": "17:30",
       "court": 4
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "MIERLO 5",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 5
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "MIERLO 5",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 8
     }
   ],
   "12-04-2026": [
@@ -763,10 +763,10 @@
       "court": 9
     },
     {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 2",
-      "away_team": "JOY JAAGPAD 5",
+      "away_team": "DE KIENEHOEF 1",
       "part": "S3",
       "kind": "S",
       "start": "10:00",
@@ -840,10 +840,10 @@
       "court": 7
     },
     {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 2",
-      "away_team": "JOY JAAGPAD 5",
+      "away_team": "DE KIENEHOEF 1",
       "part": "S1",
       "kind": "S",
       "start": "10:00",
@@ -851,10 +851,10 @@
       "court": 8
     },
     {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 2",
-      "away_team": "JOY JAAGPAD 5",
+      "away_team": "DE KIENEHOEF 1",
       "part": "S2",
       "kind": "S",
       "start": "10:00",
@@ -862,10 +862,10 @@
       "court": 9
     },
     {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 2",
-      "away_team": "JOY JAAGPAD 5",
+      "away_team": "DE KIENEHOEF 1",
       "part": "S4",
       "kind": "S",
       "start": "10:00",
@@ -895,15 +895,257 @@
       "court": 3
     },
     {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "WAALRE 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "WAALRE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "WAALRE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "WAALRE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "DEURNE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE KIENEHOEF 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 2
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE KIENEHOEF 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "DEURNE 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "DEURNE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "DEURNE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 10
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "WAALRE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "WAALRE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "CAROLUS 2",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "CAROLUS 2",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 7
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "JOY JAAGPAD 5",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "DEURNE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "DEURNE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "CAROLUS 2",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "CAROLUS 2",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 9
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "JOY JAAGPAD 5",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 10
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "JOY JAAGPAD 5",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "JOY JAAGPAD 5",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 5
+    },
+    {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
       "team_short": "GEM 3e Afd2",
       "home_team": "MIERLO 2",
       "away_team": "JOY JAAGPAD 5",
       "part": "M1",
       "kind": "M",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 4
+      "start": "13:45",
+      "end": "15:15",
+      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
@@ -912,64 +1154,9 @@
       "away_team": "JOY JAAGPAD 5",
       "part": "M2",
       "kind": "M",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 5
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "SLOW 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 6
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "SLOW 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
+      "start": "13:45",
+      "end": "15:15",
       "court": 7
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "SLOW 1",
-      "part": "M1",
-      "kind": "M",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 1
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
-      "home_team": "MIERLO 2",
-      "away_team": "JOY JAAGPAD 5",
-      "part": "D1",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 2
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
-      "home_team": "MIERLO 2",
-      "away_team": "JOY JAAGPAD 5",
-      "part": "D2",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -978,9 +1165,53 @@
       "away_team": "SLOW 1",
       "part": "S3",
       "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "CAROLUS 2",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "CAROLUS 2",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "SLOW 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "14:30",
+      "end": "16:00",
       "court": 8
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "SLOW 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -989,9 +1220,42 @@
       "away_team": "SLOW 1",
       "part": "S4",
       "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 9
+      "start": "14:30",
+      "end": "16:00",
+      "court": 10
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "JOY JAAGPAD 5",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:15",
+      "end": "16:45",
+      "court": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "JOY JAAGPAD 5",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:15",
+      "end": "16:45",
+      "court": 5
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "SLOW 1",
+      "part": "M1",
+      "kind": "M",
+      "start": "15:15",
+      "end": "16:45",
+      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -1000,295 +1264,9 @@
       "away_team": "SLOW 1",
       "part": "M2",
       "kind": "M",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE KIENEHOEF 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE KIENEHOEF 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE KIENEHOEF 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE KIENEHOEF 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "WAALRE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 1
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "SLOW 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 2
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "SLOW 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "WAALRE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "WAALRE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "WAALRE 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE KIENEHOEF 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE KIENEHOEF 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "DEURNE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "DEURNE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "CAROLUS 2",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "WAALRE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "WAALRE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "DEURNE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "DEURNE 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "CAROLUS 2",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "CAROLUS 2",
-      "part": "S3",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "CAROLUS 2",
-      "part": "S4",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 5
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 5",
-      "away_team": "TILBURG 4",
-      "part": "S1",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 6
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 5",
-      "away_team": "TILBURG 4",
-      "part": "S2",
-      "kind": "S",
       "start": "15:15",
       "end": "16:45",
       "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "DEURNE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "DEURNE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1299,29 +1277,51 @@
       "kind": "M",
       "start": "16:00",
       "end": "17:30",
+      "court": 1
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "SLOW 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:00",
+      "end": "17:30",
+      "court": 2
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "SLOW 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:00",
+      "end": "17:30",
+      "court": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 5",
+      "away_team": "TILBURG 4",
+      "part": "S1",
+      "kind": "S",
+      "start": "16:00",
+      "end": "17:30",
       "court": 8
     },
     {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "CAROLUS 2",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:45",
-      "end": "18:15",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "CAROLUS 2",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:45",
-      "end": "18:15",
-      "court": 5
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 5",
+      "away_team": "TILBURG 4",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:00",
+      "end": "17:30",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1330,9 +1330,9 @@
       "away_team": "TILBURG 4",
       "part": "D1",
       "kind": "D",
-      "start": "16:45",
-      "end": "18:15",
-      "court": 6
+      "start": "17:30",
+      "end": "19:00",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1341,9 +1341,9 @@
       "away_team": "TILBURG 4",
       "part": "D2",
       "kind": "D",
-      "start": "16:45",
-      "end": "18:15",
-      "court": 7
+      "start": "17:30",
+      "end": "19:00",
+      "court": 3
     }
   ],
   "19-04-2026": [
@@ -1532,7 +1532,7 @@
       "kind": "S",
       "start": "09:15",
       "end": "10:45",
-      "court": 9
+      "court": 7
     },
     {
       "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
@@ -1540,6 +1540,28 @@
       "home_team": "MIERLO 3",
       "away_team": "`T ROOT 1",
       "part": "S2",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 8
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 9
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "S4",
       "kind": "S",
       "start": "09:15",
       "end": "10:45",
@@ -1568,15 +1590,257 @@
       "court": 2
     },
     {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "VIERLINGSBEEK 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "VIERLINGSBEEK 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "VIERLINGSBEEK 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "VIERLINGSBEEK 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 2
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "ERESLOCH 2",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 7
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "ERESLOCH 2",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 8
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "ERESLOCH 2",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 9
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "ERESLOCH 2",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 10
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "VIERLINGSBEEK 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "VIERLINGSBEEK 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "WAALRE 3",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "WAALRE 3",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "ERESLOCH 2",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "ERESLOCH 2",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "WAALRE 3",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "WAALRE 3",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 8
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "EINDHOVEN NOORD 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 9
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "EINDHOVEN NOORD 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 10
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "EINDHOVEN NOORD 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "EINDHOVEN NOORD 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 4
+    },
+    {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
       "team_short": "GEM 2e Afd5",
       "home_team": "MIERLO 1",
       "away_team": "BREDA-NOORD 1",
       "part": "S1",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 3
+      "start": "13:00",
+      "end": "14:30",
+      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -1585,9 +1849,31 @@
       "away_team": "BREDA-NOORD 1",
       "part": "S2",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 4
+      "start": "13:00",
+      "end": "14:30",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "WAALRE 3",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "WAALRE 3",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -1596,9 +1882,9 @@
       "away_team": "BREDA-NOORD 1",
       "part": "S3",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 5
+      "start": "13:45",
+      "end": "15:15",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -1607,9 +1893,9 @@
       "away_team": "BREDA-NOORD 1",
       "part": "S4",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 6
+      "start": "13:45",
+      "end": "15:15",
+      "court": 8
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -1618,9 +1904,9 @@
       "away_team": "BREDA-NOORD 1",
       "part": "M1",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 7
+      "start": "13:45",
+      "end": "15:15",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -1629,279 +1915,15 @@
       "away_team": "BREDA-NOORD 1",
       "part": "M2",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 8
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "VIERLINGSBEEK 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "VIERLINGSBEEK 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 10
-    },
-    {
-      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_short": "GEM 2e Afd5",
-      "home_team": "MIERLO 1",
-      "away_team": "BREDA-NOORD 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 3
-    },
-    {
-      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_short": "GEM 2e Afd5",
-      "home_team": "MIERLO 1",
-      "away_team": "BREDA-NOORD 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "VIERLINGSBEEK 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "VIERLINGSBEEK 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "ERESLOCH 2",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 7
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "ERESLOCH 2",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 8
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "ERESLOCH 2",
-      "part": "S3",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 9
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "ERESLOCH 2",
-      "part": "S4",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "VIERLINGSBEEK 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "VIERLINGSBEEK 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "WAALRE 3",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "WAALRE 3",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "WAALRE 3",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "WAALRE 3",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 8
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "ERESLOCH 2",
-      "part": "D1",
-      "kind": "D",
       "start": "13:45",
       "end": "15:15",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "ERESLOCH 2",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 2
+      "court": 10
     },
     {
       "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
       "team_short": "ME13-17 1e Afd7",
       "home_team": "MIERLO 1",
       "away_team": "EINDHOVEN NOORD 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 9
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "EINDHOVEN NOORD 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "WAALRE 3",
       "part": "D1",
       "kind": "D",
       "start": "14:30",
@@ -1909,37 +1931,15 @@
       "court": 3
     },
     {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "WAALRE 3",
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "team_short": "ME13-17 1e Afd7",
+      "home_team": "MIERLO 1",
+      "away_team": "EINDHOVEN NOORD 1",
       "part": "D2",
       "kind": "D",
       "start": "14:30",
       "end": "16:00",
       "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "EINDHOVEN NOORD 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "EINDHOVEN NOORD 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1950,7 +1950,7 @@
       "kind": "S",
       "start": "14:30",
       "end": "16:00",
-      "court": 7
+      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1961,7 +1961,29 @@
       "kind": "S",
       "start": "14:30",
       "end": "16:00",
-      "court": 8
+      "court": 6
+    },
+    {
+      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_short": "GEM 2e Afd5",
+      "home_team": "MIERLO 1",
+      "away_team": "BREDA-NOORD 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:15",
+      "end": "16:45",
+      "court": 1
+    },
+    {
+      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_short": "GEM 2e Afd5",
+      "home_team": "MIERLO 1",
+      "away_team": "BREDA-NOORD 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:15",
+      "end": "16:45",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1972,7 +1994,7 @@
       "kind": "M",
       "start": "15:15",
       "end": "16:45",
-      "court": 1
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
@@ -1983,7 +2005,7 @@
       "kind": "S",
       "start": "15:15",
       "end": "16:45",
-      "court": 2
+      "court": 8
     },
     {
       "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
@@ -2008,10 +2030,10 @@
       "court": 10
     },
     {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "EINDHOVEN NOORD 1",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "DE KREKEL 1",
       "part": "D1",
       "kind": "D",
       "start": "16:00",
@@ -2019,37 +2041,15 @@
       "court": 3
     },
     {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
-      "team_short": "ME13-17 1e Afd7",
-      "home_team": "MIERLO 1",
-      "away_team": "EINDHOVEN NOORD 1",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "DE KREKEL 1",
       "part": "D2",
       "kind": "D",
       "start": "16:00",
       "end": "17:30",
       "court": 4
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "DE KREKEL 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 5
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "DE KREKEL 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 6
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -2060,7 +2060,7 @@
       "kind": "S",
       "start": "16:00",
       "end": "17:30",
-      "court": 7
+      "court": 5
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -2071,7 +2071,7 @@
       "kind": "S",
       "start": "16:00",
       "end": "17:30",
-      "court": 8
+      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
@@ -2104,7 +2104,7 @@
       "kind": "S",
       "start": "16:45",
       "end": "18:15",
-      "court": 9
+      "court": 7
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -2115,7 +2115,7 @@
       "kind": "S",
       "start": "16:45",
       "end": "18:15",
-      "court": 10
+      "court": 8
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -2406,15 +2406,323 @@
       "court": 4
     },
     {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "`T SLOTJE 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 5
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "`T SLOTJE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "`T SLOTJE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 7
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "`T SLOTJE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 8
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE PEPPELIEREN 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 9
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE PEPPELIEREN 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 10
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE PEPPELIEREN 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE PEPPELIEREN 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "ELTV 2",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "ELTV 2",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 4
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "`T SLOTJE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 5
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "`T SLOTJE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "ELTV 2",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "ELTV 2",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 10
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE PEPPELIEREN 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "DE PEPPELIEREN 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "ELTV 2",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "ELTV 2",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "DE HELZE 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "DE HELZE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "DE HELZE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "DE HELZE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 10
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "`T ROOT 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 2
+    },
+    {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
       "team_short": "GEM 3e Afd2",
       "home_team": "MIERLO 2",
       "away_team": "TILBURG 2",
       "part": "S1",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 5
+      "start": "13:45",
+      "end": "15:15",
+      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
@@ -2423,8 +2731,30 @@
       "away_team": "TILBURG 2",
       "part": "S2",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "DE HELZE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "DE HELZE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
       "court": 6
     },
     {
@@ -2434,8 +2764,8 @@
       "away_team": "TILBURG 2",
       "part": "S3",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 7
     },
     {
@@ -2445,8 +2775,8 @@
       "away_team": "TILBURG 2",
       "part": "S4",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 8
     },
     {
@@ -2456,8 +2786,8 @@
       "away_team": "TILBURG 2",
       "part": "M1",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 9
     },
     {
@@ -2467,8 +2797,8 @@
       "away_team": "TILBURG 2",
       "part": "M2",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 10
     },
     {
@@ -2478,8 +2808,8 @@
       "away_team": "TILBURG 3",
       "part": "S1",
       "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
+      "start": "15:15",
+      "end": "16:45",
       "court": 1
     },
     {
@@ -2489,8 +2819,8 @@
       "away_team": "TILBURG 3",
       "part": "S2",
       "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
+      "start": "15:15",
+      "end": "16:45",
       "court": 2
     },
     {
@@ -2500,8 +2830,8 @@
       "away_team": "TILBURG 3",
       "part": "S3",
       "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
+      "start": "15:15",
+      "end": "16:45",
       "court": 3
     },
     {
@@ -2511,8 +2841,8 @@
       "away_team": "TILBURG 3",
       "part": "S4",
       "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
+      "start": "15:15",
+      "end": "16:45",
       "court": 4
     },
     {
@@ -2522,8 +2852,8 @@
       "away_team": "TILBURG 2",
       "part": "D1",
       "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "16:00",
+      "end": "17:30",
       "court": 5
     },
     {
@@ -2533,8 +2863,8 @@
       "away_team": "TILBURG 2",
       "part": "D2",
       "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "16:00",
+      "end": "17:30",
       "court": 6
     },
     {
@@ -2544,8 +2874,8 @@
       "away_team": "TILBURG 3",
       "part": "M1",
       "kind": "M",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "16:00",
+      "end": "17:30",
       "court": 7
     },
     {
@@ -2555,336 +2885,6 @@
       "away_team": "TILBURG 3",
       "part": "M2",
       "kind": "M",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 8
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "`T SLOTJE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 9
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "`T SLOTJE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 10
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "TILBURG 3",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 1
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_short": "GEM 3e Afd4",
-      "home_team": "MIERLO 3",
-      "away_team": "TILBURG 3",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "`T SLOTJE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 3
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "`T SLOTJE 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "12:15",
-      "end": "13:45",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE PEPPELIEREN 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE PEPPELIEREN 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE PEPPELIEREN 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 7
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE PEPPELIEREN 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 2",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 2",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 10
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "`T SLOTJE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "`T SLOTJE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 2",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 2",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE PEPPELIEREN 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "DE PEPPELIEREN 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 2",
-      "part": "D1",
-      "kind": "D",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 1
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 2",
-      "part": "D2",
-      "kind": "D",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "DE HELZE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "DE HELZE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "`T ROOT 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "DE HELZE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "DE HELZE 1",
-      "part": "S4",
-      "kind": "S",
       "start": "16:00",
       "end": "17:30",
       "court": 8
@@ -2910,6 +2910,28 @@
       "start": "16:00",
       "end": "17:30",
       "court": 10
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "TILBURG 3",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:45",
+      "end": "18:15",
+      "court": 1
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_short": "GEM 3e Afd4",
+      "home_team": "MIERLO 3",
+      "away_team": "TILBURG 3",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:45",
+      "end": "18:15",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -2920,13 +2942,13 @@
       "kind": "M",
       "start": "16:45",
       "end": "18:15",
-      "court": 1
+      "court": 3
     },
     {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "DE HELZE 1",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 5",
+      "away_team": "BOEKEL 1",
       "part": "D1",
       "kind": "D",
       "start": "17:30",
@@ -2934,37 +2956,15 @@
       "court": 5
     },
     {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "DE HELZE 1",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 5",
+      "away_team": "BOEKEL 1",
       "part": "D2",
       "kind": "D",
       "start": "17:30",
       "end": "19:00",
       "court": 6
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 5",
-      "away_team": "BOEKEL 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 7
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 5",
-      "away_team": "BOEKEL 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 8
     }
   ],
   "17-05-2026": [
@@ -3145,6 +3145,50 @@
       "court": 6
     },
     {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 2",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 2",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 2",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 2",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:15",
+      "end": "10:45",
+      "court": 10
+    },
+    {
       "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
       "team_short": "JU11-14 2e Afd33",
       "home_team": "MIERLO 2",
@@ -3167,15 +3211,213 @@
       "court": 2
     },
     {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "PIETER BRUEGHEL 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "PIETER BRUEGHEL 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 4
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "PIETER BRUEGHEL 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 5
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "PIETER BRUEGHEL 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 2",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_short": "JO13-17 3e Afd20",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 2",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "GENNEPER PARKEN 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "GENNEPER PARKEN 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "GENNEPER PARKEN 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "GENNEPER PARKEN 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:45",
+      "end": "12:15",
+      "court": 10
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "PIETER BRUEGHEL 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_short": "ME13-17 3e Afd22",
+      "home_team": "MIERLO 5",
+      "away_team": "PIETER BRUEGHEL 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "RODHE 2",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "RODHE 2",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "GENNEPER PARKEN 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_short": "JO13-17 1e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "GENNEPER PARKEN 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "RODHE 2",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "RODHE 2",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:15",
+      "end": "13:45",
+      "court": 8
+    },
+    {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
       "team_short": "GEM 3e Afd4",
       "home_team": "MIERLO 3",
       "away_team": "BERGENSHUIZEN 1",
       "part": "S1",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 3
+      "start": "12:15",
+      "end": "13:45",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -3184,9 +3426,9 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "S2",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 4
+      "start": "12:15",
+      "end": "13:45",
+      "court": 10
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -3195,9 +3437,9 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "S3",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 5
+      "start": "13:00",
+      "end": "14:30",
+      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -3206,9 +3448,9 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "S4",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 6
+      "start": "13:00",
+      "end": "14:30",
+      "court": 4
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -3217,9 +3459,9 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "M1",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 7
+      "start": "13:00",
+      "end": "14:30",
+      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -3228,9 +3470,31 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "M2",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 8
+      "start": "13:00",
+      "end": "14:30",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "RODHE 2",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_short": "JO13-17 2e Afd37",
+      "home_team": "MIERLO 2",
+      "away_team": "RODHE 2",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:45",
+      "end": "15:15",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -3239,9 +3503,9 @@
       "away_team": "DASH `35 2",
       "part": "S1",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 9
+      "start": "13:45",
+      "end": "15:15",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -3250,9 +3514,9 @@
       "away_team": "DASH `35 2",
       "part": "S2",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 10
+      "start": "13:45",
+      "end": "15:15",
+      "court": 8
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -3261,9 +3525,9 @@
       "away_team": "DASH `35 2",
       "part": "S3",
       "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 1
+      "start": "13:45",
+      "end": "15:15",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -3272,9 +3536,9 @@
       "away_team": "DASH `35 2",
       "part": "S4",
       "kind": "S",
-      "start": "10:45",
-      "end": "12:15",
-      "court": 2
+      "start": "13:45",
+      "end": "15:15",
+      "court": 10
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -3283,8 +3547,8 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "D1",
       "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "14:30",
+      "end": "16:00",
       "court": 3
     },
     {
@@ -3294,8 +3558,8 @@
       "away_team": "BERGENSHUIZEN 1",
       "part": "D2",
       "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "14:30",
+      "end": "16:00",
       "court": 4
     },
     {
@@ -3305,8 +3569,8 @@
       "away_team": "DASH `35 2",
       "part": "M1",
       "kind": "M",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "14:30",
+      "end": "16:00",
       "court": 5
     },
     {
@@ -3316,53 +3580,9 @@
       "away_team": "DASH `35 2",
       "part": "M2",
       "kind": "M",
-      "start": "11:30",
-      "end": "13:00",
+      "start": "14:30",
+      "end": "16:00",
       "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 2",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 2",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 2",
-      "part": "S3",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 2",
-      "part": "S4",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 10
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -3371,8 +3591,8 @@
       "away_team": "DASH `35 2",
       "part": "D1",
       "kind": "D",
-      "start": "12:15",
-      "end": "13:45",
+      "start": "15:15",
+      "end": "16:45",
       "court": 1
     },
     {
@@ -3382,185 +3602,9 @@
       "away_team": "DASH `35 2",
       "part": "D2",
       "kind": "D",
-      "start": "12:15",
-      "end": "13:45",
+      "start": "15:15",
+      "end": "16:45",
       "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 2",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_short": "JO13-17 3e Afd20",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 2",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "PIETER BRUEGHEL 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "PIETER BRUEGHEL 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "PIETER BRUEGHEL 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 7
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "PIETER BRUEGHEL 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "GENNEPER PARKEN 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "GENNEPER PARKEN 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "GENNEPER PARKEN 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 1
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "GENNEPER PARKEN 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:45",
-      "end": "15:15",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "PIETER BRUEGHEL 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 3
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_short": "ME13-17 3e Afd22",
-      "home_team": "MIERLO 5",
-      "away_team": "PIETER BRUEGHEL 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 4
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "RODHE 2",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "RODHE 2",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "RODHE 2",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "RODHE 2",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 8
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -3569,9 +3613,9 @@
       "away_team": "TILBURG 4",
       "part": "S1",
       "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 9
+      "start": "15:15",
+      "end": "16:45",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -3580,53 +3624,9 @@
       "away_team": "TILBURG 4",
       "part": "S2",
       "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "GENNEPER PARKEN 1",
-      "part": "D1",
-      "kind": "D",
       "start": "15:15",
       "end": "16:45",
-      "court": 1
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_short": "JO13-17 1e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "GENNEPER PARKEN 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "15:15",
-      "end": "16:45",
-      "court": 2
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "RODHE 2",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 3
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_short": "JO13-17 2e Afd37",
-      "home_team": "MIERLO 2",
-      "away_team": "RODHE 2",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 4
+      "court": 8
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -3635,31 +3635,9 @@
       "away_team": "TILBURG 4",
       "part": "M1",
       "kind": "M",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 5
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "TILBURG 4",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 6
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "TILBURG 4",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 7
+      "start": "15:15",
+      "end": "16:45",
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -3668,30 +3646,8 @@
       "away_team": "SLOW 3",
       "part": "M1",
       "kind": "M",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 8
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 5",
-      "away_team": "SLOW 3",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 9
-    },
-    {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 5",
-      "away_team": "SLOW 3",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "17:30",
+      "start": "15:15",
+      "end": "16:45",
       "court": 10
     },
     {
@@ -3701,17 +3657,50 @@
       "away_team": "MAASPOORT 1",
       "part": "S1",
       "kind": "S",
+      "start": "16:00",
+      "end": "17:30",
+      "court": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_short": "GEM 6e Afd14",
+      "home_team": "MIERLO 6",
+      "away_team": "MAASPOORT 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:00",
+      "end": "17:30",
+      "court": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_short": "GEM 6e Afd14",
+      "home_team": "MIERLO 6",
+      "away_team": "MAASPOORT 1",
+      "part": "M1",
+      "kind": "M",
+      "start": "16:00",
+      "end": "17:30",
+      "court": 5
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "TILBURG 4",
+      "part": "D1",
+      "kind": "D",
       "start": "16:45",
       "end": "18:15",
       "court": 1
     },
     {
-      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_short": "GEM 6e Afd14",
-      "home_team": "MIERLO 6",
-      "away_team": "MAASPOORT 1",
-      "part": "S2",
-      "kind": "S",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "TILBURG 4",
+      "part": "D2",
+      "kind": "D",
       "start": "16:45",
       "end": "18:15",
       "court": 2
@@ -3721,33 +3710,22 @@
       "team_short": "GEM 5e Afd10",
       "home_team": "MIERLO 5",
       "away_team": "SLOW 3",
-      "part": "S1",
-      "kind": "S",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 3
+      "part": "D1",
+      "kind": "D",
+      "start": "16:45",
+      "end": "18:15",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
       "team_short": "GEM 5e Afd10",
       "home_team": "MIERLO 5",
       "away_team": "SLOW 3",
-      "part": "S2",
-      "kind": "S",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 4
-    },
-    {
-      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_short": "GEM 6e Afd14",
-      "home_team": "MIERLO 6",
-      "away_team": "MAASPOORT 1",
-      "part": "M1",
-      "kind": "M",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 5
+      "part": "D2",
+      "kind": "D",
+      "start": "16:45",
+      "end": "18:15",
+      "court": 8
     },
     {
       "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
@@ -3756,17 +3734,39 @@
       "away_team": "MAASPOORT 1",
       "part": "D1",
       "kind": "D",
+      "start": "17:30",
+      "end": "19:00",
+      "court": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_short": "GEM 6e Afd14",
+      "home_team": "MIERLO 6",
+      "away_team": "MAASPOORT 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "17:30",
+      "end": "19:00",
+      "court": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 5",
+      "away_team": "SLOW 3",
+      "part": "S1",
+      "kind": "S",
       "start": "18:15",
       "end": "19:45",
       "court": 1
     },
     {
-      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_short": "GEM 6e Afd14",
-      "home_team": "MIERLO 6",
-      "away_team": "MAASPOORT 1",
-      "part": "D2",
-      "kind": "D",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 5",
+      "away_team": "SLOW 3",
+      "part": "S2",
+      "kind": "S",
       "start": "18:15",
       "end": "19:45",
       "court": 2
@@ -3915,12 +3915,12 @@
       "court": 9
     },
     {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
-      "home_team": "MIERLO 2",
-      "away_team": "UNICUM 1",
-      "part": "M1",
-      "kind": "M",
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "WAALRE 1",
+      "part": "S1",
+      "kind": "S",
       "start": "10:00",
       "end": "11:30",
       "court": 1
@@ -3970,14 +3970,366 @@
       "court": 5
     },
     {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "WIMBLEDONCK 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "WIMBLEDONCK 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 7
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "WIMBLEDONCK 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 8
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "WIMBLEDONCK 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 9
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "WAALRE 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 10
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
+      "team_short": "JU11-14 2e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "RODHE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:45",
+      "end": "11:30",
+      "court": 4
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
+      "team_short": "JU11-14 2e Afd22",
+      "home_team": "MIERLO 1",
+      "away_team": "RODHE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:45",
+      "end": "11:30",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "WETTENSEIND 3",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "WIMBLEDONCK 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 2
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "team_short": "ME13-17 3e Afd15",
+      "home_team": "MIERLO 4",
+      "away_team": "WIMBLEDONCK 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "WAALRE 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 4
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "WAALRE 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 5
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "`T ROOT 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 6
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "`T ROOT 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 7
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "`T ROOT 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 8
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "`T ROOT 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "WETTENSEIND 3",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 10
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "BUDEL 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "WAALRE 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 2
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 3",
+      "away_team": "WAALRE 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "`T ROOT 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 4
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "team_short": "ME13-17 2e Afd16",
+      "home_team": "MIERLO 2",
+      "away_team": "`T ROOT 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 5
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "WETTENSEIND 3",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 6
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "WETTENSEIND 3",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 7
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "BUDEL 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 8
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "BUDEL 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 9
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "BUDEL 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 10
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "UNICUM 1",
+      "part": "M1",
+      "kind": "M",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 1
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "WETTENSEIND 3",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 2
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "team_short": "JO13-17 2e Afd41",
+      "home_team": "MIERLO 3",
+      "away_team": "WETTENSEIND 3",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "BUDEL 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 4
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "team_short": "JO13-17 3e Afd6",
+      "home_team": "MIERLO 4",
+      "away_team": "BUDEL 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 5
+    },
+    {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
       "team_short": "GEM 3e Afd2",
       "home_team": "MIERLO 2",
       "away_team": "UNICUM 1",
       "part": "S1",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 6
     },
     {
@@ -3987,8 +4339,8 @@
       "away_team": "UNICUM 1",
       "part": "S2",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 7
     },
     {
@@ -3998,8 +4350,8 @@
       "away_team": "UNICUM 1",
       "part": "S3",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 8
     },
     {
@@ -4009,8 +4361,8 @@
       "away_team": "UNICUM 1",
       "part": "S4",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 9
     },
     {
@@ -4020,367 +4372,15 @@
       "away_team": "UNICUM 1",
       "part": "M2",
       "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "14:30",
+      "end": "16:00",
       "court": 10
-    },
-    {
-      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
-      "team_short": "JU11-14 2e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "10:45",
-      "end": "11:30",
-      "court": 4
-    },
-    {
-      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
-      "team_short": "JU11-14 2e Afd22",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "10:45",
-      "end": "11:30",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "WAALRE 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 1
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
       "team_short": "GEM 3e Afd2",
       "home_team": "MIERLO 2",
       "away_team": "UNICUM 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 2
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_short": "GEM 3e Afd2",
-      "home_team": "MIERLO 2",
-      "away_team": "UNICUM 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 3
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "WIMBLEDONCK 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "WIMBLEDONCK 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "WIMBLEDONCK 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "WIMBLEDONCK 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 7
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "WAALRE 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 8
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "WAALRE 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 9
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "WAALRE 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "WETTENSEIND 3",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "WIMBLEDONCK 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
-      "team_short": "ME13-17 3e Afd15",
-      "home_team": "MIERLO 4",
-      "away_team": "WIMBLEDONCK 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 3
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "WAALRE 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 3",
-      "away_team": "WAALRE 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 5
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "`T ROOT 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 6
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "`T ROOT 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "WETTENSEIND 3",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "WETTENSEIND 3",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "WETTENSEIND 3",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "BUDEL 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "`T ROOT 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 2
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "`T ROOT 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 3
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "`T ROOT 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
-      "team_short": "ME13-17 2e Afd16",
-      "home_team": "MIERLO 2",
-      "away_team": "`T ROOT 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 5
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "WETTENSEIND 3",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 6
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
-      "team_short": "JO13-17 2e Afd41",
-      "home_team": "MIERLO 3",
-      "away_team": "WETTENSEIND 3",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 7
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "BUDEL 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 8
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "BUDEL 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 9
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "BUDEL 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 10
-    },
-    {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "BUDEL 1",
       "part": "D1",
       "kind": "D",
       "start": "16:00",
@@ -4388,10 +4388,10 @@
       "court": 2
     },
     {
-      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
-      "team_short": "JO13-17 3e Afd6",
-      "home_team": "MIERLO 4",
-      "away_team": "BUDEL 1",
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_short": "GEM 3e Afd2",
+      "home_team": "MIERLO 2",
+      "away_team": "UNICUM 1",
       "part": "D2",
       "kind": "D",
       "start": "16:00",
