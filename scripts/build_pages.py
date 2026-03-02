@@ -105,30 +105,34 @@ def color_for(name: str) -> str:
         return _COLOR_CACHE[name]
 
     lname = name.lower()
-    # Relevante vaste kleuren voor specifieke teamtypes
+    base_hue = None
+    # Zelfde kleurfamilie voor Rood/Oranje/Groen, maar per team unieke tint
     if "rood" in lname:
-        _COLOR_CACHE[name] = "hsl(0 85% 72%)"
-        return _COLOR_CACHE[name]
-    if "oranje" in lname:
-        _COLOR_CACHE[name] = "hsl(30 90% 70%)"
-        return _COLOR_CACHE[name]
-    if "groen" in lname:
-        _COLOR_CACHE[name] = "hsl(125 60% 70%)"
-        return _COLOR_CACHE[name]
+        base_hue = 0
+    elif "oranje" in lname:
+        base_hue = 30
+    elif "groen" in lname:
+        base_hue = 125
 
-    seed = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16) % 360
+    seed = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16)
+    if base_hue is None:
+        seed_hue = seed % 360
+    else:
+        seed_hue = (base_hue + (seed % 21) - 10) % 360
+
     hue = None
     for step in range(360):
-        cand = (seed + step * 37) % 360
+        cand = (seed_hue + step * 37) % 360
         if _is_hue_far_enough(cand):
             hue = cand
             break
     if hue is None:
-        hue = seed
+        hue = seed_hue
 
     _USED_HUES.append(hue)
-    # Higher contrast: stronger saturation + darker lightness for readability
-    color = f"hsl({hue} 85% 72%)"
+    sat = 88 if base_hue is None else 82
+    light = 70 if base_hue is None else 68
+    color = f"hsl({hue} {sat}% {light}%)"
     _COLOR_CACHE[name] = color
     return color
 
@@ -139,17 +143,17 @@ def short_team_name(schema: str) -> str:
     s = s.replace("Meisjes 13 t/m 17 jaar Zondag", "ME13-17")
     s = s.replace("Junioren 11 t/m 14 jaar Zondag", "JU11-14")
     s = s.replace("Gemengd Zondag", "GEM")
-    s = s.replace("Heren Zondag", "HEREN")
-    s = s.replace("Groen Zondag", "GROEN")
+    s = s.replace("Heren Zondag", "HER")
+    s = s.replace("Groen Zondag", "GRO")
 
     parts = [p.strip() for p in s.split("–")]
     if len(parts) >= 3:
         base = parts[0]
         klasse = parts[1].replace("klasse", "").strip()
-        afdeling = parts[2].replace("Afdeling", "afd").strip().replace("  ", " ")
-        afdeling = afdeling.replace("afd ", "afd")
+        afdeling = parts[2].replace("Afdeling", "Afd").strip().replace("  ", " ")
+        afdeling = afdeling.replace("Afd ", "Afd")
         return f"{base} {klasse} {afdeling}".strip()
-    return parts[0][:24]
+    return parts[0][:20]
 
 
 def build_rounds(team: TeamDay) -> list[list[dict]]:
