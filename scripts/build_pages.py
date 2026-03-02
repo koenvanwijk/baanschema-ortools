@@ -199,7 +199,7 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
     # Singles mogen NIET tegelijk met dubbels, maar WEL met mix.
     singles = [{"label": f"S{i+1}", "kind": "S"} for i in range(team.singles)]
     doubles = [{"label": f"D{i+1}", "kind": "D"} for i in range(team.doubles)]
-    mixes = [{"label": f"M{i+1}", "kind": "M"} for i in range(team.mix)]
+    mixes = [{"label": f"GD{i+1}", "kind": "M"} for i in range(team.mix)]
 
     rounds: list[list[dict]] = []
 
@@ -513,7 +513,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming op kneldatums. Volgorde is jong naar oud; gemengde teams starten later (vanaf 10:00) waar mogelijk.</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/GD1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming op kneldatums. Volgorde is jong naar oud; gemengde teams starten later (vanaf 10:00) waar mogelijk.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
