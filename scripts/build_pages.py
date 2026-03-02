@@ -92,10 +92,33 @@ def overlaps(a: tuple[int, int], b: tuple[int, int]) -> bool:
     return not (a[1] <= b[0] or a[0] >= b[1])
 
 
+_COLOR_CACHE: dict[str, str] = {}
+_USED_HUES: list[int] = []
+
+
+def _is_hue_far_enough(h: int, min_gap: int = 24) -> bool:
+    return all(min((h - u) % 360, (u - h) % 360) >= min_gap for u in _USED_HUES)
+
+
 def color_for(name: str) -> str:
-    h = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:6], 16)
-    hue = h % 360
-    return f"hsl({hue} 70% 88%)"
+    if name in _COLOR_CACHE:
+        return _COLOR_CACHE[name]
+
+    seed = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16) % 360
+    hue = None
+    for step in range(360):
+        cand = (seed + step * 37) % 360
+        if _is_hue_far_enough(cand):
+            hue = cand
+            break
+    if hue is None:
+        hue = seed
+
+    _USED_HUES.append(hue)
+    # Higher contrast: stronger saturation + darker lightness for readability
+    color = f"hsl({hue} 85% 72%)"
+    _COLOR_CACHE[name] = color
+    return color
 
 
 def short_team_name(schema: str) -> str:
