@@ -30,6 +30,7 @@ class TeamDay:
 class Reservation:
     date: str
     kind: str
+    schema: str
 
 
 def _to_int(v: str) -> int:
@@ -52,10 +53,10 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
 
             low = schema.lower()
             if "rood" in low:
-                reservations.append(Reservation(date=date, kind="rood"))
+                reservations.append(Reservation(date=date, kind="rood", schema=schema))
                 continue
             if "oranje" in low:
-                reservations.append(Reservation(date=date, kind="oranje"))
+                reservations.append(Reservation(date=date, kind="oranje", schema=schema))
                 continue
 
             matches = _to_int(row.get("Wedstrijden") or "")
@@ -146,16 +147,33 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
     court_busy: dict[int, list[tuple[int, int]]] = {c: [] for c in courts}
     team_busy: dict[str, list[tuple[int, int, str]]] = defaultdict(list)  # (s,e,kind)
 
-    reserve_courts = set()
-    kinds = {r.kind for r in reservations}
-    if "oranje" in kinds:
-        reserve_courts.update({1, 2, 3})
-    elif "rood" in kinds:
-        reserve_courts.update({1})
-    for c in reserve_courts:
-        court_busy[c].append((9 * 60, 11 * 60))
-
     out: list[dict] = []
+
+    # Plan en toon Rood/Oranje als expliciete blokken op de gereserveerde banen (09:00-11:00)
+    for r in reservations:
+        if r.kind == "oranje":
+            reserve_courts = [1, 2, 3]
+            label = "ORANJE"
+        elif r.kind == "rood":
+            reserve_courts = [1]
+            label = "ROOD"
+        else:
+            reserve_courts = []
+            label = r.kind.upper()
+
+        for c in reserve_courts:
+            court_busy[c].append((9 * 60, 11 * 60))
+            out.append(
+                {
+                    "schema": r.schema,
+                    "team_short": label,
+                    "part": "COMP",
+                    "kind": "R",
+                    "start": "09:00",
+                    "end": "11:00",
+                    "court": c,
+                }
+            )
     # meeste partijen eerst voor betere bezetting
     ordered = sorted(items, key=lambda t: t.matches, reverse=True)
 
