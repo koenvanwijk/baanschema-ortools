@@ -183,7 +183,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     latest_start = 19 * 60 + 30
     first_match_latest = 16 * 60  # standaard tijdelijke versoepeling
     first_match_latest_by_date = {
-        "17-05-2026": 17 * 60,  # extra verruiming om restconflict op te lossen
+        "17-05-2026": 17 * 60 + 30,  # extra verruiming om restconflict op te lossen
     }
     step = 15
     courts = list(range(1, 11))
@@ -400,7 +400,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1 + 2: starten vanaf 08:30 en eerste teamstart toegestaan tot 16:00 (op 17-05 verruimd tot 17:00). Planner optimaliseert primair op maximale baanbezetting.</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1 + 2: starten vanaf 08:30 en eerste teamstart toegestaan tot 16:00 (op 17-05 verruimd tot 17:30). Planner optimaliseert primair op maximale baanbezetting.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
