@@ -175,7 +175,9 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
 
 def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[dict]:
     start_pref = 9 * 60  # liefst 09:00
+    fallback_start = 8 * 60 + 30  # alleen indien nodig
     latest_start = 19 * 60 + 30
+    first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
     step = 15
     courts = list(range(1, 11))
 
@@ -189,23 +191,26 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
         if r.kind == "oranje":
             reserve_courts = [1, 2, 3]
             label = "ORANJE"
+            res_start, res_end = 9 * 60, 11 * 60
         elif r.kind == "rood":
             reserve_courts = [1]
             label = "ROOD"
+            res_start, res_end = 9 * 60, 10 * 60  # rood duurt 1 uur
         else:
             reserve_courts = []
             label = r.kind.upper()
+            res_start, res_end = 9 * 60, 11 * 60
 
         for c in reserve_courts:
-            court_busy[c].append((9 * 60, 11 * 60))
+            court_busy[c].append((res_start, res_end))
             out.append(
                 {
                     "schema": r.schema,
                     "team_short": label,
                     "part": "COMP",
                     "kind": "R",
-                    "start": "09:00",
-                    "end": "11:00",
+                    "start": mins_to_hhmm(res_start),
+                    "end": mins_to_hhmm(res_end),
                     "court": c,
                 }
             )
@@ -216,52 +221,64 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
         rounds = build_rounds(team)
         tname = team.schema
 
-        for rnd in rounds:
+        for idx, rnd in enumerate(rounds):
             needed = len(rnd)
             placed = False
-            for start in range(start_pref, latest_start + 1, step):
-                end = start + team.duration_min
 
-                # team constraint: max 2 tegelijk
-                team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
-                if len(team_overlaps) + needed > 2:
-                    continue
+            # liefst vanaf 09:00, alleen indien nodig terugvallen naar 08:30
+            # eerste teampartij moet uiterlijk om 15:00 starten
+            latest_for_round = first_match_latest if idx == 0 else latest_start
+            candidate_starts = [
+                range(start_pref, latest_for_round + 1, step),
+                range(fallback_start, latest_for_round + 1, step),
+            ]
 
-                # team constraint: geen singles tegelijk met doubles/mix
-                kinds_now = {x[2] for x in team_overlaps}
-                round_kinds = {p["kind"] for p in rnd}
-                if "S" in round_kinds and ({"D", "M"} & kinds_now):
-                    continue
-                if ({"D", "M"} & round_kinds) and ("S" in kinds_now):
-                    continue
+            for start_range in candidate_starts:
+                if placed:
+                    break
+                for start in start_range:
+                    end = start + team.duration_min
 
-                free = []
-                for c in courts:
-                    if all(not overlaps((start, end), itv) for itv in court_busy[c]):
-                        free.append(c)
-                if len(free) < needed:
-                    continue
+                    # team constraint: max 2 tegelijk
+                    team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
+                    if len(team_overlaps) + needed > 2:
+                        continue
 
-                # Prioriteit: capaciteit benutten > naast elkaar spelen.
-                # Kies beschikbare banen met meeste bestaande bezetting (compacter vullen).
-                free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
-                best = free[:needed]
-                for p, c in zip(rnd, best):
-                    court_busy[c].append((start, end))
-                    team_busy[tname].append((start, end, p["kind"]))
-                    out.append(
-                        {
-                            "schema": tname,
-                            "team_short": short_team_name(tname),
-                            "part": p["label"],
-                            "kind": p["kind"],
-                            "start": mins_to_hhmm(start),
-                            "end": mins_to_hhmm(end),
-                            "court": c,
-                        }
-                    )
-                placed = True
-                break
+                    # team constraint: geen singles tegelijk met doubles/mix
+                    kinds_now = {x[2] for x in team_overlaps}
+                    round_kinds = {p["kind"] for p in rnd}
+                    if "S" in round_kinds and ({"D", "M"} & kinds_now):
+                        continue
+                    if ({"D", "M"} & round_kinds) and ("S" in kinds_now):
+                        continue
+
+                    free = []
+                    for c in courts:
+                        if all(not overlaps((start, end), itv) for itv in court_busy[c]):
+                            free.append(c)
+                    if len(free) < needed:
+                        continue
+
+                    # Prioriteit: capaciteit benutten > naast elkaar spelen.
+                    # Kies beschikbare banen met meeste bestaande bezetting (compacter vullen).
+                    free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
+                    best = free[:needed]
+                    for p, c in zip(rnd, best):
+                        court_busy[c].append((start, end))
+                        team_busy[tname].append((start, end, p["kind"]))
+                        out.append(
+                            {
+                                "schema": tname,
+                                "team_short": short_team_name(tname),
+                                "part": p["label"],
+                                "kind": p["kind"],
+                                "start": mins_to_hhmm(start),
+                                "end": mins_to_hhmm(end),
+                                "court": c,
+                            }
+                        )
+                    placed = True
+                    break
 
             if not placed:
                 for p in rnd:
