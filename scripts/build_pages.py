@@ -281,7 +281,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
             # eerste teampartij moet uiterlijk om 15:00 starten
             first_latest = first_match_latest_by_date.get(date, first_match_latest)
             latest_for_round = first_latest if idx == 0 else latest_start
-            earliest_for_round = first_start_earliest(team) if idx == 0 else fallback_start
+            earliest_for_round = first_start_earliest(team) if "gemengd zondag" in team.schema.lower() else (first_start_earliest(team) if idx == 0 else fallback_start)
             candidate_starts = [
                 range(max(start_pref, earliest_for_round), latest_for_round + 1, step),
                 range(max(fallback_start, earliest_for_round), latest_for_round + 1, step),
