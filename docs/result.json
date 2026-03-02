@@ -1,0 +1,808 @@
+{
+  "06-04-2026": [
+    {
+      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        4,
+        5
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        6,
+        7
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        8,
+        9
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "start": "11:00",
+      "end": "15:30",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        8,
+        9
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        6,
+        7
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "start": "14:30",
+      "end": "19:00",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 39",
+      "start": "15:30",
+      "end": "17:45",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    }
+  ],
+  "12-04-2026": [
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        2,
+        3
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        4,
+        5
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        6,
+        7
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        8,
+        9
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        6,
+        7
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        8,
+        9
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "start": "14:30",
+      "end": "19:00",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
+      "start": "14:30",
+      "end": "16:45",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 1  – Afdeling 38",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 73",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    }
+  ],
+  "19-04-2026": [
+    {
+      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 39",
+      "start": "14:30",
+      "end": "16:45",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 46",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 68",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    }
+  ],
+  "10-05-2026": [
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
+      "start": "14:30",
+      "end": "16:45",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "start": "14:30",
+      "end": "16:45",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 1  – Afdeling 38",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 73",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    }
+  ],
+  "17-05-2026": [
+    {
+      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "start": "14:30",
+      "end": "19:00",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "start": "14:30",
+      "end": "16:45",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 1  – Afdeling 38",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 68",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    }
+  ],
+  "25-05-2026": [
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "start": "08:30",
+      "end": "14:30",
+      "courts": [
+        2,
+        3
+      ],
+      "duration_min": 360,
+      "rounds": 4
+    },
+    {
+      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        4,
+        5
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        8,
+        9
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        6,
+        7
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 46",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        8,
+        9
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        6,
+        7
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        4,
+        5
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6",
+      "start": "14:30",
+      "end": "19:00",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 73",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22",
+      "start": "NIET_GELUKT",
+      "end": "",
+      "courts": [],
+      "duration_min": 135,
+      "rounds": 3
+    }
+  ],
+  "31-05-2026": [
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15",
+      "start": "08:30",
+      "end": "13:00",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 46",
+      "start": "13:00",
+      "end": "15:15",
+      "courts": [
+        7,
+        8
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Groen Zondag – Groen 2  – Afdeling 68",
+      "start": "13:00",
+      "end": "15:15",
+      "courts": [
+        9,
+        10
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        1,
+        2
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    },
+    {
+      "schema": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 39",
+      "start": "13:00",
+      "end": "15:15",
+      "courts": [
+        5,
+        6
+      ],
+      "duration_min": 135,
+      "rounds": 3
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
+      "start": "13:00",
+      "end": "17:30",
+      "courts": [
+        3,
+        4
+      ],
+      "duration_min": 270,
+      "rounds": 3
+    }
+  ]
+}
