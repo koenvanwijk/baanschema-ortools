@@ -152,17 +152,21 @@ def short_team_name(schema: str) -> str:
 
 
 def build_rounds(team: TeamDay) -> list[list[dict]]:
-    # Doubles/mix nooit tegelijk met singles: plan in aparte blokken
+    # Singles mogen NIET tegelijk met dubbels, maar WEL met mix.
     singles = [{"label": f"S{i+1}", "kind": "S"} for i in range(team.singles)]
     doubles = [{"label": f"D{i+1}", "kind": "D"} for i in range(team.doubles)]
     mixes = [{"label": f"M{i+1}", "kind": "M"} for i in range(team.mix)]
 
     rounds: list[list[dict]] = []
-    for i in range(0, len(singles), 2):
-        rounds.append(singles[i : i + 2])
-    dm = doubles + mixes
-    for i in range(0, len(dm), 2):
-        rounds.append(dm[i : i + 2])
+
+    # Fase 1: plan singles + mix samen (toegestaan)
+    sm = singles + mixes
+    for i in range(0, len(sm), 2):
+        rounds.append(sm[i : i + 2])
+
+    # Fase 2: plan dubbels apart (niet tegelijk met singles)
+    for i in range(0, len(doubles), 2):
+        rounds.append(doubles[i : i + 2])
 
     # fallback voor inconsistente input
     planned = sum(len(r) for r in rounds)
@@ -173,11 +177,14 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
     return rounds
 
 
-def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[dict]:
+def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: str) -> list[dict]:
     start_pref = 8 * 60 + 30  # optie 1: starten vanaf 08:30
     fallback_start = 8 * 60 + 30
     latest_start = 19 * 60 + 30
-    first_match_latest = 16 * 60  # tijdelijke versoepeling: eerste teamwedstrijd mag tot 16:00 starten
+    first_match_latest = 16 * 60  # standaard tijdelijke versoepeling
+    first_match_latest_by_date = {
+        "17-05-2026": 17 * 60,  # extra verruiming om restconflict op te lossen
+    }
     step = 15
     courts = list(range(1, 11))
 
@@ -227,7 +234,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
 
             # liefst vanaf 09:00, alleen indien nodig terugvallen naar 08:30
             # eerste teampartij moet uiterlijk om 15:00 starten
-            latest_for_round = first_match_latest if idx == 0 else latest_start
+            first_latest = first_match_latest_by_date.get(date, first_match_latest)
+            latest_for_round = first_latest if idx == 0 else latest_start
             candidate_starts = [
                 range(start_pref, latest_for_round + 1, step),
                 range(fallback_start, latest_for_round + 1, step),
@@ -239,17 +247,14 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
                 for start in start_range:
                     end = start + team.duration_min
 
-                    # team constraint: max 2 tegelijk
                     team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
-                    if len(team_overlaps) + needed > 2:
-                        continue
 
-                    # team constraint: geen singles tegelijk met doubles/mix
+                    # team constraint: singles niet tegelijk met dubbels; mix mag wel met singles
                     kinds_now = {x[2] for x in team_overlaps}
                     round_kinds = {p["kind"] for p in rnd}
-                    if "S" in round_kinds and ({"D", "M"} & kinds_now):
+                    if "S" in round_kinds and ("D" in kinds_now):
                         continue
-                    if ({"D", "M"} & round_kinds) and ("S" in kinds_now):
+                    if "D" in round_kinds and ("S" in kinds_now):
                         continue
 
                     free = []
@@ -352,7 +357,7 @@ def main() -> None:
     results: dict[str, list[dict]] = {}
     blockers: list[str] = []
     for d in sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y")):
-        day_rows = schedule_day(by_date[d], reserve_by_date[d])
+        day_rows = schedule_day(by_date[d], reserve_by_date[d], d)
         results[d] = day_rows
         failed = [r for r in day_rows if r["start"] == "NIET_GELUKT"]
         if failed:
@@ -395,7 +400,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1 + 2: starten vanaf 08:30 en eerste teamstart toegestaan tot 16:00. Planner optimaliseert primair op maximale baanbezetting.</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Deze run gebruikt optie 1 + 2: starten vanaf 08:30 en eerste teamstart toegestaan tot 16:00 (op 17-05 verruimd tot 17:00). Planner optimaliseert primair op maximale baanbezetting.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
