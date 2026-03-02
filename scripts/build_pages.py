@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import html
 import json
 from collections import defaultdict
@@ -71,6 +72,11 @@ def mins_to_hhmm(m: int) -> str:
     return f"{m // 60:02d}:{m % 60:02d}"
 
 
+def hhmm_to_mins(s: str) -> int:
+    h, m = s.split(":")
+    return int(h) * 60 + int(m)
+
+
 def try_place(occupied: dict[int, list[tuple[int, int]]], courts: list[int], start: int, end: int) -> bool:
     for c in courts:
         for a, b in occupied[c]:
@@ -82,14 +88,12 @@ def try_place(occupied: dict[int, list[tuple[int, int]]], courts: list[int], sta
 
 
 def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[dict]:
-    # simple baseline: each team uses 2 courts, block duration = ceil(matches/2) * match_duration
     open_time = 8 * 60 + 30
     latest_start = 16 * 60 + 30
     step = 30
     courts = list(range(1, 11))
     occupied: dict[int, list[tuple[int, int]]] = {c: [] for c in courts}
 
-    # reservations 09:00-11:00
     reserve_courts = set()
     kinds = {r.kind for r in reservations}
     if "oranje" in kinds:
@@ -99,9 +103,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
     for c in reserve_courts:
         occupied[c].append((9 * 60, 11 * 60))
 
-    # longest blocks first
     ordered = sorted(items, key=lambda t: ((t.matches + 1) // 2 * t.duration_min), reverse=True)
-    output = []
+    output: list[dict] = []
 
     for t in ordered:
         rounds = (t.matches + 1) // 2
@@ -110,7 +113,6 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
 
         for start in range(open_time, latest_start + 1, step):
             end = start + total
-            # prefer nearby courts
             for c1 in range(1, 10):
                 c2 = c1 + 1
                 if try_place(occupied, [c1, c2], start, end):
@@ -144,6 +146,56 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
     return sorted(output, key=lambda x: (x["start"], x["schema"]))
 
 
+def color_for(name: str) -> str:
+    h = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:6], 16)
+    hue = h % 360
+    return f"hsl({hue} 70% 88%)"
+
+
+def render_grid(rows: list[dict]) -> str:
+    valid = [r for r in rows if r["start"] != "NIET_GELUKT"]
+    if not valid:
+        return "<p>Geen planbare wedstrijden.</p>"
+
+    start_min = min(hhmm_to_mins(r["start"]) for r in valid)
+    end_min = max(hhmm_to_mins(r["end"]) for r in valid)
+
+    times = list(range(start_min, end_min + 1, 15))
+    table: dict[tuple[int, int], tuple[str, str]] = {}
+
+    for r in valid:
+        s = hhmm_to_mins(r["start"])
+        e = hhmm_to_mins(r["end"])
+        label = r["schema"]
+        color = color_for(label)
+        for t in range(s, e, 15):
+            for c in r["courts"]:
+                table[(t, c)] = (label, color)
+
+    header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
+    body_rows = []
+    for t in times[:-1]:
+        cells = [f"<td class='time'>{mins_to_hhmm(t)}</td>"]
+        for c in range(1, 11):
+            v = table.get((t, c))
+            if v:
+                label, color = v
+                cells.append(
+                    f"<td style='background:{color}' title='{html.escape(label)}'><div class='cell'>{html.escape(label)}</div></td>"
+                )
+            else:
+                cells.append("<td class='empty'>—</td>")
+        body_rows.append("<tr>" + "".join(cells) + "</tr>")
+
+    return (
+        "<div class='grid-wrap'><table class='grid'><thead><tr><th>Tijd</th>"
+        + header
+        + "</tr></thead><tbody>"
+        + "".join(body_rows)
+        + "</tbody></table></div>"
+    )
+
+
 def main() -> None:
     DOCS.mkdir(parents=True, exist_ok=True)
     teams, reserves = parse_input(INPUT)
@@ -164,27 +216,31 @@ def main() -> None:
 
     sections = []
     for d, rows in results.items():
-        trs = "\n".join(
-            f"<tr><td>{html.escape(r['start'])}</td><td>{html.escape(r['end'])}</td><td>{html.escape(', '.join(map(str, r['courts'])) if r['courts'] else '-')}</td><td>{html.escape(r['schema'])}</td></tr>"
-            for r in rows
-        )
-        sections.append(
-            f"<h2>{html.escape(d)}</h2><table><thead><tr><th>Start</th><th>Eind</th><th>Banen</th><th>Team/Wedstrijd</th></tr></thead><tbody>{trs}</tbody></table>"
-        )
+        failed = [r for r in rows if r["start"] == "NIET_GELUKT"]
+        failed_html = ""
+        if failed:
+            failed_html = "<p><strong>Niet gelukt:</strong> " + ", ".join(html.escape(r["schema"]) for r in failed) + "</p>"
+        sections.append(f"<h2>{html.escape(d)}</h2>{failed_html}{render_grid(rows)}")
 
     page = f"""<!doctype html>
 <html lang='nl'>
 <head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>Baanschema Planner</title>
 <style>
-body{{font-family:Inter,system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem}}
-table{{border-collapse:collapse;width:100%;margin-bottom:1.5rem}}th,td{{border-bottom:1px solid #eee;padding:.5rem;text-align:left}}th{{background:#fafafa}}
+body{{font-family:Inter,system-ui,sans-serif;max-width:1500px;margin:1.2rem auto;padding:0 1rem}}
 .small{{color:#666}}
+.grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
+.grid{{border-collapse:collapse;width:max-content;min-width:100%}}
+.grid th,.grid td{{border:1px solid #ececec;padding:.35rem .45rem;vertical-align:top}}
+.grid th{{position:sticky;top:0;background:#fafafa;z-index:2}}
+.time{{font-variant-numeric:tabular-nums;background:#fcfcfc;position:sticky;left:0;z-index:1;min-width:58px}}
+.empty{{color:#bbb;text-align:center;min-width:120px}}
+.cell{{font-size:12px;line-height:1.2;max-width:210px}}
 </style>
 </head>
 <body>
-<h1>Baanschema Planner (baseline)</h1>
-<p class='small'>Automatisch gegenereerd uit <code>data/season.tsv</code>. Dit is een eerste heuristische planning (nog geen volledige CP-SAT constraint set).</p>
+<h1>Baanschema Planner (per kwartier)</h1>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Kleuren onderscheiden teams/schema's. Bron: <code>data/season.tsv</code>.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
