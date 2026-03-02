@@ -104,6 +104,18 @@ def color_for(name: str) -> str:
     if name in _COLOR_CACHE:
         return _COLOR_CACHE[name]
 
+    lname = name.lower()
+    # Relevante vaste kleuren voor specifieke teamtypes
+    if "rood" in lname:
+        _COLOR_CACHE[name] = "hsl(0 85% 72%)"
+        return _COLOR_CACHE[name]
+    if "oranje" in lname:
+        _COLOR_CACHE[name] = "hsl(30 90% 70%)"
+        return _COLOR_CACHE[name]
+    if "groen" in lname:
+        _COLOR_CACHE[name] = "hsl(125 60% 70%)"
+        return _COLOR_CACHE[name]
+
     seed = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16) % 360
     hue = None
     for step in range(360):
