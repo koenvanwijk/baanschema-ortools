@@ -175,8 +175,9 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation]) -> list[
                 if len(free) < needed:
                     continue
 
-                # cluster courts
-                free.sort()
+                # Prioriteit: capaciteit benutten > naast elkaar spelen.
+                # Kies beschikbare banen met meeste bestaande bezetting (compacter vullen).
+                free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
                 best = free[:needed]
                 for p, c in zip(rnd, best):
                     court_busy[c].append((start, end))
@@ -298,7 +299,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Planner start zo vroeg mogelijk vanaf 09:00 en probeert baancapaciteit maximaal te vullen.</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Planner start zo vroeg mogelijk vanaf 09:00 en optimaliseert primair op maximale baanbezetting (naast-elkaar spelen is ondergeschikt).</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
