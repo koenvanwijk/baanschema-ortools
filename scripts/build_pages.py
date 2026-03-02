@@ -210,7 +210,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         "17-05-2026": 18 * 60,
         "25-05-2026": 16 * 60,
     }
-    step = 30  # starts op hele/halve uren
+    step = 15  # starts op kwartieren
     courts = list(range(1, 11))
 
     court_busy: dict[int, list[tuple[int, int]]] = {c: [] for c in courts}
