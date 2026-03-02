@@ -221,8 +221,22 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                     "court": c,
                 }
             )
-    # meeste partijen eerst voor betere bezetting
-    ordered = sorted(items, key=lambda t: t.matches, reverse=True)
+    # Prioritering: eerst schaarse/knellende categorieën, daarna op omvang
+    def team_priority(t: TeamDay) -> tuple[int, int]:
+        s = t.schema.lower()
+        if "gemengd zondag" in s and "5e klasse" in s:
+            p = 0
+        elif "gemengd zondag" in s and "6e klasse" in s:
+            p = 1
+        elif "gemengd zondag" in s:
+            p = 2
+        elif "junioren 11 t/m 14" in s or "groen zondag" in s:
+            p = 3
+        else:
+            p = 4
+        return (p, -t.matches)
+
+    ordered = sorted(items, key=team_priority)
 
     for team in ordered:
         rounds = build_rounds(team)
