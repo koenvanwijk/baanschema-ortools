@@ -205,12 +205,12 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
     first_match_latest_by_date = {
         "12-04-2026": 16 * 60,
-        "19-04-2026": 16 * 60,
-        "10-05-2026": 16 * 60,
-        "17-05-2026": 17 * 60 + 30,
+        "19-04-2026": 17 * 60,
+        "10-05-2026": 17 * 60,
+        "17-05-2026": 18 * 60,
         "25-05-2026": 16 * 60,
     }
-    step = 15
+    step = 30  # starts op hele/halve uren
     courts = list(range(1, 11))
 
     court_busy: dict[int, list[tuple[int, int]]] = {c: [] for c in courts}
@@ -290,7 +290,14 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
             for start_range in candidate_starts:
                 if placed:
                     break
-                for start in start_range:
+                starts = list(start_range)
+                starts.sort(
+                    key=lambda s: (
+                        -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                        s,
+                    )
+                )
+                for start in starts:
                     end = start + team.duration_min
 
                     team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
@@ -383,7 +390,7 @@ def render_grid(rows: list[dict]) -> str:
     if not valid:
         return "<p>Geen planbare wedstrijden.</p>"
 
-    start_min = 9 * 60
+    start_min = min(hhmm_to_mins(r["start"]) for r in valid)
     end_min = max(hhmm_to_mins(r["end"]) for r in valid)
     times = list(range(start_min, end_min + 1, 15))
 
