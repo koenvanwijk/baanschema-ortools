@@ -350,8 +350,20 @@ def main() -> None:
         reserve_by_date[r.date].append(r)
 
     results: dict[str, list[dict]] = {}
+    blockers: list[str] = []
     for d in sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y")):
-        results[d] = schedule_day(by_date[d], reserve_by_date[d])
+        day_rows = schedule_day(by_date[d], reserve_by_date[d])
+        results[d] = day_rows
+        failed = [r for r in day_rows if r["start"] == "NIET_GELUKT"]
+        if failed:
+            sample = ", ".join(f"{r['team_short']} {r['part']}" for r in failed[:5])
+            blockers.append(f"{d}: {len(failed)} niet planbaar ({sample})")
+
+    if blockers:
+        raise RuntimeError(
+            "Planning niet haalbaar; geen pagina gegenereerd. Bespreek keuze met planner:\n- "
+            + "\n- ".join(blockers)
+        )
 
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
 
