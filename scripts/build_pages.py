@@ -8,6 +8,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
@@ -148,7 +149,7 @@ def short_team_name(schema: str) -> str:
 
     parts = [p.strip() for p in s.split("–")]
     if len(parts) >= 3:
-        base = parts[0]
+        base = re.sub(r"\s*\([^)]*\)", "", parts[0]).strip()
         klasse = parts[1].replace("klasse", "").strip()
         afdeling = parts[2].replace("Afdeling", "Afd").strip().replace("  ", " ")
         afdeling = afdeling.replace("Afd ", "Afd")
