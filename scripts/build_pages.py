@@ -365,7 +365,7 @@ def render_day_summary(rows: list[dict]) -> str:
         away = rr[0].get("away_team", "")
         matchup = f"{home} vs {away}" if home or away else "-"
         items.append(
-            f"<li><strong>{html.escape(team_short)}</strong>: {html.escape(matchup)} — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
+            f"<li><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema)} )</span>: {html.escape(matchup)} — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
         )
 
     return "<div class='summary'><h3>Teams vandaag</h3><ul>" + "".join(items) + "</ul></div>"
