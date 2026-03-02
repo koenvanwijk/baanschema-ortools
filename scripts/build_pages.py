@@ -183,7 +183,13 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     fallback_start = 8 * 60 + 30
     latest_start = 19 * 60 + 30
     first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
-    first_match_latest_by_date = {}
+    first_match_latest_by_date = {
+        "12-04-2026": 16 * 60,
+        "19-04-2026": 16 * 60,
+        "10-05-2026": 16 * 60,
+        "17-05-2026": 16 * 60,
+        "25-05-2026": 16 * 60,
+    }
     step = 15
     courts = list(range(1, 11))
 
@@ -230,9 +236,9 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         elif "jongens 13 t/m 17" in s or "meisjes 13 t/m 17" in s:
             p = 2
         elif "gemengd zondag" in s:
-            p = 3
+            p = 2  # na jeugd, maar niet als allerlaatste
         else:
-            p = 4
+            p = 3
         return (p, -t.matches)
 
     ordered = sorted(items, key=team_priority)
@@ -413,7 +419,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </head>
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
-<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Startvoorkeur is 08:30 en de eerste wedstrijd van ieder team moet uiterlijk om 15:00 starten. Volgorde is jong naar oud, met gemengde teams later.</p>
+<p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/M1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming tot 16:00 op kneldatums. Volgorde is jong naar oud; gemengde teams starten later dan jeugd maar niet als allerlaatste.</p>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
