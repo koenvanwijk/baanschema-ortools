@@ -108,6 +108,27 @@ def overlaps(a: tuple[int, int], b: tuple[int, int]) -> bool:
     return not (a[1] <= b[0] or a[0] >= b[1])
 
 
+def gap_penalty_with_existing(start: int, end: int, existing: list[tuple[int, int, str]]) -> int:
+    if not existing:
+        return 0
+    intervals = sorted((s, e) for s, e, _k in existing)
+    # als overlap/aanliggend met bestaande teamtijd -> geen extra gat
+    for s, e in intervals:
+        if not (end < s or start > e):
+            return 0
+        if end == s or start == e:
+            return 0
+
+    # anders: afstand tot dichtstbijzijnde bestaand interval als penalty
+    distances = []
+    for s, e in intervals:
+        if end <= s:
+            distances.append(s - end)
+        elif start >= e:
+            distances.append(start - e)
+    return min(distances) if distances else 0
+
+
 _COLOR_CACHE: dict[str, str] = {}
 _USED_HUES: list[int] = []
 
@@ -297,6 +318,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                 starts = list(start_range)
                 starts.sort(
                     key=lambda s: (
+                        gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]),
                         -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
                         s,
                     )

@@ -191,17 +191,6 @@
       "court": 9
     },
     {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_short": "GEM 5e Afd10",
-      "home_team": "MIERLO 4",
-      "away_team": "MIERLO 5",
-      "part": "M1",
-      "kind": "M",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 10
-    },
-    {
       "schema": "Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16",
       "team_short": "ME13-17 2e Afd16",
       "home_team": "MIERLO 3",
@@ -530,6 +519,17 @@
       "start": "14:30",
       "end": "16:00",
       "court": 10
+    },
+    {
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_short": "GEM 5e Afd10",
+      "home_team": "MIERLO 4",
+      "away_team": "MIERLO 5",
+      "part": "M1",
+      "kind": "M",
+      "start": "15:30",
+      "end": "17:00",
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
