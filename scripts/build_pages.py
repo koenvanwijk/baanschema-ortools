@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 import re
+import subprocess
+import importlib.util
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
@@ -522,6 +524,52 @@ def render_rule_violations(violations: list[str]) -> str:
     return f"<div class='violations'><strong>Niet-gehaalde regels op deze dag</strong><ul>{items}</ul></div>"
 
 
+def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> dict[str, list[dict]]:
+    # Graceful fallback when ortools isn't available in current runtime.
+    if importlib.util.find_spec("ortools") is None:
+        return {}
+
+    out: dict[str, list[dict]] = {}
+    for d in dates:
+        out_path = DOCS / f"ortools_{d}.json"
+        cmd = [
+            "python3",
+            str(ROOT / "scripts" / "ortools_planner.py"),
+            "--date",
+            d,
+            "--time-limit",
+            "5",
+            "--out",
+            str(out_path),
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        if proc.returncode != 0 or not out_path.exists():
+            continue
+
+        raw = json.loads(out_path.read_text(encoding="utf-8"))
+        rows = []
+        for r in raw.get("rows", []):
+            schema = r.get("team", "")
+            t = team_lookup.get(f"{d}::{schema}")
+            rows.append(
+                {
+                    "schema": schema,
+                    "team_short": short_team_name(schema),
+                    "home_team": t.home_team if t else "",
+                    "away_team": t.away_team if t else "",
+                    "part": r.get("part", ""),
+                    "kind": r.get("kind", ""),
+                    "matches": t.matches if t else 0,
+                    "duration_min_cfg": t.duration_min if t else 0,
+                    "start": r.get("start", "NIET_GELUKT"),
+                    "end": r.get("end", ""),
+                    "court": r.get("court"),
+                }
+            )
+        out[d] = rows
+    return out
+
+
 def main() -> None:
     DOCS.mkdir(parents=True, exist_ok=True)
     teams, reserves = parse_input(INPUT)
@@ -534,9 +582,16 @@ def main() -> None:
     for r in reserves:
         reserve_by_date[r.date].append(r)
 
+    team_lookup: dict[str, TeamDay] = {}
+    for d, ts in by_date.items():
+        for t in ts:
+            team_lookup[f"{d}::{t.schema}"] = t
+
+    ordered_dates = sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y"))
+
     results: dict[str, list[dict]] = {}
     blockers: list[str] = []
-    for d in sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y")):
+    for d in ordered_dates:
         day_rows = schedule_day(by_date[d], reserve_by_date[d], d)
         results[d] = day_rows
         failed = [r for r in day_rows if r["start"] == "NIET_GELUKT"]
@@ -550,7 +605,10 @@ def main() -> None:
             + "\n- ".join(blockers)
         )
 
+    ortools_results = compute_ortools_results(ordered_dates, team_lookup)
+
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
+    (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
 
     sections = []
     for d, rows in results.items():
@@ -561,8 +619,16 @@ def main() -> None:
                 html.escape(f"{r['team_short']} {r['part']}") for r in failed
             ) + "</p>"
         violations = evaluate_day_rule_violations(rows)
+        ort_rows = ortools_results.get(d, [])
+        ort_block = (
+            render_day_summary(ort_rows) + render_grid(ort_rows)
+            if ort_rows
+            else "<p class='small'>OR-Tools resultaat nog niet beschikbaar in deze run.</p>"
+        )
         sections.append(
-            f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_day_summary(rows)}{render_grid(rows)}"
+            f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}"
+            f"<div class='plan-view heur-view'>{render_day_summary(rows)}{render_grid(rows)}</div>"
+            f"<div class='plan-view ort-view hidden'>{ort_block}</div>"
         )
 
     page = f"""<!doctype html>
@@ -581,6 +647,10 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .requirements ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
 .violations{{background:#fff6bf;border:1px solid #e6cc55;border-radius:10px;padding:.65rem .85rem;margin:.4rem 0 .8rem 0}}
 .violations ul{{margin:.35rem 0 .1rem 1.1rem;padding:0}}
+.toggle{{display:flex;gap:.5rem;margin:.6rem 0 1rem 0}}
+.toggle button{{border:1px solid #ccc;background:#fff;padding:.35rem .6rem;border-radius:8px;cursor:pointer}}
+.toggle button.active{{background:#111;color:#fff;border-color:#111}}
+.hidden{{display:none}}
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:max-content;min-width:100%}}
 .grid th,.grid td{{border:1px solid #ececec;padding:.35rem .45rem;vertical-align:top}}
@@ -604,7 +674,28 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
     <li>KNLTB-tekstregels worden hieronder per dag gecontroleerd; afwijkingen staan geel gemarkeerd.</li>
   </ul>
 </div>
+<div class='toggle'>
+  <button id='btn-heur' class='active' onclick='setPlan("heur")'>Heuristiek</button>
+  <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
+</div>
 {''.join(sections)}
+<script>
+function setPlan(mode){{
+  const heur = document.querySelectorAll('.heur-view');
+  const ort = document.querySelectorAll('.ort-view');
+  const bh = document.getElementById('btn-heur');
+  const bo = document.getElementById('btn-ort');
+  if(mode==='ort'){{
+    heur.forEach(e=>e.classList.add('hidden'));
+    ort.forEach(e=>e.classList.remove('hidden'));
+    bh.classList.remove('active'); bo.classList.add('active');
+  }} else {{
+    ort.forEach(e=>e.classList.add('hidden'));
+    heur.forEach(e=>e.classList.remove('hidden'));
+    bo.classList.remove('active'); bh.classList.add('active');
+  }}
+}}
+</script>
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
 
