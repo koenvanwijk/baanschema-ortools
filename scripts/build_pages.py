@@ -245,14 +245,16 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
 
     out: list[dict] = []
 
-    # Plan en toon Rood/Oranje als expliciete blokken op de gereserveerde banen (09:00-11:00)
+    # Plan en toon Rood/Oranje als expliciete blokken op gereserveerde banen.
+    # Nieuwe regel: Oranje altijd 3 banen; als Rood die dag ook speelt, dan Rood op baan 4.
+    kinds_today = {r.kind for r in reservations}
     for r in reservations:
         if r.kind == "oranje":
             reserve_courts = [1, 2, 3]
             label = "ORANJE"
             res_start, res_end = 8 * 60 + 30, 10 * 60 + 30
         elif r.kind == "rood":
-            reserve_courts = [1]
+            reserve_courts = [4] if "oranje" in kinds_today else [1]
             label = "ROOD"
             res_start, res_end = 8 * 60 + 30, 9 * 60 + 30  # rood duurt 1 uur
         else:
@@ -687,11 +689,13 @@ def main() -> None:
 
     def reservation_rows_for_date(d: str) -> list[dict]:
         out = []
-        for r in reserve_by_date.get(d, []):
+        day_res = reserve_by_date.get(d, [])
+        kinds = {r.kind for r in day_res}
+        for r in day_res:
             if r.kind == "oranje":
                 courts, start, end, label = [1, 2, 3], "08:30", "10:30", "ORANJE"
             elif r.kind == "rood":
-                courts, start, end, label = [1], "08:30", "09:30", "ROOD"
+                courts, start, end, label = ([4] if "oranje" in kinds else [1]), "08:30", "09:30", "ROOD"
             else:
                 courts, start, end, label = [], "08:30", "10:30", r.kind.upper()
             for c in courts:
@@ -791,7 +795,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 <div class='requirements'>
   <h3>Planningsregels (actueel)</h3>
   <ul>
-    <li>10 banen totaal; Rood reserveert baan 1 (08:30–09:30), Oranje reserveert baan 1–3 (08:30–10:30).</li>
+    <li>10 banen totaal; Oranje reserveert altijd baan 1–3 (08:30–10:30). Rood reserveert 08:30–09:30 op baan 1, of op baan 4 als Oranje die dag ook speelt.</li>
     <li>Teams spelen partijen met labels S / D / GD; singles niet tegelijk met dubbels, singles wel met GD.</li>
     <li>Startvenster basis: vanaf 08:30; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
     <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>

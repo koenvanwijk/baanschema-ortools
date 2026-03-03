@@ -106,12 +106,14 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
     }.get(date, 15 * 60)
 
     reserved = []  # (court, start, end)
+    kinds_today = {r.kind for r in day_res}
     for r in day_res:
         if r.kind == "oranje":
             for c in [1, 2, 3]:
                 reserved.append((c, 8 * 60 + 30, 10 * 60 + 30))
         elif r.kind == "rood":
-            reserved.append((1, 8 * 60 + 30, 9 * 60 + 30))
+            rood_court = 4 if "oranje" in kinds_today else 1
+            reserved.append((rood_court, 8 * 60 + 30, 9 * 60 + 30))
 
     parts = []
     for t in day_teams:
