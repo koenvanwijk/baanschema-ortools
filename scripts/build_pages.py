@@ -170,8 +170,8 @@ def color_for(name: str) -> str:
         hue = seed_hue
 
     _USED_HUES.append(hue)
-    sat = 88 if base_hue is None else 82
-    light = 70 if base_hue is None else 68
+    sat = 92 if base_hue is None else 88
+    light = 58 if base_hue is None else 56
     color = f"hsl({hue} {sat}% {light}%)"
     _COLOR_CACHE[name] = color
     return color
@@ -845,12 +845,12 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .hidden{{display:none}}
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:100%;table-layout:fixed}}
-.grid th,.grid td{{border:1px solid #ececec;padding:.2rem .25rem;vertical-align:top}}
-.grid tr.hour-row td{{border-top:2px solid #bfc4cf}}
+.grid th,.grid td{{border:1px solid #dcdfe6;padding:.2rem .25rem;vertical-align:middle;height:30px;min-height:30px;box-sizing:border-box}}
+.grid tr.hour-row td{{border-top:3px solid #8f97a8}}
 .grid th{{position:sticky;top:0;background:#fafafa;z-index:2;font-size:12px}}
-.time{{font-variant-numeric:tabular-nums;background:#fcfcfc;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px}}
-.empty{{color:#bbb;text-align:center}}
-.cell{{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.time{{font-variant-numeric:tabular-nums;background:#f3f4f7;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px;font-weight:600}}
+.empty{{color:#aeb4c2;text-align:center}}
+.cell{{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}}
 </style>
 </head>
 <body>
