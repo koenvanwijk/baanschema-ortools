@@ -180,11 +180,12 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
     for team, idxs in by_team.items():
         s_parts = [i for i in idxs if parts[i]["kind"] == "S"]
         d_parts = [i for i in idxs if parts[i]["kind"] == "D"]
-        if not s_parts or not d_parts:
-            continue
+        m_parts = [i for i in idxs if parts[i]["kind"] == "M"]
+
         for t in slot_mins[:-1]:
             s_occ = []
             d_occ = []
+            m_occ = []
             for i in s_parts:
                 for s in allowed_starts[i]:
                     if s <= t < s + parts[i]["duration"]:
@@ -195,13 +196,27 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
                     if s <= t < s + parts[i]["duration"]:
                         for c in courts:
                             d_occ.append(x[(i, s, c)])
+            for i in m_parts:
+                for s in allowed_starts[i]:
+                    if s <= t < s + parts[i]["duration"]:
+                        for c in courts:
+                            m_occ.append(x[(i, s, c)])
 
-            # Singles en dubbels mogen niet tegelijk; aantallen binnen elk type mogen wel >1 zijn.
             s_sum = sum(s_occ)
             d_sum = sum(d_occ)
-            z = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_singles_mode")
-            model.add(s_sum <= 10 * z)
-            model.add(d_sum <= 10 * (1 - z))
+            m_sum = sum(m_occ)
+
+            # Singles en dubbels mogen niet tegelijk.
+            if s_parts and d_parts:
+                z_sd = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_sd_mode")
+                model.add(s_sum <= 10 * z_sd)
+                model.add(d_sum <= 10 * (1 - z_sd))
+
+            # Gemengd dubbel (M/GD) en dubbel mogen niet tegelijk.
+            if m_parts and d_parts:
+                z_md = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_md_mode")
+                model.add(m_sum <= 10 * z_md)
+                model.add(d_sum <= 10 * (1 - z_md))
 
     # NOTE: first-match cutoff is treated as soft preference in OR mode.
     # Hard enforcement made several days infeasible; we keep it in the objective instead.

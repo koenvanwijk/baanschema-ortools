@@ -339,12 +339,18 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
 
                     team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
 
-                    # team constraint: singles niet tegelijk met dubbels; mix mag wel met singles
+                    # team constraint:
+                    # - singles niet tegelijk met dubbels
+                    # - gemengd dubbel (GD/M) niet tegelijk met dubbel
                     kinds_now = {x[2] for x in team_overlaps}
                     round_kinds = {p["kind"] for p in rnd}
                     if "S" in round_kinds and ("D" in kinds_now):
                         continue
                     if "D" in round_kinds and ("S" in kinds_now):
+                        continue
+                    if "M" in round_kinds and ("D" in kinds_now):
+                        continue
+                    if "D" in round_kinds and ("M" in kinds_now):
                         continue
 
                     free = []
