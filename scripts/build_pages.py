@@ -527,10 +527,9 @@ def render_rule_violations(violations: list[str]) -> str:
 
 
 def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> tuple[dict[str, list[dict]], dict]:
-    # Graceful fallback when ortools isn't available in current runtime.
     status: dict = {"ortools_available": importlib.util.find_spec("ortools") is not None, "runs": {}}
     if not status["ortools_available"]:
-        return ({d: [] for d in dates}, status)
+        raise RuntimeError("OR-Tools package ontbreekt; OR-run is verplicht voor deze build.")
 
     out: dict[str, list[dict]] = {}
     for d in dates:
@@ -616,6 +615,14 @@ def main() -> None:
         )
 
     ortools_results, ortools_status = compute_ortools_results(ordered_dates, team_lookup)
+
+    empty_dates = [d for d in ordered_dates if not ortools_results.get(d)]
+    if empty_dates:
+        debug = []
+        for d in empty_dates:
+            info = (ortools_status.get("runs") or {}).get(d, {})
+            debug.append(f"{d} rc={info.get('returncode')} err={((info.get('stderr') or '')[-120:])}")
+        raise RuntimeError("OR-Tools resultaat ontbreekt voor: " + ", ".join(empty_dates) + " | " + " || ".join(debug))
 
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
