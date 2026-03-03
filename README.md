@@ -43,9 +43,24 @@ Zachte constraints (objective penalties):
 
 Zie `examples/simple_case.json`.
 
+## Tweede planningstool (OR-Tools CP-SAT)
+
+Er is nu ook een tweede planner toegevoegd met een OR-Tools optimalisatie-loop:
+
+```bash
+python scripts/ortools_planner.py --date 17-05-2026 --time-limit 30
+```
+
+Output komt standaard in:
+- `docs/ortools_result.json`
+
+Doel van deze tweede tool:
+- vergelijken met de heuristische planner op kwaliteit/runtime
+- betere bezetting op drukke dagen via CP-SAT objective
+
 ## Volgende stappen
 
-1. Inputschema fixeren met Oscar
-2. Extra zachte constraints toevoegen (eerlijkheid, rustverdeling)
+1. OR-Tools planner volledig alignen met alle KNLTB-regels + uitzonderingen
+2. Vergelijkingsrapport heuristiek vs OR-Tools per speeldag
 3. Export naar overzichtelijk schema (CSV / markdown)
-4. Github repo aanmaken + CI + tests uitbreiden
+4. Pages uitbreiden met toggle: Heuristiek / OR-Tools
