@@ -540,7 +540,7 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
             "--date",
             d,
             "--time-limit",
-            "5",
+            "20",
             "--out",
             str(out_path),
         ]
@@ -621,7 +621,9 @@ def main() -> None:
         debug = []
         for d in empty_dates:
             info = (ortools_status.get("runs") or {}).get(d, {})
-            debug.append(f"{d} rc={info.get('returncode')} err={((info.get('stderr') or '')[-120:])}")
+            err = (info.get("stderr") or "")[-120:]
+            out = (info.get("stdout") or "")[-120:]
+            debug.append(f"{d} rc={info.get('returncode')} out={out} err={err}")
         raise RuntimeError("OR-Tools resultaat ontbreekt voor: " + ", ".join(empty_dates) + " | " + " || ".join(debug))
 
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
