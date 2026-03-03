@@ -245,6 +245,35 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             model.add(sum(early_terms) == 0).only_enforce_if(has_early.Not())
             team_cutoff_bonus.append(has_early)
 
+    # soft penalty: aantal activity-blocks per team minimaliseren (minder lange gaten)
+    team_block_rises = []
+    horizon = slot_mins[:-1]
+    for team, idxs in by_team.items():
+        active_vars = []
+        for t in horizon:
+            occ_terms = []
+            for i in idxs:
+                for s in allowed_starts[i]:
+                    if s <= t < s + parts[i]["duration"]:
+                        for c in courts:
+                            occ_terms.append(x[(i, s, c)])
+            a = model.new_bool_var(f"team_active_{abs(hash(team))%10_000_000}_t{t}")
+            if occ_terms:
+                model.add(sum(occ_terms) >= 1).only_enforce_if(a)
+                model.add(sum(occ_terms) == 0).only_enforce_if(a.Not())
+            else:
+                model.add(a == 0)
+            active_vars.append(a)
+
+        for k in range(1, len(active_vars)):
+            prev_a = active_vars[k - 1]
+            cur_a = active_vars[k]
+            rise = model.new_bool_var(f"team_rise_{abs(hash(team))%10_000_000}_{k}")
+            model.add(rise >= cur_a - prev_a)
+            model.add(rise <= cur_a)
+            model.add(rise <= 1 - prev_a)
+            team_block_rises.append(rise)
+
     # comfort-pass penalties: late starts, extra streng voor jeugd/groen
     late_start_penalty = []
     youth_late_penalty = []
@@ -266,6 +295,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
         + 100 * sum(early_start_bonus)
         - 80_000 * sum(late_start_penalty)
         - 40_000 * sum(youth_late_penalty)
+        - 25_000 * sum(team_block_rises)
     )
 
     solver = cp_model.CpSolver()
