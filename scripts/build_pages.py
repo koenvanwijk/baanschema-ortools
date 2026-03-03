@@ -525,10 +525,11 @@ def render_rule_violations(violations: list[str]) -> str:
     return f"<div class='violations'><strong>Niet-gehaalde regels op deze dag</strong><ul>{items}</ul></div>"
 
 
-def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> dict[str, list[dict]]:
+def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> tuple[dict[str, list[dict]], dict]:
     # Graceful fallback when ortools isn't available in current runtime.
-    if importlib.util.find_spec("ortools") is None:
-        return {d: [] for d in dates}
+    status: dict = {"ortools_available": importlib.util.find_spec("ortools") is not None, "runs": {}}
+    if not status["ortools_available"]:
+        return ({d: [] for d in dates}, status)
 
     out: dict[str, list[dict]] = {}
     for d in dates:
@@ -544,6 +545,12 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
             str(out_path),
         ]
         proc = subprocess.run(cmd, capture_output=True, text=True)
+        status["runs"][d] = {
+            "returncode": proc.returncode,
+            "stdout": (proc.stdout or "")[-400:],
+            "stderr": (proc.stderr or "")[-400:],
+            "out_exists": out_path.exists(),
+        }
         if proc.returncode != 0 or not out_path.exists():
             out[d] = []
             continue
@@ -569,7 +576,7 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
                 }
             )
         out[d] = rows
-    return out
+    return out, status
 
 
 def main() -> None:
@@ -607,10 +614,11 @@ def main() -> None:
             + "\n- ".join(blockers)
         )
 
-    ortools_results = compute_ortools_results(ordered_dates, team_lookup)
+    ortools_results, ortools_status = compute_ortools_results(ordered_dates, team_lookup)
 
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
+    (DOCS / "ortools_status.json").write_text(json.dumps(ortools_status, indent=2, ensure_ascii=False), encoding="utf-8")
 
     sections = []
     for d, rows in results.items():
@@ -674,6 +682,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
     <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>
     <li>Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.</li>
     <li>KNLTB-tekstregels worden hieronder per dag gecontroleerd; afwijkingen staan geel gemarkeerd.</li>
+    <li>OR-Tools debugstatus: <code>ortools_status.json</code> (laat zien of de OR-Tools run echt is uitgevoerd).</li>
   </ul>
 </div>
 <div class='toggle'>
