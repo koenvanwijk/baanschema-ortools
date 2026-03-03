@@ -227,6 +227,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     latest_start = 19 * 60 + 30
     first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
     first_match_latest_by_date = {
+        "06-04-2026": 16 * 60,
         "12-04-2026": 16 * 60,
         "19-04-2026": 17 * 60,
         "10-05-2026": 17 * 60,
@@ -318,6 +319,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                 starts = list(start_range)
                 starts.sort(
                     key=lambda s: (
+                        # nieuwe voorkeur: vrije ochtendbanen sneller opvullen
+                        -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
                         gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]),
                         -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
                         s,
