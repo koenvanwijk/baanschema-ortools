@@ -199,19 +199,26 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
     # NOTE: first-match cutoff is treated as soft preference in OR mode.
     # Hard enforcement made several days infeasible; we keep it in the objective instead.
 
-    # objective phase 1+2 in one shot:
-    # maximize scheduled parts, then maximize morning occupancy, then earlier starts
-    scheduled_score = sum(y) * 1_000_000
+    # Lexicographic-like objective (grote gewichtsstappen):
+    # 1) maximaal planbaar
+    # 2) ochtendbezetting
+    # 3) totale bezetting
+    # 4) vroege starts
+    # 5) first-start cutoff per team
+    scheduled_score = sum(y) * 1_000_000_000
 
     morning_occ_terms = []
+    total_occ_terms = []
     for c in courts:
         for t in slot_mins[:-1]:
-            if t >= 12 * 60:
-                continue
+            terms_here = []
             for p_idx, p in enumerate(parts):
                 for s in allowed_starts[p_idx]:
                     if s <= t < s + p["duration"]:
-                        morning_occ_terms.append(x[(p_idx, s, c)])
+                        terms_here.append(x[(p_idx, s, c)])
+            total_occ_terms.extend(terms_here)
+            if t < 12 * 60:
+                morning_occ_terms.extend(terms_here)
 
     early_start_bonus = []
     for p_idx, p in enumerate(parts):
@@ -236,7 +243,22 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             model.add(sum(early_terms) == 0).only_enforce_if(has_early.Not())
             team_cutoff_bonus.append(has_early)
 
-    model.maximize(scheduled_score + 100 * sum(morning_occ_terms) + sum(early_start_bonus) + 5000 * sum(team_cutoff_bonus))
+    # soft penalty: late starts after 19:30 ontmoedigen
+    late_start_penalty = []
+    for p_idx, p in enumerate(parts):
+        for s in allowed_starts[p_idx]:
+            if s > 19 * 60 + 30:
+                for c in courts:
+                    late_start_penalty.append(x[(p_idx, s, c)])
+
+    model.maximize(
+        scheduled_score
+        + 1_000_000 * sum(morning_occ_terms)
+        + 100_000 * sum(total_occ_terms)
+        + 5000 * sum(team_cutoff_bonus)
+        + 100 * sum(early_start_bonus)
+        - 50_000 * sum(late_start_penalty)
+    )
 
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = time_limit_s

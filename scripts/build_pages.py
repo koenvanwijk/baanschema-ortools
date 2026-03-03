@@ -475,8 +475,14 @@ def render_kpi_compare(heur_rows: list[dict], ort_rows: list[dict]) -> str:
     if not o:
         return "<div class='kpi'><strong>KPI</strong>: OR-Tools nog niet beschikbaar voor vergelijking.</div>"
 
+    # simpele score voor dagwinnaar
+    h_score = h['morning'] + h['total'] - 5 * h['long_gaps'] - 3 * h['violations']
+    o_score = o['morning'] + o['total'] - 5 * o['long_gaps'] - 3 * o['violations']
+    winner = "OR-Tools" if o_score > h_score else "Heuristiek"
+
     return (
         "<div class='kpi'><strong>KPI Heuristiek vs OR-Tools</strong>"
+        f" <span class='small'>(dagwinnaar: <strong>{winner}</strong>)</span>"
         f"<ul><li>Ochtendbezetting: {h['morning']}% vs {o['morning']}%</li>"
         f"<li>Totale bezetting: {h['total']}% vs {o['total']}%</li>"
         f"<li>Teams met >60 min gat: {h['long_gaps']} vs {o['long_gaps']}</li>"
@@ -533,11 +539,11 @@ def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
     # 1) Starttijd op hele/halve uren, binnen 08:30-16:30 (KNLTB basisregel)
     bad_start_format = [r for r in valid if hhmm_to_mins(r["start"]) % 30 != 0]
     if bad_start_format:
-        violations.append(f"Start op kwartier i.p.v. heel/half uur: {len(bad_start_format)} partijen.")
+        violations.append(f"[SOFT] Start op kwartier i.p.v. heel/half uur: {len(bad_start_format)} partijen.")
 
     out_of_window = [r for r in valid if hhmm_to_mins(r["start"]) < 8 * 60 + 30 or hhmm_to_mins(r["start"]) > 16 * 60 + 30]
     if out_of_window:
-        violations.append(f"Start buiten 08:30–16:30: {len(out_of_window)} partijen.")
+        violations.append(f"[HARD] Start buiten 08:30–16:30: {len(out_of_window)} partijen.")
 
     # 2) Junioren eerste start idealiter <=12:00 (anders capaciteitsuitzondering)
     by_team: dict[str, list[dict]] = defaultdict(list)
@@ -559,11 +565,11 @@ def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
             too_late_last_start += 1
 
     if late_junior:
-        violations.append(f"Junioren eerste start na 12:00 (capaciteitsuitzondering nodig): {late_junior} teams.")
+        violations.append(f"[SOFT] Junioren eerste start na 12:00 (capaciteitsuitzondering nodig): {late_junior} teams.")
     if late_gem8:
-        violations.append(f"Gemengd 8-partijen eerste start na 14:00: {late_gem8} teams.")
+        violations.append(f"[HARD] Gemengd 8-partijen eerste start na 14:00: {late_gem8} teams.")
     if too_late_last_start:
-        violations.append(f"Laatste partijstart na 19:30: {too_late_last_start} teams.")
+        violations.append(f"[HARD] Laatste partijstart na 19:30: {too_late_last_start} teams.")
 
     return violations
 
