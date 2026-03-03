@@ -282,8 +282,12 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             team_block_rises.append(rise)
             team_rises.append(rise)
 
-        # indicator voor sterk gefragmenteerde teamdag (meerdere gaten)
+        # Harde compactheidseis: maximaal 2 speelblokken per teamdag.
+        # Blokken = start van activiteit op dagstart + 0->1 overgangen.
         if team_rises:
+            model.add(active_vars[0] + sum(team_rises) <= 2)
+
+            # Extra soft indicator voor sterk gefragmenteerde teamdag (moet idealiter 0 blijven)
             long_gap = model.new_bool_var(f"team_long_gap_{abs(hash(team))%10_000_000}")
             model.add(sum(team_rises) >= 3).only_enforce_if(long_gap)
             model.add(sum(team_rises) <= 2).only_enforce_if(long_gap.Not())
