@@ -247,11 +247,11 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         if r.kind == "oranje":
             reserve_courts = [1, 2, 3]
             label = "ORANJE"
-            res_start, res_end = 9 * 60, 11 * 60
+            res_start, res_end = 8 * 60 + 30, 10 * 60 + 30
         elif r.kind == "rood":
             reserve_courts = [1]
             label = "ROOD"
-            res_start, res_end = 9 * 60, 10 * 60  # rood duurt 1 uur
+            res_start, res_end = 8 * 60 + 30, 9 * 60 + 30  # rood duurt 1 uur
         else:
             reserve_courts = []
             label = r.kind.upper()
@@ -595,7 +595,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 <div class='requirements'>
   <h3>Planningsregels (actueel)</h3>
   <ul>
-    <li>10 banen totaal; Rood reserveert baan 1 (09:00–10:00), Oranje reserveert baan 1–3 (09:00–11:00).</li>
+    <li>10 banen totaal; Rood reserveert baan 1 (08:30–09:30), Oranje reserveert baan 1–3 (08:30–10:30).</li>
     <li>Teams spelen partijen met labels S / D / GD; singles niet tegelijk met dubbels, singles wel met GD.</li>
     <li>Startvenster basis: vanaf 08:30; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
     <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>
