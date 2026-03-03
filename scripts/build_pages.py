@@ -679,6 +679,33 @@ def main() -> None:
     (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_status.json").write_text(json.dumps(ortools_status, indent=2, ensure_ascii=False), encoding="utf-8")
 
+    def reservation_rows_for_date(d: str) -> list[dict]:
+        out = []
+        for r in reserve_by_date.get(d, []):
+            if r.kind == "oranje":
+                courts, start, end, label = [1, 2, 3], "08:30", "10:30", "ORANJE"
+            elif r.kind == "rood":
+                courts, start, end, label = [1], "08:30", "09:30", "ROOD"
+            else:
+                courts, start, end, label = [], "08:30", "10:30", r.kind.upper()
+            for c in courts:
+                out.append(
+                    {
+                        "schema": r.schema,
+                        "team_short": label,
+                        "home_team": "",
+                        "away_team": "",
+                        "part": "COMP",
+                        "kind": "R",
+                        "matches": 0,
+                        "duration_min_cfg": 0,
+                        "start": start,
+                        "end": end,
+                        "court": c,
+                    }
+                )
+        return out
+
     sections = []
     for d, rows in results.items():
         failed = [r for r in rows if r["start"] == "NIET_GELUKT"]
@@ -688,7 +715,7 @@ def main() -> None:
                 html.escape(f"{r['team_short']} {r['part']}") for r in failed
             ) + "</p>"
         violations = evaluate_day_rule_violations(rows)
-        ort_rows = ortools_results.get(d, [])
+        ort_rows = reservation_rows_for_date(d) + ortools_results.get(d, [])
         run_info = (ortools_status.get("runs") or {}).get(d, {})
         if ort_rows:
             ort_block = render_day_summary(ort_rows) + render_grid(ort_rows)
