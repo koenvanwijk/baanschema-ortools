@@ -304,14 +304,15 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
 
     model.maximize(
         scheduled_score
-        + 1_000_000 * sum(morning_occ_terms)
-        + 100_000 * sum(total_occ_terms)
+        + 600_000 * sum(morning_occ_terms)
+        + 80_000 * sum(total_occ_terms)
         + 5000 * sum(team_cutoff_bonus)
         + 100 * sum(early_start_bonus)
-        - 80_000 * sum(late_start_penalty)
-        - 40_000 * sum(youth_late_penalty)
-        - 80_000 * sum(team_block_rises)
-        - 600_000 * sum(long_gap_team_penalty)
+        - 120_000 * sum(late_start_penalty)
+        - 80_000 * sum(youth_late_penalty)
+        # generiek teamcomfort zwaarder: minder fragmentatie en lange aanwezigheid
+        - 1_500_000 * sum(team_block_rises)
+        - 8_000_000 * sum(long_gap_team_penalty)
     )
 
     solver = cp_model.CpSolver()
