@@ -19,12 +19,12 @@ body{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto;
 .toggle button.active{background:#111;color:#fff;border-color:#111}
 .hidden{display:none}
 .grid-wrap{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}
-.grid{border-collapse:collapse;width:max-content;min-width:100%}
-.grid th,.grid td{border:1px solid #ececec;padding:.35rem .45rem;vertical-align:top}
-.grid th{position:sticky;top:0;background:#fafafa;z-index:2}
-.time{font-variant-numeric:tabular-nums;background:#fcfcfc;position:sticky;left:0;z-index:1;min-width:58px}
-.empty{color:#bbb;text-align:center;min-width:150px}
-.cell{font-size:12px;line-height:1.2;max-width:230px}
+.grid{border-collapse:collapse;width:100%;table-layout:fixed}
+.grid th,.grid td{border:1px solid #ececec;padding:.2rem .25rem;vertical-align:top}
+.grid th{position:sticky;top:0;background:#fafafa;z-index:2;font-size:12px}
+.time{font-variant-numeric:tabular-nums;background:#fcfcfc;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px}
+.empty{color:#bbb;text-align:center}
+.cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
