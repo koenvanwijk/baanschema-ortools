@@ -396,6 +396,56 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                         }
                     )
 
+    # Post-pass: compacteer planning door partijen waar mogelijk per 15 minuten naar voren te schuiven.
+    def can_move(row: dict, new_start: int, duration: int) -> bool:
+        new_end = new_start + duration
+
+        # startgrenzen
+        if new_start < 8 * 60 + 30:
+            return False
+        if "gemengd zondag" in row["schema"].lower() and new_start < 10 * 60:
+            return False
+
+        for other in out:
+            if other is row:
+                continue
+            if other.get("start") in (None, "", "NIET_GELUKT"):
+                continue
+            os = hhmm_to_mins(other["start"])
+            oe = hhmm_to_mins(other["end"])
+
+            # zelfde baan mag niet overlappen
+            if other.get("court") == row.get("court") and overlaps((new_start, new_end), (os, oe)):
+                return False
+
+            # teamregel: singles niet tegelijk met dubbels (mix wel)
+            if other.get("schema") == row.get("schema") and overlaps((new_start, new_end), (os, oe)):
+                if row.get("kind") == "S" and other.get("kind") == "D":
+                    return False
+                if row.get("kind") == "D" and other.get("kind") == "S":
+                    return False
+
+        return True
+
+    movable = [r for r in out if r.get("part") != "COMP" and r.get("start") not in (None, "", "NIET_GELUKT")]
+    improved = True
+    while improved:
+        improved = False
+        for row in sorted(movable, key=lambda r: hhmm_to_mins(r["start"])):
+            cur_start = hhmm_to_mins(row["start"])
+            cur_end = hhmm_to_mins(row["end"])
+            dur = cur_end - cur_start
+            trial = cur_start - 15
+            while trial >= 8 * 60 + 30:
+                if can_move(row, trial, dur):
+                    row["start"] = mins_to_hhmm(trial)
+                    row["end"] = mins_to_hhmm(trial + dur)
+                    cur_start = trial
+                    trial -= 15
+                    improved = True
+                else:
+                    break
+
     return sorted(out, key=lambda x: (x["start"], x["court"] or 99, x["schema"], x["part"]))
 
 
