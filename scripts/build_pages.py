@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import subprocess
 import importlib.util
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
@@ -527,13 +528,13 @@ def render_rule_violations(violations: list[str]) -> str:
 def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> dict[str, list[dict]]:
     # Graceful fallback when ortools isn't available in current runtime.
     if importlib.util.find_spec("ortools") is None:
-        return {}
+        return {d: [] for d in dates}
 
     out: dict[str, list[dict]] = {}
     for d in dates:
         out_path = DOCS / f"ortools_{d}.json"
         cmd = [
-            "python3",
+            sys.executable,
             str(ROOT / "scripts" / "ortools_planner.py"),
             "--date",
             d,
@@ -544,6 +545,7 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
         ]
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0 or not out_path.exists():
+            out[d] = []
             continue
 
         raw = json.loads(out_path.read_text(encoding="utf-8"))
