@@ -358,6 +358,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                                 "away_team": team.away_team,
                                 "part": p["label"],
                                 "kind": p["kind"],
+                                "matches": team.matches,
+                                "duration_min_cfg": team.duration_min,
                                 "start": mins_to_hhmm(start),
                                 "end": mins_to_hhmm(end),
                                 "court": c,
@@ -376,6 +378,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                             "away_team": team.away_team,
                             "part": p["label"],
                             "kind": p["kind"],
+                            "matches": team.matches,
+                            "duration_min_cfg": team.duration_min,
                             "start": "NIET_GELUKT",
                             "end": "",
                             "court": None,
@@ -451,6 +455,69 @@ def render_grid(rows: list[dict]) -> str:
     )
 
 
+def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
+    violations: list[str] = []
+    if not valid:
+        return violations
+
+    # 1) Starttijd op hele/halve uren, binnen 08:30-16:30 (KNLTB basisregel)
+    bad_start_format = [r for r in valid if hhmm_to_mins(r["start"]) % 30 != 0]
+    if bad_start_format:
+        violations.append(f"Start op kwartier i.p.v. heel/half uur: {len(bad_start_format)} partijen.")
+
+    out_of_window = [r for r in valid if hhmm_to_mins(r["start"]) < 8 * 60 + 30 or hhmm_to_mins(r["start"]) > 16 * 60 + 30]
+    if out_of_window:
+        violations.append(f"Start buiten 08:30–16:30: {len(out_of_window)} partijen.")
+
+    # 2) Junioren eerste start idealiter <=12:00 (anders capaciteitsuitzondering)
+    by_team: dict[str, list[dict]] = defaultdict(list)
+    for r in valid:
+        by_team[r["schema"]].append(r)
+
+    late_junior = 0
+    late_gem8 = 0
+    too_late_last_start = 0
+    over_2_courts = 0
+
+    for schema, rr in by_team.items():
+        first_start = min(hhmm_to_mins(x["start"]) for x in rr)
+        last_start = max(hhmm_to_mins(x["start"]) for x in rr)
+        if "junioren" in schema.lower() and first_start > 12 * 60:
+            late_junior += 1
+        if "gemengd zondag" in schema.lower() and int(rr[0].get("matches") or 0) == 8 and first_start > 14 * 60:
+            late_gem8 += 1
+        if last_start > 19 * 60 + 30:
+            too_late_last_start += 1
+
+        # team over >2 banen tegelijk (KNLTB voorkeur)
+        st = min(hhmm_to_mins(x["start"]) for x in rr)
+        en = max(hhmm_to_mins(x["end"]) for x in rr)
+        for t in range(st, en, 15):
+            concurrent = sum(1 for x in rr if hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]))
+            if concurrent > 2:
+                over_2_courts += 1
+                break
+
+    if late_junior:
+        violations.append(f"Junioren eerste start na 12:00 (capaciteitsuitzondering nodig): {late_junior} teams.")
+    if late_gem8:
+        violations.append(f"Gemengd 8-partijen eerste start na 14:00: {late_gem8} teams.")
+    if too_late_last_start:
+        violations.append(f"Laatste partijstart na 19:30: {too_late_last_start} teams.")
+    if over_2_courts:
+        violations.append(f"Team gebruikt >2 banen tegelijk (afwijking van basisvoorkeur): {over_2_courts} teams.")
+
+    return violations
+
+
+def render_rule_violations(violations: list[str]) -> str:
+    if not violations:
+        return ""
+    items = "".join(f"<li>{html.escape(v)}</li>" for v in violations)
+    return f"<div class='violations'><strong>Niet-gehaalde regels op deze dag</strong><ul>{items}</ul></div>"
+
+
 def main() -> None:
     DOCS.mkdir(parents=True, exist_ok=True)
     teams, reserves = parse_input(INPUT)
@@ -489,7 +556,10 @@ def main() -> None:
             failed_html = "<p><strong>Niet gelukt:</strong> " + ", ".join(
                 html.escape(f"{r['team_short']} {r['part']}") for r in failed
             ) + "</p>"
-        sections.append(f"<h2>{html.escape(d)}</h2>{failed_html}{render_day_summary(rows)}{render_grid(rows)}")
+        violations = evaluate_day_rule_violations(rows)
+        sections.append(
+            f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_day_summary(rows)}{render_grid(rows)}"
+        )
 
     page = f"""<!doctype html>
 <html lang='nl'>
@@ -502,6 +572,11 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .summary h3{{margin:.2rem 0 .5rem 0;font-size:1rem}}
 .summary ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
 .summary li{{margin:.25rem 0}}
+.requirements{{background:#f7f9ff;border:1px solid #d9e2ff;border-radius:10px;padding:.75rem .95rem;margin:.8rem 0 1rem 0}}
+.requirements h3{{margin:.2rem 0 .5rem 0;font-size:1rem}}
+.requirements ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
+.violations{{background:#fff6bf;border:1px solid #e6cc55;border-radius:10px;padding:.65rem .85rem;margin:.4rem 0 .8rem 0}}
+.violations ul{{margin:.35rem 0 .1rem 1.1rem;padding:0}}
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:max-content;min-width:100%}}
 .grid th,.grid td{{border:1px solid #ececec;padding:.35rem .45rem;vertical-align:top}}
@@ -514,6 +589,17 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 <body>
 <h1>Baanschema Planner (per kwartier)</h1>
 <p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/GD1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming op kneldatums. Volgorde is jong naar oud; gemengde teams starten later (vanaf 10:00) waar mogelijk.</p>
+<div class='requirements'>
+  <h3>Planningsregels (actueel)</h3>
+  <ul>
+    <li>10 banen totaal; Rood reserveert baan 1 (09:00–10:00), Oranje reserveert baan 1–3 (09:00–11:00).</li>
+    <li>Teams spelen partijen met labels S / D / GD; singles niet tegelijk met dubbels, singles wel met GD.</li>
+    <li>Startvenster basis: vanaf 08:30; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
+    <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>
+    <li>Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.</li>
+    <li>KNLTB-tekstregels worden hieronder per dag gecontroleerd; afwijkingen staan geel gemarkeerd.</li>
+  </ul>
+</div>
 {''.join(sections)}
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
