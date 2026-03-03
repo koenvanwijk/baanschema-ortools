@@ -598,6 +598,22 @@ def render_grid(rows: list[dict]) -> str:
     )
 
 
+def assert_no_double_mix_overlap(rows: list[dict], day_label: str) -> None:
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
+    by_team: dict[str, list[dict]] = defaultdict(list)
+    for r in valid:
+        by_team[r["schema"]].append(r)
+
+    for schema, rr in by_team.items():
+        for t in range(8 * 60 + 30, 20 * 60, 15):
+            has_d = any(x.get("kind") == "D" and hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]) for x in rr)
+            has_m = any(x.get("kind") == "M" and hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]) for x in rr)
+            if has_d and has_m:
+                raise RuntimeError(
+                    f"Regelbreuk: D en GD tegelijk voor team '{schema}' op {day_label} rond {mins_to_hhmm(t)}"
+                )
+
+
 def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
     valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
     violations: list[str] = []
@@ -722,6 +738,7 @@ def main() -> None:
     blockers: list[str] = []
     for d in ordered_dates:
         day_rows = schedule_day(by_date[d], reserve_by_date[d], d)
+        assert_no_double_mix_overlap(day_rows, d)
         results[d] = day_rows
         failed = [r for r in day_rows if r["start"] == "NIET_GELUKT"]
         if failed:
@@ -789,6 +806,8 @@ def main() -> None:
             ) + "</p>"
         violations = evaluate_day_rule_violations(rows)
         ort_rows = reservation_rows_for_date(d) + ortools_results.get(d, [])
+        if ort_rows:
+            assert_no_double_mix_overlap(ort_rows, f"{d} (OR)")
         run_info = (ortools_status.get("runs") or {}).get(d, {})
         if ort_rows:
             ort_block = render_day_summary(ort_rows) + render_grid(ort_rows)
