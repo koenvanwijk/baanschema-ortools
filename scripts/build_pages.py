@@ -433,12 +433,30 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
             if other.get("court") == row.get("court") and overlaps((new_start, new_end), (os, oe)):
                 return False
 
-            # teamregel: singles niet tegelijk met dubbels (mix wel)
+            # teamregels binnen zelfde team tijdens compaction
             if other.get("schema") == row.get("schema") and overlaps((new_start, new_end), (os, oe)):
-                if row.get("kind") == "S" and other.get("kind") == "D":
+                rk = row.get("kind")
+                ok = other.get("kind")
+
+                # S en D niet tegelijk
+                if rk == "S" and ok == "D":
                     return False
-                if row.get("kind") == "D" and other.get("kind") == "S":
+                if rk == "D" and ok == "S":
                     return False
+
+                # D en GD(M) niet tegelijk
+                if rk == "D" and ok == "M":
+                    return False
+                if rk == "M" and ok == "D":
+                    return False
+
+                # Voor 2DE-2HE-DD-HD-2GD: ook S en GD niet tegelijk
+                schema_l = (row.get("schema") or "").lower()
+                if "2de-2he-dd-hd-2gd" in schema_l:
+                    if rk == "S" and ok == "M":
+                        return False
+                    if rk == "M" and ok == "S":
+                        return False
 
         return True
 
