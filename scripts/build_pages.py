@@ -321,8 +321,9 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                     key=lambda s: (
                         # nieuwe voorkeur: vrije ochtendbanen sneller opvullen
                         -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
-                        gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]),
+                        # eerst algemene bezettingsdruk, dan pas team-gat (minder strikt)
                         -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                        gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]) // 30,
                         s,
                     )
                 )
