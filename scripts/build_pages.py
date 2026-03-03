@@ -321,10 +321,10 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                 starts = list(start_range)
                 starts.sort(
                     key=lambda s: (
-                        # nieuwe voorkeur: vrije ochtendbanen sneller opvullen
-                        -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
-                        # eerst algemene bezettingsdruk, dan pas team-gat (minder strikt)
+                        # HOOFDPRIORITEIT: maximaliseer bezette banen (met name in ochtend)
                         -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                        -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                        # daarna pas teamcomfort/volgorde
                         gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]) // 30,
                         s,
                     )
