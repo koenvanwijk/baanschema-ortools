@@ -245,13 +245,18 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             model.add(sum(early_terms) == 0).only_enforce_if(has_early.Not())
             team_cutoff_bonus.append(has_early)
 
-    # soft penalty: late starts after 19:30 ontmoedigen
+    # comfort-pass penalties: late starts, extra streng voor jeugd/groen
     late_start_penalty = []
+    youth_late_penalty = []
     for p_idx, p in enumerate(parts):
+        team_l = p["team"].lower()
+        is_youth = ("junioren" in team_l) or ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l) or ("groen zondag" in team_l)
         for s in allowed_starts[p_idx]:
-            if s > 19 * 60 + 30:
-                for c in courts:
+            for c in courts:
+                if s > 19 * 60 + 30:
                     late_start_penalty.append(x[(p_idx, s, c)])
+                if is_youth and s > 17 * 60:
+                    youth_late_penalty.append(x[(p_idx, s, c)])
 
     model.maximize(
         scheduled_score
@@ -259,7 +264,8 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
         + 100_000 * sum(total_occ_terms)
         + 5000 * sum(team_cutoff_bonus)
         + 100 * sum(early_start_bonus)
-        - 50_000 * sum(late_start_penalty)
+        - 80_000 * sum(late_start_penalty)
+        - 40_000 * sum(youth_late_penalty)
     )
 
     solver = cp_model.CpSolver()
