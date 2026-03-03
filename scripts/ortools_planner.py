@@ -188,7 +188,13 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
                     if s <= t < s + parts[i]["duration"]:
                         for c in courts:
                             d_occ.append(x[(i, s, c)])
-            model.add(sum(s_occ) + sum(d_occ) <= 1)
+
+            # Singles en dubbels mogen niet tegelijk; aantallen binnen elk type mogen wel >1 zijn.
+            s_sum = sum(s_occ)
+            d_sum = sum(d_occ)
+            z = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_singles_mode")
+            model.add(s_sum <= 10 * z)
+            model.add(d_sum <= 10 * (1 - z))
 
     # first match start <= cutoff (at least one part start <= cutoff per team)
     for team, idxs in by_team.items():
