@@ -630,16 +630,35 @@ def main() -> None:
             ) + "</p>"
         violations = evaluate_day_rule_violations(rows)
         ort_rows = ortools_results.get(d, [])
-        ort_block = (
-            render_day_summary(ort_rows) + render_grid(ort_rows)
-            if ort_rows
-            else "<p class='small'>OR-Tools resultaat nog niet beschikbaar in deze run.</p>"
-        )
+        run_info = (ortools_status.get("runs") or {}).get(d, {})
+        if ort_rows:
+            ort_block = render_day_summary(ort_rows) + render_grid(ort_rows)
+        else:
+            why = "OR-Tools resultaat nog niet beschikbaar in deze run."
+            if not ortools_status.get("ortools_available", False):
+                why = "OR-Tools package niet beschikbaar in deze build-runtime."
+            elif run_info:
+                rc = run_info.get("returncode")
+                err = (run_info.get("stderr") or "").strip()
+                out = (run_info.get("stdout") or "").strip()
+                tail = err or out
+                why = f"OR-Tools run gaf geen resultaat (returncode={rc})."
+                if tail:
+                    why += f" Laatste melding: {tail[-180:]}"
+            ort_block = f"<div class='ort-status-inline'>{html.escape(why)}</div>"
         sections.append(
             f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}"
             f"<div class='plan-view heur-view'>{render_day_summary(rows)}{render_grid(rows)}</div>"
             f"<div class='plan-view ort-view hidden'>{ort_block}</div>"
         )
+
+    ort_ok_count = sum(1 for v in ortools_results.values() if v)
+    ort_total = len(ordered_dates)
+    ort_msg = (
+        f"OR-Tools runs met resultaat: {ort_ok_count}/{ort_total}."
+        if ortools_status.get("ortools_available", False)
+        else "OR-Tools niet beschikbaar in deze runtime; OR-view kan leeg zijn."
+    )
 
     page = f"""<!doctype html>
 <html lang='nl'>
@@ -660,6 +679,8 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .toggle{{display:flex;gap:.5rem;margin:.6rem 0 1rem 0}}
 .toggle button{{border:1px solid #ccc;background:#fff;padding:.35rem .6rem;border-radius:8px;cursor:pointer}}
 .toggle button.active{{background:#111;color:#fff;border-color:#111}}
+.ort-status{{background:#f3f6ff;border:1px solid #c8d4ff;border-radius:10px;padding:.55rem .75rem;margin:.45rem 0 .8rem 0;font-size:12px;color:#223}}
+.ort-status-inline{{background:#f7f7f7;border:1px solid #ddd;border-radius:10px;padding:.55rem .75rem;margin:.2rem 0 1rem 0;font-size:12px;color:#333}}
 .hidden{{display:none}}
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:100%;table-layout:fixed}}
@@ -685,6 +706,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
     <li>OR-Tools debugstatus: <code>ortools_status.json</code> (laat zien of de OR-Tools run echt is uitgevoerd).</li>
   </ul>
 </div>
+<div class='ort-status'>{html.escape(ort_msg)}</div>
 <div class='toggle'>
   <button id='btn-heur' class='active' onclick='setPlan("heur")'>Heuristiek</button>
   <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
