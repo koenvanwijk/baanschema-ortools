@@ -118,13 +118,15 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
     parts = []
     for t in day_teams:
         for label, kind in build_parts(t):
+            tl = t.schema.lower()
             parts.append(
                 {
                     "team": t.schema,
                     "label": label,
                     "kind": kind,
                     "duration": t.duration_min,
-                    "is_mixed_team": "gemengd zondag" in t.schema.lower(),
+                    "is_mixed_team": "gemengd zondag" in tl,
+                    "is_youth_team": ("junioren" in tl) or ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl) or ("groen zondag" in tl),
                 }
             )
 
@@ -139,6 +141,9 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
         starts = [m for m in slot_mins if m <= latest]
         if p["is_mixed_team"]:
             starts = [m for m in starts if m >= 10 * 60]
+        # Hard cap: jeugd/groen geen starts na 17:30
+        if p["is_youth_team"]:
+            starts = [m for m in starts if m <= 17 * 60 + 30]
         allowed_starts[p_idx] = starts
 
         vars_p = []
@@ -247,6 +252,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
 
     # soft penalty: aantal activity-blocks per team minimaliseren (minder lange gaten)
     team_block_rises = []
+    long_gap_team_penalty = []
     horizon = slot_mins[:-1]
     for team, idxs in by_team.items():
         active_vars = []
@@ -265,6 +271,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
                 model.add(a == 0)
             active_vars.append(a)
 
+        team_rises = []
         for k in range(1, len(active_vars)):
             prev_a = active_vars[k - 1]
             cur_a = active_vars[k]
@@ -273,6 +280,14 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             model.add(rise <= cur_a)
             model.add(rise <= 1 - prev_a)
             team_block_rises.append(rise)
+            team_rises.append(rise)
+
+        # indicator voor sterk gefragmenteerde teamdag (meerdere gaten)
+        if team_rises:
+            long_gap = model.new_bool_var(f"team_long_gap_{abs(hash(team))%10_000_000}")
+            model.add(sum(team_rises) >= 3).only_enforce_if(long_gap)
+            model.add(sum(team_rises) <= 2).only_enforce_if(long_gap.Not())
+            long_gap_team_penalty.append(long_gap)
 
     # comfort-pass penalties: late starts, extra streng voor jeugd/groen
     late_start_penalty = []
@@ -295,7 +310,8 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
         + 100 * sum(early_start_bonus)
         - 80_000 * sum(late_start_penalty)
         - 40_000 * sum(youth_late_penalty)
-        - 25_000 * sum(team_block_rises)
+        - 80_000 * sum(team_block_rises)
+        - 600_000 * sum(long_gap_team_penalty)
     )
 
     solver = cp_model.CpSolver()
