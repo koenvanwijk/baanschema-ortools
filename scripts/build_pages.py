@@ -278,15 +278,16 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     # Basisvolgorde: jong -> oud (rood/oranje via reservaties), gemengd later
     def team_priority(t: TeamDay) -> tuple[int, int]:
         s = t.schema.lower()
-        # Algemene heuristiek: jeugd/JO/ME eerder om ochtendcapaciteit te vullen.
-        if "jongens 13 t/m 17" in s or "meisjes 13 t/m 17" in s:
+        # Voorkeursvolgorde (zacht): jong -> oud
+        # Rood/Oranje worden apart als reservatieblokken gepland.
+        if "groen zondag" in s:
             p = 0
-        elif "groen zondag" in s:
-            p = 1
         elif "junioren 11 t/m 14" in s:
+            p = 1
+        elif "jongens 13 t/m 17" in s or "meisjes 13 t/m 17" in s:
             p = 2
         elif "gemengd zondag" in s:
-            p = 3  # gemengd later
+            p = 3
         else:
             p = 4
         return (p, -t.matches)
