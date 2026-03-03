@@ -564,6 +564,7 @@ def render_grid(rows: list[dict]) -> str:
     header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
     body = []
     for t in times[:-1]:
+        row_cls = "hour-row" if (t % 60 == 0) else ""
         tds = [f"<td class='time'>{mins_to_hhmm(t)}</td>"]
         for c in range(1, 11):
             v = cell.get((t, c))
@@ -572,7 +573,7 @@ def render_grid(rows: list[dict]) -> str:
                 tds.append(f"<td style='background:{clr}'><div class='cell'>{html.escape(txt)}</div></td>")
             else:
                 tds.append("<td class='empty'>—</td>")
-        body.append("<tr>" + "".join(tds) + "</tr>")
+        body.append(f"<tr class='{row_cls}'>" + "".join(tds) + "</tr>")
 
     return (
         "<div class='grid-wrap'><table class='grid'><thead><tr><th>Tijd</th>"
@@ -831,6 +832,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:100%;table-layout:fixed}}
 .grid th,.grid td{{border:1px solid #ececec;padding:.2rem .25rem;vertical-align:top}}
+.grid tr.hour-row td{{border-top:2px solid #bfc4cf}}
 .grid th{{position:sticky;top:0;background:#fafafa;z-index:2;font-size:12px}}
 .time{{font-variant-numeric:tabular-nums;background:#fcfcfc;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px}}
 .empty{{color:#bbb;text-align:center}}
