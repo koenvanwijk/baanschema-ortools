@@ -196,15 +196,8 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             model.add(s_sum <= 10 * z)
             model.add(d_sum <= 10 * (1 - z))
 
-    # first match start <= cutoff (at least one part start <= cutoff per team)
-    for team, idxs in by_team.items():
-        early = []
-        for i in idxs:
-            for s in allowed_starts[i]:
-                if s <= first_cutoff:
-                    for c in courts:
-                        early.append(x[(i, s, c)])
-        model.add(sum(early) >= 1)
+    # NOTE: first-match cutoff is treated as soft preference in OR mode.
+    # Hard enforcement made several days infeasible; we keep it in the objective instead.
 
     # objective phase 1+2 in one shot:
     # maximize scheduled parts, then maximize morning occupancy, then earlier starts
@@ -228,7 +221,22 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             for c in courts:
                 early_start_bonus.append(bonus * x[(p_idx, s, c)])
 
-    model.maximize(scheduled_score + 100 * sum(morning_occ_terms) + sum(early_start_bonus))
+    # soft bonus: each team prefers at least one start before cutoff
+    team_cutoff_bonus = []
+    for team, idxs in by_team.items():
+        has_early = model.new_bool_var(f"has_early_{abs(hash(team))%10_000_000}")
+        early_terms = []
+        for i in idxs:
+            for s in allowed_starts[i]:
+                if s <= first_cutoff:
+                    for c in courts:
+                        early_terms.append(x[(i, s, c)])
+        if early_terms:
+            model.add(sum(early_terms) >= 1).only_enforce_if(has_early)
+            model.add(sum(early_terms) == 0).only_enforce_if(has_early.Not())
+            team_cutoff_bonus.append(has_early)
+
+    model.maximize(scheduled_score + 100 * sum(morning_occ_terms) + sum(early_start_bonus) + 5000 * sum(team_cutoff_bonus))
 
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = time_limit_s
