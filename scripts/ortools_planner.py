@@ -127,6 +127,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
                     "duration": t.duration_min,
                     "is_mixed_team": "gemengd zondag" in tl,
                     "is_youth_team": ("junioren" in tl) or ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl) or ("groen zondag" in tl),
+                    "is_4p_combo": "2de-2he-dd-hd-2gd" in tl,
                 }
             )
 
@@ -181,6 +182,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
         s_parts = [i for i in idxs if parts[i]["kind"] == "S"]
         d_parts = [i for i in idxs if parts[i]["kind"] == "D"]
         m_parts = [i for i in idxs if parts[i]["kind"] == "M"]
+        combo_parts = [i for i in idxs if parts[i].get("is_4p_combo")]
 
         for t in slot_mins[:-1]:
             s_occ = []
@@ -217,6 +219,12 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
                 z_md = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_md_mode")
                 model.add(m_sum <= 10 * z_md)
                 model.add(d_sum <= 10 * (1 - z_md))
+
+            # Voor 2DE-2HE-DD-HD-2GD-teams: singles en GD ook niet tegelijk (4-spelers team).
+            if combo_parts and s_parts and m_parts:
+                z_sm = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_sm_mode")
+                model.add(s_sum <= 10 * z_sm)
+                model.add(m_sum <= 10 * (1 - z_sm))
 
     # NOTE: first-match cutoff is treated as soft preference in OR mode.
     # Hard enforcement made several days infeasible; we keep it in the objective instead.

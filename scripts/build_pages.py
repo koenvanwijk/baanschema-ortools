@@ -353,6 +353,14 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                     if "D" in round_kinds and ("M" in kinds_now):
                         continue
 
+                    # Voor 2DE-2HE-DD-HD-2GD-teams: singles mogen ook NIET tegelijk met GD.
+                    schema_l = team.schema.lower()
+                    if "2de-2he-dd-hd-2gd" in schema_l:
+                        if "S" in round_kinds and ("M" in kinds_now):
+                            continue
+                        if "M" in round_kinds and ("S" in kinds_now):
+                            continue
+
                     free = []
                     for c in courts:
                         if all(not overlaps((start, end), itv) for itv in court_busy[c]):
