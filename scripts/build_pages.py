@@ -423,6 +423,67 @@ def render_day_summary(rows: list[dict]) -> str:
     return "<div class='summary'><h3>Teams vandaag</h3><ul>" + "".join(items) + "</ul></div>"
 
 
+def compute_kpis(rows: list[dict]) -> dict:
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
+    if not valid:
+        return {"morning": 0, "total": 0, "long_gaps": 0, "violations": 0}
+
+    # court occupancy ratio
+    court_slots_total = 0
+    court_slots_used = 0
+    for t in range(8 * 60 + 30, 20 * 60, 15):
+        for c in range(1, 11):
+            court_slots_total += 1
+            if any(r.get("court") == c and hhmm_to_mins(r["start"]) <= t < hhmm_to_mins(r["end"]) for r in valid):
+                court_slots_used += 1
+
+    morning_total = 0
+    morning_used = 0
+    for t in range(8 * 60 + 30, 12 * 60, 15):
+        for c in range(1, 11):
+            morning_total += 1
+            if any(r.get("court") == c and hhmm_to_mins(r["start"]) <= t < hhmm_to_mins(r["end"]) for r in valid):
+                morning_used += 1
+
+    # teams with long gaps > 60 min
+    by_team: dict[str, list[dict]] = defaultdict(list)
+    for r in valid:
+        by_team[r["schema"]].append(r)
+    long_gaps = 0
+    for _schema, rr in by_team.items():
+        st = min(hhmm_to_mins(x["start"]) for x in rr)
+        en = max(hhmm_to_mins(x["end"]) for x in rr)
+        occupied = 0
+        for t in range(st, en, 15):
+            if any(hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]) for x in rr):
+                occupied += 15
+        idle = (en - st) - occupied
+        if idle > 60:
+            long_gaps += 1
+
+    return {
+        "morning": round(100 * morning_used / max(1, morning_total), 1),
+        "total": round(100 * court_slots_used / max(1, court_slots_total), 1),
+        "long_gaps": long_gaps,
+        "violations": len(evaluate_day_rule_violations(rows)),
+    }
+
+
+def render_kpi_compare(heur_rows: list[dict], ort_rows: list[dict]) -> str:
+    h = compute_kpis(heur_rows)
+    o = compute_kpis(ort_rows) if ort_rows else None
+    if not o:
+        return "<div class='kpi'><strong>KPI</strong>: OR-Tools nog niet beschikbaar voor vergelijking.</div>"
+
+    return (
+        "<div class='kpi'><strong>KPI Heuristiek vs OR-Tools</strong>"
+        f"<ul><li>Ochtendbezetting: {h['morning']}% vs {o['morning']}%</li>"
+        f"<li>Totale bezetting: {h['total']}% vs {o['total']}%</li>"
+        f"<li>Teams met >60 min gat: {h['long_gaps']} vs {o['long_gaps']}</li>"
+        f"<li>Aantal regelafwijkingen: {h['violations']} vs {o['violations']}</li></ul></div>"
+    )
+
+
 def render_grid(rows: list[dict]) -> str:
     valid = [r for r in rows if r["start"] != "NIET_GELUKT"]
     if not valid:
@@ -486,7 +547,6 @@ def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
     late_junior = 0
     late_gem8 = 0
     too_late_last_start = 0
-    over_2_courts = 0
 
     for schema, rr in by_team.items():
         first_start = min(hhmm_to_mins(x["start"]) for x in rr)
@@ -498,23 +558,12 @@ def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
         if last_start > 19 * 60 + 30:
             too_late_last_start += 1
 
-        # team over >2 banen tegelijk (KNLTB voorkeur)
-        st = min(hhmm_to_mins(x["start"]) for x in rr)
-        en = max(hhmm_to_mins(x["end"]) for x in rr)
-        for t in range(st, en, 15):
-            concurrent = sum(1 for x in rr if hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]))
-            if concurrent > 2:
-                over_2_courts += 1
-                break
-
     if late_junior:
         violations.append(f"Junioren eerste start na 12:00 (capaciteitsuitzondering nodig): {late_junior} teams.")
     if late_gem8:
         violations.append(f"Gemengd 8-partijen eerste start na 14:00: {late_gem8} teams.")
     if too_late_last_start:
         violations.append(f"Laatste partijstart na 19:30: {too_late_last_start} teams.")
-    if over_2_courts:
-        violations.append(f"Team gebruikt >2 banen tegelijk (afwijking van basisvoorkeur): {over_2_courts} teams.")
 
     return violations
 
@@ -657,7 +706,7 @@ def main() -> None:
                     why += f" Laatste melding: {tail[-180:]}"
             ort_block = f"<div class='ort-status-inline'>{html.escape(why)}</div>"
         sections.append(
-            f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}"
+            f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_kpi_compare(rows, ort_rows)}"
             f"<div class='plan-view heur-view'>{render_day_summary(rows)}{render_grid(rows)}</div>"
             f"<div class='plan-view ort-view hidden'>{ort_block}</div>"
         )
@@ -686,6 +735,8 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .requirements ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
 .violations{{background:#fff6bf;border:1px solid #e6cc55;border-radius:10px;padding:.65rem .85rem;margin:.4rem 0 .8rem 0}}
 .violations ul{{margin:.35rem 0 .1rem 1.1rem;padding:0}}
+.kpi{{background:#eefaf1;border:1px solid #b6e3c1;border-radius:10px;padding:.6rem .8rem;margin:.4rem 0 .8rem 0}}
+.kpi ul{{margin:.35rem 0 .1rem 1.1rem;padding:0}}
 .toggle{{display:flex;gap:.5rem;margin:.6rem 0 1rem 0}}
 .toggle button{{border:1px solid #ccc;background:#fff;padding:.35rem .6rem;border-radius:8px;cursor:pointer}}
 .toggle button.active{{background:#111;color:#fff;border-color:#111}}
