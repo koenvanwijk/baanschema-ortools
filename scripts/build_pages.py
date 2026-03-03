@@ -539,10 +539,7 @@ def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
         return violations
 
     # 1) Starttijd op hele/halve uren, binnen 08:30-16:30 (KNLTB basisregel)
-    bad_start_format = [r for r in valid if hhmm_to_mins(r["start"]) % 30 != 0]
-    if bad_start_format:
-        violations.append(f"[SOFT] Start op kwartier i.p.v. heel/half uur: {len(bad_start_format)} partijen.")
-
+    # Kwartierstarts zijn toegestaan (geen penalty).
     out_of_window = [r for r in valid if hhmm_to_mins(r["start"]) < 8 * 60 + 30 or hhmm_to_mins(r["start"]) > 16 * 60 + 30]
     if out_of_window:
         violations.append(f"[HARD] Start buiten 08:30–16:30: {len(out_of_window)} partijen.")
