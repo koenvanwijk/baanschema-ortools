@@ -924,6 +924,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 <div class='toggle'>
   <button id='btn-heur' class='active' onclick='setPlan("heur")'>Heuristiek</button>
   <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
+  <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
 {''.join(sections)}
 <script>
@@ -961,6 +962,7 @@ function setPlan(mode){{
     .small{color:#666}
     .card{border:1px solid #e6e6e6;border-radius:10px;padding:.7rem .85rem;margin:.7rem 0}
     .ok{color:#107a2f}.live{color:#0b63c7}.future{color:#7a5a00}
+    #matrixTbl td{font-size:11px;min-width:110px;height:28px}
     .cols{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
     @media (max-width:900px){.cols{grid-template-columns:1fr}}
   </style>
@@ -1015,6 +1017,17 @@ function setPlan(mode){{
     </table>
   </div>
 
+  <div class='card'>
+    <strong>Matrix (zelfde stijl) — afvinken in de cel</strong>
+    <div class='small'>Vink in de startcel de partij af; updates worden direct doorgevoerd.</div>
+    <div style='overflow:auto'>
+      <table id='matrixTbl'>
+        <thead><tr><th>Tijd</th><th>B1</th><th>B2</th><th>B3</th><th>B4</th><th>B5</th><th>B6</th><th>B7</th><th>B8</th><th>B9</th><th>B10</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
 <script>
 let DATA = {};
 
@@ -1062,6 +1075,53 @@ function renderChecklist(d){
   });
 }
 
+function renderMatrix(d, rows, done, nowMin){
+  const tb = document.querySelector('#matrixTbl tbody');
+  tb.innerHTML='';
+  const playable = rows.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
+  if(!playable.length) return;
+
+  const starts = playable.map(r=>toMin(r.start));
+  const ends = playable.map(r=>toMin(r.end));
+  const t0 = Math.min(...starts);
+  const t1 = Math.max(...ends);
+
+  const startCell = new Map();
+  const occ = new Map();
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    for(let t=toMin(r.start); t<toMin(r.end); t+=15){
+      occ.set(`${t}-${r.court}`, r);
+    }
+    startCell.set(`${toMin(r.start)}-${r.court}`, r);
+  });
+
+  for(let t=t0; t<t1; t+=15){
+    const tr = document.createElement('tr');
+    const hh = String(Math.floor(t/60)).padStart(2,'0');
+    const mm = String(t%60).padStart(2,'0');
+    tr.innerHTML = `<td>${hh}:${mm}</td>`;
+    for(let c=1;c<=10;c++){
+      const key = `${t}-${c}`;
+      const r = occ.get(key);
+      const td = document.createElement('td');
+      if(!r){ td.textContent='—'; tr.appendChild(td); continue; }
+      if(startCell.has(key)){
+        const k = keyFor(d,r);
+        const checked = done.has(k) ? 'checked' : '';
+        const disabled = toMin(r.end)<=nowMin ? 'disabled' : '';
+        td.innerHTML = `<label><input type='checkbox' data-k="${k}" ${checked} ${disabled}> ${r.team_short||r.schema} · ${r.part}</label>`;
+        const cb = td.querySelector('input');
+        if(cb){ cb.addEventListener('change', (ev)=>{ if(ev.target.checked) done.add(k); else done.delete(k); saveDone(d,done); renderAll(); }); }
+      } else {
+        td.style.opacity='0.5';
+      }
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+}
+
 function renderAll(){
   const d = document.getElementById('date').value;
   if(!d || !DATA[d]) return;
@@ -1098,6 +1158,8 @@ function renderAll(){
     const cls = r.status==='bezig' ? 'live' : (r.status==='gepland' ? 'future' : '');
     return `<td>${r.start||''}</td><td>${r.end||''}</td><td>${r.court??'-'}</td><td>${r.team_short||r.schema||''}</td><td>${r.part||''}</td><td class='${cls}'>${r.status||''}</td>`;
   });
+
+  renderMatrix(d, rows, done, nowMin);
 }
 
 init();
