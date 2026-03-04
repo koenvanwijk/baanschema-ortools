@@ -597,7 +597,7 @@ def render_grid(rows: list[dict]) -> str:
         s = hhmm_to_mins(r["start"])
         e = hhmm_to_mins(r["end"])
         label = f"{r['team_short']} · {r['part']}"
-        color = color_for(r["schema"])
+        color = color_for(r.get("team_id") or r["schema"])
         for t in range(s, e, 15):
             cell[(t, int(r["court"]))] = (label, color)
 
@@ -721,12 +721,17 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
 
         raw = json.loads(out_path.read_text(encoding="utf-8"))
         rows = []
+        schema_idx: dict[str, int] = defaultdict(int)
         for r in raw.get("rows", []):
             schema = r.get("team", "")
-            t = team_lookup.get(f"{d}::{schema}")
+            schema_idx[schema] += 1
+            team_id = f"{d}::{schema}::instance-{schema_idx[schema]}"
+            # Best effort lookup (may be empty when same schema occurs multiple times)
+            t = next((tv for k, tv in team_lookup.items() if k.startswith(f"{d}::{schema}::")), None)
             rows.append(
                 {
                     "schema": schema,
+                    "team_id": team_id,
                     "team_short": short_team_name(schema),
                     "home_team": t.home_team if t else "",
                     "away_team": t.away_team if t else "",
