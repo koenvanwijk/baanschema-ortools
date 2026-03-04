@@ -596,7 +596,7 @@ def render_grid(rows: list[dict]) -> str:
     header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
     body = []
     for t in times[:-1]:
-        row_cls = "hour-row" if (t % 60 == 0) else ""
+        row_cls = "major-row" if ((t - (8 * 60 + 30)) % 90 == 0) else ""
         tds = [f"<td class='time'>{mins_to_hhmm(t)}</td>"]
         for c in range(1, 11):
             v = cell.get((t, c))
@@ -883,7 +883,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:100%;table-layout:fixed}}
 .grid th,.grid td{{border:1px solid #dcdfe6;padding:.2rem .25rem;vertical-align:middle;height:30px;min-height:30px;box-sizing:border-box}}
-.grid tr.hour-row td{{border-top:3px solid #8f97a8}}
+.grid tr.major-row td{{border-top:3px solid #8f97a8}}
 .grid th{{position:sticky;top:0;background:#fafafa;z-index:2;font-size:12px}}
 .time{{font-variant-numeric:tabular-nums;background:#f3f4f7;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px;font-weight:600}}
 .empty{{color:#aeb4c2;text-align:center}}
