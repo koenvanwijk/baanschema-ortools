@@ -23,6 +23,7 @@ class TeamDay:
     date: str
     weekday: str
     schema: str
+    team_id: str
     matches: int
     duration_min: int
     singles: int
@@ -81,11 +82,13 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
                 elif team2.upper().startswith("MIERLO"):
                     home_team, away_team = team2, team1
 
+            team_id = f"{date}::{schema}::{home_team}::{away_team}"
             teams.append(
                 TeamDay(
                     date=date,
                     weekday=weekday,
                     schema=schema,
+                    team_id=team_id,
                     matches=matches,
                     duration_min=duration,
                     singles=_to_int(row.get("Singles") or ""),
@@ -304,7 +307,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
 
     for team in ordered:
         rounds = build_rounds(team)
-        tname = team.schema
+        tname = team.team_id
 
         for idx, rnd in enumerate(rounds):
             needed = len(rnd)
@@ -377,8 +380,9 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                         team_busy[tname].append((start, end, p["kind"]))
                         out.append(
                             {
-                                "schema": tname,
-                                "team_short": short_team_name(tname),
+                                "schema": team.schema,
+                                "team_id": team.team_id,
+                                "team_short": short_team_name(team.schema),
                                 "home_team": team.home_team,
                                 "away_team": team.away_team,
                                 "part": p["label"],
@@ -397,8 +401,9 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                 for p in rnd:
                     out.append(
                         {
-                            "schema": tname,
-                            "team_short": short_team_name(tname),
+                            "schema": team.schema,
+                            "team_id": team.team_id,
+                            "team_short": short_team_name(team.schema),
                             "home_team": team.home_team,
                             "away_team": team.away_team,
                             "part": p["label"],
@@ -434,7 +439,7 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                 return False
 
             # teamregels binnen zelfde team tijdens compaction
-            if other.get("schema") == row.get("schema") and overlaps((new_start, new_end), (os, oe)):
+            if other.get("team_id") == row.get("team_id") and overlaps((new_start, new_end), (os, oe)):
                 rk = row.get("kind")
                 ok = other.get("kind")
 
@@ -488,21 +493,24 @@ def render_day_summary(rows: list[dict]) -> str:
     for r in valid:
         if r.get("part") == "COMP":
             continue
-        by_team[r["schema"]].append(r)
+        by_team[r.get("team_id") or r["schema"]].append(r)
 
     if not by_team:
         return ""
 
     items = []
-    for schema, rr in sorted(by_team.items(), key=lambda kv: min(hhmm_to_mins(x["start"]) for x in kv[1])):
+    for _team_id, rr in sorted(by_team.items(), key=lambda kv: min(hhmm_to_mins(x["start"]) for x in kv[1])):
+        schema_name = rr[0].get("schema", "")
         first_start = mins_to_hhmm(min(hhmm_to_mins(x["start"]) for x in rr))
         last_end = mins_to_hhmm(max(hhmm_to_mins(x["end"]) for x in rr))
-        team_short = rr[0].get("team_short", short_team_name(schema))
+        team_short = rr[0].get("team_short", short_team_name(schema_name))
         home = rr[0].get("home_team", "")
         away = rr[0].get("away_team", "")
         matchup = f"{home} vs {away}" if home or away else "-"
+        planned = len(rr)
+        target = int(rr[0].get("matches") or planned)
         items.append(
-            f"<li><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema)} )</span>: {html.escape(matchup)} — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
+            f"<li><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema_name)} )</span>: {html.escape(matchup)} — wedstrijden <strong>{planned}/{target}</strong> — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
         )
 
     return "<div class='summary'><h3>Teams vandaag</h3><ul>" + "".join(items) + "</ul></div>"
@@ -533,7 +541,7 @@ def compute_kpis(rows: list[dict]) -> dict:
     # teams with long gaps > 60 min
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
-        by_team[r["schema"]].append(r)
+        by_team[r.get("team_id") or r["schema"]].append(r)
     long_gaps = 0
     for _schema, rr in by_team.items():
         st = min(hhmm_to_mins(x["start"]) for x in rr)
@@ -620,15 +628,15 @@ def assert_no_double_mix_overlap(rows: list[dict], day_label: str) -> None:
     valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
-        by_team[r["schema"]].append(r)
+        by_team[r.get("team_id") or r["schema"]].append(r)
 
-    for schema, rr in by_team.items():
+    for team_key, rr in by_team.items():
         for t in range(8 * 60 + 30, 20 * 60, 15):
             has_d = any(x.get("kind") == "D" and hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]) for x in rr)
             has_m = any(x.get("kind") == "M" and hhmm_to_mins(x["start"]) <= t < hhmm_to_mins(x["end"]) for x in rr)
             if has_d and has_m:
                 raise RuntimeError(
-                    f"Regelbreuk: D en GD tegelijk voor team '{schema}' op {day_label} rond {mins_to_hhmm(t)}"
+                    f"Regelbreuk: D en GD tegelijk voor team '{rr[0].get('schema', team_key)}' op {day_label} rond {mins_to_hhmm(t)}"
                 )
 
 
@@ -638,31 +646,33 @@ def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
     if not valid:
         return violations
 
-    # 1) Starttijd op hele/halve uren, binnen 08:30-16:30 (KNLTB basisregel)
-    # Kwartierstarts zijn toegestaan (geen penalty).
-    out_of_window = [r for r in valid if hhmm_to_mins(r["start"]) < 8 * 60 + 30 or hhmm_to_mins(r["start"]) > 16 * 60 + 30]
-    if out_of_window:
-        violations.append(f"[HARD] Start buiten 08:30–16:30: {len(out_of_window)} partijen.")
+    # 1) Kwartierstarts zijn toegestaan (geen penalty).
 
-    # 2) Junioren eerste start idealiter <=12:00 (anders capaciteitsuitzondering)
+    # 2) Eerste teamstart binnen 08:30-16:30 (volgens verduidelijking)
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
-        by_team[r["schema"]].append(r)
+        by_team[r.get("team_id") or r["schema"]].append(r)
 
+    first_start_out_of_window = 0
     late_junior = 0
     late_gem8 = 0
     too_late_last_start = 0
 
-    for schema, rr in by_team.items():
+    for _team_key, rr in by_team.items():
+        schema_name = rr[0].get("schema", "")
         first_start = min(hhmm_to_mins(x["start"]) for x in rr)
         last_start = max(hhmm_to_mins(x["start"]) for x in rr)
-        if "junioren" in schema.lower() and first_start > 12 * 60:
+        if first_start < 8 * 60 + 30 or first_start > 16 * 60 + 30:
+            first_start_out_of_window += 1
+        if "junioren" in schema_name.lower() and first_start > 12 * 60:
             late_junior += 1
-        if "gemengd zondag" in schema.lower() and int(rr[0].get("matches") or 0) == 8 and first_start > 14 * 60:
+        if "gemengd zondag" in schema_name.lower() and int(rr[0].get("matches") or 0) == 8 and first_start > 14 * 60:
             late_gem8 += 1
         if last_start > 19 * 60 + 30:
             too_late_last_start += 1
 
+    if first_start_out_of_window:
+        violations.append(f"[HARD] Eerste teamstart buiten 08:30–16:30: {first_start_out_of_window} teams.")
     if late_junior:
         violations.append(f"[SOFT] Junioren eerste start na 12:00 (capaciteitsuitzondering nodig): {late_junior} teams.")
     if late_gem8:
@@ -748,7 +758,7 @@ def main() -> None:
     team_lookup: dict[str, TeamDay] = {}
     for d, ts in by_date.items():
         for t in ts:
-            team_lookup[f"{d}::{t.schema}"] = t
+            team_lookup[f"{d}::{t.schema}::{t.home_team}::{t.away_team}"] = t
 
     ordered_dates = sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y"))
 
