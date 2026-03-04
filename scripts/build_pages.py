@@ -953,18 +953,21 @@ function setPlan(mode){{
   <meta name='viewport' content='width=device-width, initial-scale=1'>
   <title>Baanschema Replan</title>
   <style>
-    body{font-family:Inter,system-ui,sans-serif;max-width:1100px;margin:1.2rem auto;padding:0 1rem}
-    textarea{width:100%;min-height:120px;font-family:ui-monospace,monospace}
-    input,button,select{padding:.4rem .5rem}
+    body{font-family:Inter,system-ui,sans-serif;max-width:1200px;margin:1.2rem auto;padding:0 1rem}
+    input,button,select{padding:.4rem .55rem}
     .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:.6rem 0}
     table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid #e6e6e6;padding:.35rem .45rem;text-align:left}
+    th,td{border:1px solid #e6e6e6;padding:.35rem .45rem;text-align:left;vertical-align:top}
     .small{color:#666}
+    .card{border:1px solid #e6e6e6;border-radius:10px;padding:.7rem .85rem;margin:.7rem 0}
+    .ok{color:#107a2f}.live{color:#0b63c7}.future{color:#7a5a00}
+    .cols{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    @media (max-width:900px){.cols{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <h1>Wedstrijddag Herplanning (zonder Python)</h1>
-  <p class='small'>Deze tool draait in je browser op basis van de huidige <code>result.json</code>.</p>
+  <p class='small'>Werk direct in de browser. Vink partijen af en bekijk wat klaar is, wat nu loopt en de restplanning.</p>
 
   <div class='row'>
     <label>Datum
@@ -973,60 +976,130 @@ function setPlan(mode){{
     <label>Huidige tijd
       <input id='now' value='12:15' placeholder='HH:MM'>
     </label>
-    <button onclick='runReplan()'>Herplan restdag</button>
+    <button onclick='renderAll()'>Update</button>
+    <span id='status' class='small'></span>
   </div>
 
-  <p>Afgeronde partijen (één per regel): <code>Schema | Part</code></p>
-  <textarea id='completed' placeholder='Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16 | S1'></textarea>
+  <div class='card'>
+    <strong>Te spelen partijen (afvinken)</strong>
+    <div class='small'>Checkboxen worden lokaal onthouden per datum.</div>
+    <table id='todoTbl'>
+      <thead><tr><th>Done</th><th>Team</th><th>Partij</th><th>Gepland</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-  <h2>Resultaat</h2>
-  <div id='summary' class='small'></div>
-  <table id='tbl'>
-    <thead><tr><th>Start</th><th>Eind</th><th>Baan</th><th>Team</th><th>Partij</th></tr></thead>
-    <tbody></tbody>
-  </table>
+  <div class='cols'>
+    <div class='card'>
+      <strong>Nu bezig</strong>
+      <table id='liveTbl'>
+        <thead><tr><th>Baan</th><th>Team</th><th>Partij</th><th>Tijd</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class='card'>
+      <strong>Al gespeeld</strong>
+      <table id='doneTbl'>
+        <thead><tr><th>Team</th><th>Partij</th><th>Tijd</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class='card'>
+    <strong>Nieuwe planning (rest van de dag)</strong>
+    <div id='summary' class='small'></div>
+    <table id='remainTbl'>
+      <thead><tr><th>Start</th><th>Eind</th><th>Baan</th><th>Team</th><th>Partij</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
 <script>
 let DATA = {};
-function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
-function parseCompleted(text){
-  const set = new Set();
-  text.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
-    const parts = line.split('|').map(s=>s.trim());
-    if(parts.length>=2){ set.add(parts[0]+'||'+parts[1]); }
-  });
-  return set;
-}
-async function init(){
-  const res = await fetch('./result.json?v='+Date.now());
-  DATA = await res.json();
-  const sel = document.getElementById('date');
-  Object.keys(DATA).forEach(d=>{
-    const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o);
-  });
-}
-function runReplan(){
-  const d = document.getElementById('date').value;
-  const now = document.getElementById('now').value;
-  const nowMin = toMin(now);
-  const done = parseCompleted(document.getElementById('completed').value);
-  const rows = (DATA[d]||[]).filter(r=>{
-    if(r.start==='NIET_GELUKT') return true;
-    if(r.part==='COMP') return toMin(r.end)>nowMin;
-    if(done.has((r.schema||'')+'||'+(r.part||''))) return false;
-    if(toMin(r.end)<=nowMin) return false;
-    return true;
-  }).sort((a,b)=> (a.start||'').localeCompare(b.start||'') || ((a.court||99)-(b.court||99)));
 
-  document.getElementById('summary').textContent = `Overgebleven partijen: ${rows.length}`;
-  const tb = document.querySelector('#tbl tbody');
+function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
+function keyFor(d,r){ return `${d}||${r.schema||''}||${r.part||''}`; }
+function loadDone(d){ return new Set(JSON.parse(localStorage.getItem('replan_done_'+d) || '[]')); }
+function saveDone(d,set){ localStorage.setItem('replan_done_'+d, JSON.stringify([...set])); }
+
+async function init(){
+  const status = document.getElementById('status');
+  try{
+    const res = await fetch('./result.json?v='+Date.now());
+    DATA = await res.json();
+    const sel = document.getElementById('date');
+    const dates = Object.keys(DATA);
+    if(!dates.length){ status.textContent='Geen data gevonden'; return; }
+    dates.forEach(d=>{
+      const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o);
+    });
+    sel.addEventListener('change', renderAll);
+    document.getElementById('now').addEventListener('change', renderAll);
+    status.textContent='Data geladen';
+    renderAll();
+  }catch(e){
+    status.textContent='Kon result.json niet laden';
+  }
+}
+
+function renderChecklist(d){
+  const rows = (DATA[d]||[]).filter(r=>r.part!=='COMP' && r.start!=='NIET_GELUKT');
+  const done = loadDone(d);
+  const tb = document.querySelector('#todoTbl tbody');
   tb.innerHTML='';
+  rows.sort((a,b)=> (a.team_short||a.schema).localeCompare(b.team_short||b.schema) || (a.part||'').localeCompare(b.part||''));
   rows.forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${r.start||''}</td><td>${r.end||''}</td><td>${r.court??'-'}</td><td>${r.team_short||r.schema||''}</td><td>${r.part||''}</td>`;
+    const k = keyFor(d,r);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input type='checkbox' ${done.has(k)?'checked':''}></td><td>${r.team_short||r.schema}</td><td>${r.part||''}</td><td>${r.start}-${r.end}</td>`;
+    tr.querySelector('input').addEventListener('change', (ev)=>{
+      if(ev.target.checked) done.add(k); else done.delete(k);
+      saveDone(d,done);
+      renderAll();
+    });
     tb.appendChild(tr);
   });
 }
+
+function renderAll(){
+  const d = document.getElementById('date').value;
+  if(!d || !DATA[d]) return;
+  const now = document.getElementById('now').value;
+  const nowMin = toMin(now);
+  const rows = DATA[d];
+  const done = loadDone(d);
+
+  renderChecklist(d);
+
+  const doneRows = [];
+  const liveRows = [];
+  const remainRows = [];
+
+  rows.forEach(r=>{
+    if(r.start==='NIET_GELUKT'){ remainRows.push({...r,status:'niet planbaar'}); return; }
+    const k = keyFor(d,r);
+    const s = toMin(r.start), e = toMin(r.end);
+    if(done.has(k) || e<=nowMin){ doneRows.push(r); return; }
+    if(s<=nowMin && nowMin<e){ liveRows.push(r); remainRows.push({...r,status:'bezig'}); return; }
+    remainRows.push({...r,status:'gepland'});
+  });
+
+  document.getElementById('summary').textContent = `Nu: ${now} · Gereed: ${doneRows.length} · Bezig: ${liveRows.length} · Resterend: ${remainRows.length}`;
+
+  const fill = (sel, arr, rowFn) => {
+    const tb = document.querySelector(sel); tb.innerHTML='';
+    arr.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=rowFn(r); tb.appendChild(tr); });
+  };
+
+  fill('#doneTbl tbody', doneRows.sort((a,b)=>a.end.localeCompare(b.end)), r=>`<td>${r.team_short||r.schema}</td><td>${r.part||''}</td><td>${r.start}-${r.end}</td>`);
+  fill('#liveTbl tbody', liveRows.sort((a,b)=>(a.court||99)-(b.court||99)), r=>`<td>${r.court??'-'}</td><td>${r.team_short||r.schema}</td><td>${r.part||''}</td><td>${r.start}-${r.end}</td>`);
+  fill('#remainTbl tbody', remainRows.sort((a,b)=>(a.start||'').localeCompare(b.start||'')||((a.court||99)-(b.court||99))), r=>{
+    const cls = r.status==='bezig' ? 'live' : (r.status==='gepland' ? 'future' : '');
+    return `<td>${r.start||''}</td><td>${r.end||''}</td><td>${r.court??'-'}</td><td>${r.team_short||r.schema||''}</td><td>${r.part||''}</td><td class='${cls}'>${r.status||''}</td>`;
+  });
+}
+
 init();
 </script>
 </body></html>"""
