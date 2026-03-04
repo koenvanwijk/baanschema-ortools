@@ -947,6 +947,15 @@ function setPlan(mode){{
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
 
+    # kleurmapping voor replan in dezelfde stijl als planner
+    replan_color_map = {}
+    for day_rows in results.values():
+        for r in day_rows:
+            key = r.get("team_id") or r.get("schema")
+            if key and key not in replan_color_map:
+                replan_color_map[key] = color_for(key)
+    replan_color_json = json.dumps(replan_color_map, ensure_ascii=False)
+
     replan_page = """<!doctype html>
 <html lang='nl'>
 <head>
@@ -1000,6 +1009,7 @@ function setPlan(mode){{
 
 <script>
 let DATA = {};
+const COLOR_MAP = __COLOR_JSON__;
 
 function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
 function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}||${r.start||''}||${r.court||''}`; }
@@ -1008,8 +1018,19 @@ function saveDone(d,set){ localStorage.setItem('replan_done_'+d, JSON.stringify(
 function loadActualEnd(d){ return JSON.parse(localStorage.getItem('replan_actual_end_'+d) || '{}'); }
 function saveActualEnd(d,obj){ localStorage.setItem('replan_actual_end_'+d, JSON.stringify(obj)); }
 function roundUp15(m){ return Math.ceil(m/15)*15; }
+function effectiveEndMin(d, r, nowMin, done, actualEnd){
+  const k = keyFor(d,r);
+  const planned = toMin(r.end||r.start||'00:00');
+  if(actualEnd[k] && /^\d{2}:\d{2}$/.test(actualEnd[k])) return toMin(actualEnd[k]);
+  if(done.has(k)) return planned;
+  const s = toMin(r.start||'00:00');
+  // Als partij al gestart is maar nog niet afgevinkt, loopt die minimaal tot 'nu'.
+  if(s <= nowMin) return Math.max(planned, nowMin);
+  return planned;
+}
 function hashString(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
 function colorForKey(k){
+  if(k && COLOR_MAP[k]) return COLOR_MAP[k];
   const l=(k||'').toLowerCase();
   if(l.includes('rood')) return 'hsl(0 88% 56%)';
   if(l.includes('oranje')) return 'hsl(30 92% 56%)';
@@ -1049,14 +1070,15 @@ function renderMatrix(d, rows, done, nowMin){
   if(!playable.length) return;
 
   const starts = playable.map(r=>toMin(r.start));
-  const ends = playable.map(r=>toMin(r.end));
+  const ends = playable.map(r=>effectiveEndMin(d, r, nowMin, done, actualEnd));
   const t0 = Math.min(...starts);
   const t1 = Math.max(...ends);
 
   const startCell = new Map();
   const occ = new Map();
   playable.forEach(r=>{
-    for(let t=toMin(r.start); t<toMin(r.end); t+=15){
+    const endMin = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    for(let t=toMin(r.start); t<endMin; t+=15){
       occ.set(`${t}-${r.court}`, r);
     }
     startCell.set(`${toMin(r.start)}-${r.court}`, r);
@@ -1082,8 +1104,11 @@ function renderMatrix(d, rows, done, nowMin){
 
       if(startCell.has(key)){
         const checked = done.has(k) ? 'checked' : '';
+        const effEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+        const plannedEnd = toMin(r.end||r.start||'00:00');
+        const overtime = (!done.has(k) && effEnd > plannedEnd) ? ` <span class='small'>(uitloop tot ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
         const ae = actualEnd[k] ? ` <span class='small'>(echt: ${actualEnd[k]})</span>` : '';
-        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}</label>`;
+        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}${overtime}</label>`;
         const cb = td.querySelector('input');
         if(cb){ cb.addEventListener('change', (ev)=>{
           if(ev.target.checked){
@@ -1123,15 +1148,21 @@ function runReplan(){
   const avail = {};
   for(let c=1;c<=10;c++) avail[c]=nowMin;
 
-  // lock completed + currently running based on reality (actual end when provided)
+  // lock completed + started partijen op basis van werkelijkheid
   const lockedKeys = new Set();
   playable.forEach(r=>{
     const k = keyFor(d,r);
     const s=toMin(r.start), e=toMin(r.end);
-    const realEnd = actualEnd[k] && /^\d{2}:\d{2}$/.test(actualEnd[k]) ? toMin(actualEnd[k]) : e;
-    if(done.has(k) || (s<=nowMin && nowMin<realEnd)){
+    const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+
+    // klaar of al gestart -> als feit behandelen, niet opnieuw plannen
+    if(done.has(k) || s<=nowMin){
       lockedKeys.add(k);
       if(r.court) avail[r.court] = Math.max(avail[r.court], realEnd);
+      // visualiseer actuele uitloop in matrix
+      if(realEnd !== e){
+        r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
+      }
     }
   });
 
@@ -1161,14 +1192,15 @@ function renderAll(){
   const nowMin = toMin(now);
   const rows = (CURRENT_ROWS.length ? CURRENT_ROWS : DATA[d]);
   const done = loadDone(d);
+  const actualEnd = loadActualEnd(d);
 
   let doneCount=0, liveCount=0, remainCount=0;
   rows.forEach(r=>{
     if(r.start==='NIET_GELUKT' || r.part==='COMP') return;
     const k = keyFor(d,r);
-    const s = toMin(r.start), e = toMin(r.end);
+    const s = toMin(r.start), eEff = effectiveEndMin(d, r, nowMin, done, actualEnd);
     if(done.has(k)) doneCount++;
-    else if(s<=nowMin && nowMin<e) liveCount++;
+    else if(s<=nowMin && nowMin<=eEff) liveCount++;
     else remainCount++;
   });
 
@@ -1179,6 +1211,7 @@ function renderAll(){
 init();
 </script>
 </body></html>"""
+    replan_page = replan_page.replace("__COLOR_JSON__", replan_color_json)
     (DOCS / "replan.html").write_text(replan_page, encoding="utf-8")
 
 
