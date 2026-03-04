@@ -946,6 +946,92 @@ function setPlan(mode){{
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
 
+    replan_page = """<!doctype html>
+<html lang='nl'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>Baanschema Replan</title>
+  <style>
+    body{font-family:Inter,system-ui,sans-serif;max-width:1100px;margin:1.2rem auto;padding:0 1rem}
+    textarea{width:100%;min-height:120px;font-family:ui-monospace,monospace}
+    input,button,select{padding:.4rem .5rem}
+    .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:.6rem 0}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #e6e6e6;padding:.35rem .45rem;text-align:left}
+    .small{color:#666}
+  </style>
+</head>
+<body>
+  <h1>Wedstrijddag Herplanning (zonder Python)</h1>
+  <p class='small'>Deze tool draait in je browser op basis van de huidige <code>result.json</code>.</p>
+
+  <div class='row'>
+    <label>Datum
+      <select id='date'></select>
+    </label>
+    <label>Huidige tijd
+      <input id='now' value='12:15' placeholder='HH:MM'>
+    </label>
+    <button onclick='runReplan()'>Herplan restdag</button>
+  </div>
+
+  <p>Afgeronde partijen (één per regel): <code>Schema | Part</code></p>
+  <textarea id='completed' placeholder='Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16 | S1'></textarea>
+
+  <h2>Resultaat</h2>
+  <div id='summary' class='small'></div>
+  <table id='tbl'>
+    <thead><tr><th>Start</th><th>Eind</th><th>Baan</th><th>Team</th><th>Partij</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+let DATA = {};
+function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
+function parseCompleted(text){
+  const set = new Set();
+  text.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
+    const parts = line.split('|').map(s=>s.trim());
+    if(parts.length>=2){ set.add(parts[0]+'||'+parts[1]); }
+  });
+  return set;
+}
+async function init(){
+  const res = await fetch('./result.json?v='+Date.now());
+  DATA = await res.json();
+  const sel = document.getElementById('date');
+  Object.keys(DATA).forEach(d=>{
+    const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o);
+  });
+}
+function runReplan(){
+  const d = document.getElementById('date').value;
+  const now = document.getElementById('now').value;
+  const nowMin = toMin(now);
+  const done = parseCompleted(document.getElementById('completed').value);
+  const rows = (DATA[d]||[]).filter(r=>{
+    if(r.start==='NIET_GELUKT') return true;
+    if(r.part==='COMP') return toMin(r.end)>nowMin;
+    if(done.has((r.schema||'')+'||'+(r.part||''))) return false;
+    if(toMin(r.end)<=nowMin) return false;
+    return true;
+  }).sort((a,b)=> (a.start||'').localeCompare(b.start||'') || ((a.court||99)-(b.court||99)));
+
+  document.getElementById('summary').textContent = `Overgebleven partijen: ${rows.length}`;
+  const tb = document.querySelector('#tbl tbody');
+  tb.innerHTML='';
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${r.start||''}</td><td>${r.end||''}</td><td>${r.court??'-'}</td><td>${r.team_short||r.schema||''}</td><td>${r.part||''}</td>`;
+    tb.appendChild(tr);
+  });
+}
+init();
+</script>
+</body></html>"""
+    (DOCS / "replan.html").write_text(replan_page, encoding="utf-8")
+
 
 if __name__ == "__main__":
     main()
