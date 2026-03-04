@@ -961,10 +961,13 @@ function setPlan(mode){{
     th,td{border:1px solid #e6e6e6;padding:.35rem .45rem;text-align:left;vertical-align:top}
     .small{color:#666}
     .card{border:1px solid #e6e6e6;border-radius:10px;padding:.7rem .85rem;margin:.7rem 0}
-    .ok{color:#107a2f}.live{color:#0b63c7}.future{color:#7a5a00}
-    #matrixTbl td{font-size:11px;min-width:110px;height:28px}
-    .cols{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-    @media (max-width:900px){.cols{grid-template-columns:1fr}}
+    #matrixTbl{border-collapse:collapse;width:100%;table-layout:fixed}
+    #matrixTbl th,#matrixTbl td{border:1px solid #dcdfe6;padding:.2rem .25rem;vertical-align:middle;height:30px;box-sizing:border-box}
+    #matrixTbl tr.major-row td{border-top:3px solid #8f97a8}
+    #matrixTbl th{background:#fafafa;font-size:12px}
+    #matrixTbl .time{background:#f3f4f7;font-weight:600;width:56px;min-width:56px;max-width:56px}
+    #matrixTbl .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
+    #matrixTbl input{transform:scale(.9);margin-right:.25rem}
   </style>
 </head>
 <body>
@@ -983,46 +986,11 @@ function setPlan(mode){{
   </div>
 
   <div class='card'>
-    <strong>Te spelen partijen (afvinken)</strong>
-    <div class='small'>Checkboxen worden lokaal onthouden per datum.</div>
-    <table id='todoTbl'>
-      <thead><tr><th>Done</th><th>Team</th><th>Partij</th><th>Gepland</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class='cols'>
-    <div class='card'>
-      <strong>Nu bezig</strong>
-      <table id='liveTbl'>
-        <thead><tr><th>Baan</th><th>Team</th><th>Partij</th><th>Tijd</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class='card'>
-      <strong>Al gespeeld</strong>
-      <table id='doneTbl'>
-        <thead><tr><th>Team</th><th>Partij</th><th>Tijd</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class='card'>
-    <strong>Nieuwe planning (rest van de dag)</strong>
-    <div id='summary' class='small'></div>
-    <table id='remainTbl'>
-      <thead><tr><th>Start</th><th>Eind</th><th>Baan</th><th>Team</th><th>Partij</th><th>Status</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class='card'>
-    <strong>Matrix (zelfde stijl) — afvinken in de cel</strong>
-    <div class='small'>Vink in de startcel de partij af; updates worden direct doorgevoerd.</div>
+    <strong>Wedstrijddag matrix (afvinken in de cel)</strong>
+    <div id='summary' class='small'>Checkboxen worden lokaal onthouden per datum.</div>
     <div style='overflow:auto'>
       <table id='matrixTbl'>
-        <thead><tr><th>Tijd</th><th>B1</th><th>B2</th><th>B3</th><th>B4</th><th>B5</th><th>B6</th><th>B7</th><th>B8</th><th>B9</th><th>B10</th></tr></thead>
+        <thead><tr><th>Tijd</th><th>Baan 1</th><th>Baan 2</th><th>Baan 3</th><th>Baan 4</th><th>Baan 5</th><th>Baan 6</th><th>Baan 7</th><th>Baan 8</th><th>Baan 9</th><th>Baan 10</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -1032,9 +1000,18 @@ function setPlan(mode){{
 let DATA = {};
 
 function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
-function keyFor(d,r){ return `${d}||${r.schema||''}||${r.part||''}`; }
+function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}||${r.start||''}||${r.court||''}`; }
 function loadDone(d){ return new Set(JSON.parse(localStorage.getItem('replan_done_'+d) || '[]')); }
 function saveDone(d,set){ localStorage.setItem('replan_done_'+d, JSON.stringify([...set])); }
+function hashString(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+function colorForKey(k){
+  const l=(k||'').toLowerCase();
+  if(l.includes('rood')) return 'hsl(0 88% 56%)';
+  if(l.includes('oranje')) return 'hsl(30 92% 56%)';
+  if(l.includes('groen')) return 'hsl(125 88% 46%)';
+  const h = hashString(k)%360;
+  return `hsl(${h} 92% 58%)`;
+}
 
 async function init(){
   const status = document.getElementById('status');
@@ -1047,6 +1024,7 @@ async function init(){
     dates.forEach(d=>{
       const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o);
     });
+    if(dates.length) sel.value = dates[0];
     sel.addEventListener('change', renderAll);
     document.getElementById('now').addEventListener('change', renderAll);
     status.textContent='Data geladen';
@@ -1054,25 +1032,6 @@ async function init(){
   }catch(e){
     status.textContent='Kon result.json niet laden';
   }
-}
-
-function renderChecklist(d){
-  const rows = (DATA[d]||[]).filter(r=>r.part!=='COMP' && r.start!=='NIET_GELUKT');
-  const done = loadDone(d);
-  const tb = document.querySelector('#todoTbl tbody');
-  tb.innerHTML='';
-  rows.sort((a,b)=> (a.team_short||a.schema).localeCompare(b.team_short||b.schema) || (a.part||'').localeCompare(b.part||''));
-  rows.forEach(r=>{
-    const k = keyFor(d,r);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td><input type='checkbox' ${done.has(k)?'checked':''}></td><td>${r.team_short||r.schema}</td><td>${r.part||''}</td><td>${r.start}-${r.end}</td>`;
-    tr.querySelector('input').addEventListener('change', (ev)=>{
-      if(ev.target.checked) done.add(k); else done.delete(k);
-      saveDone(d,done);
-      renderAll();
-    });
-    tb.appendChild(tr);
-  });
 }
 
 function renderMatrix(d, rows, done, nowMin){
@@ -1089,7 +1048,6 @@ function renderMatrix(d, rows, done, nowMin){
   const startCell = new Map();
   const occ = new Map();
   playable.forEach(r=>{
-    const k = keyFor(d,r);
     for(let t=toMin(r.start); t<toMin(r.end); t+=15){
       occ.set(`${t}-${r.court}`, r);
     }
@@ -1098,23 +1056,29 @@ function renderMatrix(d, rows, done, nowMin){
 
   for(let t=t0; t<t1; t+=15){
     const tr = document.createElement('tr');
+    if(((t-(8*60+30))%90)===0) tr.classList.add('major-row');
     const hh = String(Math.floor(t/60)).padStart(2,'0');
     const mm = String(t%60).padStart(2,'0');
-    tr.innerHTML = `<td>${hh}:${mm}</td>`;
+    tr.innerHTML = `<td class='time'>${hh}:${mm}</td>`;
     for(let c=1;c<=10;c++){
       const key = `${t}-${c}`;
       const r = occ.get(key);
       const td = document.createElement('td');
       if(!r){ td.textContent='—'; tr.appendChild(td); continue; }
+
+      const k = keyFor(d,r);
+      const clr = colorForKey(r.team_id||r.schema||'');
+      td.style.background = clr;
+
       if(startCell.has(key)){
-        const k = keyFor(d,r);
         const checked = done.has(k) ? 'checked' : '';
         const disabled = toMin(r.end)<=nowMin ? 'disabled' : '';
-        td.innerHTML = `<label><input type='checkbox' data-k="${k}" ${checked} ${disabled}> ${r.team_short||r.schema} · ${r.part}</label>`;
+        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked} ${disabled}>${r.team_short||r.schema} · ${r.part}</label>`;
         const cb = td.querySelector('input');
         if(cb){ cb.addEventListener('change', (ev)=>{ if(ev.target.checked) done.add(k); else done.delete(k); saveDone(d,done); renderAll(); }); }
       } else {
-        td.style.opacity='0.5';
+        td.innerHTML = `<div class='cell'>${r.team_short||r.schema} · ${r.part}</div>`;
+        td.style.opacity='0.6';
       }
       tr.appendChild(td);
     }
@@ -1130,35 +1094,17 @@ function renderAll(){
   const rows = DATA[d];
   const done = loadDone(d);
 
-  renderChecklist(d);
-
-  const doneRows = [];
-  const liveRows = [];
-  const remainRows = [];
-
+  let doneCount=0, liveCount=0, remainCount=0;
   rows.forEach(r=>{
-    if(r.start==='NIET_GELUKT'){ remainRows.push({...r,status:'niet planbaar'}); return; }
+    if(r.start==='NIET_GELUKT' || r.part==='COMP') return;
     const k = keyFor(d,r);
     const s = toMin(r.start), e = toMin(r.end);
-    if(done.has(k) || e<=nowMin){ doneRows.push(r); return; }
-    if(s<=nowMin && nowMin<e){ liveRows.push(r); remainRows.push({...r,status:'bezig'}); return; }
-    remainRows.push({...r,status:'gepland'});
+    if(done.has(k) || e<=nowMin) doneCount++;
+    else if(s<=nowMin && nowMin<e) liveCount++;
+    else remainCount++;
   });
 
-  document.getElementById('summary').textContent = `Nu: ${now} · Gereed: ${doneRows.length} · Bezig: ${liveRows.length} · Resterend: ${remainRows.length}`;
-
-  const fill = (sel, arr, rowFn) => {
-    const tb = document.querySelector(sel); tb.innerHTML='';
-    arr.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=rowFn(r); tb.appendChild(tr); });
-  };
-
-  fill('#doneTbl tbody', doneRows.sort((a,b)=>a.end.localeCompare(b.end)), r=>`<td>${r.team_short||r.schema}</td><td>${r.part||''}</td><td>${r.start}-${r.end}</td>`);
-  fill('#liveTbl tbody', liveRows.sort((a,b)=>(a.court||99)-(b.court||99)), r=>`<td>${r.court??'-'}</td><td>${r.team_short||r.schema}</td><td>${r.part||''}</td><td>${r.start}-${r.end}</td>`);
-  fill('#remainTbl tbody', remainRows.sort((a,b)=>(a.start||'').localeCompare(b.start||'')||((a.court||99)-(b.court||99))), r=>{
-    const cls = r.status==='bezig' ? 'live' : (r.status==='gepland' ? 'future' : '');
-    return `<td>${r.start||''}</td><td>${r.end||''}</td><td>${r.court??'-'}</td><td>${r.team_short||r.schema||''}</td><td>${r.part||''}</td><td class='${cls}'>${r.status||''}</td>`;
-  });
-
+  document.getElementById('summary').textContent = `Nu: ${now} · Gereed: ${doneCount} · Bezig: ${liveCount} · Resterend: ${remainCount}`;
   renderMatrix(d, rows, done, nowMin);
 }
 
