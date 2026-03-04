@@ -43,6 +43,22 @@ Zachte constraints (objective penalties):
 
 Zie `examples/simple_case.json`.
 
+## Wedstrijddag herplanning (v1)
+
+Bij onverwachte wijzigingen op de dag zelf (uitloop, eerder klaar, etc.) kun je nu een resterende planning maken:
+
+```bash
+python scripts/replan_day.py --status examples/replan_status.example.json
+```
+
+Output:
+- `docs/replan_result.json`
+
+In de status geef je o.a. door:
+- `date`
+- `now` (huidige tijd)
+- `completed` (partijen die al klaar zijn)
+
 ## Tweede planningstool (OR-Tools CP-SAT)
 
 Er is nu ook een tweede planner toegevoegd met een OR-Tools optimalisatie-loop:
