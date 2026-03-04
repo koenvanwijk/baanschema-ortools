@@ -964,6 +964,7 @@ function setPlan(mode){{
     #matrixTbl{border-collapse:collapse;width:100%;table-layout:fixed}
     #matrixTbl th,#matrixTbl td{border:1px solid #dcdfe6;padding:.2rem .25rem;vertical-align:middle;height:30px;box-sizing:border-box}
     #matrixTbl tr.major-row td{border-top:3px solid #8f97a8}
+    #matrixTbl tr.now-row td{border-top:4px solid #000 !important}
     #matrixTbl th{background:#fafafa;font-size:12px}
     #matrixTbl .time{background:#f3f4f7;font-weight:600;width:56px;min-width:56px;max-width:56px}
     #matrixTbl .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
@@ -982,6 +983,7 @@ function setPlan(mode){{
       <input id='now' value='12:15' placeholder='HH:MM'>
     </label>
     <button onclick='renderAll()'>Update</button>
+    <button onclick='runReplan()'>Herplan op basis van werkelijkheid</button>
     <span id='status' class='small'></span>
   </div>
 
@@ -1003,6 +1005,9 @@ function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
 function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}||${r.start||''}||${r.court||''}`; }
 function loadDone(d){ return new Set(JSON.parse(localStorage.getItem('replan_done_'+d) || '[]')); }
 function saveDone(d,set){ localStorage.setItem('replan_done_'+d, JSON.stringify([...set])); }
+function loadActualEnd(d){ return JSON.parse(localStorage.getItem('replan_actual_end_'+d) || '{}'); }
+function saveActualEnd(d,obj){ localStorage.setItem('replan_actual_end_'+d, JSON.stringify(obj)); }
+function roundUp15(m){ return Math.ceil(m/15)*15; }
 function hashString(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
 function colorForKey(k){
   const l=(k||'').toLowerCase();
@@ -1025,8 +1030,8 @@ async function init(){
       const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o);
     });
     if(dates.length) sel.value = dates[0];
-    sel.addEventListener('change', renderAll);
-    document.getElementById('now').addEventListener('change', renderAll);
+    sel.addEventListener('change', ()=>{ CURRENT_ROWS=[]; renderAll(); });
+    document.getElementById('now').addEventListener('change', ()=>{ renderAll(); });
     status.textContent='Data geladen';
     renderAll();
   }catch(e){
@@ -1034,9 +1039,12 @@ async function init(){
   }
 }
 
+let CURRENT_ROWS = [];
+
 function renderMatrix(d, rows, done, nowMin){
   const tb = document.querySelector('#matrixTbl tbody');
   tb.innerHTML='';
+  const actualEnd = loadActualEnd(d);
   const playable = rows.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
   if(!playable.length) return;
 
@@ -1054,9 +1062,11 @@ function renderMatrix(d, rows, done, nowMin){
     startCell.set(`${toMin(r.start)}-${r.court}`, r);
   });
 
+  const nowMark = roundUp15(nowMin);
   for(let t=t0; t<t1; t+=15){
     const tr = document.createElement('tr');
     if(((t-(8*60+30))%90)===0) tr.classList.add('major-row');
+    if(t===nowMark) tr.classList.add('now-row');
     const hh = String(Math.floor(t/60)).padStart(2,'0');
     const mm = String(t%60).padStart(2,'0');
     tr.innerHTML = `<td class='time'>${hh}:${mm}</td>`;
@@ -1072,10 +1082,23 @@ function renderMatrix(d, rows, done, nowMin){
 
       if(startCell.has(key)){
         const checked = done.has(k) ? 'checked' : '';
-        const disabled = toMin(r.end)<=nowMin ? 'disabled' : '';
-        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked} ${disabled}>${r.team_short||r.schema} · ${r.part}</label>`;
+        const ae = actualEnd[k] ? ` <span class='small'>(echt: ${actualEnd[k]})</span>` : '';
+        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}</label>`;
         const cb = td.querySelector('input');
-        if(cb){ cb.addEventListener('change', (ev)=>{ if(ev.target.checked) done.add(k); else done.delete(k); saveDone(d,done); renderAll(); }); }
+        if(cb){ cb.addEventListener('change', (ev)=>{
+          if(ev.target.checked){
+            done.add(k);
+            const defEnd = r.end || '';
+            const v = prompt('Werkelijke eindtijd (HH:MM), leeg = gepland ('+defEnd+')', actualEnd[k] || defEnd);
+            if(v && /^\d{2}:\d{2}$/.test(v)){ actualEnd[k]=v; }
+          } else {
+            done.delete(k);
+            delete actualEnd[k];
+          }
+          saveDone(d,done);
+          saveActualEnd(d,actualEnd);
+          renderAll();
+        }); }
       } else {
         td.innerHTML = `<div class='cell'>${r.team_short||r.schema} · ${r.part}</div>`;
         td.style.opacity='0.6';
@@ -1086,12 +1109,57 @@ function renderMatrix(d, rows, done, nowMin){
   }
 }
 
+function runReplan(){
+  const d = document.getElementById('date').value;
+  if(!d || !DATA[d]) return;
+  const nowMin = toMin(document.getElementById('now').value);
+  const done = loadDone(d);
+  const actualEnd = loadActualEnd(d);
+
+  const src = (DATA[d]||[]).map(r=>({...r}));
+  const playable = src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
+
+  // court availability starts at 'now'
+  const avail = {};
+  for(let c=1;c<=10;c++) avail[c]=nowMin;
+
+  // lock completed + currently running based on reality (actual end when provided)
+  const lockedKeys = new Set();
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    const s=toMin(r.start), e=toMin(r.end);
+    const realEnd = actualEnd[k] && /^\d{2}:\d{2}$/.test(actualEnd[k]) ? toMin(actualEnd[k]) : e;
+    if(done.has(k) || (s<=nowMin && nowMin<realEnd)){
+      lockedKeys.add(k);
+      if(r.court) avail[r.court] = Math.max(avail[r.court], realEnd);
+    }
+  });
+
+  // shift remaining on same court to earliest feasible time
+  const pending = playable
+    .filter(r=>!lockedKeys.has(keyFor(d,r)))
+    .sort((a,b)=> (a.start||'').localeCompare(b.start||'') || ((a.court||99)-(b.court||99)));
+
+  pending.forEach(r=>{
+    const s=toMin(r.start), e=toMin(r.end), dur=e-s;
+    const c=r.court || 1;
+    const ns = roundUp15(Math.max(s, avail[c], nowMin));
+    r.start = String(Math.floor(ns/60)).padStart(2,'0')+':'+String(ns%60).padStart(2,'0');
+    const ne = ns + dur;
+    r.end = String(Math.floor(ne/60)).padStart(2,'0')+':'+String(ne%60).padStart(2,'0');
+    avail[c]=ne;
+  });
+
+  CURRENT_ROWS = src;
+  renderAll();
+}
+
 function renderAll(){
   const d = document.getElementById('date').value;
   if(!d || !DATA[d]) return;
   const now = document.getElementById('now').value;
   const nowMin = toMin(now);
-  const rows = DATA[d];
+  const rows = (CURRENT_ROWS.length ? CURRENT_ROWS : DATA[d]);
   const done = loadDone(d);
 
   let doneCount=0, liveCount=0, remainCount=0;
@@ -1099,7 +1167,7 @@ function renderAll(){
     if(r.start==='NIET_GELUKT' || r.part==='COMP') return;
     const k = keyFor(d,r);
     const s = toMin(r.start), e = toMin(r.end);
-    if(done.has(k) || e<=nowMin) doneCount++;
+    if(done.has(k)) doneCount++;
     else if(s<=nowMin && nowMin<e) liveCount++;
     else remainCount++;
   });
