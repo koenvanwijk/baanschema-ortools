@@ -980,6 +980,8 @@ function setPlan(mode){{
     #matrixTbl .time{background:#f3f4f7;font-weight:600;width:56px;min-width:56px;max-width:56px}
     #matrixTbl .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
     #matrixTbl input{transform:scale(.9);margin-right:.25rem}
+    #matrixTbl td.overtime{outline:2px solid #000; outline-offset:-2px}
+    #matrixTbl td.earlydone{box-shadow: inset 0 0 0 2px #107a2f}
   </style>
 </head>
 <body>
@@ -1129,8 +1131,12 @@ function renderMatrix(d, rows, done, nowMin){
 
   const startCell = new Map();
   const occ = new Map();
+  const effEndMap = new Map();
   playable.forEach(r=>{
     const endMin = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    const planEnd = toMin(r.end);
+    const k = keyFor(d,r);
+    effEndMap.set(k, {eff:endMin, planned:planEnd});
     for(let t=toMin(r.start); t<endMin; t+=15){
       occ.set(`${t}-${r.court}`, r);
     }
@@ -1154,14 +1160,18 @@ function renderMatrix(d, rows, done, nowMin){
       const k = keyFor(d,r);
       const clr = colorForKey(r.team_id||r.schema||'');
       td.style.background = clr;
+      const meta = effEndMap.get(k) || {eff: toMin(r.end||r.start||'00:00'), planned: toMin(r.end||r.start||'00:00')};
+      if(t >= meta.planned) td.classList.add('overtime');
 
       if(startCell.has(key)){
         const checked = done.has(k) ? 'checked' : '';
-        const effEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
-        const plannedEnd = toMin(r.end||r.start||'00:00');
+        const effEnd = meta.eff;
+        const plannedEnd = meta.planned;
         const overtime = (!done.has(k) && effEnd > plannedEnd) ? ` <span class='small'>(uitloop tot ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
+        const early = (done.has(k) && effEnd < plannedEnd) ? ` <span class='small'>(eerder klaar ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
+        if(done.has(k) && effEnd < plannedEnd) td.classList.add('earlydone');
         const ae = actualEnd[k] ? ` <span class='small'>(echt: ${actualEnd[k]})</span>` : '';
-        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}${overtime}</label>`;
+        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}${overtime}${early}</label>`;
         const cb = td.querySelector('input');
         if(cb){ cb.addEventListener('change', (ev)=>{
           if(ev.target.checked){
