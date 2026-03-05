@@ -1206,13 +1206,10 @@ function runReplan(){
   const baseByKey = new Map(src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP').map(r=>[keyFor(d,r), {start:r.start,end:r.end,court:r.court}]));
   const playable = src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
 
-  // court availability starts at 'now'
-  const avail = {};
-  for(let c=1;c<=10;c++) avail[c]=nowMin;
-
   // lock completed + started partijen op basis van werkelijkheid
   const lockedKeys = new Set();
   const delayedCourts = new Set();
+  const scheduled = [];
   playable.forEach(r=>{
     const k = keyFor(d,r);
     const s=toMin(r.start), e=toMin(r.end);
@@ -1221,29 +1218,66 @@ function runReplan(){
     // klaar of al gestart -> als feit behandelen, niet opnieuw plannen
     if(done.has(k) || s<=nowMin){
       lockedKeys.add(k);
-      if(r.court) avail[r.court] = Math.max(avail[r.court], realEnd);
       // visualiseer actuele uitloop in matrix
       if(realEnd !== e){
         r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
         if(realEnd > e && r.court) delayedCourts.add(r.court);
       }
+      scheduled.push({
+        team: r.team_id||r.schema,
+        schema: (r.schema||'').toLowerCase(),
+        kind: r.kind,
+        court: r.court,
+        start: toMin(r.start),
+        end: toMin(r.end)
+      });
     }
   });
 
-  // shift remaining on same court to earliest feasible time
+  function ov(aS,aE,bS,bE){ return !(aE<=bS || aS>=bE); }
+  function violatesTeam(a, teamRows){
+    const schemaL = (a.schema||'').toLowerCase();
+    for(const b of teamRows){
+      if(!ov(a.start,a.end,b.start,b.end)) continue;
+      if((a.kind==='S' && b.kind==='D') || (a.kind==='D' && b.kind==='S')) return true;
+      if((a.kind==='D' && b.kind==='M') || (a.kind==='M' && b.kind==='D')) return true;
+      if(schemaL.includes('2de-2he-dd-hd-2gd')){
+        if((a.kind==='S' && b.kind==='M') || (a.kind==='M' && b.kind==='S')) return true;
+      }
+    }
+    return false;
+  }
+
+  // herplan remaining wedstrijden generiek (niet alleen eigen baan)
   const pending = playable
     .filter(r=>!lockedKeys.has(keyFor(d,r)))
     .sort((a,b)=> (a.start||'').localeCompare(b.start||'') || ((a.court||99)-(b.court||99)));
 
-  pending.forEach(r=>{
-    const s=toMin(r.start), e=toMin(r.end), dur=e-s;
-    const c=r.court || 1;
-    const ns = roundUp15(Math.max(s, avail[c], nowMin));
-    r.start = String(Math.floor(ns/60)).padStart(2,'0')+':'+String(ns%60).padStart(2,'0');
-    const ne = ns + dur;
-    r.end = String(Math.floor(ne/60)).padStart(2,'0')+':'+String(ne%60).padStart(2,'0');
-    avail[c]=ne;
-  });
+  for(const r of pending){
+    const origS=toMin(r.start), origE=toMin(r.end), dur=origE-origS;
+    const team = r.team_id||r.schema;
+    const schemaL = (r.schema||'').toLowerCase();
+    let placed=false;
+
+    for(let t=roundUp15(Math.max(nowMin, origS)); t<=23*60; t+=15){
+      const end=t+dur;
+      for(let c=1;c<=10;c++){
+        const courtBusy = scheduled.some(x=>x.court===c && ov(t,end,x.start,x.end));
+        if(courtBusy) continue;
+        const teamRows = scheduled.filter(x=>x.team===team);
+        const cand = {team, schema:schemaL, kind:r.kind, court:c, start:t, end};
+        if(violatesTeam(cand, teamRows)) continue;
+
+        r.start = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+        r.end = String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0');
+        r.court = c;
+        scheduled.push(cand);
+        placed=true;
+        break;
+      }
+      if(placed) break;
+    }
+  }
 
   let changed=0;
   const changes=[];
