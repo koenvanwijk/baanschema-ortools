@@ -1232,31 +1232,78 @@ function runReplan(){
   const baseByKey = new Map(src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP').map(r=>[keyFor(d,r), {start:r.start,end:r.end,court:r.court}]));
   const playable = src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
 
-  // lock completed + started partijen op basis van werkelijkheid
+  // lock completed + realistisch actieve partijen op basis van werkelijkheid
+  // Belangrijk: per baan kan op 'nu' maar 1 partij echt bezig zijn.
   const lockedKeys = new Set();
   const delayedCourts = new Set();
   const scheduled = [];
+
+  // 1) Afgeronde partijen vastzetten
   playable.forEach(r=>{
     const k = keyFor(d,r);
+    if(!done.has(k)) return;
     const s=toMin(r.start), e=toMin(r.end);
     const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    lockedKeys.add(k);
+    if(realEnd !== e){
+      r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
+    }
+    scheduled.push({
+      team: r.team_id||r.schema,
+      schema: (r.schema||'').toLowerCase(),
+      kind: r.kind,
+      court: r.court,
+      start: s,
+      end: toMin(r.end)
+    });
+  });
 
-    // klaar of al gestart -> als feit behandelen, niet opnieuw plannen
-    if(done.has(k) || s<=nowMin){
-      lockedKeys.add(k);
-      // visualiseer actuele uitloop in matrix
-      if(realEnd !== e){
-        r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
-        if(realEnd > e && r.court) delayedCourts.add(r.court);
-      }
-      scheduled.push({
-        team: r.team_id||r.schema,
-        schema: (r.schema||'').toLowerCase(),
-        kind: r.kind,
-        court: r.court,
-        start: toMin(r.start),
-        end: toMin(r.end)
-      });
+  // 2) Lopende kandidaten bepalen (niet-afgerond, gestart en nog niet klaar op 'nu')
+  const activeByCourt = new Map();
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    if(lockedKeys.has(k)) return;
+    const s=toMin(r.start), e=toMin(r.end);
+    const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    if(!(s<=nowMin && nowMin<realEnd)) return;
+    const c = r.court || 1;
+    const prev = activeByCourt.get(c);
+    // Kies op een baan de partij die het langst/het eerst bezig is.
+    if(!prev || s < prev.s || (s===prev.s && realEnd>prev.realEnd)){
+      activeByCourt.set(c, {r, s, e, realEnd});
+    }
+  });
+
+  // 3) Winnaars per baan vastzetten als 'bezig'
+  for(const [c,v] of activeByCourt.entries()){
+    const {r,s,e,realEnd} = v;
+    const k = keyFor(d,r);
+    lockedKeys.add(k);
+    if(realEnd !== e){
+      r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
+      if(realEnd > e) delayedCourts.add(c);
+    }
+    scheduled.push({
+      team: r.team_id||r.schema,
+      schema: (r.schema||'').toLowerCase(),
+      kind: r.kind,
+      court: c,
+      start: s,
+      end: toMin(r.end)
+    });
+  }
+
+  // 4) Gestarte maar niet-gekozen overlap-kandidaten terug naar pending (nog niet gestart in werkelijkheid)
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    if(lockedKeys.has(k)) return;
+    const s=toMin(r.start), e=toMin(r.end);
+    const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    if(s<=nowMin && nowMin<realEnd){
+      // kon in werkelijkheid niet gestart zijn door baanconflict; laat herplan opnieuw plaatsen
+      r.start = String(Math.floor(nowMin/60)).padStart(2,'0')+':'+String(nowMin%60).padStart(2,'0');
+      const ne = nowMin + (e-s);
+      r.end = String(Math.floor(ne/60)).padStart(2,'0')+':'+String(ne%60).padStart(2,'0');
     }
   });
 
