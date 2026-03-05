@@ -1174,8 +1174,12 @@ function renderMatrix(d, rows, done, nowMin){
         if(cb){ cb.addEventListener('change', (ev)=>{
           if(ev.target.checked){
             done.add(k);
-            // afronden gebruikt altijd de gekozen 'nu'-tijd (test of live)
-            actualEnd[k] = document.getElementById('now').value;
+            // Conservatief: als je later afvinkt dan geplande eindtijd, neem gepland einde.
+            // (voorkomt kunstmatige uitloop als er achteraf wordt afgevinkt)
+            const nowV = toMin(document.getElementById('now').value);
+            const plannedV = toMin(r.end||r.start||'00:00');
+            const endV = nowV <= plannedV ? nowV : plannedV;
+            actualEnd[k] = String(Math.floor(endV/60)).padStart(2,'0')+':'+String(endV%60).padStart(2,'0');
           } else {
             done.delete(k);
             delete actualEnd[k];
@@ -1248,7 +1252,7 @@ function runReplan(){
     return false;
   }
 
-  // herplan remaining wedstrijden generiek (niet alleen eigen baan)
+  // herplan remaining wedstrijden op dezelfde baan (duidelijk causaal op wedstrijddag)
   const pending = playable
     .filter(r=>!lockedKeys.has(keyFor(d,r)))
     .sort((a,b)=> (a.start||'').localeCompare(b.start||'') || ((a.court||99)-(b.court||99)));
@@ -1257,25 +1261,28 @@ function runReplan(){
     const origS=toMin(r.start), origE=toMin(r.end), dur=origE-origS;
     const team = r.team_id||r.schema;
     const schemaL = (r.schema||'').toLowerCase();
+    const c = r.court || 1;
     let placed=false;
 
     for(let t=roundUp15(Math.max(nowMin, origS)); t<=23*60; t+=15){
       const end=t+dur;
-      for(let c=1;c<=10;c++){
-        const courtBusy = scheduled.some(x=>x.court===c && ov(t,end,x.start,x.end));
-        if(courtBusy) continue;
-        const teamRows = scheduled.filter(x=>x.team===team);
-        const cand = {team, schema:schemaL, kind:r.kind, court:c, start:t, end};
-        if(violatesTeam(cand, teamRows)) continue;
+      const courtBusy = scheduled.some(x=>x.court===c && ov(t,end,x.start,x.end));
+      if(courtBusy) continue;
+      const teamRows = scheduled.filter(x=>x.team===team);
+      const cand = {team, schema:schemaL, kind:r.kind, court:c, start:t, end};
+      if(violatesTeam(cand, teamRows)) continue;
 
-        r.start = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
-        r.end = String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0');
-        r.court = c;
-        scheduled.push(cand);
-        placed=true;
-        break;
-      }
-      if(placed) break;
+      r.start = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+      r.end = String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0');
+      r.court = c;
+      scheduled.push(cand);
+      placed=true;
+      break;
+    }
+
+    if(!placed){
+      // fallback: laat staan zoals het was
+      scheduled.push({team, schema:schemaL, kind:r.kind, court:c, start:origS, end:origE});
     }
   }
 
