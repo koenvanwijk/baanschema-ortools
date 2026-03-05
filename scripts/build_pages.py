@@ -999,6 +999,7 @@ function setPlan(mode){{
     </label>
     <button onclick='renderAll()'>Update status</button>
     <button onclick='runReplan()'>Herplan restdag</button>
+    <button id='resetBtn' onclick='resetTestMode()'>Reset testmodus</button>
     <span id='status' class='small'></span>
   </div>
 
@@ -1018,7 +1019,7 @@ let DATA = {};
 const COLOR_MAP = __COLOR_JSON__;
 
 function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
-function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}||${r.start||''}||${r.court||''}`; }
+function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}`; }
 function loadDone(d){ return new Set(JSON.parse(localStorage.getItem('replan_done_'+d) || '[]')); }
 function saveDone(d,set){ localStorage.setItem('replan_done_'+d, JSON.stringify([...set])); }
 function loadActualEnd(d){ return JSON.parse(localStorage.getItem('replan_actual_end_'+d) || '{}'); }
@@ -1058,6 +1059,7 @@ function applyMode(){
   const mode = document.getElementById('mode').value;
   const dateEl = document.getElementById('date');
   const nowEl = document.getElementById('now');
+  const resetBtn = document.getElementById('resetBtn');
   if(mode==='live'){
     const n = new Date();
     const d = fmtDate(n);
@@ -1065,10 +1067,22 @@ function applyMode(){
     nowEl.value = fmtTime(n);
     dateEl.disabled = true;
     nowEl.disabled = true;
+    if(resetBtn) resetBtn.style.display='none';
   } else {
     dateEl.disabled = false;
     nowEl.disabled = false;
+    if(resetBtn) resetBtn.style.display='inline-block';
   }
+}
+
+function resetTestMode(){
+  const d = document.getElementById('date').value;
+  if(!d) return;
+  localStorage.removeItem('replan_done_'+d);
+  localStorage.removeItem('replan_actual_end_'+d);
+  CURRENT_ROWS = [];
+  document.getElementById('status').textContent = 'Testmodus gereset voor '+d;
+  renderAll();
 }
 
 async function init(){
@@ -1176,6 +1190,7 @@ function runReplan(){
   const actualEnd = loadActualEnd(d);
 
   const src = (DATA[d]||[]).map(r=>({...r}));
+  const baseByKey = new Map(src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP').map(r=>[keyFor(d,r), {start:r.start,end:r.end,court:r.court}]));
   const playable = src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
 
   // court availability starts at 'now'
@@ -1215,7 +1230,16 @@ function runReplan(){
     avail[c]=ne;
   });
 
+  let changed=0;
+  src.forEach(r=>{
+    if(!r.start || r.start==='NIET_GELUKT' || r.part==='COMP') return;
+    const b = baseByKey.get(keyFor(d,r));
+    if(!b) return;
+    if(b.start!==r.start || b.end!==r.end || b.court!==r.court) changed++;
+  });
+
   CURRENT_ROWS = src;
+  document.getElementById('status').textContent = `Herplan klaar: ${changed} partijen aangepast`;
   renderAll();
 }
 
