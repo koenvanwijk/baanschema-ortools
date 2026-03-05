@@ -980,7 +980,6 @@ function setPlan(mode){{
     #matrixTbl .time{background:#f3f4f7;font-weight:600;width:56px;min-width:56px;max-width:56px}
     #matrixTbl .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
     #matrixTbl input{transform:scale(.9);margin-right:.25rem}
-    #matrixTbl td.overtime{outline:2px solid #000; outline-offset:-2px; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,.12) 0 6px, rgba(255,255,255,0) 6px 12px)}
     #matrixTbl td.earlydone{box-shadow: inset 0 0 0 2px #107a2f}
   </style>
 </head>
@@ -1161,13 +1160,12 @@ function renderMatrix(d, rows, done, nowMin){
       const clr = colorForKey(r.team_id||r.schema||'');
       td.style.background = clr;
       const meta = effEndMap.get(k) || {eff: toMin(r.end||r.start||'00:00'), planned: toMin(r.end||r.start||'00:00')};
-      if(t >= meta.planned) td.classList.add('overtime');
 
       if(startCell.has(key)){
         const checked = done.has(k) ? 'checked' : '';
         const effEnd = meta.eff;
         const plannedEnd = meta.planned;
-        const overtime = (!done.has(k) && effEnd > plannedEnd) ? ` <span class='small'>(uitloop tot ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
+        const overtime = (!done.has(k) && effEnd > plannedEnd) ? ` <span class='small'>(loopt door tot ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
         const early = (done.has(k) && effEnd < plannedEnd) ? ` <span class='small'>(eerder klaar ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
         if(done.has(k) && effEnd < plannedEnd) td.classList.add('earlydone');
         const ae = actualEnd[k] ? ` <span class='small'>(echt: ${actualEnd[k]})</span>` : '';
