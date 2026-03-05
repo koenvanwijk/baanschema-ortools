@@ -985,14 +985,20 @@ function setPlan(mode){{
   <p class='small'>Werk direct in de browser. Vink partijen af en bekijk wat klaar is, wat nu loopt en de restplanning.</p>
 
   <div class='row'>
+    <label>Modus
+      <select id='mode'>
+        <option value='test'>Testmodus</option>
+        <option value='live'>Live modus</option>
+      </select>
+    </label>
     <label>Datum
       <select id='date'></select>
     </label>
     <label>Huidige tijd
       <input id='now' value='12:15' placeholder='HH:MM'>
     </label>
-    <button onclick='renderAll()'>Update</button>
-    <button onclick='runReplan()'>Herplan op basis van werkelijkheid</button>
+    <button onclick='renderAll()'>Update status</button>
+    <button onclick='runReplan()'>Herplan restdag</button>
     <span id='status' class='small'></span>
   </div>
 
@@ -1039,6 +1045,32 @@ function colorForKey(k){
   return `hsl(${h} 92% 58%)`;
 }
 
+function fmtDate(d){
+  const dd=String(d.getDate()).padStart(2,'0');
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const yy=d.getFullYear();
+  return `${dd}-${mm}-${yy}`;
+}
+function fmtTime(d){
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function applyMode(){
+  const mode = document.getElementById('mode').value;
+  const dateEl = document.getElementById('date');
+  const nowEl = document.getElementById('now');
+  if(mode==='live'){
+    const n = new Date();
+    const d = fmtDate(n);
+    if([...dateEl.options].some(o=>o.value===d)) dateEl.value=d;
+    nowEl.value = fmtTime(n);
+    dateEl.disabled = true;
+    nowEl.disabled = true;
+  } else {
+    dateEl.disabled = false;
+    nowEl.disabled = false;
+  }
+}
+
 async function init(){
   const status = document.getElementById('status');
   try{
@@ -1053,6 +1085,8 @@ async function init(){
     if(dates.length) sel.value = dates[0];
     sel.addEventListener('change', ()=>{ CURRENT_ROWS=[]; renderAll(); });
     document.getElementById('now').addEventListener('change', ()=>{ renderAll(); });
+    document.getElementById('mode').addEventListener('change', ()=>{ CURRENT_ROWS=[]; applyMode(); renderAll(); });
+    applyMode();
     status.textContent='Data geladen';
     renderAll();
   }catch(e){
@@ -1113,9 +1147,8 @@ function renderMatrix(d, rows, done, nowMin){
         if(cb){ cb.addEventListener('change', (ev)=>{
           if(ev.target.checked){
             done.add(k);
-            const defEnd = r.end || '';
-            const v = prompt('Werkelijke eindtijd (HH:MM), leeg = gepland ('+defEnd+')', actualEnd[k] || defEnd);
-            if(v && /^\d{2}:\d{2}$/.test(v)){ actualEnd[k]=v; }
+            // afronden gebruikt altijd de gekozen 'nu'-tijd (test of live)
+            actualEnd[k] = document.getElementById('now').value;
           } else {
             done.delete(k);
             delete actualEnd[k];
@@ -1135,6 +1168,7 @@ function renderMatrix(d, rows, done, nowMin){
 }
 
 function runReplan(){
+  applyMode();
   const d = document.getElementById('date').value;
   if(!d || !DATA[d]) return;
   const nowMin = toMin(document.getElementById('now').value);
@@ -1186,6 +1220,7 @@ function runReplan(){
 }
 
 function renderAll(){
+  applyMode();
   const d = document.getElementById('date').value;
   if(!d || !DATA[d]) return;
   const now = document.getElementById('now').value;
