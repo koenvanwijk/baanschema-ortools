@@ -980,7 +980,7 @@ function setPlan(mode){{
     #matrixTbl .time{background:#f3f4f7;font-weight:600;width:56px;min-width:56px;max-width:56px}
     #matrixTbl .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
     #matrixTbl input{transform:scale(.9);margin-right:.25rem}
-    #matrixTbl td.overtime{outline:2px solid #000; outline-offset:-2px}
+    #matrixTbl td.overtime{outline:2px solid #000; outline-offset:-2px; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,.12) 0 6px, rgba(255,255,255,0) 6px 12px)}
     #matrixTbl td.earlydone{box-shadow: inset 0 0 0 2px #107a2f}
   </style>
 </head>
@@ -1214,6 +1214,7 @@ function runReplan(){
 
   // lock completed + started partijen op basis van werkelijkheid
   const lockedKeys = new Set();
+  const delayedCourts = new Set();
   playable.forEach(r=>{
     const k = keyFor(d,r);
     const s=toMin(r.start), e=toMin(r.end);
@@ -1226,6 +1227,7 @@ function runReplan(){
       // visualiseer actuele uitloop in matrix
       if(realEnd !== e){
         r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
+        if(realEnd > e && r.court) delayedCourts.add(r.court);
       }
     }
   });
@@ -1259,7 +1261,9 @@ function runReplan(){
 
   CURRENT_ROWS = src;
   window.__LAST_CHANGES__ = changes;
-  document.getElementById('status').textContent = `Herplan klaar: ${changed} partijen aangepast`;
+  const dc = [...delayedCourts].sort((a,b)=>a-b);
+  const delayedTxt = dc.length ? ` · uitloop op baan ${dc.join(', ')}` : '';
+  document.getElementById('status').textContent = `Herplan klaar: ${changed} partijen aangepast${delayedTxt}`;
   renderAll();
 }
 
