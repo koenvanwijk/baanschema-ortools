@@ -970,6 +970,8 @@ function setPlan(mode){{
     th,td{border:1px solid #e6e6e6;padding:.35rem .45rem;text-align:left;vertical-align:top}
     .small{color:#666}
     .card{border:1px solid #e6e6e6;border-radius:10px;padding:.7rem .85rem;margin:.7rem 0}
+    #changeLog{margin:.5rem 0 0 1rem}
+    #changeLog li{margin:.15rem 0}
     #matrixTbl{border-collapse:collapse;width:100%;table-layout:fixed}
     #matrixTbl th,#matrixTbl td{border:1px solid #dcdfe6;padding:.2rem .25rem;vertical-align:middle;height:30px;box-sizing:border-box}
     #matrixTbl tr.major-row td{border-top:3px solid #8f97a8}
@@ -1006,6 +1008,7 @@ function setPlan(mode){{
   <div class='card'>
     <strong>Wedstrijddag matrix (afvinken in de cel)</strong>
     <div id='summary' class='small'>Checkboxen worden lokaal onthouden per datum.</div>
+    <ul id='changeLog' class='small'></ul>
     <div style='overflow:auto'>
       <table id='matrixTbl'>
         <thead><tr><th>Tijd</th><th>Baan 1</th><th>Baan 2</th><th>Baan 3</th><th>Baan 4</th><th>Baan 5</th><th>Baan 6</th><th>Baan 7</th><th>Baan 8</th><th>Baan 9</th><th>Baan 10</th></tr></thead>
@@ -1028,11 +1031,11 @@ function roundUp15(m){ return Math.ceil(m/15)*15; }
 function effectiveEndMin(d, r, nowMin, done, actualEnd){
   const k = keyFor(d,r);
   const planned = toMin(r.end||r.start||'00:00');
-  if(actualEnd[k] && /^\d{2}:\d{2}$/.test(actualEnd[k])) return toMin(actualEnd[k]);
+  if(actualEnd[k] && /^\d{2}:\d{2}$/.test(actualEnd[k])) return roundUp15(toMin(actualEnd[k]));
   if(done.has(k)) return planned;
   const s = toMin(r.start||'00:00');
-  // Als partij al gestart is maar nog niet afgevinkt, loopt die minimaal tot 'nu'.
-  if(s <= nowMin) return Math.max(planned, nowMin);
+  // Als partij gestart is en niet afgevinkt: bezet minstens tot de huidige tijd (afgerond op blok).
+  if(s <= nowMin) return Math.max(planned, roundUp15(nowMin));
   return planned;
 }
 function hashString(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
@@ -1081,6 +1084,7 @@ function resetTestMode(){
   localStorage.removeItem('replan_done_'+d);
   localStorage.removeItem('replan_actual_end_'+d);
   CURRENT_ROWS = [];
+  window.__LAST_CHANGES__ = [];
   document.getElementById('status').textContent = 'Testmodus gereset voor '+d;
   renderAll();
 }
@@ -1109,6 +1113,7 @@ async function init(){
 }
 
 let CURRENT_ROWS = [];
+window.__LAST_CHANGES__ = [];
 
 function renderMatrix(d, rows, done, nowMin){
   const tb = document.querySelector('#matrixTbl tbody');
@@ -1231,14 +1236,19 @@ function runReplan(){
   });
 
   let changed=0;
+  const changes=[];
   src.forEach(r=>{
     if(!r.start || r.start==='NIET_GELUKT' || r.part==='COMP') return;
     const b = baseByKey.get(keyFor(d,r));
     if(!b) return;
-    if(b.start!==r.start || b.end!==r.end || b.court!==r.court) changed++;
+    if(b.start!==r.start || b.end!==r.end || b.court!==r.court){
+      changed++;
+      changes.push(`${r.team_short||r.schema} · ${r.part}: ${b.start}-${b.end} (B${b.court}) → ${r.start}-${r.end} (B${r.court})`);
+    }
   });
 
   CURRENT_ROWS = src;
+  window.__LAST_CHANGES__ = changes;
   document.getElementById('status').textContent = `Herplan klaar: ${changed} partijen aangepast`;
   renderAll();
 }
@@ -1264,6 +1274,13 @@ function renderAll(){
   });
 
   document.getElementById('summary').textContent = `Nu: ${now} · Gereed: ${doneCount} · Bezig: ${liveCount} · Resterend: ${remainCount}`;
+  const log = document.getElementById('changeLog');
+  const ch = window.__LAST_CHANGES__ || [];
+  if(ch.length){
+    log.innerHTML = '<li><strong>Wijzigingen door herplan:</strong></li>' + ch.map(x=>`<li>${x}</li>`).join('');
+  } else {
+    log.innerHTML = '<li>Nog geen herplan-wijzigingen.</li>';
+  }
   renderMatrix(d, rows, done, nowMin);
 }
 
