@@ -1131,13 +1131,35 @@ function renderMatrix(d, rows, done, nowMin){
   const startCell = new Map();
   const occ = new Map();
   const effEndMap = new Map();
+  let overlapConflicts = 0;
+  function rowPriority(r, t){
+    const k = keyFor(d,r);
+    if(done.has(k)) return 1;
+    const s = toMin(r.start), e = effectiveEndMin(d,r,nowMin,done,actualEnd);
+    if(s <= t && t < e) return 3; // bezig/actief
+    return 2; // gepland
+  }
   playable.forEach(r=>{
     const endMin = effectiveEndMin(d, r, nowMin, done, actualEnd);
     const planEnd = toMin(r.end);
     const k = keyFor(d,r);
     effEndMap.set(k, {eff:endMin, planned:planEnd});
     for(let t=toMin(r.start); t<endMin; t+=15){
-      occ.set(`${t}-${r.court}`, r);
+      const cellKey = `${t}-${r.court}`;
+      const ex = occ.get(cellKey);
+      if(!ex){
+        occ.set(cellKey, r);
+      } else {
+        overlapConflicts++;
+        const exPri = rowPriority(ex, t);
+        const nwPri = rowPriority(r, t);
+        if(nwPri > exPri){
+          occ.set(cellKey, r);
+        } else if(nwPri === exPri){
+          const exEnd = effectiveEndMin(d, ex, nowMin, done, actualEnd);
+          if(endMin > exEnd) occ.set(cellKey, r);
+        }
+      }
     }
     startCell.set(`${toMin(r.start)}-${r.court}`, r);
   });
