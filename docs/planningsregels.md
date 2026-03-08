@@ -29,6 +29,8 @@ Dit bestand bevat de actuele regels die door de planner/herplanner worden gebrui
 ## Volgorde/voorkeuren
 - Basisvolgorde teams: jong naar oud, gemengd later.
 - Gemengd Zondag start bij voorkeur vanaf 10:00.
+- Teams met 8 wedstrijden worden zoveel mogelijk op baan 1 t/m 4 gepland.
+- Rood/Oranje-reserveringen hebben altijd prioriteit op hun vaste banen.
 - Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.
 
 ## Tijdvensters

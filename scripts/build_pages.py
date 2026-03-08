@@ -399,8 +399,19 @@ def _schedule_day_with_start(
                         continue
 
                     # Prioriteit: capaciteit benutten > naast elkaar spelen.
-                    # Kies beschikbare banen met meeste bestaande bezetting (compacter vullen).
-                    free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
+                    # Extra regel: teams met 8 wedstrijden zoveel mogelijk op baan 1-4,
+                    # maar Rood/Oranje-reserveringen hebben altijd prioriteit (die zijn al geblokt).
+                    if int(team.matches or 0) == 8:
+                        free.sort(
+                            key=lambda c: (
+                                c > 4,  # eerst 1-4
+                                -sum(b - a for a, b in court_busy[c]),
+                                c,
+                            )
+                        )
+                    else:
+                        # Standaard: compacter vullen.
+                        free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
                     best = free[:needed]
                     for p, c in zip(rnd, best):
                         court_busy[c].append((start, end))
