@@ -33,7 +33,12 @@ Dit bestand bevat de actuele regels die door de planner/herplanner worden gebrui
 
 ## Tijdvensters
 - Eerste teamwedstrijd normaal uiterlijk 15:00, met datum-specifieke verruiming op kneldagen.
-- Laatste partijstart uiterlijk 19:30.
+- Wedstrijden mogen starten tot en met **19:30**.
+
+## Niet-blocking beleid
+- Geen eis mag de build blokkeren.
+- Als een eis niet gehaald wordt (bijv. niet-planbare partijen), blijft de pagina wel gegenereerd.
+- Afwijkingen worden per dag zichtbaar gemaakt in de rode/geel gemarkeerde regels op de pagina.
 
 ## Herplanning op wedstrijddag
 - Afgevinkte partijen worden vastgezet.

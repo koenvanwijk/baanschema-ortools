@@ -683,6 +683,12 @@ def assert_no_double_mix_overlap(rows: list[dict], day_label: str) -> None:
 def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
     valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
     violations: list[str] = []
+
+    failed = [r for r in rows if r.get("start") == "NIET_GELUKT" and r.get("part") != "COMP"]
+    if failed:
+        sample = ", ".join(f"{r.get('team_short','?')} {r.get('part','?')}" for r in failed[:6])
+        violations.append(f"[ROOD] Niet planbaar: {len(failed)} partijen ({sample}).")
+
     if not valid:
         return violations
 
@@ -733,7 +739,8 @@ def render_rule_violations(violations: list[str]) -> str:
 def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> tuple[dict[str, list[dict]], dict]:
     status: dict = {"ortools_available": importlib.util.find_spec("ortools") is not None, "runs": {}}
     if not status["ortools_available"]:
-        raise RuntimeError("OR-Tools package ontbreekt; OR-run is verplicht voor deze build.")
+        # Niet-blocking: pagina blijft bruikbaar met alleen heuristiek.
+        return {d: [] for d in dates}, status
 
     out: dict[str, list[dict]] = {}
     for d in dates:
@@ -808,33 +815,14 @@ def main() -> None:
     ordered_dates = sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y"))
 
     results: dict[str, list[dict]] = {}
-    blockers: list[str] = []
     for d in ordered_dates:
         day_rows = schedule_day(by_date[d], reserve_by_date[d], d)
         assert_no_double_mix_overlap(day_rows, d)
         results[d] = day_rows
-        failed = [r for r in day_rows if r["start"] == "NIET_GELUKT"]
-        if failed:
-            sample = ", ".join(f"{r['team_short']} {r['part']}" for r in failed[:5])
-            blockers.append(f"{d}: {len(failed)} niet planbaar ({sample})")
-
-    if blockers:
-        raise RuntimeError(
-            "Planning niet haalbaar; geen pagina gegenereerd. Bespreek keuze met planner:\n- "
-            + "\n- ".join(blockers)
-        )
 
     ortools_results, ortools_status = compute_ortools_results(ordered_dates, team_lookup)
 
-    empty_dates = [d for d in ordered_dates if not ortools_results.get(d)]
-    if empty_dates:
-        debug = []
-        for d in empty_dates:
-            info = (ortools_status.get("runs") or {}).get(d, {})
-            err = (info.get("stderr") or "")[-120:]
-            out = (info.get("stdout") or "")[-120:]
-            debug.append(f"{d} rc={info.get('returncode')} out={out} err={err}")
-        raise RuntimeError("OR-Tools resultaat ontbreekt voor: " + ", ".join(empty_dates) + " | " + " || ".join(debug))
+    # Niet-blocking: OR-Tools mag ontbreken/mislukken; heuristiekpagina blijft beschikbaar.
 
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
