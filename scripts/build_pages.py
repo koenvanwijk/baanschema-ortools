@@ -1021,6 +1021,12 @@ function setPlan(mode){{
 <script>
 let DATA = {};
 const COLOR_MAP = __COLOR_JSON__;
+const API_BASE_DEFAULT = 'https://baanschema-api-dndzrlckha-ew.a.run.app';
+
+function getApiBase(){
+  const p = new URLSearchParams(location.search);
+  return (p.get('api') || API_BASE_DEFAULT).replace(/\/$/, '');
+}
 
 function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
 function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}`; }
@@ -1092,9 +1098,21 @@ function resetTestMode(){
 
 async function init(){
   const status = document.getElementById('status');
+  const apiBase = getApiBase();
   try{
-    const res = await fetch('./result.json?v='+Date.now());
-    DATA = await res.json();
+    let loadedFrom = '';
+    try{
+      const apiRes = await fetch(`${apiBase}/result?v=`+Date.now());
+      if(!apiRes.ok) throw new Error('api result '+apiRes.status);
+      DATA = await apiRes.json();
+      loadedFrom = `API (${apiBase})`;
+    } catch(_e){
+      const localRes = await fetch('./result.json?v='+Date.now());
+      if(!localRes.ok) throw new Error('local result '+localRes.status);
+      DATA = await localRes.json();
+      loadedFrom = 'lokale result.json fallback';
+    }
+
     const sel = document.getElementById('date');
     const dates = Object.keys(DATA);
     if(!dates.length){ status.textContent='Geen data gevonden'; return; }
@@ -1106,10 +1124,10 @@ async function init(){
     document.getElementById('now').addEventListener('change', ()=>{ renderAll(); });
     document.getElementById('mode').addEventListener('change', ()=>{ CURRENT_ROWS=[]; applyMode(); renderAll(); });
     applyMode();
-    status.textContent='Data geladen';
+    status.textContent='Data geladen via '+loadedFrom;
     renderAll();
   }catch(e){
-    status.textContent='Kon result.json niet laden';
+    status.textContent='Kon geen plandata laden';
   }
 }
 

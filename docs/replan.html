@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang='nl'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>Baanschema Replan</title>
+  <style>
+    body{font-family:Inter,system-ui,sans-serif;max-width:1200px;margin:1.2rem auto;padding:0 1rem}
+    input,button,select{padding:.4rem .55rem}
+    .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:.6rem 0}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #e6e6e6;padding:.35rem .45rem;text-align:left;vertical-align:top}
+    .small{color:#666}
+    .card{border:1px solid #e6e6e6;border-radius:10px;padding:.7rem .85rem;margin:.7rem 0}
+    #changeLog{margin:.5rem 0 0 1rem}
+    #changeLog li{margin:.15rem 0}
+    #matrixTbl{border-collapse:collapse;width:100%;table-layout:fixed}
+    #matrixTbl th,#matrixTbl td{border:1px solid #dcdfe6;padding:.2rem .25rem;vertical-align:middle;height:30px;box-sizing:border-box}
+    #matrixTbl tr.major-row td{border-top:3px solid #8f97a8}
+    #matrixTbl tr.now-row td{border-top:4px solid #000 !important}
+    #matrixTbl th{background:#fafafa;font-size:12px}
+    #matrixTbl .time{background:#f3f4f7;font-weight:600;width:56px;min-width:56px;max-width:56px}
+    #matrixTbl .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
+    #matrixTbl input{transform:scale(.9);margin-right:.25rem}
+    #matrixTbl td.earlydone{box-shadow: inset 0 0 0 2px #107a2f}
+  </style>
+</head>
+<body>
+  <h1>Wedstrijddag Herplanning (zonder Python)</h1>
+  <p class='small'>Werk direct in de browser. Vink partijen af en bekijk wat klaar is, wat nu loopt en de restplanning.</p>
+
+  <div class='row'>
+    <label>Modus
+      <select id='mode'>
+        <option value='test'>Testmodus</option>
+        <option value='live'>Live modus</option>
+      </select>
+    </label>
+    <label>Datum
+      <select id='date'></select>
+    </label>
+    <label>Huidige tijd
+      <input id='now' value='12:15' placeholder='HH:MM'>
+    </label>
+    <button onclick='renderAll()'>Update status</button>
+    <button onclick='runReplan()'>Herplan restdag</button>
+    <button id='resetBtn' onclick='resetTestMode()'>Reset testmodus</button>
+    <span id='status' class='small'></span>
+  </div>
+
+  <div class='card'>
+    <strong>Wedstrijddag matrix (afvinken in de cel)</strong>
+    <div id='summary' class='small'>Checkboxen worden lokaal onthouden per datum.</div>
+    <ul id='changeLog' class='small'></ul>
+    <div style='overflow:auto'>
+      <table id='matrixTbl'>
+        <thead><tr><th>Tijd</th><th>Baan 1</th><th>Baan 2</th><th>Baan 3</th><th>Baan 4</th><th>Baan 5</th><th>Baan 6</th><th>Baan 7</th><th>Baan 8</th><th>Baan 9</th><th>Baan 10</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+let DATA = {};
+const COLOR_MAP = {"Oranje 1 - afdeling 38": "hsl(32 88% 56%)", "Rood 2 - afdeling 33": "hsl(5 88% 56%)", "06-04-2026::Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 39::MIERLO 3::KESSEL 1": "hsl(149 92% 58%)", "06-04-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 3::MIERLO 2": "hsl(279 92% 58%)", "06-04-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22::MIERLO 5::DE HELZE 1": "hsl(190 92% 58%)", "06-04-2026::Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20::MIERLO 5::SET `77 1": "hsl(128 92% 58%)", "06-04-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37::MIERLO 2::SHAILE 1": "hsl(286 92% 58%)", "06-04-2026::Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7::MIERLO 1::WOLFSBOSCH 1": "hsl(143 92% 58%)", "06-04-2026::Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5::MIERLO 1::DE PETTELAER 1": "hsl(55 92% 58%)", "06-04-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 4::MIERLO 5": "hsl(341 92% 58%)", "12-04-2026::Groen Zondag – Groen 1  – Afdeling 38::MIERLO 1::GENNEPER PARKEN 2": "hsl(127 88% 56%)", "12-04-2026::Groen Zondag – Groen 2  – Afdeling 73::MIERLO 2::VENLO 3": "hsl(119 88% 56%)", "12-04-2026::Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33::MIERLO 2::VENLO 2": "hsl(76 92% 58%)", "12-04-2026::Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22::MIERLO 1::DE HELZE 1": "hsl(230 92% 58%)", "12-04-2026::Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22::MIERLO 1::WAALRE 1": "hsl(55 92% 58%)", "12-04-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 2::DE KIENEHOEF 1": "hsl(211 92% 58%)", "12-04-2026::Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6::MIERLO 4::CAROLUS 2": "hsl(242 92% 58%)", "12-04-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41::MIERLO 3::DEURNE 1": "hsl(185 92% 58%)", "12-04-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::JOY JAAGPAD 5": "hsl(162 92% 58%)", "12-04-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4::MIERLO 3::SLOW 1": "hsl(295 92% 58%)", "12-04-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 5::TILBURG 4": "hsl(44 92% 58%)", "19-04-2026::Groen Zondag – Groen 2  – Afdeling 46::MIERLO 3::DE KIENEHOEF 2": "hsl(123 88% 56%)", "19-04-2026::Groen Zondag – Groen 2  – Afdeling 68::MIERLO 4::DOMMELEN 1": "hsl(123 88% 56%)", "19-04-2026::Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 39::MIERLO 3::VELDEN 1": "hsl(174 92% 58%)", "19-04-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 3::`T ROOT 1": "hsl(314 92% 58%)", "19-04-2026::Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20::MIERLO 5::VIERLINGSBEEK 1": "hsl(189 92% 58%)", "19-04-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22::MIERLO 5::ERESLOCH 2": "hsl(143 92% 58%)", "19-04-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37::MIERLO 2::WAALRE 3": "hsl(189 92% 58%)", "19-04-2026::Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7::MIERLO 1::EINDHOVEN NOORD 1": "hsl(97 92% 58%)", "19-04-2026::Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5::MIERLO 1::BREDA-NOORD 1": "hsl(132 92% 58%)", "19-04-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 4::DE KREKEL 1": "hsl(229 92% 58%)", "19-04-2026::Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14::MIERLO 6::SLOW 5": "hsl(318 92% 58%)", "19-04-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::GTR 2": "hsl(303 92% 58%)", "10-05-2026::Groen Zondag – Groen 1  – Afdeling 38::MIERLO 1::DE MAST 1": "hsl(115 88% 56%)", "10-05-2026::Groen Zondag – Groen 2  – Afdeling 73::MIERLO 2::VDHT 2": "hsl(129 88% 56%)", "10-05-2026::Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22::MIERLO 1::WAALRE 2": "hsl(347 92% 58%)", "10-05-2026::Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33::MIERLO 2::WETTENSEIND 2": "hsl(128 92% 58%)", "10-05-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15::MIERLO 4::`T SLOTJE 1": "hsl(184 92% 58%)", "10-05-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 2::DE PEPPELIEREN 1": "hsl(227 92% 58%)", "10-05-2026::Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22::MIERLO 1::ELTV 2": "hsl(79 92% 58%)", "10-05-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41::MIERLO 3::`T ROOT 1": "hsl(316 92% 58%)", "10-05-2026::Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6::MIERLO 4::DE HELZE 1": "hsl(169 92% 58%)", "10-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::TILBURG 2": "hsl(217 92% 58%)", "10-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4::MIERLO 3::TILBURG 3": "hsl(316 92% 58%)", "10-05-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 5::BOEKEL 1": "hsl(39 92% 58%)", "17-05-2026::Groen Zondag – Groen 1  – Afdeling 38::MIERLO 1::DE HELZE 2": "hsl(115 88% 56%)", "17-05-2026::Groen Zondag – Groen 2  – Afdeling 68::MIERLO 4::MEERHOVEN 3": "hsl(122 88% 56%)", "17-05-2026::Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33::MIERLO 2::GENNEPER PARKEN 3": "hsl(235 92% 58%)", "17-05-2026::Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20::MIERLO 5::DE HELZE 2": "hsl(162 92% 58%)", "17-05-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22::MIERLO 5::PIETER BRUEGHEL 1": "hsl(133 92% 58%)", "17-05-2026::Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22::MIERLO 1::GENNEPER PARKEN 1": "hsl(56 92% 58%)", "17-05-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37::MIERLO 2::RODHE 2": "hsl(198 92% 58%)", "17-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4::MIERLO 3::BERGENSHUIZEN 1": "hsl(173 92% 58%)", "17-05-2026::Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5::MIERLO 1::DASH `35 2": "hsl(191 92% 58%)", "17-05-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 4::TILBURG 4": "hsl(183 92% 58%)", "17-05-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 5::SLOW 3": "hsl(62 92% 58%)", "17-05-2026::Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14::MIERLO 6::MAASPOORT 1": "hsl(242 92% 58%)", "Rood 2 - afdeling 75": "hsl(354 88% 56%)", "25-05-2026::Groen Zondag – Groen 2  – Afdeling 46::MIERLO 3::DE HELZE 3": "hsl(131 88% 56%)", "25-05-2026::Groen Zondag – Groen 2  – Afdeling 73::MIERLO 2::`T ROOT 1": "hsl(122 88% 56%)", "25-05-2026::Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 22::MIERLO 1::RODHE 1": "hsl(151 92% 58%)", "25-05-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 3::WAALRE 1": "hsl(311 92% 58%)", "25-05-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15::MIERLO 4::WIMBLEDONCK 1": "hsl(67 92% 58%)", "25-05-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 41::MIERLO 3::WETTENSEIND 3": "hsl(318 92% 58%)", "25-05-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 2::`T ROOT 1": "hsl(335 92% 58%)", "25-05-2026::Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 6::MIERLO 4::BUDEL 1": "hsl(84 92% 58%)", "25-05-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::VOLLEY 1": "hsl(244 92% 58%)", "25-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::UNICUM 1": "hsl(341 92% 58%)", "31-05-2026::Groen Zondag – Groen 2  – Afdeling 46::MIERLO 3::PIETER BRUEGHEL 2": "hsl(131 88% 56%)", "31-05-2026::Groen Zondag – Groen 2  – Afdeling 68::MIERLO 4::VLTC VELDHOVEN 1": "hsl(122 88% 56%)", "31-05-2026::Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 39::MIERLO 3::`T ROOT 1": "hsl(291 92% 58%)", "31-05-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 15::MIERLO 4::RODHE 1": "hsl(5 92% 58%)", "31-05-2026::Meisjes 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 16::MIERLO 3::DE PEPPELIEREN 1": "hsl(96 92% 58%)", "31-05-2026::Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37::MIERLO 2::CAROLUS 1": "hsl(334 92% 58%)", "31-05-2026::Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7::MIERLO 1::ERESLOCH 1": "hsl(330 92% 58%)", "31-05-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 4::BOEKEL 1": "hsl(286 92% 58%)", "31-05-2026::Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14::MIERLO 6::LACOSTE 3": "hsl(252 92% 58%)", "31-05-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::NIP ROERMOND 2": "hsl(122 92% 58%)"};
+const API_BASE_DEFAULT = 'https://baanschema-api-dndzrlckha-ew.a.run.app';
+
+function getApiBase(){
+  const p = new URLSearchParams(location.search);
+  return (p.get('api') || API_BASE_DEFAULT).replace(/\/$/, '');
+}
+
+function toMin(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
+function keyFor(d,r){ return `${d}||${r.team_id||r.schema||''}||${r.part||''}`; }
+function loadDone(d){ return new Set(JSON.parse(localStorage.getItem('replan_done_'+d) || '[]')); }
+function saveDone(d,set){ localStorage.setItem('replan_done_'+d, JSON.stringify([...set])); }
+function loadActualEnd(d){ return JSON.parse(localStorage.getItem('replan_actual_end_'+d) || '{}'); }
+function saveActualEnd(d,obj){ localStorage.setItem('replan_actual_end_'+d, JSON.stringify(obj)); }
+function roundUp15(m){ return Math.ceil(m/15)*15; }
+function effectiveEndMin(d, r, nowMin, done, actualEnd){
+  const k = keyFor(d,r);
+  const planned = toMin(r.end||r.start||'00:00');
+  if(actualEnd[k] && /^\d{2}:\d{2}$/.test(actualEnd[k])) return roundUp15(toMin(actualEnd[k]));
+  if(done.has(k)) return planned;
+  const s = toMin(r.start||'00:00');
+  // Als partij gestart is en niet afgevinkt: bezet minstens tot de huidige tijd (afgerond op blok).
+  if(s <= nowMin) return Math.max(planned, roundUp15(nowMin));
+  return planned;
+}
+function hashString(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+function colorForKey(k){
+  if(k && COLOR_MAP[k]) return COLOR_MAP[k];
+  const l=(k||'').toLowerCase();
+  if(l.includes('rood')) return 'hsl(0 88% 56%)';
+  if(l.includes('oranje')) return 'hsl(30 92% 56%)';
+  if(l.includes('groen')) return 'hsl(125 88% 46%)';
+  const h = hashString(k)%360;
+  return `hsl(${h} 92% 58%)`;
+}
+
+function fmtDate(d){
+  const dd=String(d.getDate()).padStart(2,'0');
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const yy=d.getFullYear();
+  return `${dd}-${mm}-${yy}`;
+}
+function fmtTime(d){
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function applyMode(){
+  const mode = document.getElementById('mode').value;
+  const dateEl = document.getElementById('date');
+  const nowEl = document.getElementById('now');
+  const resetBtn = document.getElementById('resetBtn');
+  if(mode==='live'){
+    const n = new Date();
+    const d = fmtDate(n);
+    if([...dateEl.options].some(o=>o.value===d)) dateEl.value=d;
+    nowEl.value = fmtTime(n);
+    dateEl.disabled = true;
+    nowEl.disabled = true;
+    if(resetBtn) resetBtn.style.display='none';
+  } else {
+    dateEl.disabled = false;
+    nowEl.disabled = false;
+    if(resetBtn) resetBtn.style.display='inline-block';
+  }
+}
+
+function resetTestMode(){
+  const d = document.getElementById('date').value;
+  if(!d) return;
+  localStorage.removeItem('replan_done_'+d);
+  localStorage.removeItem('replan_actual_end_'+d);
+  CURRENT_ROWS = [];
+  window.__LAST_CHANGES__ = [];
+  document.getElementById('status').textContent = 'Testmodus gereset voor '+d;
+  renderAll();
+}
+
+async function init(){
+  const status = document.getElementById('status');
+  const apiBase = getApiBase();
+  try{
+    let loadedFrom = '';
+    try{
+      const apiRes = await fetch(`${apiBase}/result?v=`+Date.now());
+      if(!apiRes.ok) throw new Error('api result '+apiRes.status);
+      DATA = await apiRes.json();
+      loadedFrom = `API (${apiBase})`;
+    } catch(_e){
+      const localRes = await fetch('./result.json?v='+Date.now());
+      if(!localRes.ok) throw new Error('local result '+localRes.status);
+      DATA = await localRes.json();
+      loadedFrom = 'lokale result.json fallback';
+    }
+
+    const sel = document.getElementById('date');
+    const dates = Object.keys(DATA);
+    if(!dates.length){ status.textContent='Geen data gevonden'; return; }
+    dates.forEach(d=>{
+      const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o);
+    });
+    if(dates.length) sel.value = dates[0];
+    sel.addEventListener('change', ()=>{ CURRENT_ROWS=[]; renderAll(); });
+    document.getElementById('now').addEventListener('change', ()=>{ renderAll(); });
+    document.getElementById('mode').addEventListener('change', ()=>{ CURRENT_ROWS=[]; applyMode(); renderAll(); });
+    applyMode();
+    status.textContent='Data geladen via '+loadedFrom;
+    renderAll();
+  }catch(e){
+    status.textContent='Kon geen plandata laden';
+  }
+}
+
+let CURRENT_ROWS = [];
+window.__LAST_CHANGES__ = [];
+
+function renderMatrix(d, rows, done, nowMin){
+  const tb = document.querySelector('#matrixTbl tbody');
+  tb.innerHTML='';
+  const actualEnd = loadActualEnd(d);
+  const playable = rows.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
+  if(!playable.length) return;
+
+  const starts = playable.map(r=>toMin(r.start));
+  const ends = playable.map(r=>effectiveEndMin(d, r, nowMin, done, actualEnd));
+  const t0 = Math.min(...starts);
+  const t1 = Math.max(...ends);
+
+  const startCell = new Map();
+  const occ = new Map();
+  const effEndMap = new Map();
+  let overlapConflicts = 0;
+  function rowPriority(r, t){
+    const k = keyFor(d,r);
+    if(done.has(k)) return 1;
+    const s = toMin(r.start), e = effectiveEndMin(d,r,nowMin,done,actualEnd);
+    if(s <= t && t < e) return 3; // bezig/actief
+    return 2; // gepland
+  }
+  playable.forEach(r=>{
+    const endMin = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    const planEnd = toMin(r.end);
+    const k = keyFor(d,r);
+    effEndMap.set(k, {eff:endMin, planned:planEnd});
+    for(let t=toMin(r.start); t<endMin; t+=15){
+      const cellKey = `${t}-${r.court}`;
+      const ex = occ.get(cellKey);
+      if(!ex){
+        occ.set(cellKey, r);
+      } else {
+        overlapConflicts++;
+        const exPri = rowPriority(ex, t);
+        const nwPri = rowPriority(r, t);
+        if(nwPri > exPri){
+          occ.set(cellKey, r);
+        } else if(nwPri === exPri){
+          const exEnd = effectiveEndMin(d, ex, nowMin, done, actualEnd);
+          if(endMin > exEnd) occ.set(cellKey, r);
+        }
+      }
+    }
+    startCell.set(`${toMin(r.start)}-${r.court}`, r);
+  });
+
+  const nowMark = roundUp15(nowMin);
+  for(let t=t0; t<t1; t+=15){
+    const tr = document.createElement('tr');
+    if(((t-(8*60+30))%90)===0) tr.classList.add('major-row');
+    if(t===nowMark) tr.classList.add('now-row');
+    const hh = String(Math.floor(t/60)).padStart(2,'0');
+    const mm = String(t%60).padStart(2,'0');
+    tr.innerHTML = `<td class='time'>${hh}:${mm}</td>`;
+    for(let c=1;c<=10;c++){
+      const key = `${t}-${c}`;
+      const r = occ.get(key);
+      const td = document.createElement('td');
+      if(!r){ td.textContent='—'; tr.appendChild(td); continue; }
+
+      const k = keyFor(d,r);
+      const clr = colorForKey(r.team_id||r.schema||'');
+      td.style.background = clr;
+      const meta = effEndMap.get(k) || {eff: toMin(r.end||r.start||'00:00'), planned: toMin(r.end||r.start||'00:00')};
+
+      if(startCell.has(key)){
+        const checked = done.has(k) ? 'checked' : '';
+        const effEnd = meta.eff;
+        const plannedEnd = meta.planned;
+        const overtime = (!done.has(k) && effEnd > plannedEnd) ? ` <span class='small'>(loopt door tot ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
+        const early = (done.has(k) && effEnd < plannedEnd) ? ` <span class='small'>(eerder klaar ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
+        if(done.has(k) && effEnd < plannedEnd) td.classList.add('earlydone');
+        const ae = actualEnd[k] ? ` <span class='small'>(echt: ${actualEnd[k]})</span>` : '';
+        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}${overtime}${early}</label>`;
+        const cb = td.querySelector('input');
+        if(cb){ cb.addEventListener('change', (ev)=>{
+          if(ev.target.checked){
+            done.add(k);
+            // Conservatief: als je later afvinkt dan geplande eindtijd, neem gepland einde.
+            // (voorkomt kunstmatige uitloop als er achteraf wordt afgevinkt)
+            const nowV = toMin(document.getElementById('now').value);
+            const plannedV = toMin(r.end||r.start||'00:00');
+            const endV = nowV <= plannedV ? nowV : plannedV;
+            actualEnd[k] = String(Math.floor(endV/60)).padStart(2,'0')+':'+String(endV%60).padStart(2,'0');
+          } else {
+            done.delete(k);
+            delete actualEnd[k];
+          }
+          saveDone(d,done);
+          saveActualEnd(d,actualEnd);
+          renderAll();
+        }); }
+      } else {
+        td.innerHTML = `<div class='cell'>${r.team_short||r.schema} · ${r.part}</div>`;
+        td.style.opacity='0.6';
+      }
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+}
+
+function runReplan(){
+  applyMode();
+  const d = document.getElementById('date').value;
+  if(!d || !DATA[d]) return;
+  const nowMin = toMin(document.getElementById('now').value);
+  const done = loadDone(d);
+  const actualEnd = loadActualEnd(d);
+
+  const src = (DATA[d]||[]).map(r=>({...r}));
+  const baseByKey = new Map(src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP').map(r=>[keyFor(d,r), {start:r.start,end:r.end,court:r.court}]));
+  const playable = src.filter(r=>r.start && r.start!=='NIET_GELUKT' && r.part!=='COMP');
+
+  // lock completed + realistisch actieve partijen op basis van werkelijkheid
+  // Belangrijk: per baan kan op 'nu' maar 1 partij echt bezig zijn.
+  const lockedKeys = new Set();
+  const delayedCourts = new Set();
+  const scheduled = [];
+
+  // 1) Afgeronde partijen vastzetten
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    if(!done.has(k)) return;
+    const s=toMin(r.start), e=toMin(r.end);
+    const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    lockedKeys.add(k);
+    if(realEnd !== e){
+      r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
+    }
+    scheduled.push({
+      team: r.team_id||r.schema,
+      schema: (r.schema||'').toLowerCase(),
+      kind: r.kind,
+      court: r.court,
+      start: s,
+      end: toMin(r.end)
+    });
+  });
+
+  // 2) Lopende kandidaten bepalen (niet-afgerond, gestart en nog niet klaar op 'nu')
+  const activeByCourt = new Map();
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    if(lockedKeys.has(k)) return;
+    const s=toMin(r.start), e=toMin(r.end);
+    const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    if(!(s<=nowMin && nowMin<realEnd)) return;
+    const c = r.court || 1;
+    const prev = activeByCourt.get(c);
+    // Kies op een baan de partij die het langst/het eerst bezig is.
+    if(!prev || s < prev.s || (s===prev.s && realEnd>prev.realEnd)){
+      activeByCourt.set(c, {r, s, e, realEnd});
+    }
+  });
+
+  // 3) Winnaars per baan vastzetten als 'bezig'
+  for(const [c,v] of activeByCourt.entries()){
+    const {r,s,e,realEnd} = v;
+    const k = keyFor(d,r);
+    lockedKeys.add(k);
+    if(realEnd !== e){
+      r.end = String(Math.floor(realEnd/60)).padStart(2,'0')+':'+String(realEnd%60).padStart(2,'0');
+      if(realEnd > e) delayedCourts.add(c);
+    }
+    scheduled.push({
+      team: r.team_id||r.schema,
+      schema: (r.schema||'').toLowerCase(),
+      kind: r.kind,
+      court: c,
+      start: s,
+      end: toMin(r.end)
+    });
+  }
+
+  // 4) Gestarte maar niet-gekozen overlap-kandidaten terug naar pending (nog niet gestart in werkelijkheid)
+  playable.forEach(r=>{
+    const k = keyFor(d,r);
+    if(lockedKeys.has(k)) return;
+    const s=toMin(r.start), e=toMin(r.end);
+    const realEnd = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    if(s<=nowMin && nowMin<realEnd){
+      // kon in werkelijkheid niet gestart zijn door baanconflict; laat herplan opnieuw plaatsen
+      r.start = String(Math.floor(nowMin/60)).padStart(2,'0')+':'+String(nowMin%60).padStart(2,'0');
+      const ne = nowMin + (e-s);
+      r.end = String(Math.floor(ne/60)).padStart(2,'0')+':'+String(ne%60).padStart(2,'0');
+    }
+  });
+
+  function ov(aS,aE,bS,bE){ return !(aE<=bS || aS>=bE); }
+  function violatesTeam(a, teamRows){
+    const schemaL = (a.schema||'').toLowerCase();
+    for(const b of teamRows){
+      if(!ov(a.start,a.end,b.start,b.end)) continue;
+      if((a.kind==='S' && b.kind==='D') || (a.kind==='D' && b.kind==='S')) return true;
+      if((a.kind==='D' && b.kind==='M') || (a.kind==='M' && b.kind==='D')) return true;
+      if(schemaL.includes('2de-2he-dd-hd-2gd')){
+        if((a.kind==='S' && b.kind==='M') || (a.kind==='M' && b.kind==='S')) return true;
+      }
+    }
+    return false;
+  }
+
+  // herplan remaining wedstrijden op dezelfde baan (duidelijk causaal op wedstrijddag)
+  const pending = playable
+    .filter(r=>!lockedKeys.has(keyFor(d,r)))
+    .sort((a,b)=> (a.start||'').localeCompare(b.start||'') || ((a.court||99)-(b.court||99)));
+
+  for(const r of pending){
+    const origS=toMin(r.start), origE=toMin(r.end), dur=origE-origS;
+    const team = r.team_id||r.schema;
+    const schemaL = (r.schema||'').toLowerCase();
+    const c = r.court || 1;
+    let placed=false;
+
+    for(let t=roundUp15(Math.max(nowMin, origS)); t<=23*60; t+=15){
+      const end=t+dur;
+      const courtBusy = scheduled.some(x=>x.court===c && ov(t,end,x.start,x.end));
+      if(courtBusy) continue;
+      const teamRows = scheduled.filter(x=>x.team===team);
+      const cand = {team, schema:schemaL, kind:r.kind, court:c, start:t, end};
+      if(violatesTeam(cand, teamRows)) continue;
+
+      r.start = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+      r.end = String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0');
+      r.court = c;
+      scheduled.push(cand);
+      placed=true;
+      break;
+    }
+
+    if(!placed){
+      // fallback: laat staan zoals het was
+      scheduled.push({team, schema:schemaL, kind:r.kind, court:c, start:origS, end:origE});
+    }
+  }
+
+  let changed=0;
+  const changes=[];
+  src.forEach(r=>{
+    if(!r.start || r.start==='NIET_GELUKT' || r.part==='COMP') return;
+    const b = baseByKey.get(keyFor(d,r));
+    if(!b) return;
+    if(b.start!==r.start || b.end!==r.end || b.court!==r.court){
+      changed++;
+      changes.push(`${r.team_short||r.schema} · ${r.part}: ${b.start}-${b.end} (B${b.court}) → ${r.start}-${r.end} (B${r.court})`);
+    }
+  });
+
+  CURRENT_ROWS = src;
+  window.__LAST_CHANGES__ = changes;
+  const dc = [...delayedCourts].sort((a,b)=>a-b);
+  const delayedTxt = dc.length ? ` · uitloop op baan ${dc.join(', ')}` : '';
+  document.getElementById('status').textContent = `Herplan klaar: ${changed} partijen aangepast${delayedTxt}`;
+  renderAll();
+}
+
+function renderAll(){
+  applyMode();
+  const d = document.getElementById('date').value;
+  if(!d || !DATA[d]) return;
+  const now = document.getElementById('now').value;
+  const nowMin = toMin(now);
+  const rows = (CURRENT_ROWS.length ? CURRENT_ROWS : DATA[d]);
+  const done = loadDone(d);
+  const actualEnd = loadActualEnd(d);
+
+  let doneCount=0, liveCount=0, remainCount=0;
+  rows.forEach(r=>{
+    if(r.start==='NIET_GELUKT' || r.part==='COMP') return;
+    const k = keyFor(d,r);
+    const s = toMin(r.start), eEff = effectiveEndMin(d, r, nowMin, done, actualEnd);
+    if(done.has(k)) doneCount++;
+    else if(s<=nowMin && nowMin<=eEff) liveCount++;
+    else remainCount++;
+  });
+
+  document.getElementById('summary').textContent = `Nu: ${now} · Gereed: ${doneCount} · Bezig: ${liveCount} · Resterend: ${remainCount}`;
+  const log = document.getElementById('changeLog');
+  const ch = window.__LAST_CHANGES__ || [];
+  if(ch.length){
+    log.innerHTML = '<li><strong>Wijzigingen door herplan:</strong></li>' + ch.map(x=>`<li>${x}</li>`).join('');
+  } else {
+    log.innerHTML = '<li>Nog geen herplan-wijzigingen.</li>';
+  }
+  renderMatrix(d, rows, done, nowMin);
+}
+
+init();
+</script>
+</body></html>
