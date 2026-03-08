@@ -30,6 +30,13 @@ body{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto;
 .time{font-variant-numeric:tabular-nums;background:#f3f4f7;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px;font-weight:600}
 .empty{color:#aeb4c2;text-align:center}
 .cell{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}
+.tap-cell{cursor:pointer}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20}
+.modal{background:#fff;border-radius:12px;max-width:92vw;padding:.9rem 1rem;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+@media (max-width: 800px){
+  .grid th,.grid td{padding:.12rem .14rem;height:24px;min-height:24px}
+  .cell{font-size:9px}
+}
 </style>
 </head>
 <body>

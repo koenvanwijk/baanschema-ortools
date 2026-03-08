@@ -662,14 +662,20 @@ def render_grid(rows: list[dict]) -> str:
     end_min = max(hhmm_to_mins(r["end"]) for r in valid)
     times = list(range(start_min, end_min + 1, 15))
 
-    cell: dict[tuple[int, int], tuple[str, str]] = {}
+    cell: dict[tuple[int, int], dict[str, Any]] = {}
     for r in valid:
         s = hhmm_to_mins(r["start"])
         e = hhmm_to_mins(r["end"])
         label = f"{r['team_short']} · {r['part']}"
+        detail = f"{r['schema']} | {r['part']} | {r['start']}-{r['end']} | Baan {r.get('court','?')}"
         color = color_for(r.get("team_id") or r["schema"])
         for t in range(s, e, 15):
-            cell[(t, int(r["court"]))] = (label, color)
+            cell[(t, int(r["court"]))] = {
+                "label": label,
+                "detail": detail,
+                "color": color,
+                "is_start": t == s,
+            }
 
     header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
     body = []
@@ -679,8 +685,12 @@ def render_grid(rows: list[dict]) -> str:
         for c in range(1, 11):
             v = cell.get((t, c))
             if v:
-                txt, clr = v
-                tds.append(f"<td style='background:{clr}'><div class='cell'>{html.escape(txt)}</div></td>")
+                txt = v["label"] if v["is_start"] else "·"
+                clr = v["color"]
+                detail = html.escape(v["detail"], quote=True)
+                tds.append(
+                    f"<td class='tap-cell' style='background:{clr}' data-detail='{detail}'><div class='cell'>{html.escape(txt)}</div></td>"
+                )
             else:
                 tds.append("<td class='empty'>—</td>")
         body.append(f"<tr class='{row_cls}'>" + "".join(tds) + "</tr>")
@@ -961,6 +971,13 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .time{{font-variant-numeric:tabular-nums;background:#f3f4f7;position:sticky;left:0;z-index:1;width:56px;min-width:56px;max-width:56px;font-size:11px;font-weight:600}}
 .empty{{color:#aeb4c2;text-align:center}}
 .cell{{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}}
+.tap-cell{{cursor:pointer}}
+.modal-backdrop{{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20}}
+.modal{{background:#fff;border-radius:12px;max-width:92vw;padding:.9rem 1rem;box-shadow:0 10px 30px rgba(0,0,0,.25)}}
+@media (max-width: 800px){{
+  .grid th,.grid td{{padding:.12rem .14rem;height:24px;min-height:24px}}
+  .cell{{font-size:9px}}
+}}
 </style>
 </head>
 <body>
@@ -986,6 +1003,13 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
   <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
 {''.join(sections)}
+<div id='cellModalBg' class='modal-backdrop' onclick='closeCellModal()'>
+  <div class='modal' onclick='event.stopPropagation()'>
+    <strong>Wedstrijddetail</strong>
+    <div id='cellModalText' style='margin-top:.4rem;white-space:pre-wrap'></div>
+    <div style='margin-top:.7rem'><button onclick='closeCellModal()'>Sluiten</button></div>
+  </div>
+</div>
 <script>
 function setPlan(mode){{
   const heur = document.querySelectorAll('.heur-view');
@@ -1001,7 +1025,26 @@ function setPlan(mode){{
     heur.forEach(e=>e.classList.remove('hidden'));
     bo.classList.remove('active'); bh.classList.add('active');
   }}
+  bindCellPopups();
 }}
+function bindCellPopups(){{
+  document.querySelectorAll('.tap-cell').forEach(el=>{{
+    if(el.dataset.bound==='1') return;
+    el.dataset.bound='1';
+    el.addEventListener('click',()=>openCellModal(el.dataset.detail||''));
+  }});
+}}
+function openCellModal(text){{
+  const bg=document.getElementById('cellModalBg');
+  const t=document.getElementById('cellModalText');
+  if(t) t.textContent=text;
+  if(bg) bg.style.display='flex';
+}}
+function closeCellModal(){{
+  const bg=document.getElementById('cellModalBg');
+  if(bg) bg.style.display='none';
+}}
+bindCellPopups();
 </script>
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
