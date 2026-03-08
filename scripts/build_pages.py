@@ -338,84 +338,114 @@ def _schedule_day_with_start(
         tname = team.team_id
 
         for idx, rnd in enumerate(rounds):
-            needed = len(rnd)
-            placed = False
+            remaining = list(rnd)
 
-            # liefst vanaf 09:00, alleen indien nodig terugvallen naar 08:30
-            # eerste teampartij moet uiterlijk om 15:00 starten
-            first_latest = first_match_latest_by_date.get(date, first_match_latest)
-            latest_for_round = first_latest if idx == 0 else latest_start
-            earliest_for_round = first_start_earliest(team)
-            candidate_starts = [
-                range(max(start_pref, earliest_for_round), latest_for_round + 1, step),
-            ]
+            while remaining:
+                placed = False
 
-            for start_range in candidate_starts:
-                if placed:
-                    break
-                starts = list(start_range)
-                starts.sort(
-                    key=lambda s: (
-                        # HOOFDPRIORITEIT: maximaliseer bezette banen (met name in ochtend)
-                        -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
-                        -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
-                        # daarna pas teamcomfort/volgorde
-                        gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]) // 30,
-                        s,
-                    )
-                )
-                for start in starts:
-                    end = start + team.duration_min
+                # liefst vanaf 09:00; eerste teampartij uiterlijk volgens datumregel
+                first_latest = first_match_latest_by_date.get(date, first_match_latest)
+                latest_for_round = first_latest if idx == 0 else latest_start
+                earliest_for_round = first_start_earliest(team)
+                candidate_starts = [
+                    range(max(start_pref, earliest_for_round), latest_for_round + 1, step),
+                ]
 
-                    team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
-
-                    # team constraint:
-                    # - singles niet tegelijk met dubbels
-                    # - gemengd dubbel (GD/M) niet tegelijk met dubbel
-                    kinds_now = {x[2] for x in team_overlaps}
-                    round_kinds = {p["kind"] for p in rnd}
-                    if "S" in round_kinds and ("D" in kinds_now):
-                        continue
-                    if "D" in round_kinds and ("S" in kinds_now):
-                        continue
-                    if "M" in round_kinds and ("D" in kinds_now):
-                        continue
-                    if "D" in round_kinds and ("M" in kinds_now):
-                        continue
-
-                    # Voor 2DE-2HE-DD-HD-2GD-teams: singles mogen ook NIET tegelijk met GD.
-                    schema_l = team.schema.lower()
-                    if "2de-2he-dd-hd-2gd" in schema_l:
-                        if "S" in round_kinds and ("M" in kinds_now):
-                            continue
-                        if "M" in round_kinds and ("S" in kinds_now):
-                            continue
-
-                    free = []
-                    for c in courts:
-                        if all(not overlaps((start, end), itv) for itv in court_busy[c]):
-                            free.append(c)
-                    if len(free) < needed:
-                        continue
-
-                    # Prioriteit: capaciteit benutten > naast elkaar spelen.
-                    # Extra regel: teams met 8 wedstrijden zoveel mogelijk op baan 1-4,
-                    # maar Rood/Oranje-reserveringen hebben altijd prioriteit (die zijn al geblokt).
-                    if int(team.matches or 0) == 8:
-                        free.sort(
-                            key=lambda c: (
-                                c > 4,  # eerst 1-4
-                                -sum(b - a for a, b in court_busy[c]),
-                                c,
-                            )
+                for start_range in candidate_starts:
+                    if placed:
+                        break
+                    starts = list(start_range)
+                    starts.sort(
+                        key=lambda s: (
+                            -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                            -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                            gap_penalty_with_existing(s, s + team.duration_min, team_busy[tname]) // 30,
+                            s,
                         )
-                    else:
-                        # Standaard: compacter vullen.
-                        free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
-                    best = free[:needed]
-                    for p, c in zip(rnd, best):
-                        court_busy[c].append((start, end))
-                        team_busy[tname].append((start, end, p["kind"]))
+                    )
+
+                    for start in starts:
+                        end = start + team.duration_min
+                        team_overlaps = [b for b in team_busy[tname] if overlaps((start, end), (b[0], b[1]))]
+                        kinds_now = {x[2] for x in team_overlaps}
+
+                        free = [
+                            c
+                            for c in courts
+                            if all(not overlaps((start, end), itv) for itv in court_busy[c])
+                        ]
+                        if not free:
+                            continue
+
+                        # Zo compact mogelijk: plan zoveel mogelijk uit de huidige ronde,
+                        # maar laat ook 1 baan-start toe als dat eerder kan.
+                        max_place = min(len(remaining), len(free))
+                        chosen_parts = None
+                        for take in range(max_place, 0, -1):
+                            cand_parts = remaining[:take]
+                            round_kinds = {p["kind"] for p in cand_parts}
+
+                            # team constraints
+                            if "S" in round_kinds and ("D" in kinds_now):
+                                continue
+                            if "D" in round_kinds and ("S" in kinds_now):
+                                continue
+                            if "M" in round_kinds and ("D" in kinds_now):
+                                continue
+                            if "D" in round_kinds and ("M" in kinds_now):
+                                continue
+
+                            schema_l = team.schema.lower()
+                            if "2de-2he-dd-hd-2gd" in schema_l:
+                                if "S" in round_kinds and ("M" in kinds_now):
+                                    continue
+                                if "M" in round_kinds and ("S" in kinds_now):
+                                    continue
+
+                            chosen_parts = cand_parts
+                            break
+
+                        if not chosen_parts:
+                            continue
+
+                        if int(team.matches or 0) == 8:
+                            free.sort(
+                                key=lambda c: (
+                                    c > 4,
+                                    -sum(b - a for a, b in court_busy[c]),
+                                    c,
+                                )
+                            )
+                        else:
+                            free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
+
+                        best = free[: len(chosen_parts)]
+                        for p, c in zip(chosen_parts, best):
+                            court_busy[c].append((start, end))
+                            team_busy[tname].append((start, end, p["kind"]))
+                            out.append(
+                                {
+                                    "schema": team.schema,
+                                    "team_id": team.team_id,
+                                    "team_short": short_team_name(team.schema, team.home_team),
+                                    "home_team": team.home_team,
+                                    "away_team": team.away_team,
+                                    "part": p["label"],
+                                    "kind": p["kind"],
+                                    "matches": team.matches,
+                                    "duration_min_cfg": team.duration_min,
+                                    "start": mins_to_hhmm(start),
+                                    "end": mins_to_hhmm(end),
+                                    "court": c,
+                                }
+                            )
+
+                        remaining = remaining[len(chosen_parts) :]
+                        placed = True
+                        break
+
+                if not placed:
+                    for p in remaining:
                         out.append(
                             {
                                 "schema": team.schema,
@@ -427,32 +457,12 @@ def _schedule_day_with_start(
                                 "kind": p["kind"],
                                 "matches": team.matches,
                                 "duration_min_cfg": team.duration_min,
-                                "start": mins_to_hhmm(start),
-                                "end": mins_to_hhmm(end),
-                                "court": c,
+                                "start": "NIET_GELUKT",
+                                "end": "",
+                                "court": None,
                             }
                         )
-                    placed = True
                     break
-
-            if not placed:
-                for p in rnd:
-                    out.append(
-                        {
-                            "schema": team.schema,
-                            "team_id": team.team_id,
-                            "team_short": short_team_name(team.schema, team.home_team),
-                            "home_team": team.home_team,
-                            "away_team": team.away_team,
-                            "part": p["label"],
-                            "kind": p["kind"],
-                            "matches": team.matches,
-                            "duration_min_cfg": team.duration_min,
-                            "start": "NIET_GELUKT",
-                            "end": "",
-                            "court": None,
-                        }
-                    )
 
     # Post-pass: compacteer planning door partijen waar mogelijk per 15 minuten naar voren te schuiven.
     def can_move(row: dict, new_start: int, duration: int) -> bool:

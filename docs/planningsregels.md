@@ -46,4 +46,5 @@ Dit bestand bevat de actuele regels die door de planner/herplanner worden gebrui
 - Afgevinkte partijen worden vastgezet.
 - Lopende partijen op `now` worden als bezet beschouwd.
 - Overige partijen schuiven door in 15-min stappen met behoud van constraints.
+- Als maar 1 baan vrij is, mag de planner alvast 1 partij uit een ronde starten (compactheid boven symmetrie).
 - Bij voorkeur blijft een partij op dezelfde baan in de herplanning.
