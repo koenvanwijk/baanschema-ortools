@@ -503,22 +503,7 @@ def _schedule_day_with_start(
 
         return True
 
-    # Bewaak dat partijen die tegelijk gestart zijn voor hetzelfde team (bijv. S1/S2)
-    # in de compaction niet uit elkaar getrokken worden.
-    group_counts: dict[tuple[str, str, str], int] = defaultdict(int)
-    for r in out:
-        if r.get("part") == "COMP" or r.get("start") in (None, "", "NIET_GELUKT"):
-            continue
-        key = (str(r.get("team_id") or r.get("schema")), str(r.get("start")), str(r.get("end")))
-        group_counts[key] += 1
-
-    movable = [
-        r
-        for r in out
-        if r.get("part") != "COMP"
-        and r.get("start") not in (None, "", "NIET_GELUKT")
-        and group_counts[(str(r.get("team_id") or r.get("schema")), str(r.get("start")), str(r.get("end")))] == 1
-    ]
+    movable = [r for r in out if r.get("part") != "COMP" and r.get("start") not in (None, "", "NIET_GELUKT")]
     improved = True
     while improved:
         improved = False
