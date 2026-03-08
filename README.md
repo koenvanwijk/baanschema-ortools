@@ -82,6 +82,9 @@ Doel van deze tweede tool:
 Alle actuele planningsregels staan in:
 - `docs/planningsregels.md`
 
+Snelle handmatige versie (printbaar):
+- `docs/planner-cheatsheet.md`
+
 ## Volgende stappen
 
 1. OR-Tools planner volledig alignen met alle KNLTB-regels + uitzonderingen
