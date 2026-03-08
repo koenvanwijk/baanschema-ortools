@@ -209,14 +209,22 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
 
     rounds: list[list[dict]] = []
 
-    # Fase 1: plan singles + mix samen (toegestaan)
-    sm = singles + mixes
-    for i in range(0, len(sm), 2):
-        rounds.append(sm[i : i + 2])
+    # Nieuwe regel: als een team met max 2 banen start, begin met dubbels.
+    # In dit model plannen we altijd in blokken van maximaal 2 banen per ronde,
+    # dus bij teams met dubbels zetten we die standaard als openingsronde.
+    if doubles:
+        for i in range(0, len(doubles), 2):
+            rounds.append(doubles[i : i + 2])
 
-    # Fase 2: plan dubbels apart (niet tegelijk met singles)
-    for i in range(0, len(doubles), 2):
-        rounds.append(doubles[i : i + 2])
+        # Daarna singles + mix (toegestaan samen)
+        sm = singles + mixes
+        for i in range(0, len(sm), 2):
+            rounds.append(sm[i : i + 2])
+    else:
+        # Zonder dubbels: singles + mix
+        sm = singles + mixes
+        for i in range(0, len(sm), 2):
+            rounds.append(sm[i : i + 2])
 
     # fallback voor inconsistente input
     planned = sum(len(r) for r in rounds)
@@ -929,6 +937,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
   <ul>
     <li>10 banen totaal; Rood reserveert altijd baan 1 (08:30–09:30). Oranje reserveert bij voorkeur baan 1–3 (08:30–10:30), tenzij Rood ook speelt: dan baan 2–4.</li>
     <li>Teams spelen partijen met labels S / D / GD; singles niet tegelijk met dubbels, singles wel met GD.</li>
+    <li>Als een team met maximaal 2 banen kan starten, opent de planner met dubbels.</li>
     <li>Startvenster: planner probeert 09:00 als dagstart en valt terug op 08:30 wanneer nodig; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
     <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>
     <li>Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.</li>
