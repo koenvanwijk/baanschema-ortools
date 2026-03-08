@@ -274,11 +274,11 @@ def _schedule_day_with_start(
         if r.kind == "oranje":
             reserve_courts = [2, 3, 4] if "rood" in kinds_today else [1, 2, 3]
             label = "ORANJE"
-            res_start, res_end = 8 * 60 + 30, 10 * 60 + 30
+            res_start, res_end = day_start_pref, day_start_pref + 120
         elif r.kind == "rood":
             reserve_courts = [1]
             label = "ROOD"
-            res_start, res_end = 8 * 60 + 30, 9 * 60 + 30  # rood duurt 1 uur
+            res_start, res_end = day_start_pref, day_start_pref + 60  # rood duurt 1 uur
         else:
             reserve_courts = []
             label = r.kind.upper()
@@ -325,22 +325,31 @@ def _schedule_day_with_start(
         return start_pref
 
     for team in ordered:
-        # Bepaal startvolgorde op basis van beschikbare baancapaciteit in het
-        # eerste haalbare startvenster van dit team (niet alleen op een vaste probe-tijd).
+        # Bepaal startvolgorde op basis van de meest waarschijnlijke startslot-keuze
+        # (zelfde heuristische score als de planner gebruikt).
         first_latest = first_match_latest_by_date.get(date, first_match_latest)
         probe_earliest = max(start_pref, first_start_earliest(team))
-        max_free_at_feasible_start = 0
-        for s in range(probe_earliest, first_latest + 1, step):
-            e = s + team.duration_min
-            free_now = sum(
+        probe_starts = list(range(probe_earliest, first_latest + 1, step))
+        if probe_starts:
+            probe_starts.sort(
+                key=lambda s: (
+                    -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                    -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
+                    s,
+                )
+            )
+            probe_start = probe_starts[0]
+            e = probe_start + team.duration_min
+            free_at_probe = sum(
                 1
                 for c in courts
-                if all(not overlaps((s, e), itv) for itv in court_busy[c])
+                if all(not overlaps((probe_start, e), itv) for itv in court_busy[c])
             )
-            max_free_at_feasible_start = max(max_free_at_feasible_start, free_now)
+        else:
+            free_at_probe = 0
 
         # Regel: bij 1-2 beschikbare banen start met D/GD; bij 3-4+ met singles.
-        start_with_non_singles = max_free_at_feasible_start <= 2
+        start_with_non_singles = free_at_probe <= 2
         rounds = build_rounds(team, start_with_non_singles=start_with_non_singles)
         tname = team.team_id
 
@@ -545,13 +554,14 @@ def _schedule_day_with_start(
 
 
 def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: str) -> list[dict]:
-    # Nieuwe regel: als de dag ook met 09:00-start nog vóór 19:30 klaar is,
-    # kies dan die latere start; anders behoud 08:30-start.
+    # Regel: start op 09:00, behalve als dat ertoe leidt dat partijen pas na 19:30 moeten starten
+    # of onplanbaar worden. Dan fallback naar 08:30.
     rows_0900 = _schedule_day_with_start(items, reservations, date, day_start_pref=9 * 60)
     valid_0900 = [r for r in rows_0900 if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
-    if valid_0900:
-        last_end_0900 = max(hhmm_to_mins(r["end"]) for r in valid_0900)
-        if last_end_0900 < 19 * 60 + 30:
+    failed_0900 = [r for r in rows_0900 if r.get("start") == "NIET_GELUKT" and r.get("part") != "COMP"]
+    if valid_0900 and not failed_0900:
+        last_start_0900 = max(hhmm_to_mins(r["start"]) for r in valid_0900)
+        if last_start_0900 <= 19 * 60 + 30:
             return rows_0900
 
     return _schedule_day_with_start(items, reservations, date, day_start_pref=8 * 60 + 30)

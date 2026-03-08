@@ -10,14 +10,13 @@ Dit bestand bevat de actuele regels die door de planner/herplanner worden gebrui
 - Een speler/team mag niet in conflicterende partijen tegelijk staan.
 
 ## Rood/Oranje reserveringen
-- **Rood**: altijd baan 1, van 08:30 tot 09:30.
-- **Oranje**: bij voorkeur baan 1,2,3 van 08:30 tot 10:30.
+- **Rood**: altijd baan 1, start op de dagstart (09:00 of 08:30) en duurt 60 min.
+- **Oranje**: bij voorkeur baan 1,2,3, start op de dagstart (09:00 of 08:30) en duurt 120 min.
 - Als Rood en Oranje op dezelfde dag spelen, krijgt Oranje baan 2,3,4.
 
 ## Startregels dag
 - Planner probeert de dag te starten om **09:00**.
-- Als die planning niet werkt binnen de dagdoelen, valt planner terug naar **08:30**.
-- Als een planning met 09:00 start eindigt vóór 19:30, wordt die 09:00-variant gekozen.
+- Alleen als 09:00 ertoe leidt dat partijen pas na 19:30 moeten starten of onplanbaar worden, valt planner terug naar **08:30**.
 
 ## Team- en partijregels
 - Singles (S) en dubbels (D) niet tegelijk.
