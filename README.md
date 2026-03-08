@@ -77,6 +77,11 @@ Doel van deze tweede tool:
 - vergelijken met de heuristische planner op kwaliteit/runtime
 - betere bezetting op drukke dagen via CP-SAT objective
 
+## Planningsregels
+
+Alle actuele planningsregels staan in:
+- `docs/planningsregels.md`
+
 ## Volgende stappen
 
 1. OR-Tools planner volledig alignen met alle KNLTB-regels + uitzonderingen

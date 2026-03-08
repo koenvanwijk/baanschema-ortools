@@ -227,8 +227,10 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
     return rounds
 
 
-def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: str) -> list[dict]:
-    start_pref = 8 * 60 + 30  # optie 1: starten vanaf 08:30
+def _schedule_day_with_start(
+    items: list[TeamDay], reservations: list[Reservation], date: str, day_start_pref: int
+) -> list[dict]:
+    start_pref = day_start_pref
     fallback_start = 8 * 60 + 30
     latest_start = 19 * 60 + 30
     first_match_latest = 15 * 60  # eerste teamwedstrijd mag niet na 15:00 starten
@@ -249,15 +251,17 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     out: list[dict] = []
 
     # Plan en toon Rood/Oranje als expliciete blokken op gereserveerde banen.
-    # Nieuwe regel: Oranje altijd 3 banen; als Rood die dag ook speelt, dan Rood op baan 4.
+    # Regels:
+    # - Rood altijd baan 1.
+    # - Oranje bij voorkeur baan 1-3, tenzij Rood ook speelt: dan baan 2-4.
     kinds_today = {r.kind for r in reservations}
     for r in reservations:
         if r.kind == "oranje":
-            reserve_courts = [1, 2, 3]
+            reserve_courts = [2, 3, 4] if "rood" in kinds_today else [1, 2, 3]
             label = "ORANJE"
             res_start, res_end = 8 * 60 + 30, 10 * 60 + 30
         elif r.kind == "rood":
-            reserve_courts = [4] if "oranje" in kinds_today else [1]
+            reserve_courts = [1]
             label = "ROOD"
             res_start, res_end = 8 * 60 + 30, 9 * 60 + 30  # rood duurt 1 uur
         else:
@@ -302,8 +306,8 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
         if "gemengd zondag" in s:
             return 10 * 60  # gemengd later laten starten
         if "jongens 13 t/m 17" in s or "meisjes 13 t/m 17" in s:
-            return 8 * 60 + 30  # JO/ME vanaf 08:30 toestaan
-        return fallback_start
+            return start_pref
+        return start_pref
 
     for team in ordered:
         rounds = build_rounds(team)
@@ -320,7 +324,6 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
             earliest_for_round = first_start_earliest(team) if "gemengd zondag" in team.schema.lower() else (first_start_earliest(team) if idx == 0 else fallback_start)
             candidate_starts = [
                 range(max(start_pref, earliest_for_round), latest_for_round + 1, step),
-                range(max(fallback_start, earliest_for_round), latest_for_round + 1, step),
             ]
 
             for start_range in candidate_starts:
@@ -485,6 +488,19 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
                     break
 
     return sorted(out, key=lambda x: (x["start"], x["court"] or 99, x["schema"], x["part"]))
+
+
+def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: str) -> list[dict]:
+    # Nieuwe regel: als de dag ook met 09:00-start nog vóór 19:30 klaar is,
+    # kies dan die latere start; anders behoud 08:30-start.
+    rows_0900 = _schedule_day_with_start(items, reservations, date, day_start_pref=9 * 60)
+    valid_0900 = [r for r in rows_0900 if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
+    if valid_0900:
+        last_end_0900 = max(hhmm_to_mins(r["end"]) for r in valid_0900)
+        if last_end_0900 < 19 * 60 + 30:
+            return rows_0900
+
+    return _schedule_day_with_start(items, reservations, date, day_start_pref=8 * 60 + 30)
 
 
 def render_day_summary(rows: list[dict]) -> str:
@@ -806,9 +822,9 @@ def main() -> None:
         kinds = {r.kind for r in day_res}
         for r in day_res:
             if r.kind == "oranje":
-                courts, start, end, label = [1, 2, 3], "08:30", "10:30", "ORANJE"
+                courts, start, end, label = ([2, 3, 4] if "rood" in kinds else [1, 2, 3]), "08:30", "10:30", "ORANJE"
             elif r.kind == "rood":
-                courts, start, end, label = ([4] if "oranje" in kinds else [1]), "08:30", "09:30", "ROOD"
+                courts, start, end, label = [1], "08:30", "09:30", "ROOD"
             else:
                 courts, start, end, label = [], "08:30", "10:30", r.kind.upper()
             for c in courts:
@@ -911,9 +927,9 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 <div class='requirements'>
   <h3>Planningsregels (actueel)</h3>
   <ul>
-    <li>10 banen totaal; Oranje reserveert altijd baan 1–3 (08:30–10:30). Rood reserveert 08:30–09:30 op baan 1, of op baan 4 als Oranje die dag ook speelt.</li>
+    <li>10 banen totaal; Rood reserveert altijd baan 1 (08:30–09:30). Oranje reserveert bij voorkeur baan 1–3 (08:30–10:30), tenzij Rood ook speelt: dan baan 2–4.</li>
     <li>Teams spelen partijen met labels S / D / GD; singles niet tegelijk met dubbels, singles wel met GD.</li>
-    <li>Startvenster basis: vanaf 08:30; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
+    <li>Startvenster: planner probeert 09:00 als dagstart en valt terug op 08:30 wanneer nodig; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
     <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>
     <li>Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.</li>
     <li>KNLTB-tekstregels worden hieronder per dag gecontroleerd; afwijkingen staan geel gemarkeerd.</li>
