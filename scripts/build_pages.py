@@ -325,15 +325,22 @@ def _schedule_day_with_start(
         return start_pref
 
     for team in ordered:
-        probe_start = max(start_pref, first_start_earliest(team))
-        free_probe = sum(
-            1
-            for c in courts
-            if all(not overlaps((probe_start, probe_start + team.duration_min), itv) for itv in court_busy[c])
-        )
-        # Regel: start met D/GD als team waarschijnlijk met 1-2 banen kan openen;
-        # bij 3-4+ beschikbare banen start met singles.
-        start_with_non_singles = free_probe <= 2
+        # Bepaal startvolgorde op basis van beschikbare baancapaciteit in het
+        # eerste haalbare startvenster van dit team (niet alleen op een vaste probe-tijd).
+        first_latest = first_match_latest_by_date.get(date, first_match_latest)
+        probe_earliest = max(start_pref, first_start_earliest(team))
+        max_free_at_feasible_start = 0
+        for s in range(probe_earliest, first_latest + 1, step):
+            e = s + team.duration_min
+            free_now = sum(
+                1
+                for c in courts
+                if all(not overlaps((s, e), itv) for itv in court_busy[c])
+            )
+            max_free_at_feasible_start = max(max_free_at_feasible_start, free_now)
+
+        # Regel: bij 1-2 beschikbare banen start met D/GD; bij 3-4+ met singles.
+        start_with_non_singles = max_free_at_feasible_start <= 2
         rounds = build_rounds(team, start_with_non_singles=start_with_non_singles)
         tname = team.team_id
 
@@ -465,11 +472,13 @@ def _schedule_day_with_start(
                     break
 
     # Post-pass: compacteer planning door partijen waar mogelijk per 15 minuten naar voren te schuiven.
+    min_start_compact = start_pref
+
     def can_move(row: dict, new_start: int, duration: int) -> bool:
         new_end = new_start + duration
 
         # startgrenzen
-        if new_start < 8 * 60 + 30:
+        if new_start < min_start_compact:
             return False
         if "gemengd zondag" in row["schema"].lower() and new_start < 10 * 60:
             return False
@@ -522,7 +531,7 @@ def _schedule_day_with_start(
             cur_end = hhmm_to_mins(row["end"])
             dur = cur_end - cur_start
             trial = cur_start - 15
-            while trial >= 8 * 60 + 30:
+            while trial >= min_start_compact:
                 if can_move(row, trial, dur):
                     row["start"] = mins_to_hhmm(trial)
                     row["end"] = mins_to_hhmm(trial + dur)
