@@ -689,8 +689,9 @@ def render_grid(rows: list[dict]) -> str:
 
     header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
     body = []
+    major_anchor = start_min
     for t in times[:-1]:
-        row_cls = "major-row" if ((t - (8 * 60 + 30)) % 90 == 0) else ""
+        row_cls = "major-row" if ((t - major_anchor) % 90 == 0) else ""
         tds = [f"<td class='time'>{mins_to_hhmm(t)}</td>"]
         for c in range(1, 11):
             v = cell.get((t, c))
@@ -1297,7 +1298,7 @@ function renderMatrix(d, rows, done, nowMin){
   const nowMark = roundUp15(nowMin);
   for(let t=t0; t<t1; t+=15){
     const tr = document.createElement('tr');
-    if(((t-(8*60+30))%90)===0) tr.classList.add('major-row');
+    if(((t-t0)%90)===0) tr.classList.add('major-row');
     if(t===nowMark) tr.classList.add('now-row');
     const hh = String(Math.floor(t/60)).padStart(2,'0');
     const mm = String(t%60).padStart(2,'0');
