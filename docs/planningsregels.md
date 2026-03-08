@@ -23,7 +23,8 @@ Dit bestand bevat de actuele regels die door de planner/herplanner worden gebrui
 - Singles (S) en dubbels (D) niet tegelijk.
 - Dubbels (D) en gemengd dubbel (GD/M) niet tegelijk.
 - Voor schema `2DE-2HE-DD-HD-2GD`: singles (S) en GD/M ook niet tegelijk.
-- Extra startregel: als een team met maximaal 2 banen kan beginnen, start het team met dubbels.
+- Extra startregel: als een team met 1 of 2 banen kan beginnen, start het team met dubbels/GD.
+- Als er 3 of 4 banen beschikbaar zijn bij de start, begin met singles.
 
 ## Volgorde/voorkeuren
 - Basisvolgorde teams: jong naar oud, gemengd later.

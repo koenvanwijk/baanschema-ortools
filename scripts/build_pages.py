@@ -180,28 +180,37 @@ def color_for(name: str) -> str:
     return color
 
 
-def short_team_name(schema: str) -> str:
-    s = schema
-    s = s.replace("Jongens 13 t/m 17 jaar Zondag", "JO13-17")
-    s = s.replace("Meisjes 13 t/m 17 jaar Zondag", "ME13-17")
-    s = s.replace("Junioren 11 t/m 14 jaar Zondag", "JU11-14")
-    s = s.replace("Gemengd Zondag", "GEM")
-    s = s.replace("Heren Zondag", "HER")
-    s = s.replace("Groen Zondag", "GRO")
+def short_team_name(schema: str, home_team: str = "") -> str:
+    low = schema.lower()
+    if "gemengd zondag" in low:
+        prefix = "GEM"
+    elif "heren zondag" in low:
+        prefix = "HER"
+    elif "groen zondag" in low:
+        prefix = "GRO"
+    elif "jongens 13 t/m 17" in low:
+        prefix = "JO13-17"
+    elif "meisjes 13 t/m 17" in low:
+        prefix = "ME13-17"
+    elif "junioren 11 t/m 14" in low:
+        prefix = "JU11-14"
+    else:
+        prefix = schema.split("–", 1)[0].strip()[:20]
 
-    parts = [p.strip() for p in s.split("–")]
-    if len(parts) >= 3:
-        base = re.sub(r"\s*\([^)]*\)", "", parts[0]).strip()
-        if base.startswith("GRO Groen"):
-            base = base.replace("GRO Groen", "GRO", 1)
-        klasse = re.sub(r"\s*\([^)]*\)", "", parts[1]).replace("klasse", "").strip()
-        afdeling = parts[2].replace("Afdeling", "Afd").strip().replace("  ", " ")
-        afdeling = afdeling.replace("Afd ", "Afd")
-        return f"{base} {klasse} {afdeling}".strip()
-    return parts[0][:20]
+    parts = [p.strip() for p in schema.split("–")]
+    klasse = ""
+    if len(parts) >= 2:
+        klasse = re.sub(r"\s*\([^)]*\)", "", parts[1])
+        klasse = klasse.replace("klasse", "").strip()
+
+    m = re.search(r"\bMIERLO\s*(\d+)\b", home_team or "", flags=re.I)
+    home_short = f"M{m.group(1)}" if m else ""
+
+    out = " ".join(x for x in [prefix, klasse, home_short] if x)
+    return re.sub(r"\s+", " ", out).strip()
 
 
-def build_rounds(team: TeamDay) -> list[list[dict]]:
+def build_rounds(team: TeamDay, start_with_non_singles: bool) -> list[list[dict]]:
     # Singles mogen NIET tegelijk met dubbels, maar WEL met mix.
     singles = [{"label": f"S{i+1}", "kind": "S"} for i in range(team.singles)]
     doubles = [{"label": f"D{i+1}", "kind": "D"} for i in range(team.doubles)]
@@ -209,22 +218,20 @@ def build_rounds(team: TeamDay) -> list[list[dict]]:
 
     rounds: list[list[dict]] = []
 
-    # Nieuwe regel: als een team met max 2 banen start, begin met dubbels.
-    # In dit model plannen we altijd in blokken van maximaal 2 banen per ronde,
-    # dus bij teams met dubbels zetten we die standaard als openingsronde.
-    if doubles:
-        for i in range(0, len(doubles), 2):
-            rounds.append(doubles[i : i + 2])
-
-        # Daarna singles + mix (toegestaan samen)
-        sm = singles + mixes
-        for i in range(0, len(sm), 2):
-            rounds.append(sm[i : i + 2])
+    if start_with_non_singles:
+        # Bij start op 1-2 banen: eerst D/GD, daarna singles.
+        non_singles = doubles + mixes
+        for i in range(0, len(non_singles), 2):
+            rounds.append(non_singles[i : i + 2])
+        for i in range(0, len(singles), 2):
+            rounds.append(singles[i : i + 2])
     else:
-        # Zonder dubbels: singles + mix
-        sm = singles + mixes
-        for i in range(0, len(sm), 2):
-            rounds.append(sm[i : i + 2])
+        # Bij start op 3-4 banen: eerst singles, daarna D/GD.
+        for i in range(0, len(singles), 2):
+            rounds.append(singles[i : i + 2])
+        non_singles = doubles + mixes
+        for i in range(0, len(non_singles), 2):
+            rounds.append(non_singles[i : i + 2])
 
     # fallback voor inconsistente input
     planned = sum(len(r) for r in rounds)
@@ -318,7 +325,16 @@ def _schedule_day_with_start(
         return start_pref
 
     for team in ordered:
-        rounds = build_rounds(team)
+        probe_start = max(start_pref, first_start_earliest(team))
+        free_probe = sum(
+            1
+            for c in courts
+            if all(not overlaps((probe_start, probe_start + team.duration_min), itv) for itv in court_busy[c])
+        )
+        # Regel: start met D/GD als team waarschijnlijk met 1-2 banen kan openen;
+        # bij 3-4+ beschikbare banen start met singles.
+        start_with_non_singles = free_probe <= 2
+        rounds = build_rounds(team, start_with_non_singles=start_with_non_singles)
         tname = team.team_id
 
         for idx, rnd in enumerate(rounds):
@@ -393,7 +409,7 @@ def _schedule_day_with_start(
                             {
                                 "schema": team.schema,
                                 "team_id": team.team_id,
-                                "team_short": short_team_name(team.schema),
+                                "team_short": short_team_name(team.schema, team.home_team),
                                 "home_team": team.home_team,
                                 "away_team": team.away_team,
                                 "part": p["label"],
@@ -414,7 +430,7 @@ def _schedule_day_with_start(
                         {
                             "schema": team.schema,
                             "team_id": team.team_id,
-                            "team_short": short_team_name(team.schema),
+                            "team_short": short_team_name(team.schema, team.home_team),
                             "home_team": team.home_team,
                             "away_team": team.away_team,
                             "part": p["label"],
@@ -756,7 +772,7 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
                 {
                     "schema": schema,
                     "team_id": team_id,
-                    "team_short": short_team_name(schema),
+                    "team_short": short_team_name(schema, t.home_team if t else ""),
                     "home_team": t.home_team if t else "",
                     "away_team": t.away_team if t else "",
                     "part": r.get("part", ""),
@@ -937,7 +953,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
   <ul>
     <li>10 banen totaal; Rood reserveert altijd baan 1 (08:30–09:30). Oranje reserveert bij voorkeur baan 1–3 (08:30–10:30), tenzij Rood ook speelt: dan baan 2–4.</li>
     <li>Teams spelen partijen met labels S / D / GD; singles niet tegelijk met dubbels, singles wel met GD.</li>
-    <li>Als een team met maximaal 2 banen kan starten, opent de planner met dubbels.</li>
+    <li>Als een team met 1–2 banen kan starten: begin met dubbels/GD; bij 3–4 banen: begin met singles.</li>
     <li>Startvenster: planner probeert 09:00 als dagstart en valt terug op 08:30 wanneer nodig; eerste teamwedstrijd normaal uiterlijk 15:00 (met datum-specifieke verruiming waar nodig).</li>
     <li>Gemengd Zondag start bij voorkeur later (vanaf 10:00), jeugd eerder.</li>
     <li>Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.</li>
