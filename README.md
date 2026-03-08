@@ -45,15 +45,16 @@ Zie `examples/simple_case.json`.
 
 ## Wedstrijddag herplanning
 
-Zonder lokale Python kun je nu direct in de website herplannen:
-- `https://koenvanwijk.github.io/baanschema-ortools/replan.html`
+De live herplanning draait via de Cloud Run API:
+- Frontend: `https://koenvanwijk.github.io/baanschema-ortools/replan.html`
+- API: `https://baanschema-api-dndzrlckha-ew.a.run.app`
 
-Daar kies je:
+In de pagina kies je:
 - datum
 - huidige tijd (`now`)
-- afgeronde partijen (`Schema | Part`, één per regel)
+- afgeronde partijen (checkboxen in de matrix)
 
-De tool toont dan direct de restplanning voor die dag.
+De tool toont direct de restplanning voor die dag en haalt plandata op via `GET /result`.
 
 Optioneel blijft de CLI versie beschikbaar:
 
