@@ -331,15 +331,18 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
 
     model.maximize(
         scheduled_score
+        # Team compactness: minimize fragmentation and gaps
+        # (removed explicit span penalty for now - active_var sum not reliable proxy)
+        - 2_000_000 * sum(team_block_rises)
+        - 10_000_000 * sum(long_gap_team_penalty)
+        # Occupancy optimization:
         + 600_000 * sum(morning_occ_terms)
         + 80_000 * sum(total_occ_terms)
+        # Comfort preferences:
         + 5000 * sum(team_cutoff_bonus)
         + 100 * sum(early_start_bonus)
         - 120_000 * sum(late_start_penalty)
         - 80_000 * sum(youth_late_penalty)
-        # generiek teamcomfort zwaarder: minder fragmentatie en lange aanwezigheid
-        - 1_500_000 * sum(team_block_rises)
-        - 8_000_000 * sum(long_gap_team_penalty)
     )
 
     solver = cp_model.CpSolver()
@@ -359,6 +362,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
                     rows.append(
                         {
                             "team": p["team"],
+                            "team_id": p["team"],  # Add team_id for proper grouping
                             "part": p["label"],
                             "kind": p["kind"],
                             "start": mins_to_hhmm(s),
@@ -371,6 +375,7 @@ def solve_day(date: str, teams: list[TeamDay], reservations: list[Reservation], 
             rows.append(
                 {
                     "team": p["team"],
+                    "team_id": p["team"],  # Add team_id for proper grouping
                     "part": p["label"],
                     "kind": p["kind"],
                     "start": "NIET_GELUKT",
