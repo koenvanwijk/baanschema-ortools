@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import importlib.util
 import sys
@@ -1542,6 +1543,15 @@ init();
 </body></html>"""
     replan_page = replan_page.replace("__COLOR_JSON__", replan_color_json)
     (DOCS / "replan.html").write_text(replan_page, encoding="utf-8")
+
+    # Backward-compat: older shared links used /docs/architecture/* while Pages serves DOCS root as '/'.
+    # Mirror architecture assets under docs/docs/architecture so both URL shapes keep working.
+    arch_src = DOCS / "architecture"
+    arch_legacy = DOCS / "docs" / "architecture"
+    if arch_src.exists():
+        arch_legacy.parent.mkdir(parents=True, exist_ok=True)
+        shutil.rmtree(arch_legacy, ignore_errors=True)
+        shutil.copytree(arch_src, arch_legacy)
 
 
 if __name__ == "__main__":
