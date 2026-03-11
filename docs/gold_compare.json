@@ -1,0 +1,184 @@
+{
+  "dates": {
+    "06-04-2026": {
+      "gold": {
+        "teams": 8,
+        "avg_span": 178.1,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 8,
+        "avg_span": 191.2,
+        "avg_gap": 0,
+        "avg_blocks": 1,
+        "score": 191.2,
+        "delta_vs_gold": 13.1
+      },
+      "ortools": {
+        "teams": 8,
+        "avg_span": 395.6,
+        "avg_gap": 48.8,
+        "avg_blocks": 1.5,
+        "score": 552.0,
+        "delta_vs_gold": 373.9
+      },
+      "winner": "heuristic"
+    },
+    "10-05-2026": {
+      "gold": {
+        "teams": 12,
+        "avg_span": 172.5,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 12,
+        "avg_span": 180,
+        "avg_gap": 7.5,
+        "avg_blocks": 1.08,
+        "score": 204.1,
+        "delta_vs_gold": 31.6
+      },
+      "ortools": {
+        "teams": 12,
+        "avg_span": 365,
+        "avg_gap": 87.5,
+        "avg_blocks": 1.58,
+        "score": 639.1,
+        "delta_vs_gold": 466.6
+      },
+      "winner": "heuristic"
+    },
+    "12-04-2026": {
+      "gold": {
+        "teams": 11,
+        "avg_span": 175.9,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 11,
+        "avg_span": 175.9,
+        "avg_gap": 0,
+        "avg_blocks": 1,
+        "score": 175.9,
+        "delta_vs_gold": 0.0
+      },
+      "ortools": {
+        "teams": 11,
+        "avg_span": 370.9,
+        "avg_gap": 102.3,
+        "avg_blocks": 1.73,
+        "score": 692.4,
+        "delta_vs_gold": 516.5
+      },
+      "winner": "heuristic"
+    },
+    "17-05-2026": {
+      "gold": {
+        "teams": 12,
+        "avg_span": 180,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 12,
+        "avg_span": 213.8,
+        "avg_gap": 26.2,
+        "avg_blocks": 1.33,
+        "score": 299.0,
+        "delta_vs_gold": 119.0
+      },
+      "ortools": {
+        "teams": 11,
+        "avg_span": 454.1,
+        "avg_gap": 135,
+        "avg_blocks": 1.82,
+        "score": 875.5,
+        "delta_vs_gold": 695.5
+      },
+      "winner": "heuristic"
+    },
+    "19-04-2026": {
+      "gold": {
+        "teams": 12,
+        "avg_span": 165,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 12,
+        "avg_span": 183.8,
+        "avg_gap": 3.8,
+        "avg_blocks": 1.08,
+        "score": 196.8,
+        "delta_vs_gold": 31.8
+      },
+      "ortools": {
+        "teams": 12,
+        "avg_span": 356.2,
+        "avg_gap": 71.2,
+        "avg_blocks": 1.42,
+        "score": 578.2,
+        "delta_vs_gold": 413.2
+      },
+      "winner": "heuristic"
+    },
+    "25-05-2026": {
+      "gold": {
+        "teams": 10,
+        "avg_span": 175.5,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 10,
+        "avg_span": 178.5,
+        "avg_gap": 0,
+        "avg_blocks": 1,
+        "score": 178.5,
+        "delta_vs_gold": 3.0
+      },
+      "ortools": {
+        "teams": 9,
+        "avg_span": 383.3,
+        "avg_gap": 55,
+        "avg_blocks": 1.44,
+        "score": 557.1,
+        "delta_vs_gold": 381.6
+      },
+      "winner": "heuristic"
+    },
+    "31-05-2026": {
+      "gold": {
+        "teams": 10,
+        "avg_span": 153,
+        "avg_gap": 0,
+        "avg_blocks": 1
+      },
+      "heuristic": {
+        "teams": 10,
+        "avg_span": 166.5,
+        "avg_gap": 4.5,
+        "avg_blocks": 1.1,
+        "score": 182.0,
+        "delta_vs_gold": 29.0
+      },
+      "ortools": {
+        "teams": 10,
+        "avg_span": 175.5,
+        "avg_gap": 9,
+        "avg_blocks": 1.1,
+        "score": 204.5,
+        "delta_vs_gold": 51.5
+      },
+      "winner": "heuristic"
+    }
+  },
+  "summary": {
+    "heuristic_avg_score": 203.93,
+    "ortools_avg_score": 585.54,
+    "overall_winner": "heuristic"
+  }
+}

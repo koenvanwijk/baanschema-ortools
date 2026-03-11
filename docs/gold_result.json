@@ -1,0 +1,3680 @@
+{
+  "06-04-2026": [
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "GD1",
+      "kind": "M",
+      "start": "17:15",
+      "end": "18:30",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "GD2",
+      "kind": "M",
+      "start": "17:15",
+      "end": "18:30",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 4
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "11:15",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "11:15",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    }
+  ],
+  "12-04-2026": [
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 1
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 1
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD1",
+      "kind": "M",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 1
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 2
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 2
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD2",
+      "kind": "M",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "GD1",
+      "kind": "M",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "GD1",
+      "kind": "M",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "GD2",
+      "kind": "M",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 8
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "11:15",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 9
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "11:15",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 10
+    }
+  ],
+  "19-04-2026": [
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 1
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 1
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 1
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "GD2",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 2
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 3
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 4
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "S1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 10
+    }
+  ],
+  "10-05-2026": [
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD1",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD2",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "GD2",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "GD1",
+      "kind": "M",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 10
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 10
+    }
+  ],
+  "17-05-2026": [
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "GD2",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "GD1",
+      "kind": "M",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 5e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "GD2",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "GD1",
+      "kind": "M",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "S1",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 2e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "S2",
+      "kind": "S",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10
+    }
+  ],
+  "25-05-2026": [
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD1",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD2",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:00",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:00",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 3e M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 8
+    },
+    {
+      "team_short": "GRO Groen 2 M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 2e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    },
+    {
+      "team_short": "JO13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 10
+    }
+  ],
+  "31-05-2026": [
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 1
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 1
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 2
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 2
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 2
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3
+    },
+    {
+      "team_short": "GRO Groen 2 M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 2e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "GD1",
+      "kind": "M",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 5
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 5
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 5
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 5
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 6
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 6
+    },
+    {
+      "team_short": "ME13-17 1e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 6
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 6
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S1",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team_short": "GRO Groen 2 M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
+    },
+    {
+      "team_short": "JO13-17 2e M2",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team_short": "GEM 6e M6",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "D1",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S3",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "D1",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "D2",
+      "kind": "D",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10
+    },
+    {
+      "team_short": "JU11-14 3e M3",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S4",
+      "kind": "S",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "D2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    },
+    {
+      "team_short": "HER 5e M1",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10
+    }
+  ]
+}
