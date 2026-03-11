@@ -1,0 +1,63 @@
+{
+  "seed": 42,
+  "time_limit": 60.0,
+  "baseline_score": 551.71,
+  "best": {
+    "name": "baseline",
+    "params": {
+      "w_block_rise": 2000000,
+      "w_long_gap": 10000000,
+      "w_morning_occ": 600000,
+      "w_total_occ": 80000,
+      "w_cutoff_bonus": 5000,
+      "w_early_start": 100,
+      "w_late_start": 120000,
+      "w_youth_late": 80000
+    },
+    "ortools_avg_score": 551.71
+  },
+  "all_results": [
+    {
+      "name": "baseline",
+      "params": {
+        "w_block_rise": 2000000,
+        "w_long_gap": 10000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000
+      },
+      "ortools_avg_score": 551.71
+    },
+    {
+      "name": "combo_2",
+      "params": {
+        "w_block_rise": 2000000,
+        "w_long_gap": 10000000,
+        "w_morning_occ": 200000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 0,
+        "w_late_start": 120000,
+        "w_youth_late": 80000
+      },
+      "ortools_avg_score": 638.07
+    },
+    {
+      "name": "combo_1",
+      "params": {
+        "w_block_rise": 5000000,
+        "w_long_gap": 20000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000
+      },
+      "ortools_avg_score": 642.06
+    }
+  ]
+}
