@@ -32,6 +32,22 @@ Dit bestand bevat de actuele regels die door de planner/herplanner worden gebrui
 - Rood/Oranje-reserveringen hebben altijd prioriteit op hun vaste banen.
 - Doel: hoge baanbezetting + zo min mogelijk gaten binnen teamplanning.
 
+## Gold-standard afgeleide regels (nieuw)
+Deze regels zijn afgeleid uit het handmatige referentieschema (Excel) en dienen als richtlijn voor tuning van heuristiek en OR-Tools.
+
+- **Single-block teamflow (zeer hoge prioriteit):**
+  plan teams bij voorkeur in één aaneengesloten speelblok; minimaliseer aantal blokken en interne wachttijd.
+- **Ronde-gewijze afwikkeling:**
+  plan bij voorkeur complete rondes (bijv. 2-banen ronde, daarna 4-banen ronde) in plaats van losse verspreide starts.
+- **Constante baan-cluster per team:**
+  houd een team zoveel mogelijk op dezelfde of nabije banen; penaliseer onnodig “springen” over de baan-set.
+- **Compactheid boven kunstmatig vroeg starten:**
+  vroeg starten is ondergeschikt aan compact teamverloop; vermijd vroege starts die later extra gaten veroorzaken.
+- **Teamdoorlooptijd boven pure baanvulling (soft objective):**
+  hogere bezettingsgraad is wenselijk, maar niet ten koste van sterk verlengde team-span.
+
+> Let op: dit zijn primair **optimalisatiedoelen/voorkeuren** (soft), geen vervanging van de bestaande harde conflictregels.
+
 ## Tijdvensters
 - Eerste teamwedstrijd normaal uiterlijk 15:00, met datum-specifieke verruiming op kneldagen.
 - Wedstrijden mogen starten tot en met **19:30**.
