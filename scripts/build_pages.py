@@ -989,7 +989,7 @@ def main() -> None:
                 if tail:
                     why += f" Laatste melding: {tail[-180:]}"
             ort_block = f"<div class='ort-status-inline'>{html.escape(why)}</div>"
-        gold_rows = gold_results.get(d, [])
+        gold_rows = reservation_rows_for_date(d) + gold_results.get(d, [])
         gold_block = (render_day_summary(gold_rows) + render_grid(gold_rows)) if gold_rows else "<div class='ort-status-inline'>Gold-referentie niet beschikbaar voor deze datum.</div>"
         sections.append(
             f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_kpi_compare(rows, ort_rows)}"
