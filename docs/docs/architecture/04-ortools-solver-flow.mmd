@@ -1,0 +1,22 @@
+flowchart TD
+    A["Input season.tsv"] --> B["parse_input()\nTeamDay + Reservation"]
+    B --> C["solve_day(date)"]
+
+    C --> D["Build parts per team\nS D GD labels + duration"]
+    D --> E["Create CP-SAT model\nvariables x[p,start,court], y[p]"]
+
+    E --> F["Hard constraints\n- 1x inplannen per partij\n- max 1 per baan-slot\n- team overlap rules S D M\n- jeugd start cutoff\n- max 2 activiteitblokken"]
+
+    F --> G["Soft goals in objective\n+ max scheduled\n+ morning and total occupancy\n+ early start bonuses\n+ team cutoff bonus\n- late starts\n- youth late starts\n- fragmentation penalties"]
+
+    G --> H["CpSolver solve\nmax_time_in_seconds"]
+    H --> I{"Feasible or optimal?"}
+
+    I -->|No| J["Return status + empty rows"]
+    I -->|Yes| K["Extract assignments\nstart end court per part"]
+
+    K --> L["Sort + format rows\nmins_to_hhmm"]
+    L --> M["Write docs/ortools_result.json"]
+    J --> M
+
+    M --> N["Consumed by docs/index.html\nOR-Tools toggle and status"]

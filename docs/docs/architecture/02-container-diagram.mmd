@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph ui["UI Layer"]
+      index["index.html\nPlanningoverzicht + Heuristiek/OR-Tools toggle"]
+      replan["replan.html\nLive herplanning met checkboxes"]
+    end
+
+    subgraph backend["API Layer (FastAPI)"]
+      health["GET /health"]
+      dates["GET /dates"]
+      result["GET /result"]
+      plan["GET /plan by date"]
+      replanApi["POST /replan\n(v1 stub + context response)"]
+    end
+
+    subgraph planning["Planning Layer"]
+      ort["scripts/ortools_planner.py\nCP-SAT optimizer"]
+      build["scripts/build_pages.py\nPipeline naar docs/*.json + html"]
+      cli["src/baanschema/cli.py\nLokale solve/example runner"]
+      model["src/baanschema/model.py\nConstraint model + objective"]
+    end
+
+    subgraph storage["Data Layer"]
+      season["data/season.tsv"]
+      resultJson["docs/result.json"]
+      ortResultJson["docs/ortools_result.json"]
+      ortStatus["docs/ortools_status.json"]
+    end
+
+    index --> result
+    replan --> dates
+    replan --> result
+    replan --> replanApi
+    replan --> plan
+
+    health --> season
+    dates --> season
+    plan --> season
+    result --> resultJson
+
+    ort --> season
+    ort --> ortResultJson
+    ort --> ortStatus
+    cli --> model
+    build --> resultJson
+    build --> ortResultJson

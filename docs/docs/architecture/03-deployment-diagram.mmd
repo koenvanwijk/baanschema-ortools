@@ -1,0 +1,30 @@
+flowchart LR
+    subgraph local["Local Dev / CI"]
+      dev["Developer machine or GitHub Actions"]
+      scripts["Planner scripts\n(ortools_planner.py / build_pages.py)"]
+      repoData["Repo data + docs JSON"]
+    end
+
+    subgraph github["GitHub"]
+      repo["koenvanwijk/baanschema-ortools"]
+      pages["GitHub Pages\nStatic frontend + JSON artifacts"]
+    end
+
+    subgraph gcp["Google Cloud"]
+      run["Cloud Run service\nbaanschema-api"]
+    end
+
+    subgraph browser["User browser"]
+      plannerUser["Wedstrijdleider"]
+    end
+
+    dev --> scripts
+    scripts --> repoData
+    repoData --> repo
+    repo -->|pages workflow| pages
+
+    repo -->|deploy backend| run
+
+    plannerUser -->|Open /index.html + /replan.html| pages
+    plannerUser -->|Live API calls result dates replan| run
+    pages -->|Fallback read result.json| plannerUser

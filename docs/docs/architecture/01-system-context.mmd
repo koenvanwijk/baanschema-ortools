@@ -1,0 +1,16 @@
+flowchart LR
+    coach["Planner / Wedstrijdleider"]
+    githubPages["Baanschema Frontend\nGitHub Pages\n/docs/index.html + /docs/replan.html"]
+    api["Baanschema API\nFastAPI on Cloud Run\nbackend/main.py"]
+    planner["Planning Engine\nOR-Tools + Heuristics\nscripts/ortools_planner.py + build_pages.py"]
+    data["Seizoensdata\ndata/season.tsv"]
+    results["Gegenereerde planning\ndocs/result.json\ndocs/ortools_result.json"]
+
+    coach -->|Bekijkt planning / markeert gereed| githubPages
+    githubPages -->|GET /result, /dates, /plan by date| api
+    githubPages -->|POST /replan| api
+    api -->|Leest| data
+    api -->|Leest| results
+    planner -->|Leest| data
+    planner -->|Schrijft| results
+    githubPages -->|Leest static JSON fallback| results

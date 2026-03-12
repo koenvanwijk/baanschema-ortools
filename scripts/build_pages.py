@@ -583,11 +583,11 @@ def schedule_day(items: list[TeamDay], reservations: list[Reservation], date: st
     return _schedule_day_with_start(items, reservations, date, day_start_pref=8 * 60 + 30)
 
 
-def render_day_summary(rows: list[dict]) -> str:
+def render_day_summary(rows: list[dict], include_reservations: bool = False) -> str:
     valid = [r for r in rows if r["start"] != "NIET_GELUKT"]
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
-        if r.get("part") == "COMP":
+        if r.get("part") == "COMP" and not include_reservations:
             continue
         by_team[r.get("team_id") or r["schema"]].append(r)
 
@@ -596,15 +596,18 @@ def render_day_summary(rows: list[dict]) -> str:
 
     items = []
     for _team_id, rr in sorted(by_team.items(), key=lambda kv: min(hhmm_to_mins(x["start"]) for x in kv[1])):
+        rr_noncomp = [x for x in rr if x.get("part") != "COMP"]
+        rr_for_times = rr_noncomp or rr
+        rr_for_stats = rr_noncomp or rr
         schema_name = rr[0].get("schema", "")
-        first_start = mins_to_hhmm(min(hhmm_to_mins(x["start"]) for x in rr))
-        last_end = mins_to_hhmm(max(hhmm_to_mins(x["end"]) for x in rr))
+        first_start = mins_to_hhmm(min(hhmm_to_mins(x["start"]) for x in rr_for_times))
+        last_end = mins_to_hhmm(max(hhmm_to_mins(x["end"]) for x in rr_for_times))
         team_short = rr[0].get("team_short", short_team_name(schema_name))
-        home = rr[0].get("home_team", "")
-        away = rr[0].get("away_team", "")
+        home = rr_for_stats[0].get("home_team", "")
+        away = rr_for_stats[0].get("away_team", "")
         matchup = f"{home} vs {away}" if home or away else "-"
-        planned = len(rr)
-        target = int(rr[0].get("matches") or planned)
+        planned = len(rr_for_stats)
+        target = int(rr_for_stats[0].get("matches") or planned)
         items.append(
             f"<li><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema_name)} )</span>: {html.escape(matchup)} — wedstrijden <strong>{planned}/{target}</strong> — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
         )
@@ -990,7 +993,7 @@ def main() -> None:
                     why += f" Laatste melding: {tail[-180:]}"
             ort_block = f"<div class='ort-status-inline'>{html.escape(why)}</div>"
         gold_rows = reservation_rows_for_date(d) + gold_results.get(d, [])
-        gold_block = (render_day_summary(gold_rows) + render_grid(gold_rows)) if gold_rows else "<div class='ort-status-inline'>Gold-referentie niet beschikbaar voor deze datum.</div>"
+        gold_block = (render_day_summary(gold_rows, include_reservations=True) + render_grid(gold_rows)) if gold_rows else "<div class='ort-status-inline'>Gold-referentie niet beschikbaar voor deze datum.</div>"
         sections.append(
             f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_kpi_compare(rows, ort_rows)}"
             f"<div class='plan-view heur-view'>{render_day_summary(rows)}{render_grid(rows)}</div>"
