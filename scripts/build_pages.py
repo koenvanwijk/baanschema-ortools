@@ -211,6 +211,14 @@ def short_team_name(schema: str, home_team: str = "") -> str:
     return re.sub(r"\s+", " ", out).strip()
 
 
+def match_player_demand(kind: str) -> int:
+    if kind == "S":
+        return 1
+    if kind in {"D", "M"}:
+        return 2
+    return 0
+
+
 def build_rounds(team: TeamDay, start_with_non_singles: bool) -> list[list[dict]]:
     # Singles mogen NIET tegelijk met dubbels, maar WEL met mix.
     singles = [{"label": f"S{i+1}", "kind": "S"} for i in range(team.singles)]
@@ -418,6 +426,13 @@ def _schedule_day_with_start(
                                     continue
                                 if "M" in round_kinds and ("S" in kinds_now):
                                     continue
+
+                            # Player-capacity constraint (4 spelers per team max tegelijk).
+                            # Dit geldt voor alle teams behalve rood/oranje (die zitten in reservations).
+                            players_now = sum(match_player_demand(k) for _s, _e, k in team_overlaps)
+                            players_new = sum(match_player_demand(p["kind"]) for p in cand_parts)
+                            if players_now + players_new > 4:
+                                continue
 
                             chosen_parts = cand_parts
                             break
@@ -874,6 +889,43 @@ def main() -> None:
 
     ortools_results, ortools_status = compute_ortools_results(ordered_dates, team_lookup)
 
+    # Gold (handmatige referentie) inlezen indien aanwezig
+    gold_results: dict[str, list[dict]] = {}
+    gold_path = DOCS / "gold_result.json"
+    if gold_path.exists():
+        try:
+            raw_gold = json.loads(gold_path.read_text(encoding="utf-8"))
+            if isinstance(raw_gold, dict):
+                for gd, rows in raw_gold.items():
+                    norm = []
+                    for r in rows or []:
+                        if not isinstance(r, dict):
+                            continue
+                        start = r.get("start")
+                        end = r.get("end")
+                        if not start or not end:
+                            continue
+                        ts = r.get("team_short") or ""
+                        norm.append(
+                            {
+                                "schema": r.get("schema") or ts,
+                                "team_id": r.get("team_id") or ts,
+                                "team_short": ts,
+                                "home_team": r.get("home_team") or "",
+                                "away_team": r.get("away_team") or "",
+                                "part": r.get("part") or "",
+                                "kind": r.get("kind") or "W",
+                                "matches": r.get("matches") or 0,
+                                "duration_min_cfg": r.get("duration_min_cfg") or 0,
+                                "start": start,
+                                "end": end,
+                                "court": int(r.get("court") or 0),
+                            }
+                        )
+                    gold_results[gd] = norm
+        except Exception:
+            gold_results = {}
+
     # Niet-blocking: OR-Tools mag ontbreken/mislukken; heuristiekpagina blijft beschikbaar.
 
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -937,10 +989,13 @@ def main() -> None:
                 if tail:
                     why += f" Laatste melding: {tail[-180:]}"
             ort_block = f"<div class='ort-status-inline'>{html.escape(why)}</div>"
+        gold_rows = gold_results.get(d, [])
+        gold_block = (render_day_summary(gold_rows) + render_grid(gold_rows)) if gold_rows else "<div class='ort-status-inline'>Gold-referentie niet beschikbaar voor deze datum.</div>"
         sections.append(
             f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_kpi_compare(rows, ort_rows)}"
             f"<div class='plan-view heur-view'>{render_day_summary(rows)}{render_grid(rows)}</div>"
             f"<div class='plan-view ort-view hidden'>{ort_block}</div>"
+            f"<div class='plan-view gold-view hidden'>{gold_block}</div>"
         )
 
     ort_ok_count = sum(1 for v in ortools_results.values() if v)
@@ -1012,6 +1067,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 <div class='toggle'>
   <button id='btn-heur' class='active' onclick='setPlan("heur")'>Heuristiek</button>
   <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
+  <button id='btn-gold' onclick='setPlan("gold")'>Gold</button>
   <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
 {''.join(sections)}
@@ -1026,16 +1082,27 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 function setPlan(mode){{
   const heur = document.querySelectorAll('.heur-view');
   const ort = document.querySelectorAll('.ort-view');
+  const gold = document.querySelectorAll('.gold-view');
   const bh = document.getElementById('btn-heur');
   const bo = document.getElementById('btn-ort');
+  const bg = document.getElementById('btn-gold');
+
+  heur.forEach(e=>e.classList.add('hidden'));
+  ort.forEach(e=>e.classList.add('hidden'));
+  gold.forEach(e=>e.classList.add('hidden'));
+  bh.classList.remove('active');
+  bo.classList.remove('active');
+  if(bg) bg.classList.remove('active');
+
   if(mode==='ort'){{
-    heur.forEach(e=>e.classList.add('hidden'));
     ort.forEach(e=>e.classList.remove('hidden'));
-    bh.classList.remove('active'); bo.classList.add('active');
+    bo.classList.add('active');
+  }} else if (mode==='gold') {{
+    gold.forEach(e=>e.classList.remove('hidden'));
+    if(bg) bg.classList.add('active');
   }} else {{
-    ort.forEach(e=>e.classList.add('hidden'));
     heur.forEach(e=>e.classList.remove('hidden'));
-    bo.classList.remove('active'); bh.classList.add('active');
+    bh.classList.add('active');
   }}
   bindCellPopups();
 }}
