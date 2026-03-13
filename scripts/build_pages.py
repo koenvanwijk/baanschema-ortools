@@ -941,11 +941,11 @@ def main() -> None:
         kinds = {r.kind for r in day_res}
         for r in day_res:
             if r.kind == "oranje":
-                courts, start, end, label = ([2, 3, 4] if "rood" in kinds else [1, 2, 3]), "08:30", "10:30", "ORANJE"
+                courts, start, end, label = ([2, 3, 4] if "rood" in kinds else [1, 2, 3]), "09:00", "11:00", "ORANJE"
             elif r.kind == "rood":
-                courts, start, end, label = [1], "08:30", "09:30", "ROOD"
+                courts, start, end, label = [1], "09:00", "10:00", "ROOD"
             else:
-                courts, start, end, label = [], "08:30", "10:30", r.kind.upper()
+                courts, start, end, label = [], "09:00", "11:00", r.kind.upper()
             for c in courts:
                 out.append(
                     {
