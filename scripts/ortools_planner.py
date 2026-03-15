@@ -144,6 +144,8 @@ def solve_day(
     w_early_start: int = 100,
     w_late_start: int = 120_000,
     w_youth_late: int = 80_000,
+    w_team_court_penalty: int = 60_000,
+    w_high_court_penalty: int = 40_000,
     random_seed: int = 42,
 ) -> dict:
     day_teams = [t for t in teams if t.date == date]
@@ -198,6 +200,7 @@ def solve_day(
     model = cp_model.CpModel()
     x = {}  # part,start,court
     y = []
+    start_used = {}
 
     allowed_starts = {}
     for p_idx, p in enumerate(parts):
@@ -217,6 +220,9 @@ def solve_day(
                 v = model.new_bool_var(f"x_p{p_idx}_s{s}_c{c}")
                 x[(p_idx, s, c)] = v
                 vars_p.append(v)
+            su = model.new_bool_var(f"start_p{p_idx}_s{s}")
+            start_used[(p_idx, s)] = su
+            model.add(sum(x[(p_idx, s, c)] for c in courts) == su)
         yp = model.new_bool_var(f"y_p{p_idx}")
         y.append(yp)
         model.add(sum(vars_p) == yp)
@@ -247,6 +253,16 @@ def solve_day(
         d_parts = [i for i in idxs if parts[i]["kind"] == "D"]
         m_parts = [i for i in idxs if parts[i]["kind"] == "M"]
         combo_parts = [i for i in idxs if parts[i].get("is_4p_combo")]
+        non_s_parts = [i for i in idxs if parts[i]["kind"] != "S"]
+
+        # Singles moeten altijd vóór andere wedstrijden voor hetzelfde team.
+        for si in s_parts:
+            dur_s = parts[si]["duration"]
+            for ni in non_s_parts:
+                for s_s in allowed_starts[si]:
+                    for s_n in allowed_starts[ni]:
+                        if s_n < s_s + dur_s:
+                            model.add(start_used[(si, s_s)] + start_used[(ni, s_n)] <= 1)
 
         for t in slot_mins[:-1]:
             s_occ = []
@@ -299,6 +315,7 @@ def solve_day(
             total_terms = []
             male_terms = []
             female_terms = []
+            team_occ_terms = []
 
             for i in idxs:
                 p = parts[i]
@@ -313,6 +330,7 @@ def solve_day(
                     continue
 
                 occ = sum(occ_terms)
+                team_occ_terms.append(occ)
                 if p["player_demand"]:
                     total_terms.append(p["player_demand"] * occ)
                 if p["male_demand"]:
@@ -320,6 +338,8 @@ def solve_day(
                 if p["female_demand"]:
                     female_terms.append(p["female_demand"] * occ)
 
+            if team_occ_terms:
+                model.add(sum(team_occ_terms) <= 2)
             if total_terms:
                 model.add(sum(total_terms) <= 4)
             if is_mixed_team:
@@ -379,6 +399,8 @@ def solve_day(
     # soft penalty: aantal activity-blocks per team minimaliseren (minder lange gaten)
     team_block_rises = []
     long_gap_team_penalty = []
+    team_court_penalty = []
+    high_court_penalty = []
     horizon = slot_mins[:-1]
     for team, idxs in by_team.items():
         active_vars = []
@@ -419,6 +441,27 @@ def solve_day(
             model.add(sum(team_rises) <= 2).only_enforce_if(long_gap.Not())
             long_gap_team_penalty.append(long_gap)
 
+        # Soft: houd teams zoveel mogelijk op dezelfde banen.
+        use_courts = []
+        for c in courts:
+            use_c = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_use_c{c}")
+            for i in idxs:
+                for s in allowed_starts[i]:
+                    model.add(x[(i, s, c)] <= use_c)
+            use_courts.append(use_c)
+        if use_courts:
+            team_court_penalty.append(sum(use_courts))
+
+        # Soft: teams met 8 wedstrijden bij voorkeur op lage banen (1-4).
+        if any(parts[i].get("team") == team and parts[i].get("duration") for i in idxs):
+            team_matches = next((t.matches for t in day_teams if t.schema == team), None)
+            if team_matches == 8:
+                for i in idxs:
+                    for s in allowed_starts[i]:
+                        for c in courts:
+                            if c > 4:
+                                high_court_penalty.append(x[(i, s, c)])
+
     # comfort-pass penalties: late starts, extra streng voor jeugd/groen
     late_start_penalty = []
     youth_late_penalty = []
@@ -438,6 +481,8 @@ def solve_day(
         # (removed explicit span penalty for now - active_var sum not reliable proxy)
         - w_block_rise * sum(team_block_rises)
         - w_long_gap * sum(long_gap_team_penalty)
+        - w_team_court_penalty * sum(team_court_penalty)
+        - w_high_court_penalty * sum(high_court_penalty)
         # Occupancy optimization:
         + w_morning_occ * sum(morning_occ_terms)
         + w_total_occ * sum(total_occ_terms)
@@ -510,6 +555,8 @@ def main() -> None:
     ap.add_argument("--w-early-start", type=int, default=100)
     ap.add_argument("--w-late-start", type=int, default=120_000)
     ap.add_argument("--w-youth-late", type=int, default=80_000)
+    ap.add_argument("--w-team-court-penalty", type=int, default=60_000)
+    ap.add_argument("--w-high-court-penalty", type=int, default=40_000)
     ap.add_argument("--random-seed", type=int, default=42)
     args = ap.parse_args()
 
@@ -527,6 +574,8 @@ def main() -> None:
         w_early_start=args.w_early_start,
         w_late_start=args.w_late_start,
         w_youth_late=args.w_youth_late,
+        w_team_court_penalty=args.w_team_court_penalty,
+        w_high_court_penalty=args.w_high_court_penalty,
         random_seed=args.random_seed,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
