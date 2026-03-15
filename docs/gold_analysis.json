@@ -1,0 +1,100 @@
+{
+  "dates": {
+    "06-04-2026": {
+      "teams": 8,
+      "avg_span": 264.4,
+      "avg_gap": 0,
+      "avg_blocks": 1,
+      "avg_courts_used": 2,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 100.0,
+      "pct_teams_gt2_courts": 0.0,
+      "avg_court_concentration": 0.512,
+      "singles_before_non_singles_violations": 0
+    },
+    "10-05-2026": {
+      "teams": 12,
+      "avg_span": 251.2,
+      "avg_gap": 11.2,
+      "avg_blocks": 1.08,
+      "avg_courts_used": 2.33,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 83.3,
+      "pct_teams_gt2_courts": 16.7,
+      "avg_court_concentration": 0.48,
+      "singles_before_non_singles_violations": 1
+    },
+    "12-04-2026": {
+      "teams": 11,
+      "avg_span": 241.4,
+      "avg_gap": 0,
+      "avg_blocks": 1,
+      "avg_courts_used": 2,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 100.0,
+      "pct_teams_gt2_courts": 0.0,
+      "avg_court_concentration": 0.524,
+      "singles_before_non_singles_violations": 1
+    },
+    "17-05-2026": {
+      "teams": 12,
+      "avg_span": 251.2,
+      "avg_gap": 0,
+      "avg_blocks": 1,
+      "avg_courts_used": 2,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 100.0,
+      "pct_teams_gt2_courts": 0.0,
+      "avg_court_concentration": 0.525,
+      "singles_before_non_singles_violations": 0
+    },
+    "19-04-2026": {
+      "teams": 12,
+      "avg_span": 243.8,
+      "avg_gap": 0,
+      "avg_blocks": 1,
+      "avg_courts_used": 2,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 100.0,
+      "pct_teams_gt2_courts": 0.0,
+      "avg_court_concentration": 0.517,
+      "singles_before_non_singles_violations": 0
+    },
+    "25-05-2026": {
+      "teams": 10,
+      "avg_span": 243,
+      "avg_gap": 0,
+      "avg_blocks": 1,
+      "avg_courts_used": 2,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 100.0,
+      "pct_teams_gt2_courts": 0.0,
+      "avg_court_concentration": 0.517,
+      "singles_before_non_singles_violations": 0
+    },
+    "31-05-2026": {
+      "teams": 10,
+      "avg_span": 229.5,
+      "avg_gap": 0,
+      "avg_blocks": 1,
+      "avg_courts_used": 2,
+      "pct_teams_1_court": 0.0,
+      "pct_teams_2_courts": 100.0,
+      "pct_teams_gt2_courts": 0.0,
+      "avg_court_concentration": 0.52,
+      "singles_before_non_singles_violations": 0
+    }
+  },
+  "summary": {
+    "teams": 10.71,
+    "avg_span": 246.36,
+    "avg_gap": 1.6,
+    "avg_blocks": 1.01,
+    "avg_courts_used": 2.05,
+    "pct_teams_1_court": 0.0,
+    "pct_teams_2_courts": 97.61,
+    "pct_teams_gt2_courts": 2.39,
+    "avg_court_concentration": 0.51,
+    "singles_before_non_singles_violations": 0.29
+  }
+}
