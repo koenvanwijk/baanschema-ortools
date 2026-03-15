@@ -1,0 +1,235 @@
+{
+  "trials": [
+    {
+      "weights": {
+        "w_block_rise": 4000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 150000,
+        "w_high_court_penalty": 80000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 2000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 150000,
+        "w_high_court_penalty": 20000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 4000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 300000,
+        "w_high_court_penalty": 80000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 4000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 300000,
+        "w_high_court_penalty": 40000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 1000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 150000,
+        "w_high_court_penalty": 20000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 1000000,
+        "w_long_gap": 20000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 300000,
+        "w_high_court_penalty": 20000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 4000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 300000,
+        "w_high_court_penalty": 80000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 4000000,
+        "w_long_gap": 20000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 200000,
+        "w_high_court_penalty": 20000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 2000000,
+        "w_long_gap": 20000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 200000,
+        "w_high_court_penalty": 20000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 1000000,
+        "w_long_gap": 20000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 200000,
+        "w_high_court_penalty": 40000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 2000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 150000,
+        "w_high_court_penalty": 40000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    },
+    {
+      "weights": {
+        "w_block_rise": 1000000,
+        "w_long_gap": 5000000,
+        "w_morning_occ": 600000,
+        "w_total_occ": 80000,
+        "w_cutoff_bonus": 5000,
+        "w_early_start": 100,
+        "w_late_start": 120000,
+        "w_youth_late": 80000,
+        "w_team_court_penalty": 200000,
+        "w_high_court_penalty": 20000
+      },
+      "avg_delta": -271.39,
+      "max_delta": -249.5,
+      "min_delta": -306.4
+    }
+  ],
+  "best": {
+    "weights": {
+      "w_block_rise": 4000000,
+      "w_long_gap": 5000000,
+      "w_morning_occ": 600000,
+      "w_total_occ": 80000,
+      "w_cutoff_bonus": 5000,
+      "w_early_start": 100,
+      "w_late_start": 120000,
+      "w_youth_late": 80000,
+      "w_team_court_penalty": 150000,
+      "w_high_court_penalty": 80000
+    },
+    "avg_delta": -271.39,
+    "max_delta": -249.5,
+    "min_delta": -306.4
+  },
+  "dates": [
+    "06-04-2026",
+    "10-05-2026",
+    "12-04-2026",
+    "17-05-2026",
+    "19-04-2026",
+    "25-05-2026",
+    "31-05-2026"
+  ],
+  "time_limit_s": 4.0
+}
