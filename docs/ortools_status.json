@@ -27,7 +27,7 @@
     },
     "17-05-2026": {
       "returncode": 0,
-      "stdout": "Status: FEASIBLE\nRows: 73\nObjective: 66072771000.0\n",
+      "stdout": "Status: FEASIBLE\nRows: 73\nObjective: 66072772500.0\n",
       "stderr": "",
       "out_exists": true
     },

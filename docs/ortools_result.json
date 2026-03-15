@@ -4601,6 +4601,20 @@
       "court": 9
     },
     {
+      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "17-05-2026::Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5::instance-8",
+      "team_short": "GEM 2e M1",
+      "home_team": "MIERLO 1",
+      "away_team": "DASH `35 2",
+      "part": "D2",
+      "kind": "D",
+      "matches": 8,
+      "duration_min_cfg": 90,
+      "start": "17:45",
+      "end": "19:15",
+      "court": 2
+    },
+    {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
       "team_id": "17-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4::instance-8",
       "team_short": "GEM 3e M3",
@@ -4627,20 +4641,6 @@
       "start": "18:15",
       "end": "19:45",
       "court": 8
-    },
-    {
-      "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "17-05-2026::Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5::instance-8",
-      "team_short": "GEM 2e M1",
-      "home_team": "MIERLO 1",
-      "away_team": "DASH `35 2",
-      "part": "D2",
-      "kind": "D",
-      "matches": 8,
-      "duration_min_cfg": 90,
-      "start": "18:30",
-      "end": "20:00",
-      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",

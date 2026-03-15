@@ -219,7 +219,8 @@ def match_player_demand(kind: str) -> int:
     return 0
 
 
-def build_rounds(team: TeamDay, start_with_non_singles: bool) -> list[list[dict]]:
+def build_rounds(team: TeamDay) -> list[list[dict]]:
+    # Singles moeten altijd vóór andere wedstrijden.
     # Singles mogen NIET tegelijk met dubbels, maar WEL met mix.
     singles = [{"label": f"S{i+1}", "kind": "S"} for i in range(team.singles)]
     doubles = [{"label": f"D{i+1}", "kind": "D"} for i in range(team.doubles)]
@@ -227,20 +228,11 @@ def build_rounds(team: TeamDay, start_with_non_singles: bool) -> list[list[dict]
 
     rounds: list[list[dict]] = []
 
-    if start_with_non_singles:
-        # Bij start op 1-2 banen: eerst D/GD, daarna singles.
-        non_singles = doubles + mixes
-        for i in range(0, len(non_singles), 2):
-            rounds.append(non_singles[i : i + 2])
-        for i in range(0, len(singles), 2):
-            rounds.append(singles[i : i + 2])
-    else:
-        # Bij start op 3-4 banen: eerst singles, daarna D/GD.
-        for i in range(0, len(singles), 2):
-            rounds.append(singles[i : i + 2])
-        non_singles = doubles + mixes
-        for i in range(0, len(non_singles), 2):
-            rounds.append(non_singles[i : i + 2])
+    for i in range(0, len(singles), 2):
+        rounds.append(singles[i : i + 2])
+    non_singles = doubles + mixes
+    for i in range(0, len(non_singles), 2):
+        rounds.append(non_singles[i : i + 2])
 
     # fallback voor inconsistente input
     planned = sum(len(r) for r in rounds)
@@ -334,32 +326,7 @@ def _schedule_day_with_start(
         return start_pref
 
     for team in ordered:
-        # Bepaal startvolgorde op basis van de meest waarschijnlijke startslot-keuze
-        # (zelfde heuristische score als de planner gebruikt).
-        first_latest = first_match_latest_by_date.get(date, first_match_latest)
-        probe_earliest = max(start_pref, first_start_earliest(team))
-        probe_starts = list(range(probe_earliest, first_latest + 1, step))
-        if probe_starts:
-            probe_starts.sort(
-                key=lambda s: (
-                    -sum(1 for c in courts if any(overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
-                    -(s < 12 * 60) * sum(1 for c in courts if all(not overlaps((s, s + team.duration_min), itv) for itv in court_busy[c])),
-                    s,
-                )
-            )
-            probe_start = probe_starts[0]
-            e = probe_start + team.duration_min
-            free_at_probe = sum(
-                1
-                for c in courts
-                if all(not overlaps((probe_start, e), itv) for itv in court_busy[c])
-            )
-        else:
-            free_at_probe = 0
-
-        # Regel: bij 1-2 beschikbare banen start met D/GD; bij 3-4+ met singles.
-        start_with_non_singles = free_at_probe <= 2
-        rounds = build_rounds(team, start_with_non_singles=start_with_non_singles)
+        rounds = build_rounds(team)
         tname = team.team_id
 
         for idx, rnd in enumerate(rounds):
@@ -426,6 +393,10 @@ def _schedule_day_with_start(
                                     continue
                                 if "M" in round_kinds and ("S" in kinds_now):
                                     continue
+
+                            # Max 2 banen per team tegelijk.
+                            if len(team_overlaps) + len(cand_parts) > 2:
+                                continue
 
                             # Player-capacity constraint (4 spelers per team max tegelijk).
                             # Dit geldt voor alle teams behalve rood/oranje (die zitten in reservations).
