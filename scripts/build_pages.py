@@ -263,6 +263,7 @@ def _schedule_day_with_start(
 
     court_busy: dict[int, list[tuple[int, int]]] = {c: [] for c in courts}
     team_busy: dict[str, list[tuple[int, int, str]]] = defaultdict(list)  # (s,e,kind)
+    team_courts: dict[str, set[int]] = defaultdict(set)
 
     out: list[dict] = []
 
@@ -411,21 +412,28 @@ def _schedule_day_with_start(
                         if not chosen_parts:
                             continue
 
+                        def court_load(c: int) -> int:
+                            return sum(b - a for a, b in court_busy[c])
+
+                        def court_key(c: int) -> tuple:
+                            same = c in team_courts[tname]
+                            low = c <= 4
+                            if int(team.matches or 0) == 8:
+                                return (0 if same else 1, 0 if low else 1, -court_load(c), c)
+                            return (0 if same else 1, -court_load(c), c)
+
+                        free.sort(key=court_key)
+
                         if int(team.matches or 0) == 8:
-                            free.sort(
-                                key=lambda c: (
-                                    c > 4,
-                                    -sum(b - a for a, b in court_busy[c]),
-                                    c,
-                                )
-                            )
-                        else:
-                            free.sort(key=lambda c: sum(b - a for a, b in court_busy[c]), reverse=True)
+                            low_free = [c for c in free if c <= 4]
+                            if len(low_free) >= len(chosen_parts):
+                                free = low_free + [c for c in free if c > 4]
 
                         best = free[: len(chosen_parts)]
                         for p, c in zip(chosen_parts, best):
                             court_busy[c].append((start, end))
                             team_busy[tname].append((start, end, p["kind"]))
+                            team_courts[tname].add(c)
                             out.append(
                                 {
                                     "schema": team.schema,

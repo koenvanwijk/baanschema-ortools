@@ -466,9 +466,9 @@
       "kind": "S",
       "matches": 8,
       "duration_min_cfg": 90,
-      "start": "13:00",
-      "end": "14:30",
-      "court": 1
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -518,6 +518,20 @@
       "team_short": "ME13-17 3e M5",
       "home_team": "MIERLO 5",
       "away_team": "DE HELZE 1",
+      "part": "D2",
+      "kind": "D",
+      "matches": 6,
+      "duration_min_cfg": 90,
+      "start": "14:00",
+      "end": "15:30",
+      "court": 1
+    },
+    {
+      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "06-04-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22::MIERLO 5::DE HELZE 1",
+      "team_short": "ME13-17 3e M5",
+      "home_team": "MIERLO 5",
+      "away_team": "DE HELZE 1",
       "part": "D1",
       "kind": "D",
       "matches": 6,
@@ -553,20 +567,6 @@
       "start": "14:00",
       "end": "15:30",
       "court": 4
-    },
-    {
-      "schema": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "06-04-2026::Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22::MIERLO 5::DE HELZE 1",
-      "team_short": "ME13-17 3e M5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE HELZE 1",
-      "part": "D2",
-      "kind": "D",
-      "matches": 6,
-      "duration_min_cfg": 90,
-      "start": "14:00",
-      "end": "15:30",
-      "court": 7
     },
     {
       "schema": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 7",
@@ -606,9 +606,9 @@
       "kind": "S",
       "matches": 8,
       "duration_min_cfg": 90,
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -664,7 +664,7 @@
       "duration_min_cfg": 90,
       "start": "16:30",
       "end": "18:00",
-      "court": 1
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -678,7 +678,7 @@
       "duration_min_cfg": 90,
       "start": "16:30",
       "end": "18:00",
-      "court": 2
+      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -692,7 +692,7 @@
       "duration_min_cfg": 90,
       "start": "16:30",
       "end": "18:00",
-      "court": 8
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -706,7 +706,7 @@
       "duration_min_cfg": 90,
       "start": "18:00",
       "end": "19:30",
-      "court": 1
+      "court": 2
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -720,7 +720,7 @@
       "duration_min_cfg": 90,
       "start": "18:00",
       "end": "19:30",
-      "court": 2
+      "court": 3
     }
   ],
   "12-04-2026": [
@@ -1613,7 +1613,7 @@
       "duration_min_cfg": 90,
       "start": "17:15",
       "end": "18:45",
-      "court": 3
+      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1627,7 +1627,7 @@
       "duration_min_cfg": 90,
       "start": "17:15",
       "end": "18:45",
-      "court": 5
+      "court": 6
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -1655,7 +1655,7 @@
       "duration_min_cfg": 90,
       "start": "17:30",
       "end": "19:00",
-      "court": 2
+      "court": 4
     },
     {
       "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
@@ -1669,7 +1669,7 @@
       "duration_min_cfg": 90,
       "start": "18:45",
       "end": "20:15",
-      "court": 3
+      "court": 5
     },
     {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
@@ -1697,7 +1697,7 @@
       "duration_min_cfg": 90,
       "start": "19:00",
       "end": "20:30",
-      "court": 2
+      "court": 4
     }
   ],
   "19-04-2026": [
@@ -2581,7 +2581,7 @@
       "duration_min_cfg": 90,
       "start": "16:30",
       "end": "18:00",
-      "court": 7
+      "court": 9
     },
     {
       "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
@@ -2693,7 +2693,7 @@
       "duration_min_cfg": 90,
       "start": "18:45",
       "end": "20:15",
-      "court": 4
+      "court": 5
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -2707,7 +2707,7 @@
       "duration_min_cfg": 90,
       "start": "18:45",
       "end": "20:15",
-      "court": 5
+      "court": 6
     }
   ],
   "10-05-2026": [
@@ -4632,13 +4632,13 @@
       "court": 4
     },
     {
-      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "17-05-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 4::TILBURG 4",
-      "team_short": "GEM 5e M4",
-      "home_team": "MIERLO 4",
-      "away_team": "TILBURG 4",
-      "part": "GD1",
-      "kind": "M",
+      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_id": "17-05-2026::Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14::MIERLO 6::MAASPOORT 1",
+      "team_short": "GEM 6e M6",
+      "home_team": "MIERLO 6",
+      "away_team": "MAASPOORT 1",
+      "part": "S1",
+      "kind": "S",
       "matches": 5,
       "duration_min_cfg": 90,
       "start": "16:30",
@@ -4651,7 +4651,7 @@
       "team_short": "GEM 6e M6",
       "home_team": "MIERLO 6",
       "away_team": "MAASPOORT 1",
-      "part": "S1",
+      "part": "S2",
       "kind": "S",
       "matches": 5,
       "duration_min_cfg": 90,
@@ -4660,13 +4660,13 @@
       "court": 8
     },
     {
-      "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_id": "17-05-2026::Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14::MIERLO 6::MAASPOORT 1",
-      "team_short": "GEM 6e M6",
-      "home_team": "MIERLO 6",
-      "away_team": "MAASPOORT 1",
-      "part": "S2",
-      "kind": "S",
+      "schema": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "17-05-2026::Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10::MIERLO 4::TILBURG 4",
+      "team_short": "GEM 5e M4",
+      "home_team": "MIERLO 4",
+      "away_team": "TILBURG 4",
+      "part": "GD1",
+      "kind": "M",
       "matches": 5,
       "duration_min_cfg": 90,
       "start": "16:30",
@@ -4713,7 +4713,7 @@
       "duration_min_cfg": 90,
       "start": "18:00",
       "end": "19:30",
-      "court": 1
+      "court": 3
     },
     {
       "schema": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -4727,7 +4727,7 @@
       "duration_min_cfg": 90,
       "start": "18:00",
       "end": "19:30",
-      "court": 2
+      "court": 4
     },
     {
       "schema": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
@@ -5441,14 +5441,14 @@
       "court": 7
     },
     {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_id": "25-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::UNICUM 1",
-      "team_short": "GEM 3e M2",
-      "home_team": "MIERLO 2",
-      "away_team": "UNICUM 1",
-      "part": "S3",
+      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
+      "team_id": "25-05-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::VOLLEY 1",
+      "team_short": "HER 5e M1",
+      "home_team": "MIERLO 1",
+      "away_team": "VOLLEY 1",
+      "part": "S2",
       "kind": "S",
-      "matches": 8,
+      "matches": 6,
       "duration_min_cfg": 90,
       "start": "14:30",
       "end": "16:00",
@@ -5502,7 +5502,7 @@
       "team_short": "GEM 3e M2",
       "home_team": "MIERLO 2",
       "away_team": "UNICUM 1",
-      "part": "S4",
+      "part": "S3",
       "kind": "S",
       "matches": 8,
       "duration_min_cfg": 90,
@@ -5511,14 +5511,14 @@
       "court": 8
     },
     {
-      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
-      "team_id": "25-05-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::VOLLEY 1",
-      "team_short": "HER 5e M1",
-      "home_team": "MIERLO 1",
-      "away_team": "VOLLEY 1",
-      "part": "S2",
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_id": "25-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::UNICUM 1",
+      "team_short": "GEM 3e M2",
+      "home_team": "MIERLO 2",
+      "away_team": "UNICUM 1",
+      "part": "S4",
       "kind": "S",
-      "matches": 6,
+      "matches": 8,
       "duration_min_cfg": 90,
       "start": "15:00",
       "end": "16:30",
@@ -5539,12 +5539,26 @@
       "court": 5
     },
     {
+      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
+      "team_id": "25-05-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::VOLLEY 1",
+      "team_short": "HER 5e M1",
+      "home_team": "MIERLO 1",
+      "away_team": "VOLLEY 1",
+      "part": "S4",
+      "kind": "S",
+      "matches": 6,
+      "duration_min_cfg": 90,
+      "start": "16:00",
+      "end": "17:30",
+      "court": 10
+    },
+    {
       "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
       "team_id": "25-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::UNICUM 1",
       "team_short": "GEM 3e M2",
       "home_team": "MIERLO 2",
       "away_team": "UNICUM 1",
-      "part": "D1",
+      "part": "D2",
       "kind": "D",
       "matches": 8,
       "duration_min_cfg": 90,
@@ -5586,7 +5600,7 @@
       "team_short": "GEM 3e M2",
       "home_team": "MIERLO 2",
       "away_team": "UNICUM 1",
-      "part": "D2",
+      "part": "D1",
       "kind": "D",
       "matches": 8,
       "duration_min_cfg": 90,
@@ -5600,13 +5614,13 @@
       "team_short": "HER 5e M1",
       "home_team": "MIERLO 1",
       "away_team": "VOLLEY 1",
-      "part": "S4",
-      "kind": "S",
+      "part": "D1",
+      "kind": "D",
       "matches": 6,
       "duration_min_cfg": 90,
-      "start": "16:30",
-      "end": "18:00",
-      "court": 8
+      "start": "17:30",
+      "end": "19:00",
+      "court": 5
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -5617,6 +5631,20 @@
       "part": "D2",
       "kind": "D",
       "matches": 6,
+      "duration_min_cfg": 90,
+      "start": "17:30",
+      "end": "19:00",
+      "court": 10
+    },
+    {
+      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
+      "team_id": "25-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::UNICUM 1",
+      "team_short": "GEM 3e M2",
+      "home_team": "MIERLO 2",
+      "away_team": "UNICUM 1",
+      "part": "GD2",
+      "kind": "M",
+      "matches": 8,
       "duration_min_cfg": 90,
       "start": "18:00",
       "end": "19:30",
@@ -5634,35 +5662,7 @@
       "duration_min_cfg": 90,
       "start": "18:00",
       "end": "19:30",
-      "court": 2
-    },
-    {
-      "schema": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2",
-      "team_id": "25-05-2026::Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 2::MIERLO 2::UNICUM 1",
-      "team_short": "GEM 3e M2",
-      "home_team": "MIERLO 2",
-      "away_team": "UNICUM 1",
-      "part": "GD2",
-      "kind": "M",
-      "matches": 8,
-      "duration_min_cfg": 90,
-      "start": "18:00",
-      "end": "19:30",
-      "court": 3
-    },
-    {
-      "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
-      "team_id": "25-05-2026::Heren Zondag – 5e klasse  – Afdeling 11::MIERLO 1::VOLLEY 1",
-      "team_short": "HER 5e M1",
-      "home_team": "MIERLO 1",
-      "away_team": "VOLLEY 1",
-      "part": "D1",
-      "kind": "D",
-      "matches": 6,
-      "duration_min_cfg": 90,
-      "start": "18:00",
-      "end": "19:30",
-      "court": 8
+      "court": 4
     }
   ],
   "31-05-2026": [
@@ -6462,7 +6462,7 @@
       "duration_min_cfg": 90,
       "start": "16:30",
       "end": "18:00",
-      "court": 8
+      "court": 9
     },
     {
       "schema": "Heren Zondag – 5e klasse  – Afdeling 11",
@@ -6476,7 +6476,7 @@
       "duration_min_cfg": 90,
       "start": "16:30",
       "end": "18:00",
-      "court": 9
+      "court": 10
     }
   ]
 }
