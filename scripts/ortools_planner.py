@@ -144,7 +144,7 @@ def solve_day(
     w_early_start: int = 100,
     w_late_start: int = 120_000,
     w_youth_late: int = 80_000,
-    w_team_court_penalty: int = 60_000,
+    w_team_court_penalty: int = 200_000,
     w_high_court_penalty: int = 40_000,
     random_seed: int = 42,
 ) -> dict:
@@ -450,6 +450,7 @@ def solve_day(
                     model.add(x[(i, s, c)] <= use_c)
             use_courts.append(use_c)
         if use_courts:
+            model.add(sum(use_courts) <= 2)
             team_court_penalty.append(sum(use_courts))
 
         # Soft: teams met 8 wedstrijden bij voorkeur op lage banen (1-4).
@@ -555,7 +556,7 @@ def main() -> None:
     ap.add_argument("--w-early-start", type=int, default=100)
     ap.add_argument("--w-late-start", type=int, default=120_000)
     ap.add_argument("--w-youth-late", type=int, default=80_000)
-    ap.add_argument("--w-team-court-penalty", type=int, default=60_000)
+    ap.add_argument("--w-team-court-penalty", type=int, default=200_000)
     ap.add_argument("--w-high-court-penalty", type=int, default=40_000)
     ap.add_argument("--random-seed", type=int, default=42)
     args = ap.parse_args()
