@@ -132,11 +132,11 @@ def parse_gold_xlsx(path: Path) -> dict[str, list[dict]]:
 
             # map 6-4 -> 06-04-2026 (assume 2026 season)
             m = re.match(r"^(\d{1,2})-(\d{1,2})$", sheet_name.strip())
-            if m:
-                day, mon = int(m.group(1)), int(m.group(2))
-                date_key = f"{day:02d}-{mon:02d}-2026"
-            else:
-                date_key = sheet_name
+            if not m:
+                # skip non-date sheets (e.g. instructions)
+                continue
+            day, mon = int(m.group(1)), int(m.group(2))
+            date_key = f"{day:02d}-{mon:02d}-2026"
             out[date_key] = matches
 
         return out
