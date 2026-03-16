@@ -587,8 +587,9 @@ def render_day_summary(rows: list[dict], include_reservations: bool = False) -> 
         matchup = f"{home} vs {away}" if home or away else "-"
         planned = len(rr_for_stats)
         target = int(rr_for_stats[0].get("matches") or planned)
+        color = color_for(rr[0].get("team_id") or schema_name)
         items.append(
-            f"<li><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema_name)} )</span>: {html.escape(matchup)} — wedstrijden <strong>{planned}/{target}</strong> — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
+            f"<li><span class='team-swatch' style='background:{color}'></span><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema_name)} )</span>: {html.escape(matchup)} — wedstrijden <strong>{planned}/{target}</strong> — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
         )
 
     return "<div class='summary'><h3>Teams vandaag</h3><ul>" + "".join(items) + "</ul></div>"
@@ -999,6 +1000,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .summary h3{{margin:.2rem 0 .5rem 0;font-size:1rem}}
 .summary ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
 .summary li{{margin:.25rem 0}}
+.team-swatch{{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.35rem;vertical-align:middle;border:1px solid rgba(0,0,0,.15)}}
 .requirements{{background:#f7f9ff;border:1px solid #d9e2ff;border-radius:10px;padding:.75rem .95rem;margin:.8rem 0 1rem 0}}
 .requirements h3{{margin:.2rem 0 .5rem 0;font-size:1rem}}
 .requirements ul{{margin:.2rem 0 .1rem 1.1rem;padding:0}}
