@@ -136,16 +136,16 @@ def solve_day(
     teams: list[TeamDay],
     reservations: list[Reservation],
     time_limit_s: float = 20.0,
-    w_block_rise: int = 2_000_000,
-    w_long_gap: int = 10_000_000,
+    w_block_rise: int = 4_000_000,
+    w_long_gap: int = 5_000_000,
     w_morning_occ: int = 600_000,
     w_total_occ: int = 80_000,
     w_cutoff_bonus: int = 5000,
     w_early_start: int = 100,
     w_late_start: int = 120_000,
     w_youth_late: int = 80_000,
-    w_team_court_penalty: int = 200_000,
-    w_high_court_penalty: int = 40_000,
+    w_team_court_penalty: int = 150_000,
+    w_high_court_penalty: int = 80_000,
     random_seed: int = 42,
 ) -> dict:
     day_teams = [t for t in teams if t.date == date]
@@ -548,16 +548,16 @@ def main() -> None:
     ap.add_argument("--date", required=True, help="dd-mm-YYYY")
     ap.add_argument("--time-limit", type=float, default=20.0)
     ap.add_argument("--out", type=Path, default=ROOT / "docs" / "ortools_result.json")
-    ap.add_argument("--w-block-rise", type=int, default=2_000_000)
-    ap.add_argument("--w-long-gap", type=int, default=10_000_000)
+    ap.add_argument("--w-block-rise", type=int, default=4_000_000)
+    ap.add_argument("--w-long-gap", type=int, default=5_000_000)
     ap.add_argument("--w-morning-occ", type=int, default=600_000)
     ap.add_argument("--w-total-occ", type=int, default=80_000)
     ap.add_argument("--w-cutoff-bonus", type=int, default=5000)
     ap.add_argument("--w-early-start", type=int, default=100)
     ap.add_argument("--w-late-start", type=int, default=120_000)
     ap.add_argument("--w-youth-late", type=int, default=80_000)
-    ap.add_argument("--w-team-court-penalty", type=int, default=200_000)
-    ap.add_argument("--w-high-court-penalty", type=int, default=40_000)
+    ap.add_argument("--w-team-court-penalty", type=int, default=150_000)
+    ap.add_argument("--w-high-court-penalty", type=int, default=80_000)
     ap.add_argument("--random-seed", type=int, default=42)
     args = ap.parse_args()
 
