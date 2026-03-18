@@ -1052,9 +1052,9 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </div>
 <div class='ort-status'>{html.escape(ort_msg)}</div>
 <div class='toggle'>
-  <button id='btn-heur' class='active' onclick='setPlan("heur")'>Heuristiek</button>
+  <button id='btn-heur' onclick='setPlan("heur")'>Heuristiek</button>
   <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
-  <button id='btn-gold' onclick='setPlan("gold")'>Gold</button>
+  <button id='btn-gold' class='active' onclick='setPlan("gold")'>Gold</button>
   <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
 {''.join(sections)}
@@ -1084,12 +1084,12 @@ function setPlan(mode){{
   if(mode==='ort'){{
     ort.forEach(e=>e.classList.remove('hidden'));
     bo.classList.add('active');
-  }} else if (mode==='gold') {{
-    gold.forEach(e=>e.classList.remove('hidden'));
-    if(bg) bg.classList.add('active');
-  }} else {{
+  }} else if (mode==='heur') {{
     heur.forEach(e=>e.classList.remove('hidden'));
     bh.classList.add('active');
+  }} else {{
+    gold.forEach(e=>e.classList.remove('hidden'));
+    if(bg) bg.classList.add('active');
   }}
   bindCellPopups();
 }}
@@ -1111,6 +1111,7 @@ function closeCellModal(){{
   if(bg) bg.style.display='none';
 }}
 bindCellPopups();
+setPlan('gold');
 </script>
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
