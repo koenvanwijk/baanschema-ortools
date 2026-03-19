@@ -146,6 +146,7 @@ def solve_day(
     w_youth_late: int = 80_000,
     w_team_court_penalty: int = 150_000,
     w_high_court_penalty: int = 80_000,
+    w_team_span: int = 200_000,
     random_seed: int = 42,
 ) -> dict:
     day_teams = [t for t in teams if t.date == date]
@@ -401,6 +402,7 @@ def solve_day(
     long_gap_team_penalty = []
     team_court_penalty = []
     high_court_penalty = []
+    team_span_penalty = []
     horizon = slot_mins[:-1]
     for team, idxs in by_team.items():
         active_vars = []
@@ -430,15 +432,15 @@ def solve_day(
             team_block_rises.append(rise)
             team_rises.append(rise)
 
-        # Harde compactheidseis: maximaal 2 speelblokken per teamdag.
+        # Harde compactheidseis: maximaal 1 speelblok per teamdag.
         # Blokken = start van activiteit op dagstart + 0->1 overgangen.
         if team_rises:
-            model.add(active_vars[0] + sum(team_rises) <= 2)
+            model.add(active_vars[0] + sum(team_rises) <= 1)
 
             # Extra soft indicator voor sterk gefragmenteerde teamdag (moet idealiter 0 blijven)
             long_gap = model.new_bool_var(f"team_long_gap_{abs(hash(team))%10_000_000}")
-            model.add(sum(team_rises) >= 3).only_enforce_if(long_gap)
-            model.add(sum(team_rises) <= 2).only_enforce_if(long_gap.Not())
+            model.add(sum(team_rises) >= 2).only_enforce_if(long_gap)
+            model.add(sum(team_rises) <= 1).only_enforce_if(long_gap.Not())
             long_gap_team_penalty.append(long_gap)
 
         # Soft: houd teams zoveel mogelijk op dezelfde banen.
@@ -452,6 +454,25 @@ def solve_day(
         if use_courts:
             model.add(sum(use_courts) <= 2)
             team_court_penalty.append(sum(use_courts))
+
+        # Soft: minimaliseer teamspan (eerste start -> laatste eind)
+        team_starts = []
+        team_ends = []
+        for i in idxs:
+            start_i = model.new_int_var(start_min, end_min, f"team_{abs(hash(team))%10_000_000}_start_{i}")
+            end_i = model.new_int_var(start_min, end_min + 180, f"team_{abs(hash(team))%10_000_000}_end_{i}")
+            model.add(sum(s * x[(i, s, c)] for s in allowed_starts[i] for c in courts) == start_i)
+            model.add(end_i == start_i + parts[i]["duration"])
+            team_starts.append(start_i)
+            team_ends.append(end_i)
+        if team_starts and team_ends:
+            team_start = model.new_int_var(start_min, end_min, f"team_{abs(hash(team))%10_000_000}_start")
+            team_end = model.new_int_var(start_min, end_min + 180, f"team_{abs(hash(team))%10_000_000}_end")
+            model.add_min_equality(team_start, team_starts)
+            model.add_max_equality(team_end, team_ends)
+            span = model.new_int_var(0, end_min - start_min + 180, f"team_{abs(hash(team))%10_000_000}_span")
+            model.add(span == team_end - team_start)
+            team_span_penalty.append(span)
 
         # Soft: teams met 8 wedstrijden bij voorkeur op lage banen (1-4).
         if any(parts[i].get("team") == team and parts[i].get("duration") for i in idxs):
@@ -484,6 +505,7 @@ def solve_day(
         - w_long_gap * sum(long_gap_team_penalty)
         - w_team_court_penalty * sum(team_court_penalty)
         - w_high_court_penalty * sum(high_court_penalty)
+        - w_team_span * sum(team_span_penalty)
         # Occupancy optimization:
         + w_morning_occ * sum(morning_occ_terms)
         + w_total_occ * sum(total_occ_terms)
@@ -558,6 +580,7 @@ def main() -> None:
     ap.add_argument("--w-youth-late", type=int, default=80_000)
     ap.add_argument("--w-team-court-penalty", type=int, default=150_000)
     ap.add_argument("--w-high-court-penalty", type=int, default=80_000)
+    ap.add_argument("--w-team-span", type=int, default=200_000)
     ap.add_argument("--random-seed", type=int, default=42)
     args = ap.parse_args()
 

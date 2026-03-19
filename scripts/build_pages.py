@@ -818,11 +818,9 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
 
         raw = json.loads(out_path.read_text(encoding="utf-8"))
         rows = []
-        schema_idx: dict[str, int] = defaultdict(int)
         for r in raw.get("rows", []):
             schema = r.get("team", "")
-            schema_idx[schema] += 1
-            team_id = f"{d}::{schema}::instance-{schema_idx[schema]}"
+            team_id = f"{d}::{schema}"
             # Best effort lookup (may be empty when same schema occurs multiple times)
             t = next((tv for k, tv in team_lookup.items() if k.startswith(f"{d}::{schema}::")), None)
             rows.append(
