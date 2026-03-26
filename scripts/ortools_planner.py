@@ -387,10 +387,6 @@ def solve_day(
 
     early_start_bonus = []
     for p_idx, p in enumerate(parts):
-        # Skip early-start bonus for jeugd teams: they have a late-start penalty already.
-        # The early-start bonus conflicts and can cause large intra-team time gaps.
-        if p["is_youth_team"]:
-            continue
         for s in allowed_starts[p_idx]:
             if p.get("is_youth_team"):
                 # Jeugd: bonus voor starts 09:00-14:00; geen bonus voor 08:30 (te vroeg → gaten)
