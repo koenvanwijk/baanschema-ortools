@@ -17,13 +17,13 @@
       },
       "ortools": {
         "teams": 8,
-        "avg_span": 264.4,
+        "avg_span": 275.6,
         "avg_gap": 0,
         "avg_blocks": 1,
-        "score": 264.4,
-        "delta_vs_gold": 0.0
+        "score": 275.6,
+        "delta_vs_gold": 11.2
       },
-      "winner": "ortools"
+      "winner": "heuristic"
     },
     "10-05-2026": {
       "gold": {
@@ -178,7 +178,7 @@
   },
   "summary": {
     "heuristic_avg_score": 247.09,
-    "ortools_avg_score": 295.96,
+    "ortools_avg_score": 297.56,
     "overall_winner": "heuristic"
   }
 }

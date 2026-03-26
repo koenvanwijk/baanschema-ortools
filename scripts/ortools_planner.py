@@ -156,7 +156,7 @@ def solve_day(
     w_late_start: int = 120_000,
     w_youth_late: int = 80_000,
     w_team_court_penalty: int = 150_000,
-    w_high_court_penalty: int = 80_000,
+    w_high_court_penalty: int = 200_000,
     w_team_span: int = 200_000,
     random_seed: int = 42,
 ) -> dict:
@@ -460,7 +460,7 @@ def solve_day(
             model.add(sum(team_rises) <= 1).only_enforce_if(long_gap.Not())
             long_gap_team_penalty.append(long_gap)
 
-        # Team-first: kies een klein court-budget per team.
+        # Team-first: kies een klein court-budget per team én banen dicht bij elkaar.
         team_meta = next((t for t in day_teams if t.schema == team), None)
         preferred_courts = estimate_parallel_capacity(team_meta) if team_meta else 2
         use_courts = []
@@ -520,14 +520,15 @@ def solve_day(
             model.add(slack == 0).only_enforce_if(team_has_any.Not())
             team_span_slack_penalty.append(slack)
 
-        # Soft: teams met 8 wedstrijden bij voorkeur op lage banen (1-4).
+        # Soft: alle teams bij voorkeur op lage banen (1-4); 8-wedstrijden-teams extra zwaar.
         if any(parts[i].get("team") == team and parts[i].get("duration") for i in idxs):
             team_matches = next((t.matches for t in day_teams if t.schema == team), None)
-            if team_matches == 8:
-                for i in idxs:
-                    for s in allowed_starts[i]:
-                        for c in courts:
-                            if c > 4:
+            weight_mult = 2 if team_matches == 8 else 1
+            for i in idxs:
+                for s in allowed_starts[i]:
+                    for c in courts:
+                        if c > 4:
+                            for _ in range(weight_mult):
                                 high_court_penalty.append(x[(i, s, c)])
 
     # comfort-pass penalties: late starts, extra streng voor jeugd/groen
