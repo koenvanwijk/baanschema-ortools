@@ -388,8 +388,13 @@ def solve_day(
     early_start_bonus = []
     for p_idx, p in enumerate(parts):
         for s in allowed_starts[p_idx]:
-            # higher bonus for earlier starts
-            bonus = max(0, (18 * 60 - s))
+            if p.get("is_youth_team"):
+                # Jeugd: bonus voor starts 09:00-14:00; geen bonus voor 08:30 (te vroeg → gaten)
+                if s < 9 * 60:
+                    continue
+                bonus = max(0, (14 * 60 - s))
+            else:
+                bonus = max(0, (18 * 60 - s))
             for c in courts:
                 early_start_bonus.append(bonus * x[(p_idx, s, c)])
 

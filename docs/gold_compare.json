@@ -42,11 +42,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 288.8,
-        "avg_gap": 30,
+        "avg_span": 315,
+        "avg_gap": 7.5,
         "avg_blocks": 1.08,
-        "score": 380.4,
-        "delta_vs_gold": 140.4
+        "score": 339.1,
+        "delta_vs_gold": 99.1
       },
       "winner": "heuristic"
     },
@@ -67,11 +67,11 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 260.5,
-        "avg_gap": 0,
-        "avg_blocks": 1,
-        "score": 260.5,
-        "delta_vs_gold": 19.1
+        "avg_span": 264.5,
+        "avg_gap": 2.7,
+        "avg_blocks": 1.09,
+        "score": 274.4,
+        "delta_vs_gold": 33.0
       },
       "winner": "heuristic"
     },
@@ -92,11 +92,11 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 290.5,
-        "avg_gap": 0,
-        "avg_blocks": 1,
-        "score": 290.5,
-        "delta_vs_gold": 39.3
+        "avg_span": 324.5,
+        "avg_gap": 12.3,
+        "avg_blocks": 1.09,
+        "score": 363.2,
+        "delta_vs_gold": 112.0
       },
       "winner": "heuristic"
     },
@@ -117,11 +117,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 278.8,
-        "avg_gap": 0,
-        "avg_blocks": 1,
-        "score": 278.8,
-        "delta_vs_gold": 35.0
+        "avg_span": 266.2,
+        "avg_gap": 15,
+        "avg_blocks": 1.08,
+        "score": 312.8,
+        "delta_vs_gold": 69.0
       },
       "winner": "heuristic"
     },
@@ -142,11 +142,11 @@
       },
       "ortools": {
         "teams": 9,
-        "avg_span": 321.7,
+        "avg_span": 288.3,
         "avg_gap": 0,
         "avg_blocks": 1,
-        "score": 321.7,
-        "delta_vs_gold": 78.7
+        "score": 288.3,
+        "delta_vs_gold": 45.3
       },
       "winner": "heuristic"
     },
@@ -178,7 +178,7 @@
   },
   "summary": {
     "heuristic_avg_score": 247.09,
-    "ortools_avg_score": 289.4,
+    "ortools_avg_score": 295.96,
     "overall_winner": "heuristic"
   }
 }
