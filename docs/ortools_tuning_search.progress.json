@@ -1,0 +1,23 @@
+{
+  "iter": 83,
+  "elapsed_s": 3250.9,
+  "best": {
+    "iter": 1,
+    "weights": {
+      "w_block_rise": 5295700,
+      "w_long_gap": 1600258,
+      "w_morning_occ": 600000,
+      "w_total_occ": 80000,
+      "w_cutoff_bonus": 5000,
+      "w_early_start": 100,
+      "w_late_start": 120000,
+      "w_youth_late": 80000,
+      "w_team_court_penalty": 173763,
+      "w_high_court_penalty": 52410,
+      "w_team_span": 602353
+    },
+    "avg_delta": -264.76,
+    "max_delta": -249.5,
+    "min_delta": -284.4
+  }
+}

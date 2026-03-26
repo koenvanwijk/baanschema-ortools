@@ -1,0 +1,238 @@
+[
+  {
+    "round": 1,
+    "top3": [
+      {
+        "weights": {
+          "w_block_rise": 3884727,
+          "w_long_gap": 4827096,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 146660,
+          "w_high_court_penalty": 91231,
+          "w_team_span": 194896
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 2802117,
+          "w_long_gap": 5332318,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 141979,
+          "w_high_court_penalty": 76528,
+          "w_team_span": 204635
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 4185838,
+          "w_long_gap": 6163558,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 169699,
+          "w_high_court_penalty": 81768,
+          "w_team_span": 170467
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      }
+    ]
+  },
+  {
+    "round": 2,
+    "top3": [
+      {
+        "weights": {
+          "w_block_rise": 3519587,
+          "w_long_gap": 5309155,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 139323,
+          "w_high_court_penalty": 133849,
+          "w_team_span": 162960
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 3030961,
+          "w_long_gap": 5568995,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 188365,
+          "w_high_court_penalty": 100457,
+          "w_team_span": 227475
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 4992919,
+          "w_long_gap": 4736320,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 104921,
+          "w_high_court_penalty": 81522,
+          "w_team_span": 232039
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      }
+    ]
+  },
+  {
+    "round": 3,
+    "top3": [
+      {
+        "weights": {
+          "w_block_rise": 5097026,
+          "w_long_gap": 4839668,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 149089,
+          "w_high_court_penalty": 120709,
+          "w_team_span": 140449
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 3563569,
+          "w_long_gap": 5009111,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 144965,
+          "w_high_court_penalty": 77497,
+          "w_team_span": 228224
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 3402034,
+          "w_long_gap": 7159826,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 111260,
+          "w_high_court_penalty": 141680,
+          "w_team_span": 266111
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      }
+    ]
+  },
+  {
+    "round": 4,
+    "top3": [
+      {
+        "weights": {
+          "w_block_rise": 6351853,
+          "w_long_gap": 4697886,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 162788,
+          "w_high_court_penalty": 116255,
+          "w_team_span": 157763
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 4978796,
+          "w_long_gap": 5579027,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 143626,
+          "w_high_court_penalty": 140736,
+          "w_team_span": 159336
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      },
+      {
+        "weights": {
+          "w_block_rise": 4978153,
+          "w_long_gap": 4007460,
+          "w_morning_occ": 600000,
+          "w_total_occ": 80000,
+          "w_cutoff_bonus": 5000,
+          "w_early_start": 100,
+          "w_late_start": 120000,
+          "w_youth_late": 80000,
+          "w_team_court_penalty": 121056,
+          "w_high_court_penalty": 102826,
+          "w_team_span": 112794
+        },
+        "avg_delta": -264.76,
+        "max_delta": -249.5,
+        "min_delta": -284.4
+      }
+    ]
+  }
+]
