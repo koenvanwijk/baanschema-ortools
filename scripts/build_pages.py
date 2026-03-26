@@ -801,7 +801,7 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
             "--date",
             d,
             "--time-limit",
-            "90",
+            "180",
             "--out",
             str(out_path),
         ]
