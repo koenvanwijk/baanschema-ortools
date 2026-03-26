@@ -387,6 +387,10 @@ def solve_day(
 
     early_start_bonus = []
     for p_idx, p in enumerate(parts):
+        # Skip early-start bonus for jeugd teams: they have a late-start penalty already.
+        # The early-start bonus conflicts and can cause large intra-team time gaps.
+        if p["is_youth_team"]:
+            continue
         for s in allowed_starts[p_idx]:
             if p.get("is_youth_team"):
                 # Jeugd: bonus voor starts 09:00-14:00; geen bonus voor 08:30 (te vroeg → gaten)
@@ -417,6 +421,7 @@ def solve_day(
     team_block_rises = []
     long_gap_team_penalty = []
     team_court_penalty = []
+    team_court_spread_penalty = []  # adjacency: prefer courts close together per team
     high_court_penalty = []
     team_span_penalty = []
     team_span_slack_penalty = []
@@ -477,6 +482,35 @@ def solve_day(
             model.add(excess_courts >= used_courts - preferred_courts)
             model.add(excess_courts >= 0)
             team_court_penalty.append(excess_courts)
+
+            # Adjacency: penalize non-adjacent court pairs (spread = max_court - min_court).
+            # Use sentinel values so unused courts don't constrain min/max.
+            min_cand = []
+            max_cand = []
+            for c, use_c in zip(courts, use_courts):
+                min_v = model.new_int_var(1, 11, f"team_{abs(hash(team))%10_000_000}_mincand_c{c}")
+                max_v = model.new_int_var(0, 10, f"team_{abs(hash(team))%10_000_000}_maxcand_c{c}")
+                model.add(min_v == c).only_enforce_if(use_c)
+                model.add(min_v == 11).only_enforce_if(use_c.Not())
+                model.add(max_v == c).only_enforce_if(use_c)
+                model.add(max_v == 0).only_enforce_if(use_c.Not())
+                min_cand.append(min_v)
+                max_cand.append(max_v)
+
+            min_used = model.new_int_var(1, 11, f"team_{abs(hash(team))%10_000_000}_min_used")
+            max_used = model.new_int_var(0, 10, f"team_{abs(hash(team))%10_000_000}_max_used")
+            model.add_min_equality(min_used, min_cand)
+            model.add_max_equality(max_used, max_cand)
+
+            spread_raw = model.new_int_var(-11, 9, f"team_{abs(hash(team))%10_000_000}_spread_raw")
+            model.add(spread_raw == max_used - min_used)
+            spread = model.new_int_var(0, 9, f"team_{abs(hash(team))%10_000_000}_spread")
+            has_two = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_has_two_courts")
+            model.add(used_courts >= 2).only_enforce_if(has_two)
+            model.add(used_courts <= 1).only_enforce_if(has_two.Not())
+            model.add(spread == spread_raw).only_enforce_if(has_two)
+            model.add(spread == 0).only_enforce_if(has_two.Not())
+            team_court_spread_penalty.append(spread)
 
         # Team-first: minimaliseer teamspan én vooral slack boven theoretisch minimum.
         team_starts = []
@@ -552,6 +586,7 @@ def solve_day(
         - (w_team_span * 4) * sum(team_span_slack_penalty)
         - w_team_span * sum(team_span_penalty)
         - w_team_court_penalty * sum(team_court_penalty)
+        - (w_team_court_penalty // 3) * sum(team_court_spread_penalty)
         - w_high_court_penalty * sum(high_court_penalty)
         # Occupancy optimization:
         + w_morning_occ * sum(morning_occ_terms)
