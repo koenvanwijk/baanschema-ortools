@@ -170,6 +170,9 @@ def solve_day(
     slot_idx = {m: i for i, m in enumerate(slot_mins)}
     courts = list(range(1, 11))
 
+    # Baan-paren: teams mogen alleen op aangrenzende paren spelen (1+2, 3+4, 5+6, 7+8, 9+10).
+    COURT_PAIRS = [(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)]
+
     first_cutoff = {
         "12-04-2026": 16 * 60,
         "19-04-2026": 17 * 60,
@@ -221,9 +224,9 @@ def solve_day(
         starts = [m for m in slot_mins if m <= latest]
         if p["is_mixed_team"]:
             starts = [m for m in starts if m >= 10 * 60]
-        # Hard cap: jeugd/groen geen starts na 17:30
+        # Jeugd/groen: niet eerder dan 09:00 (Gold-patroon) en niet na 17:30.
         if p["is_youth_team"]:
-            starts = [m for m in starts if m <= 17 * 60 + 30]
+            starts = [m for m in starts if 9 * 60 <= m <= 17 * 60 + 30]
         allowed_starts[p_idx] = starts
 
         vars_p = []
@@ -462,8 +465,23 @@ def solve_day(
             long_gap_team_penalty.append(long_gap)
 
         # Team-first: kies een klein court-budget per team én banen dicht bij elkaar.
+        # Hard constraint: team mag alleen op één baan-paar spelen (1+2, 3+4, 5+6, 7+8, 9+10).
         team_meta = next((t for t in day_teams if t.schema == team), None)
         preferred_courts = estimate_parallel_capacity(team_meta) if team_meta else 2
+
+        # Kies welk paar dit team gebruikt (one-of-pairs).
+        pair_vars = []
+        for pi, (ca, cb) in enumerate(COURT_PAIRS):
+            pair_active = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_pair{pi}")
+            pair_vars.append((pair_active, ca, cb))
+            # Als dit paar niet actief is: geen wedstrijden op deze banen.
+            for i in idxs:
+                for s in allowed_starts[i]:
+                    for c in [ca, cb]:
+                        model.add(x[(i, s, c)] <= pair_active)
+        # Precies één paar actief (hard).
+        model.add(sum(pv for pv, _, _ in pair_vars) == 1)
+        # Penalty: liever geen extra banen buiten het paar (al afgedwongen door hard constraint).
         use_courts = []
         for c in courts:
             use_c = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_use_c{c}")

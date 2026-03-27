@@ -3,43 +3,43 @@
   "runs": {
     "06-04-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 49\nObjective: 48583509000.0\n",
       "stderr": "",
       "out_exists": true
     },
     "12-04-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 69\nObjective: 68440335500.0\n",
       "stderr": "",
       "out_exists": true
     },
     "19-04-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 72\nObjective: 68120783000.0\n",
       "stderr": "",
       "out_exists": true
     },
     "10-05-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 75\nObjective: 71215752500.0\n",
       "stderr": "",
       "out_exists": true
     },
     "17-05-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 73\nObjective: 69143690500.0\n",
       "stderr": "",
       "out_exists": true
     },
     "25-05-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 62\nObjective: 61197379500.0\n",
       "stderr": "",
       "out_exists": true
     },
     "31-05-2026": {
       "returncode": 0,
-      "stdout": "(cached)",
+      "stdout": "Status: FEASIBLE\nRows: 58\nObjective: 57518386000.0\n",
       "stderr": "",
       "out_exists": true
     }
