@@ -731,7 +731,7 @@ def assert_no_double_mix_overlap(rows: list[dict], day_label: str) -> None:
 
 
 def evaluate_day_rule_violations(rows: list[dict]) -> list[str]:
-    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("part") != "COMP"]
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT", "__ORT_SOLVED__") and r.get("part") != "COMP"]
     violations: list[str] = []
 
     failed = [r for r in rows if r.get("start") == "NIET_GELUKT" and r.get("part") != "COMP"]
@@ -795,24 +795,28 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
     out: dict[str, list[dict]] = {}
     for d in dates:
         out_path = DOCS / f"ortools_{d}.json"
-        cmd = [
-            sys.executable,
-            str(ROOT / "scripts" / "ortools_planner.py"),
-            "--date",
-            d,
-            "--time-limit",
-            "180",
-            "--out",
-            str(out_path),
-        ]
-        proc = subprocess.run(cmd, capture_output=True, text=True)
-        status["runs"][d] = {
-            "returncode": proc.returncode,
-            "stdout": (proc.stdout or "")[-400:],
-            "stderr": (proc.stderr or "")[-400:],
-            "out_exists": out_path.exists(),
-        }
-        if proc.returncode != 0 or not out_path.exists():
+        # If the output file already exists, skip re-running the planner.
+        if out_path.exists():
+            status["runs"][d] = {"returncode": 0, "stdout": "(cached)", "stderr": "", "out_exists": True}
+        else:
+            cmd = [
+                sys.executable,
+                str(ROOT / "scripts" / "ortools_planner.py"),
+                "--date",
+                d,
+                "--time-limit",
+                "180",
+                "--out",
+                str(out_path),
+            ]
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            status["runs"][d] = {
+                "returncode": proc.returncode,
+                "stdout": (proc.stdout or "")[-400:],
+                "stderr": (proc.stderr or "")[-400:],
+                "out_exists": out_path.exists(),
+            }
+        if status["runs"][d].get("returncode", 0) != 0 or not out_path.exists():
             out[d] = []
             continue
 
@@ -950,8 +954,18 @@ def main() -> None:
             failed_html = "<p><strong>Niet gelukt:</strong> " + ", ".join(
                 html.escape(f"{r['team_short']} {r['part']}") for r in failed
             ) + "</p>"
-        violations = evaluate_day_rule_violations(rows)
-        ort_rows = reservation_rows_for_date(d) + ortools_results.get(d, [])
+        # Compute heuristic violations, but suppress ROOD "Niet planbaar" for teams
+        # that were successfully scheduled by OR-Tools (false positive prevention).
+        ort_day_rows = ortools_results.get(d, [])
+        ort_scheduled_keys = {(r.get("team_short"), r.get("part")) for r in ort_day_rows if r.get("start") not in (None, "", "NIET_GELUKT")}
+        # For violations check: mask NIET_GELUKT rows that OR-Tools solved (so no false ROOD)
+        rows_for_violations = [
+            r if not (r.get("start") == "NIET_GELUKT" and (r.get("team_short"), r.get("part")) in ort_scheduled_keys)
+            else {**r, "start": "__ORT_SOLVED__"}  # suppress from NIET_GELUKT count; excluded from valid processing
+            for r in rows
+        ]
+        violations = evaluate_day_rule_violations(rows_for_violations)
+        ort_rows = reservation_rows_for_date(d) + ort_day_rows
         if ort_rows:
             assert_no_double_mix_overlap(ort_rows, f"{d} (OR)")
         run_info = (ortools_status.get("runs") or {}).get(d, {})
