@@ -3,552 +3,525 @@
   "date": "17-05-2026",
   "rows": [
     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "part": "S2",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 5
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "part": "S1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 6
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "part": "S3",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 7
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "part": "S2",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 8
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
       "part": "S4",
       "kind": "S",
       "start": "09:00",
       "end": "10:30",
-      "court": 9
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "part": "S1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 10
-    },
-    {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "S1",
-      "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 1
-    },
-    {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
-      "court": 2
-    },
-    {
-      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
       "court": 3
     },
     {
-      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "part": "S1",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "part": "S3",
       "kind": "S",
-      "start": "10:00",
-      "end": "11:30",
+      "start": "09:00",
+      "end": "10:30",
       "court": 4
     },
     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team": "Groen Zondag – Groen 2  – Afdeling 68",
+      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
       "part": "S4",
       "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
+      "start": "09:00",
+      "end": "09:45",
       "court": 5
     },
     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team": "Groen Zondag – Groen 2  – Afdeling 68",
+      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
       "part": "S3",
       "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
+      "start": "09:00",
+      "end": "09:45",
       "court": 6
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
       "part": "S4",
       "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
+      "start": "09:00",
+      "end": "10:30",
       "court": 7
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "part": "S1",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 8
     },
     {
       "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
       "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
       "part": "S3",
       "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 9
+      "start": "09:00",
+      "end": "10:30",
+      "court": 8
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
       "part": "S2",
       "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 10
-    },
-    {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "D2",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 1
-    },
-    {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "D1",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 2
-    },
-    {
-      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "part": "D2",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 3
-    },
-    {
-      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "part": "D1",
-      "kind": "D",
-      "start": "11:30",
-      "end": "13:00",
-      "court": 4
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 5
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 6
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 7
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 8
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
+      "start": "09:00",
+      "end": "10:30",
       "court": 9
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
       "court": 10
     },
     {
       "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
       "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "part": "S3",
+      "part": "S2",
       "kind": "S",
-      "start": "13:00",
-      "end": "13:45",
+      "start": "09:30",
+      "end": "10:15",
       "court": 1
     },
     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "GD1",
-      "kind": "M",
-      "start": "13:00",
-      "end": "14:30",
+      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:30",
+      "end": "10:15",
       "court": 2
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 3
-    },
-    {
-      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
-      "part": "GD1",
-      "kind": "M",
-      "start": "13:00",
-      "end": "14:30",
-      "court": 4
-    },
-    {
-      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:30",
-      "end": "15:00",
-      "court": 5
-    },
-    {
-      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:30",
-      "end": "15:00",
-      "court": 6
-    },
-    {
-      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:30",
-      "end": "15:00",
-      "court": 7
-    },
-    {
-      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:30",
-      "end": "15:00",
-      "court": 8
     },
     {
       "team": "Groen Zondag – Groen 2  – Afdeling 68",
       "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
       "part": "S2",
       "kind": "S",
-      "start": "13:30",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5
+    },
+    {
+      "team": "Groen Zondag – Groen 2  – Afdeling 68",
+      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6
+    },
+    {
+      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:15",
+      "end": "11:45",
+      "court": 1
+    },
+    {
+      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:15",
+      "end": "11:45",
+      "court": 2
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 3
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 4
+    },
+    {
+      "team": "Groen Zondag – Groen 2  – Afdeling 68",
+      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5
+    },
+    {
+      "team": "Groen Zondag – Groen 2  – Afdeling 68",
+      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6
+    },
+    {
+      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "part": "S2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7
+    },
+    {
+      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "part": "S1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "part": "S4",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "part": "S3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "S2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 5
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "S1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 6
+    },
+    {
+      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:45",
+      "end": "13:15",
+      "court": 1
+    },
+    {
+      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:45",
+      "end": "13:15",
+      "court": 2
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4
+    },
+    {
+      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7
+    },
+    {
+      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "part": "D2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 22",
+      "part": "D1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "S2",
+      "kind": "S",
+      "start": "12:45",
       "end": "14:15",
-      "court": 9
-    },
-    {
-      "team": "Groen Zondag – Groen 2  – Afdeling 68",
-      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 10
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:45",
-      "end": "14:30",
-      "court": 1
-    },
-    {
-      "team": "Groen Zondag – Groen 2  – Afdeling 68",
-      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 9
-    },
-    {
-      "team": "Groen Zondag – Groen 2  – Afdeling 68",
-      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 10
-    },
-    {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1
-    },
-    {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 2
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 3
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 4
-    },
-    {
-      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "S4",
-      "kind": "S",
-      "start": "15:00",
-      "end": "16:30",
       "court": 5
     },
     {
-      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "S1",
-      "kind": "S",
-      "start": "15:00",
-      "end": "16:30",
-      "court": 6
-    },
-    {
-      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "part": "S4",
-      "kind": "S",
-      "start": "15:00",
-      "end": "16:30",
-      "court": 7
-    },
-    {
-      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "part": "S3",
-      "kind": "S",
-      "start": "15:00",
-      "end": "16:30",
-      "court": 8
-    },
-    {
-      "team": "Groen Zondag – Groen 2  – Afdeling 68",
-      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
-      "part": "D2",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 9
-    },
-    {
-      "team": "Groen Zondag – Groen 2  – Afdeling 68",
-      "team_id": "Groen Zondag – Groen 2  – Afdeling 68",
-      "part": "D1",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 10
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "part": "S2",
-      "kind": "S",
-      "start": "16:00",
-      "end": "16:45",
-      "court": 1
-    },
-    {
       "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
       "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "GD1",
-      "kind": "M",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 2
-    },
-    {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "part": "S4",
+      "part": "S1",
       "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 4
+      "start": "12:45",
+      "end": "14:15",
+      "court": 6
     },
     {
       "team": "Groen Zondag – Groen 1  – Afdeling 38",
       "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
-      "part": "S1",
+      "part": "S4",
       "kind": "S",
-      "start": "16:00",
-      "end": "16:45",
-      "court": 10
+      "start": "13:15",
+      "end": "14:00",
+      "court": 1
     },
     {
       "team": "Groen Zondag – Groen 1  – Afdeling 38",
       "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
       "part": "S3",
       "kind": "S",
+      "start": "13:15",
+      "end": "14:00",
+      "court": 2
+    },
+    {
+      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3
+    },
+    {
+      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4
+    },
+    {
+      "team": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "team_id": "Gemengd Zondag – 6e klasse (DE-HE-GD-DD-HD)  – Afdeling 14",
+      "part": "GD1",
+      "kind": "M",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8
+    },
+    {
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "part": "S4",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9
+    },
+    {
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "part": "S3",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 38",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
+      "part": "S2",
+      "kind": "S",
+      "start": "14:00",
+      "end": "14:45",
+      "court": 1
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 38",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
+      "part": "S1",
+      "kind": "S",
+      "start": "14:00",
+      "end": "14:45",
+      "court": 2
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "GD1",
+      "kind": "M",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 5
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "GD1",
+      "kind": "M",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 6
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 38",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:45",
+      "end": "15:30",
+      "court": 1
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 38",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:45",
+      "end": "15:30",
+      "court": 2
+    },
+    {
+      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3
+    },
+    {
+      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8
+    },
+    {
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "part": "S2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9
+    },
+    {
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "part": "S1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "part": "S4",
+      "kind": "S",
+      "start": "15:30",
+      "end": "16:15",
+      "court": 1
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "part": "S3",
+      "kind": "S",
+      "start": "15:30",
+      "end": "16:15",
+      "court": 2
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "D2",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 5
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "D1",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 6
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
+      "part": "D2",
+      "kind": "D",
       "start": "16:15",
       "end": "17:00",
-      "court": 9
-    },
-    {
-      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:30",
-      "end": "18:00",
-      "court": 5
-    },
-    {
-      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:30",
-      "end": "18:00",
-      "court": 6
-    },
-    {
-      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:30",
-      "end": "18:00",
-      "court": 7
-    },
-    {
-      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:30",
-      "end": "18:00",
-      "court": 8
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "part": "S1",
-      "kind": "S",
-      "start": "16:45",
-      "end": "17:30",
-      "court": 1
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
-      "part": "S2",
-      "kind": "S",
-      "start": "16:45",
-      "end": "17:30",
-      "court": 10
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
-      "part": "D2",
-      "kind": "D",
-      "start": "17:30",
-      "end": "18:15",
       "court": 1
     },
     {
@@ -556,62 +529,98 @@
       "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 33",
       "part": "D1",
       "kind": "D",
-      "start": "17:30",
-      "end": "18:15",
+      "start": "16:15",
+      "end": "17:00",
       "court": 2
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
       "part": "D2",
       "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
+      "start": "16:30",
+      "end": "18:00",
       "court": 3
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 2e klasse – Afdeling 37",
+      "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
+      "team_id": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
       "part": "D1",
       "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
+      "start": "16:30",
+      "end": "18:00",
       "court": 4
     },
     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
       "part": "D2",
       "kind": "D",
-      "start": "17:30",
-      "end": "18:15",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 7
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 20",
+      "part": "D1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 8
+    },
+    {
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "part": "D2",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
       "court": 9
     },
     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 22",
       "part": "D1",
       "kind": "D",
-      "start": "17:30",
-      "end": "18:15",
+      "start": "16:30",
+      "end": "18:00",
       "court": 10
     },
     {
       "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
       "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "GD2",
-      "kind": "M",
-      "start": "18:00",
-      "end": "19:30",
-      "court": 5
+      "part": "D2",
+      "kind": "D",
+      "start": "17:00",
+      "end": "18:30",
+      "court": 1
     },
     {
       "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
       "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
-      "part": "GD1",
-      "kind": "M",
-      "start": "18:00",
-      "end": "19:30",
+      "part": "D1",
+      "kind": "D",
+      "start": "17:00",
+      "end": "18:30",
+      "court": 2
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "D2",
+      "kind": "D",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 5
+    },
+    {
+      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
+      "part": "D1",
+      "kind": "D",
+      "start": "17:15",
+      "end": "18:45",
       "court": 6
     },
     {
@@ -621,7 +630,7 @@
       "kind": "M",
       "start": "18:00",
       "end": "19:30",
-      "court": 7
+      "court": 3
     },
     {
       "team": "Gemengd Zondag – 2e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 5",
@@ -630,35 +639,26 @@
       "kind": "M",
       "start": "18:00",
       "end": "19:30",
-      "court": 8
+      "court": 4
     },
     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
+      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "part": "GD1",
+      "kind": "M",
+      "start": "18:30",
+      "end": "20:00",
+      "court": 1
     },
     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD)  – Afdeling 10",
-      "part": "S2",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38",
-      "part": "S4",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
+      "team": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "team_id": "Gemengd Zondag – 3e klasse (2DE-2HE-DD-HD-2GD)  – Afdeling 4",
+      "part": "GD2",
+      "kind": "M",
+      "start": "18:30",
+      "end": "20:00",
+      "court": 2
     }
   ],
-  "objective": 69143690500.0
+  "objective": 71595941000.0
 }

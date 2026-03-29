@@ -279,6 +279,23 @@ def solve_day(
                         if s_n < s_s + dur_s:
                             model.add(start_used[(si, s_s)] + start_used[(ni, s_n)] <= 1)
 
+        # Rondenstructuur (Gold-patroon): pairs van wedstrijden starten tegelijk.
+        # S1+S2 tegelijk, S3+S4 tegelijk, D1+D2 tegelijk, GD1+GD2 tegelijk.
+        # Implementatie: voor elk paar (i0, i1) met dezelfde kind en ronde:
+        # als i0 start op s0, dan moet i1 ook starten op s0 (en vice versa).
+        def pair_same_start(i0, i1):
+            for s0 in allowed_starts[i0]:
+                for s1 in allowed_starts[i1]:
+                    if s0 != s1:
+                        # Als i0 start op s0, dan mag i1 NIET op s1 ≠ s0 starten.
+                        model.add(start_used[(i0, s0)] + start_used[(i1, s1)] <= 1)
+
+        # Pairs per soort: [S1,S2], [S3,S4], [D1,D2], [GD1,GD2]
+        for parts_list in [s_parts, d_parts, m_parts]:
+            for idx in range(0, len(parts_list) - 1, 2):
+                if idx + 1 < len(parts_list):
+                    pair_same_start(parts_list[idx], parts_list[idx + 1])
+
         # Originele per-slot occupancy constraints (S en D niet tegelijk).
             s_occ = []
             d_occ = []

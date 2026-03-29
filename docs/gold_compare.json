@@ -42,11 +42,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 337.5,
-        "avg_gap": 53.8,
-        "avg_blocks": 1.42,
-        "score": 507.3,
-        "delta_vs_gold": 267.3
+        "avg_span": 240,
+        "avg_gap": 0,
+        "avg_blocks": 1,
+        "score": 240.0,
+        "delta_vs_gold": 0.0
       },
       "winner": "heuristic"
     },
@@ -67,11 +67,11 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 241.4,
+        "avg_span": 237.3,
         "avg_gap": 0,
         "avg_blocks": 1,
-        "score": 241.4,
-        "delta_vs_gold": 0.0
+        "score": 237.3,
+        "delta_vs_gold": -4.1
       },
       "winner": "ortools"
     },
@@ -92,11 +92,11 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 290.5,
-        "avg_gap": 8.2,
-        "avg_blocks": 1.09,
-        "score": 316.9,
-        "delta_vs_gold": 65.7
+        "avg_span": 339.5,
+        "avg_gap": 73.6,
+        "avg_blocks": 1.27,
+        "score": 565.7,
+        "delta_vs_gold": 314.5
       },
       "winner": "heuristic"
     },
@@ -117,11 +117,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 285,
-        "avg_gap": 30,
-        "avg_blocks": 1.17,
-        "score": 378.4,
-        "delta_vs_gold": 134.6
+        "avg_span": 307.5,
+        "avg_gap": 71.2,
+        "avg_blocks": 1.42,
+        "score": 529.5,
+        "delta_vs_gold": 285.7
       },
       "winner": "heuristic"
     },
@@ -142,11 +142,11 @@
       },
       "ortools": {
         "teams": 9,
-        "avg_span": 320,
+        "avg_span": 280,
         "avg_gap": 0,
         "avg_blocks": 1,
-        "score": 320.0,
-        "delta_vs_gold": 77.0
+        "score": 280.0,
+        "delta_vs_gold": 37.0
       },
       "winner": "heuristic"
     },
@@ -178,7 +178,7 @@
   },
   "summary": {
     "heuristic_avg_score": 247.09,
-    "ortools_avg_score": 322.56,
+    "ortools_avg_score": 335.2,
     "overall_winner": "heuristic"
   }
 }
