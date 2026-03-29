@@ -270,7 +270,7 @@ def solve_day(
         combo_parts = [i for i in idxs if parts[i].get("is_4p_combo")]
         non_s_parts = [i for i in idxs if parts[i]["kind"] != "S"]
 
-        # Singles moeten altijd vóór andere wedstrijden voor hetzelfde team.
+        # Singles vóór doubles: elke single moet klaar zijn vóór elke double start.
         for si in s_parts:
             dur_s = parts[si]["duration"]
             for ni in non_s_parts:
@@ -279,7 +279,7 @@ def solve_day(
                         if s_n < s_s + dur_s:
                             model.add(start_used[(si, s_s)] + start_used[(ni, s_n)] <= 1)
 
-        for t in slot_mins[:-1]:
+        # Originele per-slot occupancy constraints (S en D niet tegelijk).
             s_occ = []
             d_occ = []
             m_occ = []
