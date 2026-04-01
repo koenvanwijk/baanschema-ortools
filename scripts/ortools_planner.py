@@ -271,9 +271,12 @@ def solve_day(
         non_s_parts = [i for i in idxs if parts[i]["kind"] != "S"]
 
         # Singles vóór doubles: elke single moet klaar zijn vóór elke double start.
+        # Voor gemengde teams: S en GD mogen wél overlappen op de 2 banen (andere spelers).
+        team_is_mixed = parts[idxs[0]].get("is_mixed_team", False) if idxs else False
+        non_s_strict = [i for i in non_s_parts if not (team_is_mixed and parts[i]["kind"] == "M")]
         for si in s_parts:
             dur_s = parts[si]["duration"]
-            for ni in non_s_parts:
+            for ni in non_s_strict:
                 for s_s in allowed_starts[si]:
                     for s_n in allowed_starts[ni]:
                         if s_n < s_s + dur_s:
@@ -281,20 +284,18 @@ def solve_day(
 
         # Rondenstructuur (Gold-patroon): pairs van wedstrijden starten tegelijk.
         # S1+S2 tegelijk, S3+S4 tegelijk, D1+D2 tegelijk, GD1+GD2 tegelijk.
-        # Implementatie: voor elk paar (i0, i1) met dezelfde kind en ronde:
-        # als i0 start op s0, dan moet i1 ook starten op s0 (en vice versa).
-        def pair_same_start(i0, i1):
-            for s0 in allowed_starts[i0]:
-                for s1 in allowed_starts[i1]:
-                    if s0 != s1:
-                        # Als i0 start op s0, dan mag i1 NIET op s1 ≠ s0 starten.
-                        model.add(start_used[(i0, s0)] + start_used[(i1, s1)] <= 1)
+        # Alleen voor niet-gemengde teams (gemengde teams hebben flexibele volgorde S/GD).
+        if not team_is_mixed:
+            def pair_same_start(i0, i1):
+                for s0 in allowed_starts[i0]:
+                    for s1 in allowed_starts[i1]:
+                        if s0 != s1:
+                            model.add(start_used[(i0, s0)] + start_used[(i1, s1)] <= 1)
 
-        # Pairs per soort: [S1,S2], [S3,S4], [D1,D2], [GD1,GD2]
-        for parts_list in [s_parts, d_parts, m_parts]:
-            for idx in range(0, len(parts_list) - 1, 2):
-                if idx + 1 < len(parts_list):
-                    pair_same_start(parts_list[idx], parts_list[idx + 1])
+            for parts_list in [s_parts, d_parts, m_parts]:
+                for idx in range(0, len(parts_list) - 1, 2):
+                    if idx + 1 < len(parts_list):
+                        pair_same_start(parts_list[idx], parts_list[idx + 1])
 
         # Originele per-slot occupancy constraints (S en D niet tegelijk).
             s_occ = []

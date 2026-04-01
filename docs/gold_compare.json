@@ -42,11 +42,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 240,
-        "avg_gap": 0,
-        "avg_blocks": 1,
-        "score": 240.0,
-        "delta_vs_gold": 0.0
+        "avg_span": 255,
+        "avg_gap": 15,
+        "avg_blocks": 1.08,
+        "score": 301.6,
+        "delta_vs_gold": 61.6
       },
       "winner": "heuristic"
     },
@@ -67,13 +67,13 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 237.3,
-        "avg_gap": 0,
-        "avg_blocks": 1,
-        "score": 237.3,
-        "delta_vs_gold": -4.1
+        "avg_span": 298.6,
+        "avg_gap": 61.4,
+        "avg_blocks": 1.27,
+        "score": 488.2,
+        "delta_vs_gold": 246.8
       },
-      "winner": "ortools"
+      "winner": "heuristic"
     },
     "17-05-2026": {
       "gold": {
@@ -117,11 +117,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 307.5,
-        "avg_gap": 71.2,
-        "avg_blocks": 1.42,
-        "score": 529.5,
-        "delta_vs_gold": 285.7
+        "avg_span": 277.5,
+        "avg_gap": 33.8,
+        "avg_blocks": 1.25,
+        "score": 383.9,
+        "delta_vs_gold": 140.1
       },
       "winner": "heuristic"
     },
@@ -178,7 +178,7 @@
   },
   "summary": {
     "heuristic_avg_score": 247.09,
-    "ortools_avg_score": 335.2,
+    "ortools_avg_score": 359.04,
     "overall_winner": "heuristic"
   }
 }
