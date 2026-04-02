@@ -224,14 +224,10 @@ def solve_day(
         starts = [m for m in slot_mins if m <= latest]
         if p["is_mixed_team"]:
             starts = [m for m in starts if m >= 10 * 60]
-        # Jeugd/groen: niet na 17:30.
+        # Jeugd/groen: niet eerder dan 08:30 en niet na 17:30 (gelijk aan Gold).
+        # 08:30 is toegestaan (Gold gebruikt dit ook: GRO Groen 2 M3 start 08:30).
         if p["is_youth_team"]:
             starts = [m for m in starts if m <= 17 * 60 + 30]
-        # Groen: altijd in de ochtend (start 09:00-11:00).
-        team_l = p["team"].lower()
-        is_groen = "groen zondag" in team_l
-        if is_groen:
-            starts = [m for m in starts if 9 * 60 <= m <= 11 * 60]
         allowed_starts[p_idx] = starts
 
         vars_p = []
@@ -246,15 +242,6 @@ def solve_day(
         yp = model.new_bool_var(f"y_p{p_idx}")
         y.append(yp)
         model.add(sum(vars_p) == yp)
-
-    # Hard constraint: banen 5-10 mogen pas om 09:00 starten.
-    # 08:30 is alleen toegestaan op banen 1-4 (als het écht niet anders kan).
-    for p_idx in range(len(parts)):
-        for s in allowed_starts[p_idx]:
-            if s < 9 * 60:
-                for c in courts:
-                    if c >= 5:
-                        model.add(x[(p_idx, s, c)] == 0)
 
     # court occupancy including reservations
     for c in courts:
@@ -420,22 +407,17 @@ def solve_day(
                 morning_occ_terms.extend(terms_here)
 
     early_start_bonus = []
-    early_start_penalty = []
-    w_early_830_penalty = 200_000  # lichte ontmoediging voor 08:30
     for p_idx, p in enumerate(parts):
         for s in allowed_starts[p_idx]:
             if p.get("is_youth_team"):
+                # Jeugd: bonus voor starts 09:00-14:00; geen bonus voor 08:30 (te vroeg → gaten)
                 if s < 9 * 60:
                     continue
                 bonus = max(0, (14 * 60 - s))
             else:
                 bonus = max(0, (18 * 60 - s))
-            if s < 9 * 60:
-                for c in courts:
-                    early_start_penalty.append(x[(p_idx, s, c)])
-            else:
-                for c in courts:
-                    early_start_bonus.append(bonus * x[(p_idx, s, c)])
+            for c in courts:
+                early_start_bonus.append(bonus * x[(p_idx, s, c)])
 
     # soft bonus: each team prefers at least one start before cutoff
     team_cutoff_bonus = []
@@ -645,7 +627,6 @@ def solve_day(
         + w_cutoff_bonus * sum(team_cutoff_bonus)
         + w_early_start * sum(early_start_bonus)
         - w_late_start * sum(late_start_penalty)
-        - w_early_830_penalty * sum(early_start_penalty)  # 08:30 ontmoedigen
         - w_youth_late * sum(youth_late_penalty)
     )
 
