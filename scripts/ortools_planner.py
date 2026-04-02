@@ -224,9 +224,10 @@ def solve_day(
         starts = [m for m in slot_mins if m <= latest]
         if p["is_mixed_team"]:
             starts = [m for m in starts if m >= 10 * 60]
-        # Jeugd/groen: niet eerder dan 09:00 (Gold-patroon) en niet na 17:30.
+        # Jeugd/groen: niet eerder dan 08:30 en niet na 17:30 (gelijk aan Gold).
+        # 08:30 is toegestaan (Gold gebruikt dit ook: GRO Groen 2 M3 start 08:30).
         if p["is_youth_team"]:
-            starts = [m for m in starts if 9 * 60 <= m <= 17 * 60 + 30]
+            starts = [m for m in starts if m <= 17 * 60 + 30]
         allowed_starts[p_idx] = starts
 
         vars_p = []
@@ -270,21 +271,21 @@ def solve_day(
         combo_parts = [i for i in idxs if parts[i].get("is_4p_combo")]
         non_s_parts = [i for i in idxs if parts[i]["kind"] != "S"]
 
-        # Singles vóór doubles: elke single moet klaar zijn vóór elke double start.
-        # Voor gemengde teams: S en GD mogen wél overlappen op de 2 banen (andere spelers).
+        # Singles vóór doubles: alleen voor niet-gemengde teams strict.
+        # Gemengde teams (GEM): S en GD mogen overlappen (Gold doet dit ook).
         team_is_mixed = parts[idxs[0]].get("is_mixed_team", False) if idxs else False
-        non_s_strict = [i for i in non_s_parts if not (team_is_mixed and parts[i]["kind"] == "M")]
-        for si in s_parts:
-            dur_s = parts[si]["duration"]
-            for ni in non_s_strict:
-                for s_s in allowed_starts[si]:
-                    for s_n in allowed_starts[ni]:
-                        if s_n < s_s + dur_s:
-                            model.add(start_used[(si, s_s)] + start_used[(ni, s_n)] <= 1)
+        if not team_is_mixed:
+            for si in s_parts:
+                dur_s = parts[si]["duration"]
+                for ni in non_s_parts:
+                    for s_s in allowed_starts[si]:
+                        for s_n in allowed_starts[ni]:
+                            if s_n < s_s + dur_s:
+                                model.add(start_used[(si, s_s)] + start_used[(ni, s_n)] <= 1)
 
         # Rondenstructuur (Gold-patroon): pairs van wedstrijden starten tegelijk.
-        # S1+S2 tegelijk, S3+S4 tegelijk, D1+D2 tegelijk, GD1+GD2 tegelijk.
-        # Alleen voor niet-gemengde teams (gemengde teams hebben flexibele volgorde S/GD).
+        # S1+S2 tegelijk, S3+S4 tegelijk, D1+D2 tegelijk.
+        # Alleen voor niet-gemengde teams.
         if not team_is_mixed:
             def pair_same_start(i0, i1):
                 for s0 in allowed_starts[i0]:
@@ -294,8 +295,7 @@ def solve_day(
 
             for parts_list in [s_parts, d_parts, m_parts]:
                 for idx in range(0, len(parts_list) - 1, 2):
-                    if idx + 1 < len(parts_list):
-                        pair_same_start(parts_list[idx], parts_list[idx + 1])
+                    pair_same_start(parts_list[idx], parts_list[idx + 1])
 
         # Originele per-slot occupancy constraints (S en D niet tegelijk).
             s_occ = []

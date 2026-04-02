@@ -42,11 +42,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 255,
-        "avg_gap": 15,
-        "avg_blocks": 1.08,
-        "score": 301.6,
-        "delta_vs_gold": 61.6
+        "avg_span": 311.2,
+        "avg_gap": 71.2,
+        "avg_blocks": 1.25,
+        "score": 529.8,
+        "delta_vs_gold": 289.8
       },
       "winner": "heuristic"
     },
@@ -67,11 +67,11 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 298.6,
-        "avg_gap": 61.4,
-        "avg_blocks": 1.27,
-        "score": 488.2,
-        "delta_vs_gold": 246.8
+        "avg_span": 270,
+        "avg_gap": 32.7,
+        "avg_blocks": 1.09,
+        "score": 369.9,
+        "delta_vs_gold": 128.5
       },
       "winner": "heuristic"
     },
@@ -92,11 +92,11 @@
       },
       "ortools": {
         "teams": 11,
-        "avg_span": 339.5,
-        "avg_gap": 73.6,
-        "avg_blocks": 1.27,
-        "score": 565.7,
-        "delta_vs_gold": 314.5
+        "avg_span": 302.7,
+        "avg_gap": 40.9,
+        "avg_blocks": 1.18,
+        "score": 429.0,
+        "delta_vs_gold": 177.8
       },
       "winner": "heuristic"
     },
@@ -117,11 +117,11 @@
       },
       "ortools": {
         "teams": 12,
-        "avg_span": 277.5,
-        "avg_gap": 33.8,
-        "avg_blocks": 1.25,
-        "score": 383.9,
-        "delta_vs_gold": 140.1
+        "avg_span": 331.2,
+        "avg_gap": 78.8,
+        "avg_blocks": 1.67,
+        "score": 581.0,
+        "delta_vs_gold": 337.2
       },
       "winner": "heuristic"
     },
@@ -142,11 +142,11 @@
       },
       "ortools": {
         "teams": 9,
-        "avg_span": 280,
-        "avg_gap": 0,
-        "avg_blocks": 1,
-        "score": 280.0,
-        "delta_vs_gold": 37.0
+        "avg_span": 310,
+        "avg_gap": 30,
+        "avg_blocks": 1.11,
+        "score": 402.2,
+        "delta_vs_gold": 159.2
       },
       "winner": "heuristic"
     },
@@ -178,7 +178,7 @@
   },
   "summary": {
     "heuristic_avg_score": 247.09,
-    "ortools_avg_score": 359.04,
+    "ortools_avg_score": 400.83,
     "overall_winner": "heuristic"
   }
 }
