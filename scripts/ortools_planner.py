@@ -142,11 +142,17 @@ def estimate_parallel_capacity(team: TeamDay) -> int:
     return 2
 
 
+def hhmm_to_min(s: str) -> int:
+    h, m = s.split(":")
+    return int(h) * 60 + int(m)
+
+
 def solve_day(
     date: str,
     teams: list[TeamDay],
     reservations: list[Reservation],
     time_limit_s: float = 20.0,
+    gold_hints: list[dict] | None = None,
     w_block_rise: int = 4_000_000,
     w_long_gap: int = 5_000_000,
     w_morning_occ: int = 600_000,
@@ -630,6 +636,32 @@ def solve_day(
         - w_youth_late * sum(youth_late_penalty)
     )
 
+    # Warm start: inject Gold hints so CP-SAT starts from a near-optimal solution.
+    # We match Gold rows to model variables by (team, part) and hint the corresponding x[p_idx, s, c].
+    if gold_hints:
+        hint_count = 0
+        for p_idx, p in enumerate(parts):
+            for gold_row in gold_hints:
+                gold_team = (gold_row.get("team_short") or gold_row.get("team") or "").strip()
+                gold_part = (gold_row.get("part") or "").strip()
+                if gold_team != p["team"] and gold_team not in p["team"] and p["team"] not in gold_team:
+                    continue
+                if gold_part != p["label"]:
+                    continue
+                gold_start = gold_row.get("start")
+                gold_court = gold_row.get("court")
+                if not gold_start or gold_start == "NIET_GELUKT" or not gold_court:
+                    continue
+                try:
+                    s = hhmm_to_min(gold_start)
+                    c = int(gold_court)
+                except (ValueError, TypeError):
+                    continue
+                if (p_idx, s, c) in x:
+                    model.add_hint(x[(p_idx, s, c)], 1)
+                    hint_count += 1
+                break
+
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = time_limit_s
     solver.parameters.num_search_workers = 8
@@ -696,14 +728,34 @@ def main() -> None:
     ap.add_argument("--w-high-court-penalty", type=int, default=80_000)
     ap.add_argument("--w-team-span", type=int, default=200_000)
     ap.add_argument("--random-seed", type=int, default=42)
+    ap.add_argument(
+        "--gold-hints",
+        type=Path,
+        default=None,
+        help="JSON file with Gold schedule (dict keyed by date -> list of rows). "
+             "Rows for the target date will be used as CP-SAT warm start hints.",
+    )
     args = ap.parse_args()
 
     teams, res = parse_input(args.input)
+
+    gold_hints = None
+    if args.gold_hints and args.gold_hints.exists():
+        import json as _json
+        gold_data = _json.loads(args.gold_hints.read_text(encoding="utf-8"))
+        # Support both {date: [rows]} and {date: {rows: [...]}} formats
+        day_entry = gold_data.get(args.date)
+        if isinstance(day_entry, list):
+            gold_hints = day_entry
+        elif isinstance(day_entry, dict):
+            gold_hints = day_entry.get("rows", [])
+
     result = solve_day(
         args.date,
         teams,
         res,
         time_limit_s=args.time_limit,
+        gold_hints=gold_hints,
         w_block_rise=args.w_block_rise,
         w_long_gap=args.w_long_gap,
         w_morning_occ=args.w_morning_occ,
