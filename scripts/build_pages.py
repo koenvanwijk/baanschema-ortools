@@ -1067,6 +1067,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
   <button id='btn-heur' onclick='setPlan("heur")'>Heuristiek</button>
   <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
   <button id='btn-gold' class='active' onclick='setPlan("gold")'>Gold</button>
+  <a href='editor.html'><button style='background:#7c3aed;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600'>✏️ Editor</button></a>
   <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
 {''.join(sections)}

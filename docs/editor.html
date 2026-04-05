@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baanschema Editor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{display:flex;align-items:center;gap:.75rem;padding:.5rem 1rem;background:#1e293b;border-bottom:1px solid #334155;flex-shrink:0;flex-wrap:wrap}
+header h1{font-size:1rem;font-weight:700;color:#a78bfa;white-space:nowrap}
+select,button{background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:4px;padding:.3rem .6rem;font-size:.8rem;cursor:pointer}
+select:focus,button:focus{outline:2px solid #7c3aed}
+button:hover{background:#475569}
+#btn-export{background:#059669;border-color:#059669;color:#fff}
+#btn-export:hover{background:#047857}
+#btn-reset{background:#dc2626;border-color:#dc2626;color:#fff}
+#btn-reset:hover{background:#b91c1c}
+#violation-count{background:#dc2626;color:#fff;border-radius:12px;padding:.2rem .5rem;font-size:.75rem;font-weight:700;display:none}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:210px;flex-shrink:0;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;overflow:hidden}
+.sidebar h2{font-size:.8rem;font-weight:700;padding:.5rem .75rem;background:#2d3748;border-bottom:1px solid #334155;color:#f59e0b}
+.sidebar-list{flex:1;overflow-y:auto;padding:.5rem}
+.sidebar-item{border-radius:4px;padding:.35rem .5rem;margin-bottom:.35rem;font-size:.7rem;cursor:grab;position:relative;user-select:none;border:2px solid transparent}
+.sidebar-item:active{cursor:grabbing}
+.sidebar-item .label{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-item .sub{opacity:.75;font-size:.65rem}
+.sidebar-item.violation{border-color:#dc2626!important}
+.vbadge{position:absolute;top:-5px;right:-5px;background:#dc2626;color:#fff;border-radius:50%;width:16px;height:16px;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:10}
+.grid-area{flex:1;overflow:auto;position:relative}
+.grid-wrap{display:inline-flex;flex-direction:column;min-width:100%}
+.time-header{display:flex;position:sticky;top:0;z-index:20;background:#1e293b;border-bottom:2px solid #334155;height:28px}
+.th-corner{width:72px;flex-shrink:0;border-right:1px solid #334155}
+.time-labels{display:flex;overflow:hidden}
+.time-label{font-size:.6rem;color:#94a3b8;width:40px;flex-shrink:0;text-align:center;line-height:28px;border-right:1px solid #1e3a5f}
+.time-label.half{border-right-color:#334155}
+.court-rows{display:flex;flex-direction:column}
+.court-row{display:flex;height:44px;border-bottom:1px solid #1e3a5f;position:relative}
+.court-label{width:72px;flex-shrink:0;font-size:.7rem;color:#94a3b8;display:flex;align-items:center;justify-content:center;border-right:1px solid #334155;font-weight:600;background:#1e293b;position:sticky;left:0;z-index:10}
+.court-slots{position:relative;display:flex;height:44px}
+.slot{width:20px;height:44px;flex-shrink:0;border-right:1px solid #0f172a}
+.slot.half-mark{border-right:1px solid #1e3a5f}
+.slot.hour-mark{border-right:1px solid #334155}
+.block{position:absolute;top:3px;border-radius:4px;cursor:grab;user-select:none;overflow:hidden;border:2px solid transparent;transition:border-color .1s;z-index:5}
+.block:active{cursor:grabbing;z-index:100}
+.block.violation{border-color:#dc2626!important;box-shadow:0 0 0 1px #dc2626}
+.block.dragging{z-index:200;opacity:.85;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.block-inner{padding:2px 5px;font-size:.65rem;height:100%;display:flex;flex-direction:column;justify-content:center;position:relative}
+.block-team{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.block-part{opacity:.85;line-height:1.2}
+.block .vbadge{position:absolute;top:-4px;right:-4px}
+.drop-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(124,58,237,.2);border:2px dashed #7c3aed;border-radius:4px;z-index:30;pointer-events:none;display:none}
+.drop-overlay.active{display:block}
+.geen-data{padding:1rem;color:#94a3b8;font-size:.8rem;text-align:center}
+.loading{padding:1rem;color:#7c3aed;font-size:.85rem;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎾 Baanschema Editor</h1>
+  <select id="date-sel">
+    <option value="06-04-2026">6 april 2026</option>
+    <option value="12-04-2026">12 april 2026</option>
+    <option value="19-04-2026">19 april 2026</option>
+    <option value="10-05-2026">10 mei 2026</option>
+    <option value="17-05-2026">17 mei 2026</option>
+    <option value="25-05-2026">25 mei 2026</option>
+    <option value="31-05-2026">31 mei 2026</option>
+  </select>
+  <select id="plan-sel">
+    <option value="ortools">OR-Tools</option>
+    <option value="gold">Gold</option>
+    <option value="heuristic">Heuristiek</option>
+  </select>
+  <span id="violation-count">0 overtredingen</span>
+  <button id="btn-export">⬇️ Exporteer JSON</button>
+  <button id="btn-reset">↺ Reset</button>
+  <a href="index.html" style="margin-left:auto"><button>← Terug</button></a>
+</header>
+<div class="main">
+  <div class="sidebar">
+    <h2>📋 Niet ingepland</h2>
+    <div class="sidebar-list" id="sidebar-list"></div>
+  </div>
+  <div class="grid-area" id="grid-area">
+    <div class="loading" id="loading">Laden...</div>
+    <div class="grid-wrap" id="grid-wrap" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const COURTS = [1,2,3,4,5,6,7,8,9,10];
+const DAY_START = 8*60+30; // 08:30
+const DAY_END   = 20*60;   // 20:00
+const SLOT_W    = 20;      // px per 15-min slot
+const COURT_H   = 44;      // px per row
+const SLOTS     = (DAY_END - DAY_START) / 15; // 46 slots
+
+// ── State ────────────────────────────────────────────────────────────────────
+let originalRows = [];
+let currentRows  = [];
+let dragState    = null;
+let currentDate  = '06-04-2026';
+let currentPlan  = 'ortools';
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+function timeToMin(t) {
+  if (!t || t === 'NIET_GELUKT') return null;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+function minToTime(m) {
+  const h = Math.floor(m / 60), mm = m % 60;
+  return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+}
+function minToSlot(m) { return (m - DAY_START) / 15; }
+function slotToMin(s) { return DAY_START + s * 15; }
+
+function teamColor(teamId) {
+  let h = 0;
+  for (let i = 0; i < teamId.length; i++) h = (h * 31 + teamId.charCodeAt(i)) & 0xfffffff;
+  const hue = (h * 137 + 60) % 360;
+  return { bg: `hsl(${hue},55%,30%)`, border: `hsl(${hue},70%,55%)`, text: `hsl(${hue},80%,88%)` };
+}
+
+function shortTeam(team) {
+  // Extract short form from team name
+  const m = team.match(/–\s*([^–]+)$/);
+  if (m) return m[1].trim().substring(0,18);
+  return team.substring(0, 18);
+}
+
+function uid(row) { return `${row.team_id}__${row.part}`; }
+
+// ── Load data ────────────────────────────────────────────────────────────────
+async function loadData(date, plan) {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('grid-wrap').style.display = 'none';
+  let url;
+  if (plan === 'ortools') {
+    url = `ortools_${date}.json`;
+  } else if (plan === 'gold') {
+    url = `gold_result.json`;
+  } else {
+    url = `heuristic_${date}.json`;
+  }
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('404');
+    const data = await resp.json();
+
+    let rows;
+    if (plan === 'gold') {
+      // gold_result.json may have multiple dates — filter by date
+      if (Array.isArray(data)) {
+        const entry = data.find(d => d.date === date);
+        rows = entry ? entry.rows : [];
+      } else if (data.rows) {
+        rows = data.date === date ? data.rows : [];
+      } else {
+        rows = [];
+      }
+    } else {
+      rows = data.rows || [];
+    }
+
+    // inject team_short if missing
+    rows = rows.map(r => ({
+      ...r,
+      team_short: r.team_short || shortTeam(r.team),
+      _uid: uid(r)
+    }));
+
+    originalRows = JSON.parse(JSON.stringify(rows));
+    currentRows  = JSON.parse(JSON.stringify(rows));
+    renderAll();
+  } catch (e) {
+    document.getElementById('loading').textContent = '⚠️ Geen data beschikbaar voor deze combinatie.';
+    document.getElementById('loading').style.display = 'block';
+    currentRows = []; originalRows = [];
+    renderAll();
+  }
+}
+
+// ── Constraint checking ───────────────────────────────────────────────────────
+const VALID_PAIRS = [[1,2],[3,4],[5,6],[7,8],[9,10]];
+function courtPair(c) { return VALID_PAIRS.find(p => p.includes(c)); }
+
+function checkViolations(rows) {
+  // Returns Map uid -> [violation strings]
+  const viols = new Map();
+  const scheduled = rows.filter(r => r.start !== 'NIET_GELUKT' && r.court);
+
+  function addV(r, msg) {
+    const k = r._uid;
+    if (!viols.has(k)) viols.set(k, []);
+    viols.get(k).push(msg);
+  }
+
+  // 1. Court pair: per team, all courts used must be from ONE pair
+  const teamCourts = new Map();
+  for (const r of scheduled) {
+    if (!teamCourts.has(r.team_id)) teamCourts.set(r.team_id, new Set());
+    teamCourts.get(r.team_id).add(r.court);
+  }
+  for (const r of scheduled) {
+    const courts = [...teamCourts.get(r.team_id)];
+    const pairs = courts.map(c => courtPair(c)).filter(Boolean);
+    const uniquePairs = [...new Set(pairs.map(p => p.join()))];
+    if (uniquePairs.length > 1) addV(r, 'Banen niet in hetzelfde paar');
+  }
+
+  // 2. Max 2 courts per team
+  for (const r of scheduled) {
+    if (teamCourts.get(r.team_id).size > 2) addV(r, 'Team gebruikt >2 banen');
+  }
+
+  // 3. Overlap on same court
+  for (let i = 0; i < scheduled.length; i++) {
+    for (let j = i+1; j < scheduled.length; j++) {
+      const a = scheduled[i], b = scheduled[j];
+      if (a.court !== b.court) continue;
+      const as = timeToMin(a.start), ae = timeToMin(a.end);
+      const bs = timeToMin(b.start), be = timeToMin(b.end);
+      if (as < be && bs < ae) {
+        addV(a, 'Overlap op baan');
+        addV(b, 'Overlap op baan');
+      }
+    }
+  }
+
+  // 4. Youth: end ≤ 17:30
+  for (const r of scheduled) {
+    const isYouth = /Junioren|Meisjes|Jongens.*13 t\/m 17/i.test(r.team);
+    if (isYouth && timeToMin(r.end) > timeToMin('17:30')) {
+      addV(r, 'Jeugd: einde na 17:30');
+    }
+  }
+
+  // 5. Mixed: start ≥ 10:00
+  for (const r of scheduled) {
+    if (/Gemengd/i.test(r.team) && timeToMin(r.start) < timeToMin('10:00')) {
+      addV(r, 'Gemengd: start voor 10:00');
+    }
+  }
+
+  // 6. Singles end before doubles start (per non-mixed team)
+  const byTeam = new Map();
+  for (const r of scheduled) {
+    if (/Gemengd/i.test(r.team)) continue;
+    if (!byTeam.has(r.team_id)) byTeam.set(r.team_id, []);
+    byTeam.get(r.team_id).push(r);
+  }
+  for (const [, teamRows] of byTeam) {
+    const singles  = teamRows.filter(r => r.kind === 'S');
+    const doubles  = teamRows.filter(r => r.kind === 'D' || r.kind === 'M');
+    for (const s of singles) {
+      for (const d of doubles) {
+        if (timeToMin(s.end) > timeToMin(d.start)) {
+          addV(s, 'Enkel moet eindigen voor dubbelstart');
+          addV(d, 'Dubbel begint voor einde enkel');
+        }
+      }
+    }
+  }
+
+  return viols;
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderGrid();
+  renderSidebar();
+  updateViolationBadge();
+}
+
+function renderGrid() {
+  const wrap = document.getElementById('grid-wrap');
+  const loading = document.getElementById('loading');
+  loading.style.display = 'none';
+  wrap.style.display = '';
+  wrap.innerHTML = '';
+
+  const violations = checkViolations(currentRows);
+
+  // Time header
+  const header = document.createElement('div');
+  header.className = 'time-header';
+  const corner = document.createElement('div');
+  corner.className = 'th-corner';
+  header.appendChild(corner);
+  const tl = document.createElement('div');
+  tl.className = 'time-labels';
+  for (let s = 0; s < SLOTS; s++) {
+    const m = slotToMin(s);
+    const div = document.createElement('div');
+    div.className = 'time-label' + (m % 30 === 0 ? '' : ' half');
+    if (m % 30 === 0) div.textContent = minToTime(m);
+    tl.appendChild(div);
+  }
+  header.appendChild(tl);
+  wrap.appendChild(header);
+
+  // Court rows
+  const rowsDiv = document.createElement('div');
+  rowsDiv.className = 'court-rows';
+
+  for (const court of COURTS) {
+    const row = document.createElement('div');
+    row.className = 'court-row';
+    row.dataset.court = court;
+
+    const label = document.createElement('div');
+    label.className = 'court-label';
+    label.textContent = `Baan ${court}`;
+    row.appendChild(label);
+
+    const slots = document.createElement('div');
+    slots.className = 'court-slots';
+    slots.dataset.court = court;
+
+    // Drop overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'drop-overlay';
+    slots.appendChild(overlay);
+
+    for (let s = 0; s < SLOTS; s++) {
+      const slot = document.createElement('div');
+      slot.className = 'slot' + (slotToMin(s) % 60 === 0 ? ' hour-mark' : slotToMin(s) % 30 === 0 ? ' half-mark' : '');
+      slots.appendChild(slot);
+    }
+
+    // Blocks
+    const courtRows = currentRows.filter(r => r.court === court && r.start !== 'NIET_GELUKT');
+    for (const r of courtRows) {
+      const block = createBlock(r, violations);
+      slots.appendChild(block);
+    }
+
+    row.appendChild(slots);
+    rowsDiv.appendChild(row);
+  }
+  wrap.appendChild(rowsDiv);
+
+  // Attach mouse events for drop targets
+  attachGridEvents();
+}
+
+function createBlock(r, violations) {
+  const startMin = timeToMin(r.start);
+  const endMin   = timeToMin(r.end);
+  const left  = minToSlot(startMin) * SLOT_W;
+  const width = ((endMin - startMin) / 15) * SLOT_W - 2;
+  const col   = teamColor(r.team_id);
+
+  const viols = violations ? (violations.get(r._uid) || []) : [];
+
+  const block = document.createElement('div');
+  block.className = 'block' + (viols.length ? ' violation' : '');
+  block.dataset.uid = r._uid;
+  block.style.left   = left + 'px';
+  block.style.width  = width + 'px';
+  block.style.height = (COURT_H - 6) + 'px';
+  block.style.background = col.bg;
+  block.style.borderColor = viols.length ? '' : col.border;
+  block.title = r.team + '\n' + (viols.length ? viols.join('\n') : 'Geen overtredingen');
+
+  if (viols.length) {
+    const badge = document.createElement('div');
+    badge.className = 'vbadge';
+    badge.textContent = viols.length;
+    block.appendChild(badge);
+  }
+
+  const inner = document.createElement('div');
+  inner.className = 'block-inner';
+  inner.style.color = col.text;
+  const t1 = document.createElement('div'); t1.className = 'block-team';
+  t1.textContent = r.team_short;
+  const t2 = document.createElement('div'); t2.className = 'block-part';
+  t2.textContent = `${r.part} · ${r.kind} · ${r.start}–${r.end}`;
+  inner.appendChild(t1);
+  inner.appendChild(t2);
+  block.appendChild(inner);
+
+  block.addEventListener('mousedown', onBlockMouseDown);
+  return block;
+}
+
+function renderSidebar() {
+  const list = document.getElementById('sidebar-list');
+  list.innerHTML = '';
+  const violations = checkViolations(currentRows);
+  const unscheduled = currentRows.filter(r => r.start === 'NIET_GELUKT');
+  if (!unscheduled.length) {
+    list.innerHTML = '<div style="color:#64748b;font-size:.75rem;padding:.5rem">Alles ingepland ✓</div>';
+    return;
+  }
+  for (const r of unscheduled) {
+    const col = teamColor(r.team_id);
+    const viols = violations.get(r._uid) || [];
+    const item = document.createElement('div');
+    item.className = 'sidebar-item' + (viols.length ? ' violation' : '');
+    item.dataset.uid = r._uid;
+    item.style.background = col.bg;
+    item.style.color = col.text;
+    item.style.borderColor = viols.length ? '' : col.border;
+    item.title = r.team;
+    const label = document.createElement('div'); label.className = 'label';
+    label.textContent = r.team_short;
+    const sub = document.createElement('div'); sub.className = 'sub';
+    sub.textContent = `${r.part} · ${r.kind}`;
+    item.appendChild(label);
+    item.appendChild(sub);
+    if (viols.length) {
+      const badge = document.createElement('div'); badge.className = 'vbadge';
+      badge.textContent = viols.length; item.appendChild(badge);
+    }
+    item.addEventListener('mousedown', onBlockMouseDown);
+    list.appendChild(item);
+  }
+}
+
+function updateViolationBadge() {
+  const viols = checkViolations(currentRows);
+  let total = 0;
+  for (const v of viols.values()) total += v.length;
+  const el = document.getElementById('violation-count');
+  if (total > 0) { el.style.display = ''; el.textContent = `${total} overtredingen`; }
+  else el.style.display = 'none';
+}
+
+// ── Drag & Drop (mouse events) ────────────────────────────────────────────────
+let ghostEl = null;
+let ghostOffX = 0, ghostOffY = 0;
+
+function onBlockMouseDown(e) {
+  if (e.button !== 0) return;
+  e.preventDefault();
+
+  const blockEl = e.currentTarget;
+  const uid = blockEl.dataset.uid;
+  const row = currentRows.find(r => r._uid === uid);
+  if (!row) return;
+
+  const rect = blockEl.getBoundingClientRect();
+  ghostOffX = e.clientX - rect.left;
+  ghostOffY = e.clientY - rect.top;
+
+  // Create ghost
+  ghostEl = blockEl.cloneNode(true);
+  ghostEl.style.position = 'fixed';
+  ghostEl.style.width = rect.width + 'px';
+  ghostEl.style.height = rect.height + 'px';
+  ghostEl.style.left = (e.clientX - ghostOffX) + 'px';
+  ghostEl.style.top  = (e.clientY - ghostOffY) + 'px';
+  ghostEl.style.zIndex = '9999';
+  ghostEl.style.pointerEvents = 'none';
+  ghostEl.style.opacity = '0.85';
+  ghostEl.classList.add('dragging');
+  document.body.appendChild(ghostEl);
+
+  dragState = { uid, row: JSON.parse(JSON.stringify(row)), fromSidebar: row.start === 'NIET_GELUKT' };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+}
+
+function onMouseMove(e) {
+  if (!ghostEl) return;
+  ghostEl.style.left = (e.clientX - ghostOffX) + 'px';
+  ghostEl.style.top  = (e.clientY - ghostOffY) + 'px';
+
+  // Highlight drop target
+  ghostEl.style.display = 'none';
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  ghostEl.style.display = '';
+
+  // Clear all overlays
+  document.querySelectorAll('.drop-overlay').forEach(o => o.classList.remove('active'));
+
+  if (target) {
+    const slots = target.closest('.court-slots');
+    if (slots) {
+      const overlay = slots.querySelector('.drop-overlay');
+      if (overlay) overlay.classList.add('active');
+    }
+  }
+}
+
+function onMouseUp(e) {
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+  document.querySelectorAll('.drop-overlay').forEach(o => o.classList.remove('active'));
+
+  if (ghostEl) { ghostEl.remove(); ghostEl = null; }
+  if (!dragState) return;
+
+  // Find drop target
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  if (target) {
+    const slots = target.closest('.court-slots');
+    if (slots) {
+      const court = parseInt(slots.dataset.court);
+      const gridArea = document.getElementById('grid-area');
+      const slotsRect = slots.getBoundingClientRect();
+      const relX = e.clientX - slotsRect.left - ghostOffX + (SLOT_W / 2);
+      let slotIndex = Math.round(relX / SLOT_W);
+      slotIndex = Math.max(0, Math.min(slotIndex, SLOTS - 1));
+
+      const startMin  = slotToMin(slotIndex);
+      const duration  = dragState.row.start === 'NIET_GELUKT'
+        ? 90  // default 90min for unscheduled
+        : timeToMin(dragState.row.end) - timeToMin(dragState.row.start);
+      const endMin    = startMin + duration;
+
+      // Snap start to 15min grid
+      const snappedStart = Math.round(startMin / 15) * 15;
+      const snappedEnd   = snappedStart + duration;
+
+      if (snappedStart >= DAY_START && snappedEnd <= DAY_END) {
+        const idx = currentRows.findIndex(r => r._uid === dragState.uid);
+        if (idx !== -1) {
+          currentRows[idx].court = court;
+          currentRows[idx].start = minToTime(snappedStart);
+          currentRows[idx].end   = minToTime(snappedEnd);
+        }
+        renderAll();
+      }
+    }
+  }
+
+  dragState = null;
+}
+
+function attachGridEvents() {
+  // slots listen via event delegation in onMouseUp above
+}
+
+// ── Export ───────────────────────────────────────────────────────────────────
+document.getElementById('btn-export').addEventListener('click', () => {
+  const data = { date: currentDate, rows: currentRows.map(r => {
+    const { _uid, ...rest } = r; return rest;
+  })};
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `schedule_${currentDate}.json`;
+  a.click();
+});
+
+// ── Reset ────────────────────────────────────────────────────────────────────
+document.getElementById('btn-reset').addEventListener('click', () => {
+  currentRows = JSON.parse(JSON.stringify(originalRows));
+  renderAll();
+});
+
+// ── Date/Plan selectors ───────────────────────────────────────────────────────
+document.getElementById('date-sel').addEventListener('change', e => {
+  currentDate = e.target.value;
+  loadData(currentDate, currentPlan);
+});
+document.getElementById('plan-sel').addEventListener('change', e => {
+  currentPlan = e.target.value;
+  loadData(currentDate, currentPlan);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadData(currentDate, currentPlan);
+</script>
+</body>
+</html>

@@ -142,17 +142,11 @@ def estimate_parallel_capacity(team: TeamDay) -> int:
     return 2
 
 
-def hhmm_to_min(s: str) -> int:
-    h, m = s.split(":")
-    return int(h) * 60 + int(m)
-
-
 def solve_day(
     date: str,
     teams: list[TeamDay],
     reservations: list[Reservation],
     time_limit_s: float = 20.0,
-    gold_hints: list[dict] | None = None,
     w_block_rise: int = 4_000_000,
     w_long_gap: int = 5_000_000,
     w_morning_occ: int = 600_000,
@@ -165,6 +159,152 @@ def solve_day(
     w_high_court_penalty: int = 200_000,
     w_team_span: int = 200_000,
     random_seed: int = 42,
+    two_phase: bool = True,
+) -> dict:
+    """
+    Main scheduler. If two_phase=True, runs a two-phase approach:
+      Phase A: Groen + JU + lagere jeugd → plan eerst, reserveer banen tot ~13:30
+      Phase B: GEM + HER + hogere klassen → plan daarna met fase-A als reserveringen
+    """
+    if two_phase:
+        return solve_day_two_phase(
+            date, teams, reservations, time_limit_s,
+            w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
+            w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
+            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed
+        )
+    # Anders: single-phase zoals voorheen
+    return _solve_single_phase(
+        date, teams, reservations, time_limit_s,
+        w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
+        w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
+        w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed
+    )
+
+
+def solve_day_two_phase(
+    date: str,
+    teams: list[TeamDay],
+    reservations: list[Reservation],
+    time_limit_s: float,
+    w_block_rise: int,
+    w_long_gap: int,
+    w_morning_occ: int,
+    w_total_occ: int,
+    w_cutoff_bonus: int,
+    w_early_start: int,
+    w_late_start: int,
+    w_youth_late: int,
+    w_team_court_penalty: int,
+    w_high_court_penalty: int,
+    w_team_span: int,
+    random_seed: int,
+) -> dict:
+    """Two-phase scheduler: fase-A (morning) then fase-B (afternoon)."""
+    
+    def _is_phase_a(schema: str) -> bool:
+        tl = schema.lower()
+        if "groen zondag" in tl or "junioren" in tl:
+            return True
+        is_youth = ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl)
+        return is_youth and ("1e klasse" not in tl) and ("2e klasse" not in tl)
+
+    def _is_phase_b(schema: str) -> bool:
+        tl = schema.lower()
+        if ("gemengd" in tl) or ("heren" in tl) or ("dames" in tl):
+            return True
+        is_youth = ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl)
+        return is_youth and (("1e klasse" in tl) or ("2e klasse" in tl))
+
+    day_teams = [t for t in teams if t.date == date]
+    phase_a_teams = [t for t in day_teams if _is_phase_a(t.schema)]
+    phase_b_teams = [t for t in day_teams if _is_phase_b(t.schema)]
+
+    # Phase A: plan Groen + JU + lagere jeugd met half time-limit
+    print(f"[Phase A] Planning {len(phase_a_teams)} morning teams...")
+    result_a = _solve_single_phase(
+        date, phase_a_teams, reservations, time_limit_s / 2,
+        w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
+        w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
+        w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed
+    )
+    
+    if result_a["status"] not in ["OPTIMAL", "FEASIBLE"]:
+        print(f"[Phase A] Failed: {result_a['status']}")
+        return result_a  # Kan niet verder zonder fase-A
+
+    # Converteer fase-A rows naar reserveringen voor fase-B
+    phase_a_reservations = []
+    for row in result_a["rows"]:
+        if row.get("start") == "NIET_GELUKT":
+            continue
+        s_hhmm = row["start"]
+        e_hhmm = row["end"]
+        c = row["court"]
+        s_min = int(s_hhmm[:2]) * 60 + int(s_hhmm[3:])
+        e_min = int(e_hhmm[:2]) * 60 + int(e_hhmm[3:])
+        phase_a_reservations.append((c, s_min, e_min))
+
+    # Phase B: plan GEM + HER + hogere klassen met fase-A slots als reserveringen
+    print(f"[Phase B] Planning {len(phase_b_teams)} afternoon teams with {len(phase_a_reservations)} reserved slots...")
+
+    import concurrent.futures
+
+    def run_two_phase():
+        rb = _solve_single_phase(
+            date, phase_b_teams, reservations, time_limit_s * 0.4,
+            w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
+            w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
+            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+            extra_reserved=phase_a_reservations
+        )
+        return result_a["rows"] + rb["rows"]
+
+    def run_single():
+        rs = _solve_single_phase(
+            date, day_teams, reservations, time_limit_s * 0.6,
+            w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
+            w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
+            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+        )
+        return rs.get("rows", [])
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+        f_two = ex.submit(run_two_phase)
+        f_single = ex.submit(run_single)
+        two_rows = f_two.result()
+        single_rows = f_single.result()
+
+    two_ng = sum(1 for r in two_rows if r.get("start") == "NIET_GELUKT")
+    single_ng = sum(1 for r in single_rows if r.get("start") == "NIET_GELUKT")
+    print(f"[Compare] Two-phase NG={two_ng}  Single-phase NG={single_ng}")
+
+    if single_ng < two_ng:
+        print(f"[Fallback] Single-phase wint, gebruik single-phase resultaat.")
+        return {"status": "FEASIBLE", "date": date, "rows": single_rows}
+
+    print(f"[Two-phase] Wint of gelijk, gebruik twee-fase resultaat.")
+    return {"status": "FEASIBLE", "date": date, "rows": two_rows}
+
+
+def _solve_single_phase(
+    date: str,
+    teams: list[TeamDay],
+    reservations: list[Reservation],
+    time_limit_s: float = 20.0,
+    w_block_rise: int = 4_000_000,
+    w_long_gap: int = 5_000_000,
+    w_morning_occ: int = 600_000,
+    w_total_occ: int = 80_000,
+    w_cutoff_bonus: int = 5000,
+    w_early_start: int = 100,
+    w_late_start: int = 120_000,
+    w_youth_late: int = 80_000,
+    w_team_court_penalty: int = 150_000,
+    w_high_court_penalty: int = 200_000,
+    w_team_span: int = 200_000,
+    random_seed: int = 42,
+    extra_reserved: list = None,
 ) -> dict:
     day_teams = [t for t in teams if t.date == date]
     day_res = [r for r in reservations if r.date == date]
@@ -189,6 +329,9 @@ def solve_day(
     }.get(date, 15 * 60)
 
     reserved = []  # (court, start, end)
+    if extra_reserved:
+        reserved.extend(extra_reserved)  # Fase-A reserveringen indien twee-fase mode
+    
     kinds_today = {r.kind for r in day_res}
     for r in day_res:
         if r.kind == "oranje":
@@ -636,32 +779,6 @@ def solve_day(
         - w_youth_late * sum(youth_late_penalty)
     )
 
-    # Warm start: inject Gold hints so CP-SAT starts from a near-optimal solution.
-    # We match Gold rows to model variables by (team, part) and hint the corresponding x[p_idx, s, c].
-    if gold_hints:
-        hint_count = 0
-        for p_idx, p in enumerate(parts):
-            for gold_row in gold_hints:
-                gold_team = (gold_row.get("team_short") or gold_row.get("team") or "").strip()
-                gold_part = (gold_row.get("part") or "").strip()
-                if gold_team != p["team"] and gold_team not in p["team"] and p["team"] not in gold_team:
-                    continue
-                if gold_part != p["label"]:
-                    continue
-                gold_start = gold_row.get("start")
-                gold_court = gold_row.get("court")
-                if not gold_start or gold_start == "NIET_GELUKT" or not gold_court:
-                    continue
-                try:
-                    s = hhmm_to_min(gold_start)
-                    c = int(gold_court)
-                except (ValueError, TypeError):
-                    continue
-                if (p_idx, s, c) in x:
-                    model.add_hint(x[(p_idx, s, c)], 1)
-                    hint_count += 1
-                break
-
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = time_limit_s
     solver.parameters.num_search_workers = 8
@@ -728,34 +845,14 @@ def main() -> None:
     ap.add_argument("--w-high-court-penalty", type=int, default=80_000)
     ap.add_argument("--w-team-span", type=int, default=200_000)
     ap.add_argument("--random-seed", type=int, default=42)
-    ap.add_argument(
-        "--gold-hints",
-        type=Path,
-        default=None,
-        help="JSON file with Gold schedule (dict keyed by date -> list of rows). "
-             "Rows for the target date will be used as CP-SAT warm start hints.",
-    )
     args = ap.parse_args()
 
     teams, res = parse_input(args.input)
-
-    gold_hints = None
-    if args.gold_hints and args.gold_hints.exists():
-        import json as _json
-        gold_data = _json.loads(args.gold_hints.read_text(encoding="utf-8"))
-        # Support both {date: [rows]} and {date: {rows: [...]}} formats
-        day_entry = gold_data.get(args.date)
-        if isinstance(day_entry, list):
-            gold_hints = day_entry
-        elif isinstance(day_entry, dict):
-            gold_hints = day_entry.get("rows", [])
-
     result = solve_day(
         args.date,
         teams,
         res,
         time_limit_s=args.time_limit,
-        gold_hints=gold_hints,
         w_block_rise=args.w_block_rise,
         w_long_gap=args.w_long_gap,
         w_morning_occ=args.w_morning_occ,
@@ -768,6 +865,7 @@ def main() -> None:
         w_high_court_penalty=args.w_high_court_penalty,
         w_team_span=args.w_team_span,
         random_seed=args.random_seed,
+        two_phase=True,  # Enable two-phase scheduling (morning/afternoon split)
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
