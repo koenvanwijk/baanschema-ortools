@@ -1,47 +1,4 @@
 {
-  "ortools_available": true,
-  "runs": {
-    "06-04-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    },
-    "12-04-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    },
-    "19-04-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    },
-    "10-05-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    },
-    "17-05-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    },
-    "25-05-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    },
-    "31-05-2026": {
-      "returncode": 0,
-      "stdout": "(cached)",
-      "stderr": "",
-      "out_exists": true
-    }
-  }
+  "ortools_available": false,
+  "runs": {}
 }

@@ -863,9 +863,12 @@ def main() -> None:
         reserve_by_date[r.date].append(r)
 
     team_lookup: dict[str, TeamDay] = {}
+    team_short_lookup: dict[str, TeamDay] = {}  # "date::team_short" → TeamDay
     for d, ts in by_date.items():
         for t in ts:
             team_lookup[f"{d}::{t.schema}::{t.home_team}::{t.away_team}"] = t
+            short = short_team_name(t.schema, t.home_team)
+            team_short_lookup[f"{d}::{short}"] = t
 
     ordered_dates = sorted(by_date.keys(), key=lambda s: datetime.strptime(s, "%d-%m-%Y"))
 
@@ -894,13 +897,27 @@ def main() -> None:
                         if not start or not end:
                             continue
                         ts = r.get("team_short") or ""
+                        schema_key = r.get("schema") or ts
+                        # Enrich away_team from team_lookup if not already present in gold data
+                        away_from_gold = r.get("away_team") or ""
+                        if not away_from_gold:
+                            t_lu = next((tv for k, tv in team_lookup.items() if k.startswith(f"{gd}::{schema_key}::")), None)
+                            if not t_lu:
+                                t_lu = team_short_lookup.get(f"{gd}::{ts}")
+                            away_from_gold = t_lu.away_team if t_lu else ""
+                        home_from_gold = r.get("home_team") or ""
+                        if not home_from_gold:
+                            t_lu2 = next((tv for k, tv in team_lookup.items() if k.startswith(f"{gd}::{schema_key}::")), None)
+                            if not t_lu2:
+                                t_lu2 = team_short_lookup.get(f"{gd}::{ts}")
+                            home_from_gold = t_lu2.home_team if t_lu2 else ""
                         norm.append(
                             {
-                                "schema": r.get("schema") or ts,
+                                "schema": schema_key,
                                 "team_id": r.get("team_id") or ts,
                                 "team_short": ts,
-                                "home_team": r.get("home_team") or "",
-                                "away_team": r.get("away_team") or "",
+                                "home_team": home_from_gold,
+                                "away_team": away_from_gold,
                                 "part": r.get("part") or "",
                                 "kind": r.get("kind") or "W",
                                 "matches": r.get("matches") or 0,
