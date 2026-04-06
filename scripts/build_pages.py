@@ -917,6 +917,13 @@ def main() -> None:
     (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_status.json").write_text(json.dumps(ortools_status, indent=2, ensure_ascii=False), encoding="utf-8")
 
+    # opponents.json: { "schema::datum": "tegenstander" } — voor gebruik in editor en andere views
+    opponents: dict[str, str] = {}
+    for t in teams:
+        if t.away_team:
+            opponents[f"{t.schema}::{t.date}"] = t.away_team
+    (DOCS / "opponents.json").write_text(json.dumps(opponents, indent=2, ensure_ascii=False), encoding="utf-8")
+
     def reservation_rows_for_date(d: str) -> list[dict]:
         out = []
         day_res = reserve_by_date.get(d, [])

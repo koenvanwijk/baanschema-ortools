@@ -103,6 +103,14 @@ let currentRows  = [];
 let dragState    = null;
 let currentDate  = '06-04-2026';
 let currentPlan  = 'ortools';
+let opponents    = {};  // "schema::datum" → "tegenstander"
+
+// Load opponents lookup at startup
+fetch('opponents.json').then(r => r.ok ? r.json() : {}).then(d => { opponents = d; }).catch(() => {});
+
+function getOpponent(schema, date) {
+  return opponents[`${schema}::${date}`] || '';
+}
 
 // ── Utils ────────────────────────────────────────────────────────────────────
 function timeToMin(t) {
@@ -379,11 +387,17 @@ function createBlock(r, violations) {
   inner.style.color = col.text;
   const t1 = document.createElement('div'); t1.className = 'block-team';
   t1.textContent = r.team_short;
+  const opponent = getOpponent(r.team || r.schema || '', currentDate);
   const t2 = document.createElement('div'); t2.className = 'block-part';
-  t2.textContent = `${r.part} · ${r.kind} · ${r.start}–${r.end}`;
+  t2.textContent = opponent
+    ? `${r.part} · vs ${opponent}`
+    : `${r.part} · ${r.kind} · ${r.start}–${r.end}`;
   inner.appendChild(t1);
   inner.appendChild(t2);
   block.appendChild(inner);
+
+  // Show opponent in tooltip too
+  block.title = r.team + (opponent ? `\nvs ${opponent}` : '') + '\n' + (viols.length ? viols.join('\n') : 'Geen overtredingen');
 
   block.addEventListener('mousedown', onBlockMouseDown);
   return block;
@@ -407,11 +421,12 @@ function renderSidebar() {
     item.style.background = col.bg;
     item.style.color = col.text;
     item.style.borderColor = viols.length ? '' : col.border;
-    item.title = r.team;
+    const _opp = getOpponent(r.team || r.schema || '', currentDate);
+    item.title = r.team + (_opp ? `\nvs ${_opp}` : '');
     const label = document.createElement('div'); label.className = 'label';
     label.textContent = r.team_short;
     const sub = document.createElement('div'); sub.className = 'sub';
-    sub.textContent = `${r.part} · ${r.kind}`;
+    sub.textContent = _opp ? `${r.part} · vs ${_opp}` : `${r.part} · ${r.kind}`;
     item.appendChild(label);
     item.appendChild(sub);
     if (viols.length) {
