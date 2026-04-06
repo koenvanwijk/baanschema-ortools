@@ -1391,6 +1391,9 @@ function renderMatrix(d, rows, done, nowMin){
       const k = keyFor(d,r);
       const clr = colorForKey(r.team_id||r.schema||'');
       td.style.background = clr;
+      td.style.cursor='pointer';
+      const detailText = `${r.schema} | ${r.part} | ${r.start}-${r.end} | Baan ${r.court||'?'}${r.away_team ? ' | vs '+r.away_team : ''}`;
+      td.addEventListener('click', ()=>openCellModal(detailText));
       const meta = effEndMap.get(k) || {eff: toMin(r.end||r.start||'00:00'), planned: toMin(r.end||r.start||'00:00')};
 
       if(startCell.has(key)){
