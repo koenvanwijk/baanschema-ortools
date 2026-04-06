@@ -161,10 +161,12 @@ async function loadData(date, plan) {
 
     let rows;
     if (plan === 'gold') {
-      // gold_result.json may have multiple dates — filter by date
+      // gold_result.json is { "DD-MM-YYYY": [...rows...] }
       if (Array.isArray(data)) {
         const entry = data.find(d => d.date === date);
         rows = entry ? entry.rows : [];
+      } else if (data[date]) {
+        rows = data[date];
       } else if (data.rows) {
         rows = data.date === date ? data.rows : [];
       } else {
