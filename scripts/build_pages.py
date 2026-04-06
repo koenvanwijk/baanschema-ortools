@@ -676,7 +676,10 @@ def render_grid(rows: list[dict]) -> str:
         s = hhmm_to_mins(r["start"])
         e = hhmm_to_mins(r["end"])
         label = f"{r['team_short']} · {r['part']}"
-        detail = f"{r['schema']} | {r['part']} | {r['start']}-{r['end']} | Baan {r.get('court','?')}"
+        away = r.get("away_team", "")
+        if away:
+            label = f"{r['team_short']} · {r['part']} vs {away}"
+        detail = f"{r['schema']} | {r['part']} | {r['start']}-{r['end']} | Baan {r.get('court','?')}" + (f" | vs {away}" if away else "")
         color = color_for(r.get("team_id") or r["schema"])
         for t in range(s, e, 15):
             cell[(t, int(r["court"]))] = {
@@ -1398,7 +1401,8 @@ function renderMatrix(d, rows, done, nowMin){
         const early = (done.has(k) && effEnd < plannedEnd) ? ` <span class='small'>(eerder klaar ${String(Math.floor(effEnd/60)).padStart(2,'0')}:${String(effEnd%60).padStart(2,'0')})</span>` : '';
         if(done.has(k) && effEnd < plannedEnd) td.classList.add('earlydone');
         const ae = actualEnd[k] ? ` <span class='small'>(echt: ${actualEnd[k]})</span>` : '';
-        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${ae}${overtime}${early}</label>`;
+        const oppLabel = r.away_team ? ` vs ${r.away_team}` : '';
+        td.innerHTML = `<label class='cell'><input type='checkbox' data-k="${k}" ${checked}>${r.team_short||r.schema} · ${r.part}${oppLabel}${ae}${overtime}${early}</label>`;
         const cb = td.querySelector('input');
         if(cb){ cb.addEventListener('change', (ev)=>{
           if(ev.target.checked){
@@ -1418,7 +1422,7 @@ function renderMatrix(d, rows, done, nowMin){
           renderAll();
         }); }
       } else {
-        td.innerHTML = `<div class='cell'>${r.team_short||r.schema} · ${r.part}</div>`;
+        td.innerHTML = `<div class='cell'>${r.team_short||r.schema} · ${r.part}${r.away_team ? ' vs '+r.away_team : ''}</div>`;
         td.style.opacity='0.6';
       }
       tr.appendChild(td);
