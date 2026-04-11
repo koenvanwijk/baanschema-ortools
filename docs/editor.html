@@ -139,7 +139,7 @@ function shortTeam(team) {
   return team.substring(0, 18);
 }
 
-function uid(row) { return `${row.team_id}__${row.part}`; }
+function uid(row) { return `${row.team_id || row.team_short}__${row.part}`; }
 
 // ── Load data ────────────────────────────────────────────────────────────────
 async function loadData(date, plan) {
@@ -172,10 +172,11 @@ async function loadData(date, plan) {
       rows = [];
     }
 
-    // inject team_short if missing
+    // inject team_short and team_id if missing
     rows = rows.map(r => ({
       ...r,
       team_short: r.team_short || shortTeam(r.team),
+      team_id: r.team_id || r.team_short || shortTeam(r.team),
       _uid: uid(r)
     }));
 
