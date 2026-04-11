@@ -147,11 +147,11 @@ async function loadData(date, plan) {
   document.getElementById('grid-wrap').style.display = 'none';
   let url;
   if (plan === 'ortools') {
-    url = `ortools_${date}.json`;
+    url = `ortools_result.json`;
   } else if (plan === 'gold') {
     url = `gold_result.json`;
   } else {
-    url = `heuristic_${date}.json`;
+    url = `result.json`;
   }
 
   try {
@@ -160,20 +160,16 @@ async function loadData(date, plan) {
     const data = await resp.json();
 
     let rows;
-    if (plan === 'gold') {
-      // gold_result.json is { "DD-MM-YYYY": [...rows...] }
-      if (Array.isArray(data)) {
-        const entry = data.find(d => d.date === date);
-        rows = entry ? entry.rows : [];
-      } else if (data[date]) {
-        rows = data[date];
-      } else if (data.rows) {
-        rows = data.date === date ? data.rows : [];
-      } else {
-        rows = [];
-      }
+    // All plan files are { "DD-MM-YYYY": [...rows...] } format
+    if (Array.isArray(data)) {
+      const entry = data.find(d => d.date === date);
+      rows = entry ? entry.rows : [];
+    } else if (data[date]) {
+      rows = data[date];
+    } else if (data.rows) {
+      rows = data.date === date ? data.rows : [];
     } else {
-      rows = data.rows || [];
+      rows = [];
     }
 
     // inject team_short if missing
