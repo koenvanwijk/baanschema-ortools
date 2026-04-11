@@ -625,6 +625,15 @@ document.getElementById('btn-save-local').addEventListener('click', () => {
   const btn = document.getElementById('btn-save-local');
   btn.textContent = '✅ Opgeslagen!';
   setTimeout(() => { btn.textContent = '💾 Opslaan (lokaal)'; }, 2000);
+  // Show "back to schema" link if not already shown
+  if (!document.getElementById('back-to-schema')) {
+    const link = document.createElement('a');
+    link.id = 'back-to-schema';
+    link.href = 'index.html';
+    link.textContent = '← Terug naar schema';
+    link.style.cssText = 'margin-left:.5rem;color:#a78bfa;font-size:.85rem;align-self:center;text-decoration:underline';
+    btn.parentNode.insertBefore(link, btn.nextSibling);
+  }
 });
 
 // ── Reset ────────────────────────────────────────────────────────────────────
@@ -644,6 +653,22 @@ document.getElementById('plan-sel').addEventListener('change', e => {
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+// Read ?plan= and ?date= from URL and set dropdowns
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const urlPlan = params.get('plan');
+  const urlDate = params.get('date');
+  if (urlPlan) {
+    const planSel = document.getElementById('plan-sel');
+    const opt = Array.from(planSel.options).find(o => o.value === urlPlan);
+    if (opt) { planSel.value = urlPlan; currentPlan = urlPlan; }
+  }
+  if (urlDate) {
+    const dateSel = document.getElementById('date-sel');
+    const opt = Array.from(dateSel.options).find(o => o.value === urlDate);
+    if (opt) { dateSel.value = urlDate; currentDate = urlDate; }
+  }
+})();
 loadData(currentDate, currentPlan);
 </script>
 </body>

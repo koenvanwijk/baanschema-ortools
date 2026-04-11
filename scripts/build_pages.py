@@ -1017,7 +1017,7 @@ def main() -> None:
             f"<h2>{html.escape(d)}</h2>{failed_html}{render_rule_violations(violations)}{render_kpi_compare(rows, ort_rows)}"
             f"<div class='plan-view heur-view'>{render_day_summary(rows)}{render_grid(rows)}</div>"
             f"<div class='plan-view ort-view hidden'>{ort_block}</div>"
-            f"<div class='plan-view gold-view hidden'>{gold_block}</div>"
+            f"<div class='plan-view gold-view hidden' data-date='{html.escape(d)}'>{gold_block}</div>"
         )
 
     ort_ok_count = sum(1 for v in ortools_results.values() if v)
@@ -1094,6 +1094,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
   <button id='btn-heur' onclick='setPlan("heur")'>Heuristiek</button>
   <button id='btn-ort' onclick='setPlan("ort")'>OR-Tools</button>
   <button id='btn-gold' class='active' onclick='setPlan("gold")'>Gold</button>
+  <a href='editor.html?plan=gold' id='link-bewerk-gold'><button style='background:#7c3aed;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600'>📝 Bewerk Gold</button></a>
   <a href='editor.html'><button style='background:#7c3aed;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600'>✏️ Editor</button></a>
   <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
@@ -1130,6 +1131,7 @@ function setPlan(mode){{
   }} else {{
     gold.forEach(e=>e.classList.remove('hidden'));
     if(bg) bg.classList.add('active');
+    if(typeof applyLocalEdits === 'function') applyLocalEdits();
   }}
   bindCellPopups();
 }}
@@ -1152,6 +1154,27 @@ function closeCellModal(){{
 }}
 bindCellPopups();
 setPlan('gold');
+applyLocalEdits();
+</script>
+<script src="render-grid.js"></script>
+<script>
+function applyLocalEdits() {{
+  const goldViews = document.querySelectorAll('.plan-view.gold-view');
+  goldViews.forEach(view => {{
+    const date = view.dataset.date;
+    if (!date) return;
+    const key = `schedule_saved_${{date}}_gold`;
+    const saved = localStorage.getItem(key);
+    if (!saved) return;
+    let rows;
+    try {{ rows = JSON.parse(saved); }} catch(e) {{ return; }}
+    const gridWrap = view.querySelector('.grid-wrap');
+    const summary  = view.querySelector('.summary');
+    if (gridWrap) renderGoldGrid(rows, date, gridWrap);
+    if (summary)  renderGoldSummary(rows, summary);
+  }});
+  bindCellPopups();
+}}
 </script>
 </body></html>"""
     (DOCS / "index.html").write_text(page, encoding="utf-8")
