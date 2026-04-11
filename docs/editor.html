@@ -73,7 +73,12 @@ button:hover{background:#475569}
     <option value="heuristic">Heuristiek</option>
   </select>
   <span id="violation-count">0 overtredingen</span>
-  <button id="btn-export">⬇️ Exporteer JSON</button>
+  <button id="btn-export">⬇️ Download JSON</button>
+  <button id="btn-import-wrap" style="position:relative;overflow:hidden">
+    📂 Laad JSON
+    <input type="file" id="btn-import" accept=".json" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+  </button>
+  <button id="btn-save-local" style="background:#7c3aed;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600">💾 Opslaan (lokaal)</button>
   <button id="btn-reset">↺ Reset</button>
   <a href="index.html" style="margin-left:auto"><button>← Terug</button></a>
 </header>
@@ -182,6 +187,15 @@ async function loadData(date, plan) {
 
     originalRows = JSON.parse(JSON.stringify(rows));
     currentRows  = JSON.parse(JSON.stringify(rows));
+    // Check for locally saved version
+    const savedKey = `schedule_saved_${date}_${plan}`;
+    const saved = localStorage.getItem(savedKey);
+    if (saved) {
+      try {
+        const savedRows = JSON.parse(saved).map(r => ({ ...r, team_id: r.team_id || r.team_short, _uid: uid(r) }));
+        currentRows = savedRows;
+      } catch(e) {}
+    }
     renderAll();
   } catch (e) {
     document.getElementById('loading').textContent = '⚠️ Geen data beschikbaar voor deze combinatie.';
@@ -563,6 +577,54 @@ document.getElementById('btn-export').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob);
   a.download = `schedule_${currentDate}.json`;
   a.click();
+});
+
+// ── Import JSON ───────────────────────────────────────────────────────────────
+document.getElementById('btn-import').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      let rows = [];
+      if (Array.isArray(data)) { rows = data; }
+      else if (data.rows) { rows = data.rows; }
+      else if (data[currentDate]) { rows = data[currentDate]; }
+      rows = rows.map(r => ({ ...r, team_id: r.team_id || r.team_short, team_short: r.team_short || shortTeam(r.team), _uid: uid(r) }));
+      currentRows = rows;
+      originalRows = JSON.parse(JSON.stringify(rows));
+      renderAll();
+      alert(`✅ ${rows.length} wedstrijden geladen uit ${file.name}`);
+    } catch(err) {
+      alert('❌ Fout bij laden: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ── Save to localStorage ──────────────────────────────────────────────────────
+function localKey() { return `schedule_saved_${currentDate}_${currentPlan}`; }
+function loadSaved() {
+  const saved = localStorage.getItem(localKey());
+  if (saved) {
+    try {
+      const rows = JSON.parse(saved);
+      currentRows = rows;
+      originalRows = JSON.parse(JSON.stringify(rows));
+      renderAll();
+      return true;
+    } catch(e) {}
+  }
+  return false;
+}
+document.getElementById('btn-save-local').addEventListener('click', () => {
+  const rows = currentRows.map(r => { const { _uid, ...rest } = r; return rest; });
+  localStorage.setItem(localKey(), JSON.stringify(rows));
+  const btn = document.getElementById('btn-save-local');
+  btn.textContent = '✅ Opgeslagen!';
+  setTimeout(() => { btn.textContent = '💾 Opslaan (lokaal)'; }, 2000);
 });
 
 // ── Reset ────────────────────────────────────────────────────────────────────

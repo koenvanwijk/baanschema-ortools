@@ -391,6 +391,42 @@
       "start": "16:30",
       "end": "18:00",
       "court": 10
+    },
+    {
+      "schema": "Rood 2 - afdeling 33",
+      "team_short": "ROOD",
+      "part": "COMP",
+      "kind": "R",
+      "start": "09:00",
+      "end": "10:00",
+      "court": 1
+    },
+    {
+      "schema": "Oranje 1 - afdeling 38",
+      "team_short": "ORANJE",
+      "part": "COMP",
+      "kind": "R",
+      "start": "09:00",
+      "end": "11:00",
+      "court": 2
+    },
+    {
+      "schema": "Oranje 1 - afdeling 38",
+      "team_short": "ORANJE",
+      "part": "COMP",
+      "kind": "R",
+      "start": "09:00",
+      "end": "11:00",
+      "court": 3
+    },
+    {
+      "schema": "Oranje 1 - afdeling 38",
+      "team_short": "ORANJE",
+      "part": "COMP",
+      "kind": "R",
+      "start": "09:00",
+      "end": "11:00",
+      "court": 4
     }
   ],
   "12-04-2026": [
@@ -945,6 +981,15 @@
       "start": "15:00",
       "end": "16:30",
       "court": 10
+    },
+    {
+      "schema": "Rood 2 - afdeling 33",
+      "team_short": "ROOD",
+      "part": "COMP",
+      "kind": "R",
+      "start": "09:00",
+      "end": "10:00",
+      "court": 1
     }
   ],
   "19-04-2026": [
@@ -3209,6 +3254,15 @@
       "start": "16:30",
       "end": "18:00",
       "court": 10
+    },
+    {
+      "schema": "Rood 2 - afdeling 75",
+      "team_short": "ROOD",
+      "part": "COMP",
+      "kind": "R",
+      "start": "09:00",
+      "end": "10:00",
+      "court": 1
     }
   ],
   "31-05-2026": [
