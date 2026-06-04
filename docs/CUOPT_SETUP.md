@@ -25,9 +25,26 @@ To use cuOpt, you must install it manually following the instructions below.
 
 ## Installation
 
+### ⚠️ Known Issues (2026-06-04)
+
+**cudf pandas compatibility**: cuOpt 26.4.0 requires cudf, which has a known incompatibility with pandas ≥2.2. 
+The error: `AttributeError: module 'pandas.api.types' has no attribute 'is_interval'`
+
+**Workaround**: Install pandas 2.1.x before cuOpt:
+```bash
+pip install 'pandas>=2.0,<2.2' 'numpy<2.0'
+pip install cuopt-cu12 cudf-cu12
+```
+
+**Status**: Installation succeeded on laptop (RTX A2000), but runtime import fails due to pandas API changes in cudf.
+
 ### Option 1: pip (Recommended for Development)
 
 ```bash
+# Install pandas 2.1.x first (required for cudf compatibility)
+pip install 'pandas>=2.0,<2.2' 'numpy<2.0'
+
+# Then install cuOpt
 pip install cuopt-cu12  # For CUDA 12.x
 # or
 pip install cuopt-cu13  # For CUDA 13.x
@@ -71,7 +88,111 @@ If you get a CUDA error, check:
 2. GPU is visible to the container: `docker run --rm --gpus all nvidia/cuda:12.0-base nvidia-smi`
 3. CUDA version matches cuOpt version
 
-## Problem Mapping: Court Scheduling → VRP
+## Problem Mapping: Court Scheduling → MILP
+
+### Decision Variables
+
+The cuOpt MILP implementation uses the following variables:
+
+**Binary Variables:**
+- `x[part_id, slot, court] ∈ {0,1}`: 1 if match part `p` starts at time slot `s` on court `c`
+- `team_uses_court[team_id, court] ∈ {0,1}`: 1 if team uses this court at any point
+
+**Continuous Variables:**
+- `team_start[team_id] ∈ ℝ≥0`: Earliest start time (minutes from 08:00) for team
+- `team_end[team_id] ∈ ℝ≥0`: Latest end time (minutes from 08:00) for team
+- `team_gap_penalty[team_id] ∈ ℝ≥0`: Penalty for gaps between matches
+
+**Integer Variables:**
+- `block_count[team_id] ∈ ℤ≥0`: Number of separate time blocks for this team
+
+### Hard Constraints
+
+1. **Each part scheduled at most once:**
+   ```
+   ∀p: Σ_(s,c) x[p,s,c] ≤ 1
+   ```
+
+2. **No court overlaps:**
+   ```
+   ∀court c, timeslot t: Σ_p x[p,s(p),c] ≤ 1
+   ```
+   where sum is over all parts p that cover slot t
+
+3. **Court pairing for non-mixed teams (S+D pairs):**
+   - If both S and D scheduled, they start at same time
+   - Courts must be adjacent and in same COURT_PAIR: (1,2), (3,4), (5,6), (7,8), (9,10)
+
+4. **Max 2 courts per team:**
+   ```
+   ∀team: Σ_c team_uses_court[team,c] ≤ 2
+   ```
+
+5. **Link court usage:**
+   ```
+   ∀team t, court c: Σ_(p,s) x[p,s,c] ≤ M * team_uses_court[t,c]
+   ```
+
+6. **Youth start time ≥08:30:**
+   - Enforced by not creating variables for earlier slots
+
+7. **Team time windows:**
+   ```
+   x[p,s,c] = 1 → team_start[t] ≤ s*15
+   x[p,s,c] = 1 → team_end[t] ≥ (s + duration)*15
+   ```
+
+8. **Reserved slots:**
+   - Variables not created for reserved (court, slot) combinations
+
+9. **S before D (hard for non-mixed teams):**
+   ```
+   start_time(S_part) ≤ start_time(D_part)
+   ```
+
+### Soft Constraints (Objective Function)
+
+Minimize weighted sum:
+```
+w_high_court * Σ_(p,s,c) (court * x[p,s,c])
++ w_team_span * Σ_t (team_end[t] - team_start[t])
++ w_long_gap * (gap penalties)
++ w_block_rise * Σ_t block_count[t]
++ w_late_start * (late start penalties)
++ w_youth_late * (youth late penalties)
+```
+
+### Implementation Status (2026-06-04)
+
+✅ **Complete MILP formulation** in `scripts/cuopt_planner.py`
+- All decision variables defined
+- All hard constraints implemented
+- Objective function with all penalty terms
+- Solution extraction logic
+
+❌ **Cannot test** due to cudf/pandas compatibility issues
+- cuOpt linear_programming API is correct
+- Needs cuOpt 26.4+ with fixed cudf
+
+### Next Steps for Testing
+
+1. Wait for cudf fix or use Docker container
+2. Test on date 06-04-2026 (49 parts in gold):
+   ```bash
+   python scripts/cuopt_planner.py --date 06-04-2026 --time-limit 60
+   ```
+3. Compare with OR-Tools baseline:
+   ```bash
+   python scripts/ortools_planner.py --date 06-04-2026
+   ```
+4. Metrics to track:
+   - Number of NIET_GELUKT (unscheduled parts)
+   - Constraint violations (should be 0)
+   - Objective value
+   - Solve time
+   - GPU memory usage
+
+## Problem Mapping: Court Scheduling → VRP (Legacy)
 
 Our court scheduling problem can be mapped to a VRP as follows:
 
