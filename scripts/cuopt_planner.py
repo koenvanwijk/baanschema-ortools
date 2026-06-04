@@ -29,8 +29,8 @@ from ortools_planner import (
 
 # Try to import cuOpt - will fail if not installed or no GPU
 try:
-    import cudf
-    from cuopt import milp
+    from cuopt.linear_programming.problem import Problem, INTEGER, CONTINUOUS, MINIMIZE
+    from cuopt.linear_programming.solver_settings import SolverSettings
     CUOPT_AVAILABLE = True
 except ImportError as e:
     CUOPT_AVAILABLE = False
