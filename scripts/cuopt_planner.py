@@ -307,7 +307,7 @@ def _solve_day_cuopt(
                     continue
                 
                 var_name = f"x_p{p_idx}_s{s_idx}_c{c}"
-                x[(p_idx, s_idx, c)] = problem.add_variable(
+                x[(p_idx, s_idx, c)] = problem.addVariable(
                     name=var_name,
                     vtype="binary",
                     lb=0,
@@ -318,13 +318,13 @@ def _solve_day_cuopt(
     team_start = {}
     team_end = {}
     for t_idx in range(num_teams):
-        team_start[t_idx] = problem.add_variable(
+        team_start[t_idx] = problem.addVariable(
             name=f"team_start_{t_idx}",
             vtype="continuous",
             lb=0,
             ub=end_min
         )
-        team_end[t_idx] = problem.add_variable(
+        team_end[t_idx] = problem.addVariable(
             name=f"team_end_{t_idx}",
             vtype="continuous",
             lb=0,
@@ -335,7 +335,7 @@ def _solve_day_cuopt(
     team_uses_court = {}
     for t_idx in range(num_teams):
         for c in courts:
-            team_uses_court[(t_idx, c)] = problem.add_variable(
+            team_uses_court[(t_idx, c)] = problem.addVariable(
                 name=f"team_court_{t_idx}_{c}",
                 vtype="binary",
                 lb=0,
@@ -345,7 +345,7 @@ def _solve_day_cuopt(
     # Continuous variables: team_gap_penalty[team_idx] (for objective)
     team_gap_penalty = {}
     for t_idx in range(num_teams):
-        team_gap_penalty[t_idx] = problem.add_variable(
+        team_gap_penalty[t_idx] = problem.addVariable(
             name=f"gap_penalty_{t_idx}",
             vtype="continuous",
             lb=0,
@@ -355,7 +355,7 @@ def _solve_day_cuopt(
     # Integer variables: block_count[team_idx]
     block_count = {}
     for t_idx in range(num_teams):
-        block_count[t_idx] = problem.add_variable(
+        block_count[t_idx] = problem.addVariable(
             name=f"block_count_{t_idx}",
             vtype="integer",
             lb=0,
@@ -373,7 +373,7 @@ def _solve_day_cuopt(
             for (pi, s_idx, c) in x.keys() if pi == p_idx
         ]
         if vars_for_part:
-            problem.add_constraint(
+            problem.addConstraint(
                 sum(vars_for_part) <= 1,
                 name=f"part_{p_idx}_once"
             )
@@ -391,7 +391,7 @@ def _solve_day_cuopt(
                     overlapping_vars.append(x[(p_idx, s_idx, court)])
             
             if overlapping_vars:
-                problem.add_constraint(
+                problem.addConstraint(
                     sum(overlapping_vars) <= 1,
                     name=f"court_{c}_slot_{slot_idx_val}_once"
                 )
@@ -433,12 +433,12 @@ def _solve_day_cuopt(
                     if (d_part, s, c2) in x:
                         # x[s_part,s,c1] = 1 → x[d_part,s,c2] = 1
                         # Rewrite as: x[s_part,s,c1] ≤ x[d_part,s,c2]
-                        problem.add_constraint(
+                        problem.addConstraint(
                             x[(s_part, s, c1)] <= x[(d_part, s, c2)],
                             name=f"pair_S{s_part}_D{d_part}_s{s}_c{c1}-{c2}"
                         )
                         # And vice versa
-                        problem.add_constraint(
+                        problem.addConstraint(
                             x[(d_part, s, c2)] <= x[(s_part, s, c1)],
                             name=f"pair_D{d_part}_S{s_part}_s{s}_c{c2}-{c1}"
                         )
@@ -446,7 +446,7 @@ def _solve_day_cuopt(
     # 4. Max 2 courts per team
     for t_idx in range(num_teams):
         court_vars = [team_uses_court[(t_idx, c)] for c in courts]
-        problem.add_constraint(
+        problem.addConstraint(
             sum(court_vars) <= 2,
             name=f"team_{t_idx}_max_2_courts"
         )
@@ -464,7 +464,7 @@ def _solve_day_cuopt(
             ]
             if part_court_vars:
                 # Σ x[p,s,c] ≤ M * team_uses_court[t,c]
-                problem.add_constraint(
+                problem.addConstraint(
                     sum(part_court_vars) <= M * team_uses_court[(t_idx, c)],
                     name=f"link_court_team_{t_idx}_c{c}"
                 )
@@ -485,14 +485,14 @@ def _solve_day_cuopt(
                 
                 # x[p,s,c] = 1 → team_start[t] ≤ start_time
                 # Rewrite: team_start[t] ≤ start_time + M*(1 - x[p,s,c])
-                problem.add_constraint(
+                problem.addConstraint(
                     team_start[t_idx] <= start_time + M_time * (1 - x[(p_idx, s_idx, c)]),
                     name=f"team_start_{t_idx}_p{p_idx}_s{s_idx}_c{c}"
                 )
                 
                 # x[p,s,c] = 1 → team_end[t] ≥ end_time
                 # Rewrite: team_end[t] ≥ end_time - M*(1 - x[p,s,c])
-                problem.add_constraint(
+                problem.addConstraint(
                     team_end[t_idx] >= end_time - M_time * (1 - x[(p_idx, s_idx, c)]),
                     name=f"team_end_{t_idx}_p{p_idx}_s{s_idx}_c{c}"
                 )
@@ -524,7 +524,7 @@ def _solve_day_cuopt(
                         # Rewrite: slot_mins[s_idx_s] - slot_mins[s_idx_d] ≤ M*(2 - x[s] - x[d])
                         if slot_mins[s_idx_s] > slot_mins[s_idx_d]:
                             # This violates S before D, so forbid both being 1
-                            problem.add_constraint(
+                            problem.addConstraint(
                                 x[(s_part, s_idx_s, c_s)] + x[(d_part, s_idx_d, c_d)] <= 1,
                                 name=f"s_before_d_t{t_idx}_s{s_part}_d{d_part}"
                             )
@@ -577,7 +577,7 @@ def _solve_day_cuopt(
                 objective_terms.append(w_youth_late * lateness * x[(p_idx, s_idx, c)] / 100)
     
     # Set objective: minimize total weighted cost
-    problem.set_objective(sum(objective_terms), sense="minimize")
+    problem.setObjective(sum(objective_terms), sense="minimize")
     
     # =========================================================================
     # SOLVE
@@ -597,8 +597,8 @@ def _solve_day_cuopt(
     # EXTRACT SOLUTION
     # =========================================================================
     
-    if result.status not in ["OPTIMAL", "FEASIBLE"]:
-        print(f"[cuOpt] Solver failed with status: {result.status}")
+    if result.Status.name not in ["Optimal", "FeasibleFound"]:
+        print(f"[cuOpt] Solver failed with status: {result.Status.name}")
         # Return all unscheduled
         rows = []
         for team_idx, team in enumerate(day_teams):
@@ -627,7 +627,7 @@ def _solve_day_cuopt(
     
     assignment = {}  # part_idx -> (slot_idx, court)
     for (p_idx, s_idx, c), var in x.items():
-        if result.get_value(var) > 0.5:  # Binary variable is 1
+        if result.getValue(var) > 0.5:  # Binary variable is 1
             assignment[p_idx] = (s_idx, c)
     
     # Build result rows
@@ -666,7 +666,7 @@ def _solve_day_cuopt(
     print(f"[cuOpt] Objective value: {result.objective_value:.2f}")
     
     return {
-        "status": "OPTIMAL" if result.status == "OPTIMAL" else "FEASIBLE",
+        "status": "OPTIMAL" if result.Status.name == "Optimal" else "FEASIBLE",
         "date": date,
         "rows": rows,
         "objective_value": result.objective_value,
