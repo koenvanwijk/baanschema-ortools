@@ -577,7 +577,7 @@ def _solve_day_cuopt(
                 objective_terms.append(w_youth_late * lateness * x[(p_idx, s_idx, c)] / 100)
     
     # Set objective: minimize total weighted cost
-    problem.setObjective(sum(objective_terms), sense="minimize")
+    problem.setObjective(sum(objective_terms), sense=MINIMIZE)
     
     # =========================================================================
     # SOLVE
@@ -586,19 +586,19 @@ def _solve_day_cuopt(
     print(f"[cuOpt] Solving MILP with {len(x)} binary vars, {num_teams*2} continuous vars...")
     print(f"[cuOpt] Time limit: {time_limit_s}s")
     
-    from cuopt.linear_programming import solver
-    result = solver.Solve(
-        problem,
-        time_limit=time_limit_s,
-        verbose=1
-    )
+    settings = SolverSettings()
+    settings.set_parameter("time_limit", time_limit_s)
+    settings.set_parameter("log_to_console", 1)
+    settings.set_parameter("mip_relative_gap", 0.01)  # 1% optimality gap
+    
+    problem.solve(settings)
     
     # =========================================================================
     # EXTRACT SOLUTION
     # =========================================================================
     
-    if result.Status.name not in ["Optimal", "FeasibleFound"]:
-        print(f"[cuOpt] Solver failed with status: {result.Status.name}")
+    if problem.Status.name not in ["Optimal", "FeasibleFound"]:
+        print(f"[cuOpt] Solver failed with status: {problem.Status.name}")
         # Return all unscheduled
         rows = []
         for team_idx, team in enumerate(day_teams):
@@ -617,6 +617,8 @@ def _solve_day_cuopt(
             "date": date,
             "rows": rows,
         }
+    
+    print(f"[cuOpt] Solution status: {problem.Status.name}, objective: {problem.ObjValue:.2f}")
     
     # Extract assignments from solution
     def fmt_time(minutes: int) -> str:
