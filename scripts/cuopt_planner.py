@@ -363,10 +363,24 @@ def _solve_day_cuopt(
         )
     
     # =========================================================================
+    # SLACK VARIABLES FOR SOFT SCHEDULING
+    # =========================================================================
+    
+    # Add slack variable per part: 1 if unscheduled, 0 if scheduled
+    unscheduled = {}
+    for p_idx in range(num_parts):
+        unscheduled[p_idx] = problem.addVariable(
+            name=f"unscheduled_{p_idx}",
+            vtype=INTEGER,
+            lb=0,
+            ub=1
+        )
+    
+    # =========================================================================
     # HARD CONSTRAINTS
     # =========================================================================
     
-    # 1. Each part scheduled at most once
+    # 1. Each part must be scheduled exactly once OR marked unscheduled
     for p_idx in range(num_parts):
         vars_for_part = [
             x[(p_idx, s_idx, c)]
@@ -374,8 +388,14 @@ def _solve_day_cuopt(
         ]
         if vars_for_part:
             problem.addConstraint(
-                sum(vars_for_part) <= 1,
+                sum(vars_for_part) + unscheduled[p_idx] == 1,
                 name=f"part_{p_idx}_once"
+            )
+        else:
+            # No valid slots for this part — must be unscheduled
+            problem.addConstraint(
+                unscheduled[p_idx] == 1,
+                name=f"part_{p_idx}_forced_unscheduled"
             )
     
     # 2. No court overlaps
@@ -535,6 +555,11 @@ def _solve_day_cuopt(
     
     objective_terms = []
     
+    # 0. CRITICAL: Heavy penalty for unscheduled parts (1 billion per part)
+    UNSCHEDULED_PENALTY = 1_000_000_000
+    for p_idx in range(num_parts):
+        objective_terms.append(UNSCHEDULED_PENALTY * unscheduled[p_idx])
+    
     # 10. Team span minimization
     for t_idx in range(num_teams):
         objective_terms.append(w_team_span * (team_end[t_idx] - team_start[t_idx]))
@@ -632,6 +657,12 @@ def _solve_day_cuopt(
         if var.getValue() > 0.5:  # Binary variable is 1
             assignment[p_idx] = (s_idx, c)
     
+    # Check which parts are unscheduled
+    unscheduled_parts = []
+    for p_idx in range(num_parts):
+        if unscheduled[p_idx].getValue() > 0.5:
+            unscheduled_parts.append(p_idx)
+    
     # Build result rows
     rows = []
     scheduled_count = 0
@@ -665,6 +696,11 @@ def _solve_day_cuopt(
                 })
     
     print(f"[cuOpt] Scheduled {scheduled_count}/{num_parts} parts")
+    if unscheduled_parts:
+        print(f"[cuOpt] WARNING: {len(unscheduled_parts)} parts could not be scheduled:")
+        for p_idx in unscheduled_parts:
+            part = parts[p_idx]
+            print(f"  - Part {p_idx}: {part['part_label']} ({part['part_kind']}, {part['duration_min']}min)")
     print(f"[cuOpt] Objective value: {problem.ObjValue:.2f}")
     
     return {
