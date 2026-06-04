@@ -850,7 +850,80 @@ def compute_ortools_results(dates: list[str], team_lookup: dict[str, TeamDay]) -
     return out, status
 
 
+def compute_cuopt_results(dates: list[str], team_lookup: dict[str, TeamDay]) -> tuple[dict[str, list[dict]], dict]:
+    """
+    Similar to compute_ortools_results but using cuopt_planner.py.
+    Returns (results_dict, status_dict).
+    """
+    status: dict = {"cuopt_available": importlib.util.find_spec("cuopt") is not None, "runs": {}}
+    if not status["cuopt_available"]:
+        return {d: [] for d in dates}, status
+
+    out: dict[str, list[dict]] = {}
+    for d in dates:
+        out_path = DOCS / f"cuopt_{d}.json"
+        # If the output file already exists, skip re-running the planner.
+        if out_path.exists():
+            status["runs"][d] = {"returncode": 0, "stdout": "(cached)", "stderr": "", "out_exists": True}
+        else:
+            cmd = [
+                sys.executable,
+                str(ROOT / "scripts" / "cuopt_planner.py"),
+                "--date",
+                d,
+                "--time-limit",
+                "180",
+                "--out",
+                str(out_path),
+            ]
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            status["runs"][d] = {
+                "returncode": proc.returncode,
+                "stdout": (proc.stdout or "")[-400:],
+                "stderr": (proc.stderr or "")[-400:],
+                "out_exists": out_path.exists(),
+            }
+        if status["runs"][d].get("returncode", 0) != 0 or not out_path.exists():
+            out[d] = []
+            continue
+
+        raw = json.loads(out_path.read_text(encoding="utf-8"))
+        rows = []
+        for r in raw.get("rows", []):
+            schema = r.get("team", "")
+            team_id = f"{d}::{schema}"
+            t = next((tv for k, tv in team_lookup.items() if k.startswith(f"{d}::{schema}::")), None)
+            rows.append(
+                {
+                    "schema": schema,
+                    "team_id": team_id,
+                    "team_short": short_team_name(schema, t.home_team if t else ""),
+                    "home_team": t.home_team if t else "",
+                    "away_team": t.away_team if t else "",
+                    "part": r.get("part", ""),
+                    "kind": r.get("kind", ""),
+                    "matches": t.matches if t else 0,
+                    "duration_min_cfg": t.duration_min if t else 0,
+                    "start": r.get("start", "NIET_GELUKT"),
+                    "end": r.get("end", ""),
+                    "court": r.get("court"),
+                }
+            )
+        out[d] = rows
+    return out, status
+
+
 def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate schedule pages")
+    parser.add_argument(
+        "--solver",
+        choices=["ortools", "cuopt", "both"],
+        default="ortools",
+        help="Solver to use: ortools (default), cuopt (GPU required), or both (compare)"
+    )
+    args = parser.parse_args()
+    
     DOCS.mkdir(parents=True, exist_ok=True)
     teams, reserves = parse_input(INPUT)
 
@@ -878,7 +951,17 @@ def main() -> None:
         assert_no_double_mix_overlap(day_rows, d)
         results[d] = day_rows
 
-    ortools_results, ortools_status = compute_ortools_results(ordered_dates, team_lookup)
+    # Compute solver results based on --solver argument
+    ortools_results = {}
+    ortools_status = {}
+    cuopt_results = {}
+    cuopt_status = {}
+    
+    if args.solver in ["ortools", "both"]:
+        ortools_results, ortools_status = compute_ortools_results(ordered_dates, team_lookup)
+    
+    if args.solver in ["cuopt", "both"]:
+        cuopt_results, cuopt_status = compute_cuopt_results(ordered_dates, team_lookup)
 
     # Gold (handmatige referentie) inlezen indien aanwezig
     gold_results: dict[str, list[dict]] = {}
@@ -936,6 +1019,11 @@ def main() -> None:
     (DOCS / "result.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_result.json").write_text(json.dumps(ortools_results, indent=2, ensure_ascii=False), encoding="utf-8")
     (DOCS / "ortools_status.json").write_text(json.dumps(ortools_status, indent=2, ensure_ascii=False), encoding="utf-8")
+    
+    # Write cuOpt results if computed
+    if args.solver in ["cuopt", "both"]:
+        (DOCS / "cuopt_result.json").write_text(json.dumps(cuopt_results, indent=2, ensure_ascii=False), encoding="utf-8")
+        (DOCS / "cuopt_status.json").write_text(json.dumps(cuopt_status, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # opponents.json: { "schema::datum": "tegenstander" } — voor gebruik in editor en andere views
     opponents: dict[str, str] = {}
