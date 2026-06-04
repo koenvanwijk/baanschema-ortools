@@ -769,7 +769,7 @@ if __name__ == "__main__":
     parser.add_argument("--dry-run", action="store_true", help="Parse input but don't solve")
     args = parser.parse_args()
     
-    teams, reservations = parse_input()
+    teams, reservations = parse_input(INPUT)
     
     if args.dry_run:
         print(f"[Dry run] Would schedule {args.date}")
