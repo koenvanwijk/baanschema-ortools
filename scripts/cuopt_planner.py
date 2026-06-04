@@ -629,7 +629,7 @@ def _solve_day_cuopt(
     
     assignment = {}  # part_idx -> (slot_idx, court)
     for (p_idx, s_idx, c), var in x.items():
-        if result.getValue(var) > 0.5:  # Binary variable is 1
+        if var.getValue() > 0.5:  # Binary variable is 1
             assignment[p_idx] = (s_idx, c)
     
     # Build result rows
