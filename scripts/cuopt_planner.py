@@ -29,7 +29,7 @@ from ortools_planner import (
 
 # Try to import cuOpt - will fail if not installed or no GPU
 try:
-    from cuopt.linear_programming.problem import Problem, INTEGER, CONTINUOUS, MINIMIZE
+    from cuopt.linear_programming.problem import Problem, INTEGER, BINARY, CONTINUOUS, MINIMIZE
     from cuopt.linear_programming.solver_settings import SolverSettings
     CUOPT_AVAILABLE = True
 except ImportError as e:
@@ -309,7 +309,7 @@ def _solve_day_cuopt(
                 var_name = f"x_p{p_idx}_s{s_idx}_c{c}"
                 x[(p_idx, s_idx, c)] = problem.addVariable(
                     name=var_name,
-                    vtype="binary",
+                    vtype=INTEGER,
                     lb=0,
                     ub=1
                 )
@@ -320,13 +320,13 @@ def _solve_day_cuopt(
     for t_idx in range(num_teams):
         team_start[t_idx] = problem.addVariable(
             name=f"team_start_{t_idx}",
-            vtype="continuous",
+            vtype=CONTINUOUS,
             lb=0,
             ub=end_min
         )
         team_end[t_idx] = problem.addVariable(
             name=f"team_end_{t_idx}",
-            vtype="continuous",
+            vtype=CONTINUOUS,
             lb=0,
             ub=end_min
         )
@@ -337,7 +337,7 @@ def _solve_day_cuopt(
         for c in courts:
             team_uses_court[(t_idx, c)] = problem.addVariable(
                 name=f"team_court_{t_idx}_{c}",
-                vtype="binary",
+                vtype=INTEGER,
                 lb=0,
                 ub=1
             )
@@ -347,7 +347,7 @@ def _solve_day_cuopt(
     for t_idx in range(num_teams):
         team_gap_penalty[t_idx] = problem.addVariable(
             name=f"gap_penalty_{t_idx}",
-            vtype="continuous",
+            vtype=CONTINUOUS,
             lb=0,
             ub=1e6
         )
@@ -665,14 +665,13 @@ def _solve_day_cuopt(
                 })
     
     print(f"[cuOpt] Scheduled {scheduled_count}/{num_parts} parts")
-    print(f"[cuOpt] Objective value: {result.objective_value:.2f}")
+    print(f"[cuOpt] Objective value: {problem.ObjValue:.2f}")
     
     return {
-        "status": "OPTIMAL" if result.Status.name == "Optimal" else "FEASIBLE",
+        "status": "OPTIMAL" if problem.Status.name == "Optimal" else "FEASIBLE",
         "date": date,
         "rows": rows,
-        "objective_value": result.objective_value,
-        "solve_time_s": result.solve_time,
+        "objective_value": problem.ObjValue,
     }
 
 
