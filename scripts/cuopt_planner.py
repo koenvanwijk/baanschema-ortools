@@ -555,8 +555,9 @@ def _solve_day_cuopt(
     
     objective_terms = []
     
-    # 0. CRITICAL: Heavy penalty for unscheduled parts (1 billion per part)
-    UNSCHEDULED_PENALTY = 1_000_000_000
+    # 0. CRITICAL: Heavy penalty for unscheduled parts (10 million per part)
+    # Balance: high enough to force scheduling, low enough to avoid numerical issues
+    UNSCHEDULED_PENALTY = 10_000_000
     for p_idx in range(num_parts):
         objective_terms.append(UNSCHEDULED_PENALTY * unscheduled[p_idx])
     
