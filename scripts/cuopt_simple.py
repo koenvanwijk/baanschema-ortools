@@ -71,8 +71,8 @@ def solve_day(date, teams, reservations, time_limit_s=60):
     courts = list(range(1, 11))
     COURT_PAIRS = [(1,2), (3,4), (5,6), (7,8), (9,10)]
     
-    # Reserved slots
-    reserved_set = {(r.court, r.kind) for r in reservations if r.date == date}
+    # Reserved slots (kind-based, not court-specific in current data model)
+    reserved_kinds = {r.kind for r in reservations if r.date == date}
     
     print(f"[cuOpt-simple] Planning {date}: {num_teams} teams, {num_parts} parts, {num_slots} slots, {len(courts)} courts")
     
@@ -100,12 +100,9 @@ def solve_day(date, teams, reservations, time_limit_s=60):
                 continue
             
             for c in courts:
-                # Check reserved slots
-                overlaps_reserved = any(
-                    (c, date) in reserved_set
-                    for offset in range(part["duration_slots"])
-                )
-                if overlaps_reserved:
+                # Reserved slots: skip if date matches any reservation kind
+                # (simplified: reservations block entire day, not court-specific)
+                if date in reserved_kinds:
                     continue
                 
                 x[(p_idx, s_idx, c)] = problem.addVariable(
