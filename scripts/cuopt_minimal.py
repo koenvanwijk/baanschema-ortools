@@ -168,19 +168,17 @@ def solve_day(date, teams, reservations, time_limit_s=60):
                     )
                     constraint_count += 1
     
-    # 3. Link x to team_uses_pair (simplified: 1 constraint per team-pair combo)
+    # 3. Link x to team_uses_pair (proper linear big-M: 1 constraint per x-var)
     for t_idx in range(num_teams):
         part_indices = team_parts[t_idx]
         for pair_idx in range(len(COURT_PAIRS)):
-            # If team uses this pair, team_uses_pair = 1
+            # If any x-var for this team on this pair is 1, team_uses_pair must be 1
             parts_on_pair = [x[k] for k in x.keys() 
                             if k[0] in part_indices and k[2] == pair_idx]
-            if parts_on_pair:
-                # sum(x on pair) <= M * team_uses_pair[t, pair]
-                # Simplified: team_uses_pair >= x for any x
+            for idx, var in enumerate(parts_on_pair):
                 problem.addConstraint(
-                    team_uses_pair[(t_idx, pair_idx)] >= sum(parts_on_pair) / len(parts_on_pair),
-                    name=f"link_t{t_idx}_pr{pair_idx}"
+                    team_uses_pair[(t_idx, pair_idx)] >= var,
+                    name=f"link_t{t_idx}_pr{pair_idx}_{idx}"
                 )
                 constraint_count += 1
     
