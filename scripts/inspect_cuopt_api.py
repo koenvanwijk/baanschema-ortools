@@ -41,3 +41,10 @@ try:
     print(f"routing.solve{sig}")
 except Exception as e:
     print(f"solve: {e}")
+print()
+
+print("=== SolutionStatus enum ===")
+try:
+    print([x for x in dir(routing.SolutionStatus) if not x.startswith("_")])
+except Exception as e:
+    print(f"SolutionStatus: {e}")
