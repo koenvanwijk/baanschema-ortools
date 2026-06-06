@@ -169,7 +169,7 @@ def solve_day(date, teams, reservations, time_limit_s=60):
     status = solution.get_status()
     print(f"[cuOpt-VRP] Status: {status}")
     
-    if status not in [routing.SolutionStatus.Optimal, routing.SolutionStatus.Feasible]:
+    if status != routing.SolutionStatus.SUCCESS:
         print(f"[cuOpt-VRP] No solution found")
         rows = []
         for p_idx, part in enumerate(parts):
@@ -185,11 +185,15 @@ def solve_day(date, teams, reservations, time_limit_s=60):
             })
         return {"status": "INFEASIBLE", "date": date, "rows": rows}
     
-    cost = solution.get_cost()
+    try:
+        cost = solution.get_total_objective()
+    except Exception:
+        cost = 0.0
     print(f"[cuOpt-VRP] Cost: {cost}")
     
-    # Get routes
-    routes = solution.get_routes()
+    # Get routes per vehicle
+    vehicle_count = solution.get_vehicle_count()
+    routes = [solution.get_route(v) for v in range(vehicle_count)]
     
     def fmt_time(minutes):
         return f"{int(minutes)//60:02d}:{int(minutes)%60:02d}"
@@ -249,7 +253,7 @@ def solve_day(date, teams, reservations, time_limit_s=60):
     print(f"[cuOpt-VRP] Scheduled {scheduled_count}/{num_parts} parts")
     
     return {
-        "status": "OPTIMAL" if status == routing.SolutionStatus.Optimal else "FEASIBLE",
+        "status": "SUCCESS",
         "date": date,
         "rows": rows,
         "cost": float(cost),
