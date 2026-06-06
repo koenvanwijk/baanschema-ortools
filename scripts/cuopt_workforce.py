@@ -44,7 +44,7 @@ def solve_day(
         }
     
     # Build parts (match segments) for teams on this date
-    date_teams = [t for t in teams if t.when == date]
+    date_teams = [t for t in teams if t.date == date]
     if not date_teams:
         return {"status": "NO_TEAMS", "date": date, "rows": []}
     
