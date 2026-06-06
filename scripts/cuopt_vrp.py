@@ -80,15 +80,14 @@ def solve_day(date, teams, reservations, time_limit_s=60):
     # VRP PROBLEM SETUP
     # =========================================================================
     
-    # Create routing data model
-    data_model = routing.DataModel()
-    
     # LOCATIONS: depot (0) + one location per part (1..N)
     num_locations = 1 + num_parts
     
     # VEHICLES: one vehicle per court (10 courts = 10 vehicles)
-    # Each vehicle represents a court and can handle parts assigned to it
     num_vehicles = 10
+    
+    # Create routing data model with required constructor args
+    data_model = routing.DataModel(n_locations=num_locations, n_fleet=num_vehicles)
     
     # Cost matrix: travel time between locations
     # For scheduling: "travel" = gap between parts
