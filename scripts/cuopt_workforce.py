@@ -43,12 +43,23 @@ def solve_day(
             "rows": [],
         }
     
-    # Build parts (match segments)
-    parts = build_parts(teams, date)
-    if not parts:
+    # Build parts (match segments) for teams on this date
+    date_teams = [t for t in teams if t.when == date]
+    if not date_teams:
         return {"status": "NO_TEAMS", "date": date, "rows": []}
     
-    print(f"[cuOpt-workforce] {date}: {len(teams)} teams, {len(parts)} parts")
+    parts = []
+    for t_idx, t in enumerate(date_teams):
+        for label, kind in build_parts(t):
+            parts.append({
+                "team": t,
+                "team_idx": t_idx,
+                "part_label": label,
+                "part_kind": kind,
+                "duration_min": 90 if kind == "D" else 60,
+            })
+    
+    print(f"[cuOpt-workforce] {date}: {len(date_teams)} teams, {len(parts)} parts")
     
     # Time slots (15-min intervals, 08:30-20:00)
     start_min = 8 * 60 + 30  # 08:30
