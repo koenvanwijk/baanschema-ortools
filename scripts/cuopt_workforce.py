@@ -70,17 +70,11 @@ def solve_day(
     # Courts
     courts = list(range(1, 11))  # 1-10
     
-    # Reserved slots (block from assignments)
+    # Reserved slots (not implemented in workforce pattern — all slots available)
+    # In OR-Tools version, reservations are "rood"/"oranje" flags for heuristic logic
     reserved_set = set()
-    for res in reservations:
-        res_start = res.start_hour * 60 + res.start_minute
-        res_end = res.end_hour * 60 + res.end_minute
-        for court in res.courts:
-            for slot in slots:
-                if res_start <= slot < res_end:
-                    reserved_set.add((slot, court))
     
-    print(f"[cuOpt-workforce] {len(slots)} slots, {len(courts)} courts, {len(reserved_set)} reserved")
+    print(f"[cuOpt-workforce] {len(slots)} slots, {len(courts)} courts")
     
     # =========================================================================
     # CREATE PROBLEM
