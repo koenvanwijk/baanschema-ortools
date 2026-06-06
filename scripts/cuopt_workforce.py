@@ -158,8 +158,30 @@ def solve_day(
     
     print(f"[cuOpt-workforce] Added {len(parts)} part-assignment constraints")
     
-    # 2. Court capacity: max 1 part per (slot, court) — NOT NEEDED if vars non-overlapping
-    #    (vars already filtered to non-overlapping slots via duration check)
+    # 2. Non-overlap: max 1 part active per (slot, court)
+    # For each (slot, court), sum all parts that would occupy it <= 1
+    overlap_constraints = 0
+    for slot in slots:
+        for court in courts:
+            # Find all (part, start_slot) assignments that occupy (slot, court)
+            occupying_vars = []
+            for (p_idx, start_slot, c), var in assignment_vars.items():
+                if c != court:
+                    continue
+                part_duration = parts[p_idx]["duration_min"]
+                # Check if this assignment occupies (slot, court)
+                if start_slot <= slot < start_slot + part_duration:
+                    occupying_vars.append(var)
+            
+            if len(occupying_vars) > 1:
+                overlap_expr = LinearExpression([], [], 0.0)
+                for var in occupying_vars:
+                    overlap_expr += var
+                
+                problem.addConstraint(overlap_expr <= 1, name=f"overlap_s{slot}_c{court}")
+                overlap_constraints += 1
+    
+    print(f"[cuOpt-workforce] Added {overlap_constraints} non-overlap constraints")
     
     # =========================================================================
     # SOLVE
