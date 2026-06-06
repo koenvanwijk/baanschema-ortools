@@ -141,8 +141,8 @@ def solve_day(date, teams, reservations, time_limit_s=60):
     print(f"[cuOpt-VRP] Solving with {time_limit_s}s time limit...")
     
     try:
-        solver = routing.Solve(data_model, solver_settings)
-        solution = solver.get_assignment()
+        # Solve() directly returns Assignment object
+        solution = routing.Solve(data_model, solver_settings)
     except Exception as e:
         print(f"[cuOpt-VRP] Solver exception: {e}")
         import traceback
