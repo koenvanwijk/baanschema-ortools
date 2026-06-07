@@ -749,15 +749,41 @@ def _solve_single_phase(
     # comfort-pass penalties: late starts, extra streng voor jeugd/groen
     late_start_penalty = []
     youth_late_penalty = []
+    junioren_early_bonus = []  # Junioren (11-14) prefer early (08:30-11:00)
+    jeugd_middag_penalty = []  # Jeugd (13-17) avoid too early (<11:00)
+    
     for p_idx, p in enumerate(parts):
         team_l = p["team"].lower()
-        is_youth = ("junioren" in team_l) or ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l) or ("groen zondag" in team_l)
+        is_junioren = "junioren" in team_l  # 11-14 jaar
+        is_jeugd_1317 = ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l)
+        is_youth = is_junioren or is_jeugd_1317 or ("groen zondag" in team_l)
+        
         for s in allowed_starts[p_idx]:
             for c in courts:
+                # Late start penalties (everyone)
                 if s > 19 * 60 + 30:
                     late_start_penalty.append(x[(p_idx, s, c)])
                 if is_youth and s > 17 * 60:
                     youth_late_penalty.append(x[(p_idx, s, c)])
+                
+                # Age-based start time preferences
+                if is_junioren:
+                    # Junioren (11-14): bonus voor vroeg (08:30-11:00)
+                    if s <= 11 * 60:
+                        junioren_early_bonus.append(x[(p_idx, s, c)])
+                
+                if is_jeugd_1317:
+                    # Jeugd (13-17): penalty voor té vroeg (<11:00)
+                    # Prefer middag (11:00-15:00)
+                    if s < 11 * 60:
+                        # Linear penalty: hoe vroeger, hoe erger
+                        # 08:30 = 510 min → penalty × 3
+                        # 09:00 = 540 min → penalty × 2
+                        # 10:30 = 630 min → penalty × 1
+                        early_minutes = 11 * 60 - s
+                        penalty_mult = (early_minutes + 29) // 30  # Per 30 min vroeger
+                        for _ in range(penalty_mult):
+                            jeugd_middag_penalty.append(x[(p_idx, s, c)])
 
     model.maximize(
         scheduled_score
@@ -777,6 +803,9 @@ def _solve_single_phase(
         + w_early_start * sum(early_start_bonus)
         - w_late_start * sum(late_start_penalty)
         - w_youth_late * sum(youth_late_penalty)
+        # Age-based start time preferences:
+        + 50_000 * sum(junioren_early_bonus)  # Junioren vroeg = goed
+        - 80_000 * sum(jeugd_middag_penalty)  # Jeugd (13-17) vroeg = slecht
     )
 
     solver = cp_model.CpSolver()
