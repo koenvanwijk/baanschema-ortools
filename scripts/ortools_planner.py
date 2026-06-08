@@ -159,7 +159,7 @@ def solve_day(
     w_high_court_penalty: int = 200_000,
     w_team_span: int = 200_000,
     random_seed: int = 42,
-    two_phase: bool = True,
+    two_phase: bool = False,  # Default: single-phase (beter voor age-based spreiding)
 ) -> dict:
     """
     Main scheduler. If two_phase=True, runs a two-phase approach:
@@ -203,18 +203,22 @@ def solve_day_two_phase(
     """Two-phase scheduler: fase-A (morning) then fase-B (afternoon)."""
     
     def _is_phase_a(schema: str) -> bool:
+        """Phase A: Junioren (11-14) only - these prefer early starts."""
         tl = schema.lower()
+        # Only Junioren (11-14) and Groen go in Phase A
         if "groen zondag" in tl or "junioren" in tl:
             return True
-        is_youth = ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl)
-        return is_youth and ("1e klasse" not in tl) and ("2e klasse" not in tl)
+        return False
 
     def _is_phase_b(schema: str) -> bool:
+        """Phase B: All Jeugd 13-17 + Senioren - spread across day."""
         tl = schema.lower()
+        # Gemengd, Heren, Dames always Phase B
         if ("gemengd" in tl) or ("heren" in tl) or ("dames" in tl):
             return True
-        is_youth = ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl)
-        return is_youth and (("1e klasse" in tl) or ("2e klasse" in tl))
+        # ALL Jeugd 13-17 go to Phase B (they need middag preference)
+        is_jeugd_1317 = ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl)
+        return is_jeugd_1317
 
     day_teams = [t for t in teams if t.date == date]
     phase_a_teams = [t for t in day_teams if _is_phase_a(t.schema)]
@@ -777,8 +781,8 @@ def _solve_single_phase(
                     # Prefer middag (11:00-15:00)
                     if s < 11 * 60:
                         # Linear penalty: hoe vroeger, hoe erger
-                        # 08:30 = 510 min → penalty × 3
-                        # 09:00 = 540 min → penalty × 2
+                        # 08:30 = 510 min → penalty × 5
+                        # 09:00 = 540 min → penalty × 4
                         # 10:30 = 630 min → penalty × 1
                         early_minutes = 11 * 60 - s
                         penalty_mult = (early_minutes + 29) // 30  # Per 30 min vroeger
@@ -804,8 +808,8 @@ def _solve_single_phase(
         - w_late_start * sum(late_start_penalty)
         - w_youth_late * sum(youth_late_penalty)
         # Age-based start time preferences:
-        + 50_000 * sum(junioren_early_bonus)  # Junioren vroeg = goed
-        - 80_000 * sum(jeugd_middag_penalty)  # Jeugd (13-17) vroeg = slecht
+        + 300_000 * sum(junioren_early_bonus)  # Junioren vroeg = goed (3x verhoogd)
+        - 5_000_000 * sum(jeugd_middag_penalty)  # Jeugd (13-17) vroeg = ZEER ZEER SLECHT (10x original!)
     )
 
     solver = cp_model.CpSolver()
