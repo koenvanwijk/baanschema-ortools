@@ -375,12 +375,21 @@ def _solve_single_phase(
         dur = p["duration"]
         latest = end_min - dur
         starts = [m for m in slot_mins if m <= latest]
+        
+        # Mixed teams: niet voor 10:00
         if p["is_mixed_team"]:
             starts = [m for m in starts if m >= 10 * 60]
-        # Jeugd/groen: niet eerder dan 08:30 en niet na 17:30 (gelijk aan Gold).
-        # 08:30 is toegestaan (Gold gebruikt dit ook: GRO Groen 2 M3 start 08:30).
+        
+        # Jeugd 13-17: HARD CONSTRAINT ≥11:00 (spreiding)
+        team_l = p["team"].lower()
+        is_jeugd_1317 = ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l)
+        if is_jeugd_1317:
+            starts = [m for m in starts if m >= 11 * 60]  # HARD: ≥11:00
+        
+        # Youth/Groen: niet na 17:30
         if p["is_youth_team"]:
             starts = [m for m in starts if m <= 17 * 60 + 30]
+        
         allowed_starts[p_idx] = starts
 
         vars_p = []
@@ -865,7 +874,7 @@ def main() -> None:
     ap.add_argument("--input", type=Path, default=INPUT)
     ap.add_argument("--date", required=True, help="dd-mm-YYYY")
     ap.add_argument("--time-limit", type=float, default=20.0)
-    ap.add_argument("--out", type=Path, default=ROOT / "docs" / "ortools_result.json")
+    ap.add_argument("--out", type=Path, default=None, help="Output JSON path (default: docs/ortools_<date>.json)")
     ap.add_argument("--w-block-rise", type=int, default=4_000_000)
     ap.add_argument("--w-long-gap", type=int, default=5_000_000)
     ap.add_argument("--w-morning-occ", type=int, default=600_000)
@@ -879,6 +888,10 @@ def main() -> None:
     ap.add_argument("--w-team-span", type=int, default=200_000)
     ap.add_argument("--random-seed", type=int, default=42)
     args = ap.parse_args()
+
+    # Default output path: docs/ortools_<date>.json
+    if args.out is None:
+        args.out = ROOT / "docs" / f"ortools_{args.date}.json"
 
     teams, res = parse_input(args.input)
     result = solve_day(
@@ -898,7 +911,7 @@ def main() -> None:
         w_high_court_penalty=args.w_high_court_penalty,
         w_team_span=args.w_team_span,
         random_seed=args.random_seed,
-        two_phase=True,  # Enable two-phase scheduling (morning/afternoon split)
+        two_phase=False,  # Default: single-phase (better age-based spreading)
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
