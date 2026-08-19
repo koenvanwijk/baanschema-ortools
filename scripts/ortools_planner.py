@@ -7,7 +7,15 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from ortools.sat.python import cp_model
+# OR-Tools is only needed for the CP-SAT solver itself. The data structures and
+# parsing helpers below are reused by the cuOpt planner, which runs in an
+# environment (NVIDIA cuOpt container) that does not ship OR-Tools. Keep this
+# import optional so that `import ortools_planner` succeeds there; the functions
+# that actually use cp_model guard against it being None.
+try:
+    from ortools.sat.python import cp_model
+except ImportError:  # pragma: no cover - only hit in cuOpt-only environments
+    cp_model = None
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "data" / "season.tsv"
@@ -365,6 +373,11 @@ def _solve_single_phase(
                 }
             )
 
+    if cp_model is None:
+        raise RuntimeError(
+            "OR-Tools is not installed. Install it with `pip install ortools` to use "
+            "the CP-SAT solver (the cuOpt planner does not require OR-Tools)."
+        )
     model = cp_model.CpModel()
     x = {}  # part,start,court
     y = []

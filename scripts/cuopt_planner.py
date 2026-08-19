@@ -29,6 +29,9 @@ from ortools_planner import (
 
 # Try to import cuOpt - will fail if not installed or no GPU
 try:
+    # Patch cuOpt 25.12 expression operator bugs (see cuopt_compat.py) BEFORE
+    # building any model. Import order matters: this imports cuopt itself.
+    import cuopt_compat  # noqa: F401  (side-effecting: patches cuOpt classes)
     from cuopt.linear_programming.problem import Problem, INTEGER, CONTINUOUS, MINIMIZE
     from cuopt.linear_programming.solver_settings import SolverSettings
     CUOPT_AVAILABLE = True
@@ -118,92 +121,71 @@ def _solve_day_cuopt(
     Decision Variables:
     -------------------
     x[part_id, slot, court] ∈ {0,1}
-        Binary variable: 1 if match part p starts at time slot s on court c
-    
-    team_start[team_id] ∈ ℝ≥0
-        Continuous variable: earliest start time (minutes from 08:00) for team
-    
-    team_end[team_id] ∈ ℝ≥0
-        Continuous variable: latest end time (minutes from 08:00) for team
-    
-    team_uses_court[team_id, court] ∈ {0,1}
-        Binary variable: 1 if team uses this court at any point
-    
+        1 if match part p starts at time slot s on court c. Variables are only
+        created for feasible (slot, court) combinations (respecting youth/mixed
+        start windows and reserved slots), which keeps the model compact.
+
+    unscheduled[part_id] ∈ {0,1}
+        Slack: 1 if the part could not be scheduled. Heavily penalised so the
+        solver schedules as many parts as possible first.
+
+    team_start[team_id], team_end[team_id] ∈ ℝ≥0
+        Earliest start / latest end (minutes from midnight) for the team.
+
     team_gap_penalty[team_id] ∈ ℝ≥0
-        Continuous penalty for gaps between matches (auxiliary for objective)
-    
-    block_count[team_id] ∈ ℤ≥0
-        Integer count of separate time blocks for this team
-    
+        Non-negative auxiliary variable clamping the team's idle-gap penalty at 0.
+
+    team_pair[team_id, pair_idx] ∈ {0,1}
+        1 if the team plays on court pair `pair_idx` (one of (1,2),(3,4),...).
+
+    Per-part linear time expressions (not variables, built from x):
+        part_start_expr[p] = Σ_(s,c) slot_mins[s]           * x[p,s,c]
+        part_end_expr[p]   = Σ_(s,c) (slot_mins[s]+duration) * x[p,s,c]
+    These make the time-window and pairing constraints compact (a few rows per
+    part instead of one big-M row per (part, slot, court) assignment).
+
     Hard Constraints:
     -----------------
-    1. Each part scheduled exactly once (or not at all):
-       ∀p: Σ_(s,c) x[p,s,c] ≤ 1
-    
-    2. No court overlaps (at most one match per court per time):
-       ∀court c, timeslot t: Σ_p x[p,s(p),c] ≤ 1
-       where sum is over all parts p that cover slot t
-    
-    3. Court pairing for non-mixed teams (S+D pairs):
-       For teams with both S and D parts (non-GEM):
-       - If both scheduled, they start at same time
-       - Courts must be adjacent and in same COURT_PAIR
-       Implementation: enforce start_slot(S_part) = start_slot(D_part)
-                       and |court(S) - court(D)| = 1
-    
-    4. Max 2 courts per team:
-       ∀team: Σ_c team_uses_court[team,c] ≤ 2
-    
-    5. Link court usage to part assignment:
-       ∀team t, court c, part p of team t:
-         x[p,s,c] = 1 → team_uses_court[t,c] = 1
-       Implemented as: Σ_(p,s) x[p,s,c] ≤ M * team_uses_court[t,c]
-    
-    6. Youth start time (≥08:30):
-       ∀part p in {Groen, JU*}: start_time(p) ≥ 30 (minutes from 08:00)
-    
-    7. Team time windows (link start/end to actual assignments):
-       ∀part p of team t, timeslot s, court c:
-         if x[p,s,c] = 1:
-           team_start[t] ≤ s*15
-           team_end[t] ≥ (s + duration_slots(p))*15
-       Implemented as big-M constraints
-    
-    8. Reserved slots (block variables for reserved times):
-       ∀(date, kind) in reservations, matching courts/times:
-         x[part,slot,court] = 0 (disable these variables)
-    
-    9. S before D preference (soft for GEM, hard for others):
-       For non-GEM teams with S and D parts:
-         start_time(S_part) ≤ start_time(D_part)
-    
-    Soft Constraints (via penalty terms in objective):
-    ---------------------------------------------------
-    10. Team span minimization:
-        Minimize: w_team_span * Σ_team (team_end[team] - team_start[team])
-    
-    11. High court penalty (prefer lower-numbered courts):
-        Minimize: w_high_court * Σ_(part,slot,court) (court * x[part,slot,court])
-    
-    12. Long gaps within team (penalize idle time):
-        For each team, penalize time between consecutive matches exceeding threshold
-        Tracked via auxiliary variables and linearized constraints
-    
-    13. Block fragmentation (prefer contiguous time blocks):
-        Count number of disjoint time blocks per team
-        Minimize: w_block_rise * Σ_team block_count[team]
-    
-    Objective Function:
-    -------------------
-    Minimize:
-      w_high_court * (high_court_penalty)
-      + w_team_span * (team_span_penalty)
-      + w_long_gap * (gap_penalty_sum)
-      + w_block_rise * (block_count_sum)
-      + w_late_start * (late_start_penalty)
-      + w_youth_late * (youth_late_penalty)
-    
-    Note: Maximizing scheduled parts is implicit (infeasibility if not scheduled)
+    1. Each part is scheduled exactly once, or flagged unscheduled:
+       ∀p: Σ_(s,c) x[p,s,c] + unscheduled[p] = 1
+
+    2. No court overlaps (at most one match per court per timeslot):
+       ∀court c, timeslot t: Σ_{p covering t} x[p,s,c] ≤ 1
+
+    3. Round structure (non-mixed teams): same-kind pairs start together
+       (S1+S2, S3+S4, D1+D2, ...), enforced via
+       part_start_expr[p0] == part_start_expr[p1] (big-M relaxed if unscheduled).
+
+    4/5. Court-pair confinement: each team plays on exactly one adjacent court
+       pair, and every part of the team must be on that pair's two courts:
+       Σ_pi team_pair[t,pi] = 1  and  x[p,s,c] ≤ team_pair[t, pair_of(c)].
+
+    6. Youth start window: enforced by not creating variables outside the window.
+
+    7. Team time windows (compact, one row per part):
+       team_start[t] ≤ part_start_expr[p] + M·unscheduled[p]
+       team_end[t]   ≥ part_end_expr[p]   − M·unscheduled[p]
+
+    8. Reserved slots: enforced by not creating the corresponding variables.
+
+    9. (removed) No global S-before-D ordering exists in the reference model.
+
+    Span/gap linking:
+       team_end[t] ≥ team_start[t]                              (span ≥ 0)
+       team_gap_penalty[t] ≥ team_end − team_start − total_dur  (gap ≥ 0)
+
+    Objective (minimise):
+    ---------------------
+      UNSCHEDULED_PENALTY · Σ_p unscheduled[p]         (dominant: schedule first)
+      + SOFT_SCALE · [ w_team_span   · Σ_t (end − start)
+                     + w_high_court  · Σ (court · x)
+                     + w_long_gap    · Σ_t gap_penalty / 100
+                     + w_late_start  · late-start penalty
+                     + w_youth_late  · youth-late penalty ]
+
+    The soft weights are scaled (SOFT_SCALE) so the entire soft budget stays well
+    below the unscheduled penalty and the coefficient range stays numerically
+    healthy on the GPU.
     """
     from cuopt import linear_programming as lp
     
@@ -331,18 +313,9 @@ def _solve_day_cuopt(
             ub=end_min
         )
     
-    # Binary variables: team_uses_court[team_idx, court]
-    team_uses_court = {}
-    for t_idx in range(num_teams):
-        for c in courts:
-            team_uses_court[(t_idx, c)] = problem.addVariable(
-                name=f"team_court_{t_idx}_{c}",
-                vtype=INTEGER,
-                lb=0,
-                ub=1
-            )
-    
-    # Continuous variables: team_gap_penalty[team_idx] (for objective)
+    # Continuous variables: team_gap_penalty[team_idx] (for objective).
+    # Court-pair selection variables (team_pair) are created later, next to the
+    # court-pair confinement constraint that uses them.
     team_gap_penalty = {}
     for t_idx in range(num_teams):
         team_gap_penalty[t_idx] = problem.addVariable(
@@ -351,17 +324,7 @@ def _solve_day_cuopt(
             lb=0,
             ub=1e6
         )
-    
-    # Integer variables: block_count[team_idx]
-    block_count = {}
-    for t_idx in range(num_teams):
-        block_count[t_idx] = problem.addVariable(
-            name=f"block_count_{t_idx}",
-            vtype="integer",
-            lb=0,
-            ub=num_slots
-        )
-    
+
     # =========================================================================
     # SLACK VARIABLES FOR SOFT SCHEDULING
     # =========================================================================
@@ -377,9 +340,40 @@ def _solve_day_cuopt(
         )
     
     # =========================================================================
+    # PER-PART LINEAR TIME EXPRESSIONS (used to keep the model compact)
+    # =========================================================================
+    # For every part, build a single linear expression equal to its start time
+    # (in minutes) when scheduled, and 0 when unscheduled:
+    #     part_start_expr[p] = Σ_(s,c) slot_mins[s] * x[p,s,c]
+    #     part_end_expr[p]   = Σ_(s,c) (slot_mins[s] + duration) * x[p,s,c]
+    # These let us express the time-window and S-before-D constraints with a
+    # handful of constraints per part instead of one big-M constraint per
+    # (part, slot, court) assignment, which otherwise blows the model up to
+    # millions of rows and exhausts GPU memory.
+    x_by_part = defaultdict(list)
+    for (p_idx, s_idx, c) in x.keys():
+        x_by_part[p_idx].append((s_idx, c))
+
+    part_start_expr = {}
+    part_end_expr = {}
+    for p_idx in range(num_parts):
+        assigns = x_by_part.get(p_idx, [])
+        if not assigns:
+            part_start_expr[p_idx] = None
+            part_end_expr[p_idx] = None
+            continue
+        dur = parts[p_idx]["duration_min"]
+        part_start_expr[p_idx] = sum(
+            slot_mins[s_idx] * x[(p_idx, s_idx, c)] for (s_idx, c) in assigns
+        )
+        part_end_expr[p_idx] = sum(
+            (slot_mins[s_idx] + dur) * x[(p_idx, s_idx, c)] for (s_idx, c) in assigns
+        )
+
+    # =========================================================================
     # HARD CONSTRAINTS
     # =========================================================================
-    
+
     # 1. Each part must be scheduled exactly once OR marked unscheduled
     for p_idx in range(num_parts):
         vars_for_part = [
@@ -416,192 +410,175 @@ def _solve_day_cuopt(
                     name=f"court_{c}_slot_{slot_idx_val}_once"
                 )
     
-    # 3. Court pairing for non-mixed teams (S+D pairs start together)
+    # 3. Round structure: same-kind pairs start at the same time (matches the
+    # OR-Tools "Gold" pattern): S1+S2 together, S3+S4 together, D1+D2 together,
+    # etc. This applies only to non-mixed teams. Expressed with the per-part
+    # start expressions: start(p0) == start(p1) when both are scheduled, relaxed
+    # by big-M whenever either part is unscheduled.
     for t_idx, part_indices in team_parts.items():
         team = day_teams[t_idx]
         if "gemengd" in team.schema.lower():
             continue  # Skip mixed teams
-        
-        # Find S and D parts
-        s_parts = [i for i in part_indices if parts[i]["part_kind"] == "S"]
-        d_parts = [i for i in part_indices if parts[i]["part_kind"] == "D"]
-        
-        if not s_parts or not d_parts:
-            continue
-        
-        # For each S part, if it's scheduled, corresponding D must start same time
-        for s_idx, s_part in enumerate(s_parts):
-            if s_idx >= len(d_parts):
-                break
-            d_part = d_parts[s_idx]
-            
-            # If S is scheduled at slot s on court c1,
-            # then D must be scheduled at slot s on adjacent court c2
-            for (p, s, c1) in x.keys():
-                if p != s_part:
+
+        for kind in ("S", "D", "M"):
+            kind_parts = [i for i in part_indices if parts[i]["part_kind"] == kind]
+            for j in range(0, len(kind_parts) - 1, 2):
+                p0, p1 = kind_parts[j], kind_parts[j + 1]
+                if part_start_expr[p0] is None or part_start_expr[p1] is None:
                     continue
-                # Find adjacent court in same pair
-                for (c_low, c_high) in COURT_PAIRS:
-                    if c1 == c_low:
-                        c2 = c_high
-                    elif c1 == c_high:
-                        c2 = c_low
-                    else:
-                        continue
-                    
-                    # If D can be scheduled at same slot on adjacent court
-                    if (d_part, s, c2) in x:
-                        # x[s_part,s,c1] = 1 → x[d_part,s,c2] = 1
-                        # Rewrite as: x[s_part,s,c1] ≤ x[d_part,s,c2]
-                        problem.addConstraint(
-                            x[(s_part, s, c1)] <= x[(d_part, s, c2)],
-                            name=f"pair_S{s_part}_D{d_part}_s{s}_c{c1}-{c2}"
-                        )
-                        # And vice versa
-                        problem.addConstraint(
-                            x[(d_part, s, c2)] <= x[(s_part, s, c1)],
-                            name=f"pair_D{d_part}_S{s_part}_s{s}_c{c2}-{c1}"
-                        )
-    
-    # 4. Max 2 courts per team
-    for t_idx in range(num_teams):
-        court_vars = [team_uses_court[(t_idx, c)] for c in courts]
-        problem.addConstraint(
-            sum(court_vars) <= 2,
-            name=f"team_{t_idx}_max_2_courts"
-        )
-    
-    # 5. Link court usage to part assignments
-    M = 100  # Big-M constant (max parts per team is much less)
-    for t_idx, part_indices in team_parts.items():
-        for c in courts:
-            # If any part of this team uses court c, team_uses_court must be 1
-            part_court_vars = [
-                x[(p_idx, s_idx, court)]
-                for p_idx in part_indices
-                for (pi, s_idx, court) in x.keys()
-                if pi == p_idx and court == c
-            ]
-            if part_court_vars:
-                # Σ x[p,s,c] ≤ M * team_uses_court[t,c]
+                relax = end_min * (unscheduled[p0] + unscheduled[p1])
                 problem.addConstraint(
-                    sum(part_court_vars) <= M * team_uses_court[(t_idx, c)],
-                    name=f"link_court_team_{t_idx}_c{c}"
+                    part_start_expr[p0] <= part_start_expr[p1] + relax,
+                    name=f"pair_start_{t_idx}_{kind}_{p0}_{p1}_a",
                 )
-    
+                problem.addConstraint(
+                    part_start_expr[p1] <= part_start_expr[p0] + relax,
+                    name=f"pair_start_{t_idx}_{kind}_{p0}_{p1}_b",
+                )
+
+    # 4/5. Court-pair confinement: every team uses exactly one adjacent court
+    # pair (1+2, 3+4, ...), and all of its parts must be played on that pair's
+    # two courts. This replaces the looser "max 2 courts" + big-M court-linking
+    # constraints with the correct rule and automatically bounds a team to two
+    # adjacent courts.
+    pair_of_court = {}
+    for pi, (ca, cb) in enumerate(COURT_PAIRS):
+        pair_of_court[ca] = pi
+        pair_of_court[cb] = pi
+
+    team_pair = {}
+    for t_idx in range(num_teams):
+        pvars = []
+        for pi in range(len(COURT_PAIRS)):
+            v = problem.addVariable(
+                name=f"team_pair_{t_idx}_{pi}", vtype=INTEGER, lb=0, ub=1
+            )
+            team_pair[(t_idx, pi)] = v
+            pvars.append(v)
+        problem.addConstraint(sum(pvars) == 1, name=f"team_{t_idx}_one_pair")
+
+    # A part on court c requires its team's selected pair to be the one containing c.
+    for (p_idx, s_idx, c) in x.keys():
+        t_idx = parts[p_idx]["team_idx"]
+        problem.addConstraint(
+            x[(p_idx, s_idx, c)] <= team_pair[(t_idx, pair_of_court[c])],
+            name=f"court_pair_link_p{p_idx}_s{s_idx}_c{c}",
+        )
+
     # 6. Youth start time >= 08:30 (this is already enforced by not creating variables)
     # No additional constraint needed
     
     # 7. Team time windows (link start/end to actual assignments)
+    # Compact form using the per-part linear time expressions: one constraint
+    # per part instead of one per (part, slot, court) assignment.
+    #   scheduled part -> team_start[t] <= part_start, team_end[t] >= part_end
+    # When a part is unscheduled its expression is 0, so the big-M term (scaled
+    # by the part's `unscheduled` indicator) relaxes the constraint.
     M_time = 20 * 60  # Big-M for time (max day duration)
     for t_idx, part_indices in team_parts.items():
         for p_idx in part_indices:
-            part = parts[p_idx]
-            for (pi, s_idx, c) in x.keys():
-                if pi != p_idx:
-                    continue
-                start_time = slot_mins[s_idx]
-                end_time = start_time + part["duration_min"]
-                
-                # x[p,s,c] = 1 → team_start[t] ≤ start_time
-                # Rewrite: team_start[t] ≤ start_time + M*(1 - x[p,s,c])
-                problem.addConstraint(
-                    team_start[t_idx] <= start_time + M_time * (1 - x[(p_idx, s_idx, c)]),
-                    name=f"team_start_{t_idx}_p{p_idx}_s{s_idx}_c{c}"
-                )
-                
-                # x[p,s,c] = 1 → team_end[t] ≥ end_time
-                # Rewrite: team_end[t] ≥ end_time - M*(1 - x[p,s,c])
-                problem.addConstraint(
-                    team_end[t_idx] >= end_time - M_time * (1 - x[(p_idx, s_idx, c)]),
-                    name=f"team_end_{t_idx}_p{p_idx}_s{s_idx}_c{c}"
-                )
+            if part_start_expr[p_idx] is None:
+                continue
+            # team_start[t] <= part_start + M*unscheduled[p]
+            problem.addConstraint(
+                team_start[t_idx] <= part_start_expr[p_idx] + M_time * unscheduled[p_idx],
+                name=f"team_start_{t_idx}_p{p_idx}"
+            )
+            # team_end[t] >= part_end - M*unscheduled[p]
+            problem.addConstraint(
+                team_end[t_idx] >= part_end_expr[p_idx] - M_time * unscheduled[p_idx],
+                name=f"team_end_{t_idx}_p{p_idx}"
+            )
     
     # 8. Reserved slots (already handled by not creating variables)
     # No additional constraint needed
-    
-    # 9. S before D (hard for non-mixed teams)
-    for t_idx, part_indices in team_parts.items():
-        team = day_teams[t_idx]
-        if "gemengd" in team.schema.lower():
-            continue
-        
-        s_parts = [i for i in part_indices if parts[i]["part_kind"] == "S"]
-        d_parts = [i for i in part_indices if parts[i]["part_kind"] == "D"]
-        
-        for s_part in s_parts:
-            for d_part in d_parts:
-                # For all valid assignments of S and D:
-                # start_time(S) ≤ start_time(D)
-                for (pi_s, s_idx_s, c_s) in x.keys():
-                    if pi_s != s_part:
-                        continue
-                    for (pi_d, s_idx_d, c_d) in x.keys():
-                        if pi_d != d_part:
-                            continue
-                        # If both scheduled, S must start before or at same time as D
-                        # slot_mins[s_idx_s] ≤ slot_mins[s_idx_d] when both = 1
-                        # Rewrite: slot_mins[s_idx_s] - slot_mins[s_idx_d] ≤ M*(2 - x[s] - x[d])
-                        if slot_mins[s_idx_s] > slot_mins[s_idx_d]:
-                            # This violates S before D, so forbid both being 1
-                            problem.addConstraint(
-                                x[(s_part, s_idx_s, c_s)] + x[(d_part, s_idx_d, c_d)] <= 1,
-                                name=f"s_before_d_t{t_idx}_s{s_part}_d{d_part}"
-                            )
-    
+
+    # 9. (removed) There is no global "S before D" ordering rule. The OR-Tools
+    # reference model only requires same-kind pairs to start together (see
+    # constraint 3 above); it never forces singles to precede doubles. The
+    # previous S-before-D constraint was both incorrect and over-restrictive,
+    # so it has been dropped.
+
+    # =========================================================================
+    # SPAN / GAP LINKING CONSTRAINTS
+    # =========================================================================
+    # Without these the soft span/gap terms could be driven negative (rewarding
+    # empty or inverted schedules), which made the solver leave every part
+    # unscheduled. team_total_duration is the sum of the durations of a team's
+    # parts; because a team may play two parts in parallel on two courts, the
+    # span (end - start) can legitimately be *smaller* than the total duration,
+    # so the gap must be clamped at 0 via a dedicated non-negative variable.
+    team_total_duration = {
+        t_idx: sum(parts[p]["duration_min"] for p in part_indices)
+        for t_idx, part_indices in team_parts.items()
+    }
+    for t_idx in range(num_teams):
+        # Span is non-negative.
+        problem.addConstraint(
+            team_end[t_idx] >= team_start[t_idx],
+            name=f"team_span_nonneg_{t_idx}",
+        )
+        # Gap penalty variable: gap >= span - total_duration, and gap >= 0 (lb).
+        # It only ever adds cost, never subtracts it.
+        problem.addConstraint(
+            team_gap_penalty[t_idx]
+            >= team_end[t_idx] - team_start[t_idx] - team_total_duration[t_idx],
+            name=f"team_gap_link_{t_idx}",
+        )
+
     # =========================================================================
     # OBJECTIVE FUNCTION (soft constraints)
     # =========================================================================
-    
+    #
+    # Scheduling as many parts as possible is the top priority, so the penalty
+    # for an unscheduled part must exceed the largest soft cost the solver could
+    # ever save by leaving parts out. The soft tuning weights below are large
+    # (hundreds of thousands to millions) and multiply minute-scale quantities,
+    # so they are scaled down by SOFT_SCALE to keep the whole soft budget well
+    # under the unscheduled penalty and within a numerically healthy range.
     objective_terms = []
-    
-    # 0. CRITICAL: Heavy penalty for unscheduled parts (10 million per part)
-    # Balance: high enough to force scheduling, low enough to avoid numerical issues
-    UNSCHEDULED_PENALTY = 10_000_000
+
+    SOFT_SCALE = 1.0 / 10_000.0
+
+    # 0. CRITICAL: dominant penalty for unscheduled parts -> schedule first.
+    UNSCHEDULED_PENALTY = 100_000_000
     for p_idx in range(num_parts):
         objective_terms.append(UNSCHEDULED_PENALTY * unscheduled[p_idx])
-    
-    # 10. Team span minimization
+
+    # 10. Team span minimization (compactness).
     for t_idx in range(num_teams):
-        objective_terms.append(w_team_span * (team_end[t_idx] - team_start[t_idx]))
-    
-    # 11. High court penalty
+        objective_terms.append(
+            SOFT_SCALE * w_team_span * (team_end[t_idx] - team_start[t_idx])
+        )
+
+    # 11. High court penalty (prefer low-numbered courts).
     for (p_idx, s_idx, c) in x.keys():
-        objective_terms.append(w_high_court_penalty * c * x[(p_idx, s_idx, c)])
-    
-    # 12. Long gaps within team (simplified: penalize span - total_duration)
-    # This is a proxy for gaps; full implementation would track exact gaps
-    for t_idx, part_indices in team_parts.items():
-        total_duration = sum(parts[p]["duration_min"] for p in part_indices)
-        # Span = team_end - team_start
-        # Gap ≈ span - total_duration
-        # Penalize this if it's large
-        objective_terms.append(w_long_gap * (team_end[t_idx] - team_start[t_idx] - total_duration) / 100)
-    
-    # 13. Block fragmentation (simplified: penalize number of different start times)
-    # Full implementation would count actual blocks; here we use a heuristic
-    for t_idx, part_indices in team_parts.items():
-        # Count unique start slots used (proxy for block count)
-        # This is complex to linearize exactly, so we use part count as proxy
-        # In practice, OR-Tools handles this better with interval variables
-        objective_terms.append(w_block_rise * block_count[t_idx] / 1000)
-    
-    # 14. Late start penalty
+        objective_terms.append(SOFT_SCALE * w_high_court_penalty * c * x[(p_idx, s_idx, c)])
+
+    # 12. Long gaps within a team (clamped at 0 via team_gap_penalty).
+    for t_idx in range(num_teams):
+        objective_terms.append(SOFT_SCALE * w_long_gap * team_gap_penalty[t_idx] / 100)
+
+    # 14. Late start penalty (after 14:00).
     for (p_idx, s_idx, c) in x.keys():
         start_time = slot_mins[s_idx]
-        if start_time > 14 * 60:  # After 14:00
+        if start_time > 14 * 60:
             lateness = start_time - 14 * 60
-            objective_terms.append(w_late_start * lateness * x[(p_idx, s_idx, c)] / 100)
-    
-    # 15. Youth late penalty
+            objective_terms.append(
+                SOFT_SCALE * w_late_start * lateness * x[(p_idx, s_idx, c)] / 100
+            )
+
+    # 15. Youth late penalty (youth after 16:00).
     for (p_idx, s_idx, c) in x.keys():
         part = parts[p_idx]
         if part["is_youth"]:
             start_time = slot_mins[s_idx]
-            if start_time > 16 * 60:  # After 16:00
+            if start_time > 16 * 60:
                 lateness = start_time - 16 * 60
-                objective_terms.append(w_youth_late * lateness * x[(p_idx, s_idx, c)] / 100)
-    
+                objective_terms.append(
+                    SOFT_SCALE * w_youth_late * lateness * x[(p_idx, s_idx, c)] / 100
+                )
+
     # Set objective: minimize total weighted cost
     problem.setObjective(sum(objective_terms), sense=MINIMIZE)
     
