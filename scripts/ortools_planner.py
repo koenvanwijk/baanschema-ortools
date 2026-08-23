@@ -183,21 +183,46 @@ def solve_day(
     Main scheduler. If two_phase=True, runs a two-phase approach:
       Phase A: Groen + JU + lagere jeugd → plan eerst, reserveer banen tot ~13:30
       Phase B: GEM + HER + hogere klassen → plan daarna met fase-A als reserveringen
+
+    Startregels dag: planner probeert eerst dagstart 09:00. Alleen als dat leidt
+    tot partijen die pas na 19:30 moeten starten, of tot onplanbare (NIET_GELUKT)
+    partijen, valt de planner terug op dagstart 08:30.
     """
-    if two_phase:
-        return solve_day_two_phase(
+    def _run(day_start_pref: int) -> dict:
+        if two_phase:
+            return solve_day_two_phase(
+                date, teams, reservations, time_limit_s,
+                w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
+                w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
+                w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+                day_start_pref=day_start_pref,
+            )
+        return _solve_single_phase(
             date, teams, reservations, time_limit_s,
             w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed
+            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+            day_start_pref=day_start_pref,
         )
-    # Anders: single-phase zoals voorheen
-    return _solve_single_phase(
-        date, teams, reservations, time_limit_s,
-        w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
-        w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-        w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed
-    )
+
+    result_0900 = _run(9 * 60)
+    rows_0900 = result_0900.get("rows", [])
+    failed_0900 = [r for r in rows_0900 if r.get("start") == "NIET_GELUKT"]
+    valid_starts_0900 = [
+        int(r["start"][:2]) * 60 + int(r["start"][3:])
+        for r in rows_0900
+        if r.get("start") not in (None, "", "NIET_GELUKT")
+    ]
+    if (
+        result_0900.get("status") in ("OPTIMAL", "FEASIBLE")
+        and not failed_0900
+        and valid_starts_0900
+        and max(valid_starts_0900) <= 19 * 60 + 30
+    ):
+        return result_0900
+
+    # Terugval naar 08:30 dagstart.
+    return _run(8 * 60 + 30)
 
 
 def solve_day_two_phase(
@@ -217,6 +242,7 @@ def solve_day_two_phase(
     w_high_court_penalty: int,
     w_team_span: int,
     random_seed: int,
+    day_start_pref: int = 8 * 60 + 30,
 ) -> dict:
     """Two-phase scheduler: fase-A (morning) then fase-B (afternoon)."""
     
@@ -248,7 +274,8 @@ def solve_day_two_phase(
         date, phase_a_teams, reservations, time_limit_s / 2,
         w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
         w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-        w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed
+        w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+        day_start_pref=day_start_pref,
     )
     
     if result_a["status"] not in ["OPTIMAL", "FEASIBLE"]:
@@ -278,7 +305,8 @@ def solve_day_two_phase(
             w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
             w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
-            extra_reserved=phase_a_reservations
+            extra_reserved=phase_a_reservations,
+            day_start_pref=day_start_pref,
         )
         return result_a["rows"] + rb["rows"]
 
@@ -288,6 +316,7 @@ def solve_day_two_phase(
             w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
             w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+            day_start_pref=day_start_pref,
         )
         return rs.get("rows", [])
 
@@ -327,12 +356,13 @@ def _solve_single_phase(
     w_team_span: int = 200_000,
     random_seed: int = 42,
     extra_reserved: list = None,
+    day_start_pref: int = 8 * 60 + 30,
 ) -> dict:
     day_teams = [t for t in teams if t.date == date]
     day_res = [r for r in reservations if r.date == date]
 
     # quarter-hour grid
-    start_min = 8 * 60 + 30
+    start_min = day_start_pref
     end_min = 20 * 60
     slot_mins = list(range(start_min, end_min + 1, 15))
     slot_idx = {m: i for i, m in enumerate(slot_mins)}

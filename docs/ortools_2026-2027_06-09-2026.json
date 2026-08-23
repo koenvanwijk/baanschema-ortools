@@ -1,5 +1,5 @@
 {
-  "status": "OPTIMAL",
+  "status": "FEASIBLE",
   "date": "06-09-2026",
   "rows": [
     {
@@ -9,8 +9,8 @@
       "away_team": "WEERT-OOST 1",
       "part": "S3",
       "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
+      "start": "09:00",
+      "end": "09:45",
       "court": 1
     },
     {
@@ -20,9 +20,53 @@
       "away_team": "WEERT-OOST 1",
       "part": "S4",
       "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
+      "start": "09:00",
+      "end": "09:45",
       "court": 2
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
+      "home_team": "MIERLO 4",
+      "away_team": "VENLO 6",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
+      "home_team": "MIERLO 4",
+      "away_team": "VENLO 6",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 36",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
+      "home_team": "MIERLO 1",
+      "away_team": "LIESSEL 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 36",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
+      "home_team": "MIERLO 1",
+      "away_team": "LIESSEL 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8
     },
     {
       "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
@@ -31,9 +75,9 @@
       "away_team": "VALKENSWAARD 1",
       "part": "S4",
       "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
-      "court": 3
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9
     },
     {
       "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
@@ -42,52 +86,8 @@
       "away_team": "VALKENSWAARD 1",
       "part": "S3",
       "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
-      "court": 4
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "LIESSEL 1",
-      "part": "S1",
-      "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
-      "court": 7
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "LIESSEL 1",
-      "part": "S2",
-      "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
-      "court": 8
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "VENLO 6",
-      "part": "S2",
-      "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
-      "court": 9
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "VENLO 6",
-      "part": "S1",
-      "kind": "S",
-      "start": "08:30",
-      "end": "09:15",
+      "start": "09:00",
+      "end": "09:45",
       "court": 10
     },
     {
@@ -97,8 +97,8 @@
       "away_team": "WEERT-OOST 1",
       "part": "S2",
       "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
+      "start": "09:45",
+      "end": "10:30",
       "court": 1
     },
     {
@@ -108,9 +108,53 @@
       "away_team": "WEERT-OOST 1",
       "part": "S1",
       "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
+      "start": "09:45",
+      "end": "10:30",
       "court": 2
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
+      "home_team": "MIERLO 4",
+      "away_team": "VENLO 6",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
+      "home_team": "MIERLO 4",
+      "away_team": "VENLO 6",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 36",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
+      "home_team": "MIERLO 1",
+      "away_team": "LIESSEL 1",
+      "part": "S2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 36",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
+      "home_team": "MIERLO 1",
+      "away_team": "LIESSEL 1",
+      "part": "S1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8
     },
     {
       "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
@@ -119,9 +163,9 @@
       "away_team": "VALKENSWAARD 1",
       "part": "S2",
       "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
-      "court": 3
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9
     },
     {
       "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
@@ -130,52 +174,8 @@
       "away_team": "VALKENSWAARD 1",
       "part": "S1",
       "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
-      "court": 4
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "LIESSEL 1",
-      "part": "S4",
-      "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
-      "court": 7
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "LIESSEL 1",
-      "part": "S3",
-      "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
-      "court": 8
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "VENLO 6",
-      "part": "S4",
-      "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
-      "court": 9
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "VENLO 6",
-      "part": "S3",
-      "kind": "S",
-      "start": "09:15",
-      "end": "10:00",
+      "start": "09:45",
+      "end": "10:30",
       "court": 10
     },
     {
@@ -183,10 +183,10 @@
       "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
       "home_team": "MIERLO 1",
       "away_team": "WEERT-OOST 1",
-      "part": "D1",
+      "part": "D2",
       "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
+      "start": "10:30",
+      "end": "11:15",
       "court": 1
     },
     {
@@ -194,55 +194,11 @@
       "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
       "home_team": "MIERLO 1",
       "away_team": "WEERT-OOST 1",
-      "part": "D2",
+      "part": "D1",
       "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
+      "start": "10:30",
+      "end": "11:15",
       "court": 2
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "VALKENSWAARD 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
-      "court": 3
-    },
-    {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "VALKENSWAARD 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
-      "court": 4
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "LIESSEL 1",
-      "part": "D1",
-      "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
-      "court": 7
-    },
-    {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "LIESSEL 1",
-      "part": "D2",
-      "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
-      "court": 8
     },
     {
       "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
@@ -251,30 +207,96 @@
       "away_team": "VENLO 6",
       "part": "D2",
       "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 3
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
+      "home_team": "MIERLO 4",
+      "away_team": "VENLO 6",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 4
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 36",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
+      "home_team": "MIERLO 1",
+      "away_team": "LIESSEL 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 7
+    },
+    {
+      "team": "Groen Zondag – Groen 1  – Afdeling 36",
+      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
+      "home_team": "MIERLO 1",
+      "away_team": "LIESSEL 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 8
+    },
+    {
+      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "VALKENSWAARD 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
       "court": 9
     },
     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "VENLO 6",
+      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
+      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "VALKENSWAARD 1",
       "part": "D1",
       "kind": "D",
-      "start": "10:00",
-      "end": "10:45",
+      "start": "10:30",
+      "end": "11:15",
       "court": 10
     },
     {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
+      "home_team": "MIERLO 3",
+      "away_team": "BRZ 1",
+      "part": "S4",
+      "kind": "S",
+      "start": "11:00",
+      "end": "12:30",
+      "court": 5
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
+      "home_team": "MIERLO 3",
+      "away_team": "BRZ 1",
+      "part": "S3",
+      "kind": "S",
+      "start": "11:00",
+      "end": "12:30",
+      "court": 6
+    },
+    {
       "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
       "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
       "home_team": "MIERLO 1",
       "away_team": "GEMERT 3",
       "part": "S1",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
+      "start": "11:15",
+      "end": "12:45",
       "court": 1
     },
     {
@@ -284,30 +306,30 @@
       "away_team": "GEMERT 3",
       "part": "S2",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
+      "start": "11:15",
+      "end": "12:45",
       "court": 2
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BRZ 1",
-      "part": "S4",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "MIERLO 3",
+      "part": "S2",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
+      "start": "11:15",
+      "end": "12:45",
       "court": 3
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BRZ 1",
-      "part": "S3",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "MIERLO 3",
+      "part": "S1",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
+      "start": "11:15",
+      "end": "12:45",
       "court": 4
     },
     {
@@ -317,9 +339,9 @@
       "away_team": "WETTENSEIND 2",
       "part": "S2",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
-      "court": 5
+      "start": "11:15",
+      "end": "12:45",
+      "court": 9
     },
     {
       "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
@@ -328,31 +350,31 @@
       "away_team": "WETTENSEIND 2",
       "part": "S1",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
-      "court": 6
+      "start": "11:15",
+      "end": "12:45",
+      "court": 10
     },
     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "MIERLO 3",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
+      "home_team": "MIERLO 3",
+      "away_team": "BRZ 1",
       "part": "S2",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
-      "court": 7
+      "start": "12:30",
+      "end": "14:00",
+      "court": 5
     },
     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "MIERLO 3",
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
+      "home_team": "MIERLO 3",
+      "away_team": "BRZ 1",
       "part": "S1",
       "kind": "S",
-      "start": "11:00",
-      "end": "12:30",
-      "court": 8
+      "start": "12:30",
+      "end": "14:00",
+      "court": 6
     },
     {
       "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
@@ -361,8 +383,8 @@
       "away_team": "GEMERT 3",
       "part": "S4",
       "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
+      "start": "12:45",
+      "end": "14:15",
       "court": 1
     },
     {
@@ -372,30 +394,30 @@
       "away_team": "GEMERT 3",
       "part": "S3",
       "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
+      "start": "12:45",
+      "end": "14:15",
       "court": 2
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BRZ 1",
-      "part": "S2",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "MIERLO 3",
+      "part": "S4",
       "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
+      "start": "12:45",
+      "end": "14:15",
       "court": 3
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BRZ 1",
-      "part": "S1",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "MIERLO 3",
+      "part": "S3",
       "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
+      "start": "12:45",
+      "end": "14:15",
       "court": 4
     },
     {
@@ -405,9 +427,9 @@
       "away_team": "WETTENSEIND 2",
       "part": "S4",
       "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
-      "court": 5
+      "start": "12:45",
+      "end": "14:15",
+      "court": 9
     },
     {
       "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
@@ -416,31 +438,31 @@
       "away_team": "WETTENSEIND 2",
       "part": "S3",
       "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 10
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
+      "home_team": "MIERLO 3",
+      "away_team": "BRZ 1",
+      "part": "D2",
+      "kind": "D",
+      "start": "14:00",
+      "end": "15:30",
+      "court": 5
+    },
+    {
+      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
+      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
+      "home_team": "MIERLO 3",
+      "away_team": "BRZ 1",
+      "part": "D1",
+      "kind": "D",
+      "start": "14:00",
+      "end": "15:30",
       "court": 6
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "MIERLO 3",
-      "part": "S3",
-      "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
-      "court": 7
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "MIERLO 3",
-      "part": "S4",
-      "kind": "S",
-      "start": "12:30",
-      "end": "14:00",
-      "court": 8
     },
     {
       "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
@@ -449,8 +471,8 @@
       "away_team": "GEMERT 3",
       "part": "D2",
       "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
+      "start": "14:15",
+      "end": "15:45",
       "court": 1
     },
     {
@@ -460,30 +482,30 @@
       "away_team": "GEMERT 3",
       "part": "D1",
       "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
+      "start": "14:15",
+      "end": "15:45",
       "court": 2
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BRZ 1",
-      "part": "D1",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "MIERLO 3",
+      "part": "D2",
       "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
+      "start": "14:15",
+      "end": "15:45",
       "court": 3
     },
     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BRZ 1",
-      "part": "D2",
+      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
+      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
+      "home_team": "MIERLO 2",
+      "away_team": "MIERLO 3",
+      "part": "D1",
       "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
+      "start": "14:15",
+      "end": "15:45",
       "court": 4
     },
     {
@@ -493,9 +515,9 @@
       "away_team": "WETTENSEIND 2",
       "part": "D2",
       "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
-      "court": 5
+      "start": "14:15",
+      "end": "15:45",
+      "court": 9
     },
     {
       "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
@@ -504,32 +526,10 @@
       "away_team": "WETTENSEIND 2",
       "part": "D1",
       "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
-      "court": 6
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "MIERLO 3",
-      "part": "D1",
-      "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
-      "court": 7
-    },
-    {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "MIERLO 3",
-      "part": "D2",
-      "kind": "D",
-      "start": "14:00",
-      "end": "15:30",
-      "court": 8
+      "start": "14:15",
+      "end": "15:45",
+      "court": 10
     }
   ],
-  "objective": 47743436000.0
+  "objective": 47740010000.0
 }
