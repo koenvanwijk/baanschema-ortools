@@ -187,6 +187,13 @@ def solve_day(
     Startregels dag: planner probeert eerst dagstart 09:00. Alleen als dat leidt
     tot partijen die pas na 19:30 moeten starten, of tot onplanbare (NIET_GELUKT)
     partijen, valt de planner terug op dagstart 08:30.
+
+    First-match cutoff (eerste teamwedstrijd uiterlijk 15:00, met datum-specifieke
+    verruiming op kneldagen) blijft een ZACHTE voorkeur (team_cutoff_bonus in de
+    objective). Een experiment met harde handhaving + escalatieladder gaf meer
+    NIET_GELUKT-partijen dan de zachte variant op meerdere dagen (regressie), dus
+    is teruggedraaid conform het niet-blocking beleid: harde eisen mogen de build
+    nooit verslechteren t.o.v. de zachte voorkeur.
     """
     def _run(day_start_pref: int) -> dict:
         if two_phase:
@@ -222,7 +229,14 @@ def solve_day(
         return result_0900
 
     # Terugval naar 08:30 dagstart.
-    return _run(8 * 60 + 30)
+    result_0830 = _run(8 * 60 + 30)
+
+    # Niet-blocking beleid: kies de poging met de minste NIET_GELUKT-partijen.
+    ng_0900 = len(failed_0900)
+    ng_0830 = sum(1 for r in result_0830.get("rows", []) if r.get("start") == "NIET_GELUKT")
+    if result_0900.get("status") in ("OPTIMAL", "FEASIBLE") and ng_0900 <= ng_0830:
+        return result_0900
+    return result_0830
 
 
 def solve_day_two_phase(
@@ -243,6 +257,7 @@ def solve_day_two_phase(
     w_team_span: int,
     random_seed: int,
     day_start_pref: int = 8 * 60 + 30,
+    enforce_cutoff_hard: bool = False,
 ) -> dict:
     """Two-phase scheduler: fase-A (morning) then fase-B (afternoon)."""
     
@@ -276,6 +291,7 @@ def solve_day_two_phase(
         w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
         w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
         day_start_pref=day_start_pref,
+        enforce_cutoff_hard=enforce_cutoff_hard,
     )
     
     if result_a["status"] not in ["OPTIMAL", "FEASIBLE"]:
@@ -307,6 +323,7 @@ def solve_day_two_phase(
             w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
             extra_reserved=phase_a_reservations,
             day_start_pref=day_start_pref,
+            enforce_cutoff_hard=enforce_cutoff_hard,
         )
         return result_a["rows"] + rb["rows"]
 
@@ -317,6 +334,7 @@ def solve_day_two_phase(
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
             w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
             day_start_pref=day_start_pref,
+            enforce_cutoff_hard=enforce_cutoff_hard,
         )
         return rs.get("rows", [])
 
@@ -357,6 +375,7 @@ def _solve_single_phase(
     random_seed: int = 42,
     extra_reserved: list = None,
     day_start_pref: int = 8 * 60 + 30,
+    enforce_cutoff_hard: bool = False,
 ) -> dict:
     day_teams = [t for t in teams if t.date == date]
     day_res = [r for r in reservations if r.date == date]
@@ -482,6 +501,10 @@ def _solve_single_phase(
     # Meta lookup by unique key (used for court/span heuristics below).
     team_meta_by_key = {(t.team_key or t.schema): t for t in day_teams}
 
+    def free_static_courts_at(t: int) -> int:
+        reserved_courts_here = {rc for rc, rs, re in reserved if rs <= t < re}
+        return len(courts) - len(reserved_courts_here)
+
     for team, idxs in by_team.items():
         s_parts = [i for i in idxs if parts[i]["kind"] == "S"]
         d_parts = [i for i in idxs if parts[i]["kind"] == "D"]
@@ -489,9 +512,22 @@ def _solve_single_phase(
         combo_parts = [i for i in idxs if parts[i].get("is_4p_combo")]
         non_s_parts = [i for i in idxs if parts[i]["kind"] != "S"]
 
-        # Singles vóór doubles: alleen voor niet-gemengde teams strict.
-        # Gemengde teams (GEM): S en GD mogen overlappen (Gold doet dit ook).
+        # Extra startregel (planningsregels.md): kijk naar het eerste haalbare
+        # startvenster van het team. Zijn daar nog maar 1-2 banen vrij (na
+        # aftrek van Rood/Oranje-reserveringen), dan heeft het team een ZACHTE
+        # voorkeur om te starten met dubbels/GD i.p.v. singles. Zijn er 3+ banen
+        # vrij, dan blijft de oude standaardregel (singles eerst, hard) gelden.
+        # Zachte voorkeur i.p.v. harde eis: een harde omkering bleek op sommige
+        # dagen extra partijen onplanbaar te maken (regressie t.o.v. de oude
+        # gedrag), wat in strijd is met het niet-blocking beleid.
         team_is_mixed = parts[idxs[0]].get("is_mixed_team", False) if idxs else False
+        earliest_candidates = [min(allowed_starts[i]) for i in idxs if allowed_starts[i]]
+        earliest_start = min(earliest_candidates) if earliest_candidates else start_min
+        free_at_earliest = free_static_courts_at(earliest_start)
+        prefer_doubles_first = (not team_is_mixed) and non_s_parts and free_at_earliest <= 2
+
+        # Singles vóór doubles: harde eis voor niet-gemengde teams (ongewijzigd).
+        # Gemengde teams (GEM): S en GD mogen overlappen (Gold doet dit ook).
         if not team_is_mixed:
             for si in s_parts:
                 dur_s = parts[si]["duration"]
@@ -606,8 +642,43 @@ def _solve_single_phase(
                 if female_terms:
                     model.add(sum(female_terms) <= 2)
 
-    # NOTE: first-match cutoff is treated as soft preference in OR mode.
-    # Hard enforcement made several days infeasible; we keep it in the objective instead.
+    # First-match cutoff: bij enforce_cutoff_hard=True wordt dit een harde eis
+    # per team (eerste teamwedstrijd start uiterlijk op de cutoff-tijd). Bij
+    # False (laatste redmiddel in de escalatieladder van solve_day) blijft het
+    # een zachte voorkeur via de objective (team_cutoff_bonus hieronder).
+    if enforce_cutoff_hard:
+        for team, idxs in by_team.items():
+            late_starts = []
+            for i in idxs:
+                for s in allowed_starts[i]:
+                    if s > first_cutoff:
+                        for c in courts:
+                            late_starts.append(x[(i, s, c)])
+            if not late_starts:
+                continue
+            # Team mag alleen na de cutoff starten als er al een eerdere partij
+            # van datzelfde team vóór/op de cutoff is gestart (dus dit is geen
+            # eerste-wedstrijd-schending).
+            early_starts = []
+            for i in idxs:
+                for s in allowed_starts[i]:
+                    if s <= first_cutoff:
+                        for c in courts:
+                            early_starts.append(x[(i, s, c)])
+            if early_starts:
+                has_early_hard = model.new_bool_var(f"cutoff_hard_early_{abs(hash(team))%10_000_000}")
+                model.add(sum(early_starts) >= 1).only_enforce_if(has_early_hard)
+                model.add(sum(early_starts) == 0).only_enforce_if(has_early_hard.Not())
+                model.add(sum(late_starts) == 0).only_enforce_if(has_early_hard.Not())
+            else:
+                # Geen enkele toegestane start valt vóór de cutoff: team kan de
+                # eis nooit halen (bv. jeugd 13-17 met harde ondergrens 11:00 op
+                # een dag met cutoff 15:00 zou hier nog kunnen). Laat dit team
+                # ongemoeid; de escalatieladder in solve_day vangt dit geval op.
+                pass
+
+    # NOTE: als enforce_cutoff_hard=False blijft de cutoff een soft preference
+    # (zie team_cutoff_bonus in de objective hieronder).
 
     # Lexicographic-like objective (grote gewichtsstappen):
     # 1) maximaal planbaar
@@ -657,6 +728,33 @@ def _solve_single_phase(
             model.add(sum(early_terms) >= 1).only_enforce_if(has_early)
             model.add(sum(early_terms) == 0).only_enforce_if(has_early.Not())
             team_cutoff_bonus.append(has_early)
+
+    # soft bonus: teams met weinig vrije banen op hun eerste haalbare moment
+    # krijgen een bonus als hun eerste gestarte partij dubbels/GD is i.p.v.
+    # singles (planningsregels.md extra startregel, als zachte voorkeur).
+    doubles_first_bonus = []
+    for team, idxs in by_team.items():
+        team_is_mixed_pref = parts[idxs[0]].get("is_mixed_team", False) if idxs else False
+        non_s_parts_pref = [i for i in idxs if parts[i]["kind"] != "S"]
+        s_parts_pref = [i for i in idxs if parts[i]["kind"] == "S"]
+        if team_is_mixed_pref or not non_s_parts_pref or not s_parts_pref:
+            continue
+        earliest_candidates = [min(allowed_starts[i]) for i in idxs if allowed_starts[i]]
+        earliest_start = min(earliest_candidates) if earliest_candidates else start_min
+        free_at_earliest = free_static_courts_at(earliest_start)
+        if free_at_earliest > 2:
+            continue
+        first_is_doubles = model.new_bool_var(f"first_doubles_{abs(hash(team))%10_000_000}")
+        earliest_doubles_terms = []
+        for i in non_s_parts_pref:
+            for s in allowed_starts[i]:
+                if s == earliest_start:
+                    for c in courts:
+                        earliest_doubles_terms.append(x[(i, s, c)])
+        if earliest_doubles_terms:
+            model.add(sum(earliest_doubles_terms) >= 1).only_enforce_if(first_is_doubles)
+            model.add(sum(earliest_doubles_terms) == 0).only_enforce_if(first_is_doubles.Not())
+            doubles_first_bonus.append(first_is_doubles)
 
     # team-first compactness: teams kiezen klein court-budget + zo klein mogelijke span/slack
     team_block_rises = []
@@ -875,6 +973,7 @@ def _solve_single_phase(
         + w_total_occ * sum(total_occ_terms)
         # Comfort preferences:
         + w_cutoff_bonus * sum(team_cutoff_bonus)
+        + 40_000 * sum(doubles_first_bonus)  # Extra startregel: 1-2 banen vrij -> D/GD eerst (soft)
         + w_early_start * sum(early_start_bonus)
         - w_late_start * sum(late_start_penalty)
         - w_youth_late * sum(youth_late_penalty)
