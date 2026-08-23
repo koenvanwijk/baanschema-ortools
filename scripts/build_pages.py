@@ -1162,7 +1162,27 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 </style>
 </head>
 <body>
+<script>
+(function(){{
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('season') !== 'voorjaar') {{
+    window.location.replace('./mierlo-2026-2027.html');
+  }}
+}})();
+</script>
+<div style='display:flex;gap:.5rem;align-items:center;margin:.4rem 0 .6rem 0'>
+  <label for='seasonSelect' style='font-weight:600;font-size:13px'>Seizoen:</label>
+  <select id='seasonSelect' onchange="if(this.value==='najaar'){{window.location.href='./mierlo-2026-2027.html';}}else{{window.location.href='./index.html?season=voorjaar';}}">
+    <option value='voorjaar' selected>2026-Voorjaar</option>
+    <option value='najaar'>2026-Najaar</option>
+  </select>
+</div>
 <h1>Baanschemaatje (per kwartier)</h1>
+<div style='background:#eef4ff;border:1px solid #c8d4ff;border-radius:10px;padding:.6rem .85rem;margin:.4rem 0 1rem 0'>
+  <strong>Nieuw seizoen 2026-2027:</strong> bekijk het
+  <a href='./mierlo-2026-2027.html'>baanschema voor de Mierlo-thuiszondagen 2026-2027 →</a>
+  (deze pagina toont het seizoen 2025-2026).
+</div>
 <p class='small'>Kolommen = banen, rijen = kwartierblokken. Cellen tonen team + partij (S1/D2/GD1). Startvoorkeur is 08:30. Eerste teamwedstrijd is normaal uiterlijk 15:00, met verruiming op kneldatums. Volgorde is jong naar oud; gemengde teams starten later (vanaf 10:00) waar mogelijk.</p>
 <div class='requirements'>
   <h3>Planningsregels (actueel)</h3>

@@ -22,6 +22,11 @@ class TeamDay:
     singles: int
     doubles: int
     mix: int
+    # Unique key per (day, schema, home team). Guards against merging two teams
+    # that happen to share the same schema string on one day (bug #1).
+    team_key: str = ""
+    home_team: str = ""
+    away_team: str = ""
 
 
 @dataclass
@@ -57,6 +62,16 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
             d = _to_int(row.get("Wedstrijdduur") or "")
             if not m or not d:
                 continue
+            team1 = (row.get("Team 1") or "").strip()
+            team2 = (row.get("Team 2") or "").strip()
+            # KNLTB export: Team 1 is the home team. Fall back to team1 as home.
+            home_team = team1
+            away_team = team2
+            if team1 and not team1.upper().startswith("MIERLO") and team2.upper().startswith("MIERLO"):
+                # Defensive: if only Team 2 is Mierlo, treat that as home side.
+                home_team, away_team = team2, team1
+            # Unique key so two teams with the same schema on one day stay separate.
+            team_key = f"{schema} · {home_team}" if home_team else schema
             teams.append(
                 TeamDay(
                     date=date,
@@ -66,6 +81,9 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
                     singles=_to_int(row.get("Singles") or ""),
                     doubles=_to_int(row.get("Doubles") or ""),
                     mix=_to_int(row.get("Mix") or ""),
+                    team_key=team_key,
+                    home_team=home_team,
+                    away_team=away_team,
                 )
             )
     return teams, reservations
@@ -353,6 +371,9 @@ def _solve_single_phase(
             parts.append(
                 {
                     "team": t.schema,
+                    "team_key": t.team_key or t.schema,
+                    "home_team": t.home_team,
+                    "away_team": t.away_team,
                     "label": label,
                     "kind": kind,
                     "duration": t.duration_min,
@@ -421,10 +442,15 @@ def _solve_single_phase(
             else:
                 model.add(sum(occ) <= 1)
 
-    # S and D cannot overlap within same team (M can overlap)
+    # S and D cannot overlap within same team (M can overlap).
+    # Group by the UNIQUE team key (schema + home team), so two teams that share
+    # the same schema string on one day are never merged (bug #1).
     by_team = defaultdict(list)
     for i, p in enumerate(parts):
-        by_team[p["team"]].append(i)
+        by_team[p["team_key"]].append(i)
+
+    # Meta lookup by unique key (used for court/span heuristics below).
+    team_meta_by_key = {(t.team_key or t.schema): t for t in day_teams}
 
     for team, idxs in by_team.items():
         s_parts = [i for i in idxs if parts[i]["kind"] == "S"]
@@ -459,7 +485,13 @@ def _solve_single_phase(
                 for idx in range(0, len(parts_list) - 1, 2):
                     pair_same_start(parts_list[idx], parts_list[idx + 1])
 
-        # Originele per-slot occupancy constraints (S en D niet tegelijk).
+        # Per-slot occupancy constraints (S/D, D/GD, and S/GD-for-combo may not
+        # run at the same time). BUG #2 FIX: this MUST hold over ALL timeslots of
+        # the team, not just a single leftover `t`. Previously this block sat
+        # outside any timeslot loop and reused the last `t` from an earlier loop,
+        # so the non-overlap rule was only enforced in one 15-min slot.
+        team_hash = abs(hash(team)) % 10_000_000
+        for t in slot_mins[:-1]:
             s_occ = []
             d_occ = []
             m_occ = []
@@ -483,21 +515,21 @@ def _solve_single_phase(
             d_sum = sum(d_occ)
             m_sum = sum(m_occ)
 
-            # Singles en dubbels mogen niet tegelijk.
+            # Singles en dubbels mogen niet tegelijk (alle teams).
             if s_parts and d_parts:
-                z_sd = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_sd_mode")
+                z_sd = model.new_bool_var(f"team_{team_hash}_t{t}_sd_mode")
                 model.add(s_sum <= 10 * z_sd)
                 model.add(d_sum <= 10 * (1 - z_sd))
 
-            # Gemengd dubbel (M/GD) en dubbel mogen niet tegelijk.
+            # Gemengd dubbel (M/GD) en dubbel mogen niet tegelijk (alle teams).
             if m_parts and d_parts:
-                z_md = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_md_mode")
+                z_md = model.new_bool_var(f"team_{team_hash}_t{t}_md_mode")
                 model.add(m_sum <= 10 * z_md)
                 model.add(d_sum <= 10 * (1 - z_md))
 
             # Voor 2DE-2HE-DD-HD-2GD-teams: singles en GD ook niet tegelijk (4-spelers team).
             if combo_parts and s_parts and m_parts:
-                z_sm = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_t{t}_sm_mode")
+                z_sm = model.new_bool_var(f"team_{team_hash}_t{t}_sm_mode")
                 model.add(s_sum <= 10 * z_sm)
                 model.add(m_sum <= 10 * (1 - z_sm))
 
@@ -646,7 +678,7 @@ def _solve_single_phase(
 
         # Team-first: kies een klein court-budget per team én banen dicht bij elkaar.
         # Hard constraint: team mag alleen op één baan-paar spelen (1+2, 3+4, 5+6, 7+8, 9+10).
-        team_meta = next((t for t in day_teams if t.schema == team), None)
+        team_meta = team_meta_by_key.get(team)
         preferred_courts = estimate_parallel_capacity(team_meta) if team_meta else 2
 
         # Kies welk paar dit team gebruikt (one-of-pairs).
@@ -749,8 +781,8 @@ def _solve_single_phase(
             team_span_slack_penalty.append(slack)
 
         # Soft: alle teams bij voorkeur op lage banen (1-4); 8-wedstrijden-teams extra zwaar.
-        if any(parts[i].get("team") == team and parts[i].get("duration") for i in idxs):
-            team_matches = next((t.matches for t in day_teams if t.schema == team), None)
+        if any(parts[i].get("duration") for i in idxs):
+            team_matches = team_meta_by_key[team].matches if team in team_meta_by_key else None
             weight_mult = 2 if team_matches == 8 else 1
             for i in idxs:
                 for s in allowed_starts[i]:
@@ -839,7 +871,9 @@ def _solve_single_phase(
                     rows.append(
                         {
                             "team": p["team"],
-                            "team_id": p["team"],  # Add team_id for proper grouping
+                            "team_id": p["team_key"],  # unique per (day, schema, home)
+                            "home_team": p.get("home_team", ""),
+                            "away_team": p.get("away_team", ""),
                             "part": p["label"],
                             "kind": p["kind"],
                             "start": mins_to_hhmm(s),
@@ -852,7 +886,9 @@ def _solve_single_phase(
             rows.append(
                 {
                     "team": p["team"],
-                    "team_id": p["team"],  # Add team_id for proper grouping
+                    "team_id": p["team_key"],  # unique per (day, schema, home)
+                    "home_team": p.get("home_team", ""),
+                    "away_team": p.get("away_team", ""),
                     "part": p["label"],
                     "kind": p["kind"],
                     "start": "NIET_GELUKT",
