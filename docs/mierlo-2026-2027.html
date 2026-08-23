@@ -27,6 +27,13 @@ body{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto;
 </style>
 </head>
 <body>
+<div style='display:flex;gap:.5rem;align-items:center;margin:.4rem 0 .6rem 0'>
+  <label for='seasonSelect' style='font-weight:600;font-size:13px'>Seizoen:</label>
+  <select id='seasonSelect' onchange="if(this.value==='voorjaar'){location.href='./index.html?season=voorjaar';}">
+    <option value='najaar' selected>2026-Najaar</option>
+    <option value='voorjaar'>2026-Voorjaar</option>
+  </select>
+</div>
 <h1>Mierlose T.V. — baanschema zondagen 2026-2027</h1>
 <p class='small'>Alleen de thuiswedstrijden van Mierlo op zondagen, gepland per zondag met de OR-Tools CP-SAT solver.
 Kolommen = banen (1–10), rijen = kwartierblokken. Tik op een cel voor detail.
