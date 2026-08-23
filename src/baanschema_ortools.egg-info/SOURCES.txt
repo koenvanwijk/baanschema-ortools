@@ -10,5 +10,6 @@ src/baanschema_ortools.egg-info/entry_points.txt
 src/baanschema_ortools.egg-info/requires.txt
 src/baanschema_ortools.egg-info/top_level.txt
 tests/test_gold_alignment.py
+tests/test_mierlo_2026_2027.py
 tests/test_planner_rules.py
 tests/test_solver.py
