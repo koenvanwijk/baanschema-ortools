@@ -150,6 +150,40 @@ class ExpectedTeam:
     def is_4p_combo(self) -> bool:
         return "2de-2he-dd-hd-2gd" in self.low
 
+    @property
+    def is_junioren(self) -> bool:
+        return "junioren" in self.low
+
+    @property
+    def is_groen(self) -> bool:
+        return "groen zondag" in self.low
+
+    @property
+    def phases(self) -> list[set[str]]:
+        """Faseordening uit SPEC.md sectie 5, als lijst van soortgroepen.
+
+        Groepen moeten elkaar in deze volgorde opvolgen: alles in groep n is
+        afgelopen voordat groep n+1 begint. Binnen een groep mag alles tegelijk.
+
+        - 8-partijenteam: strikte waterval S -> D -> GD.
+        - 5-partijenteam: S en GD samen in fase 1, daarna D.
+        - overige teams: S -> D (die hebben geen GD).
+        """
+        if self.matches == 8:
+            return [{"S"}, {"D"}, {"M"}]
+        if self.matches == 5:
+            return [{"S", "M"}, {"D"}]
+        return [{"S"}, {"D", "M"}]
+
+    @property
+    def first_start_deadline(self) -> tuple[int | None, int | None, str]:
+        """(vroegste, laatste, omschrijving) voor de eerste partij, SPEC.md sectie 2."""
+        if self.matches == 8:
+            return (10 * 60, 11 * 60, "8-partijenteam: tussen 10:00 en 11:00")
+        if self.is_junioren:
+            return (None, 13 * 60, "Junioren 11-14: uiterlijk 13:00")
+        return (None, 15 * 60, "reguliere teams: uiterlijk 15:00")
+
 
 def team_key_of(team) -> str:
     """Unieke sleutel van een teamdag.
@@ -494,22 +528,56 @@ def check_kind_conflicts(
     report_slot_findings(hits, "SOORT-CONFLICT", "HARD", rep, date, team.short)
 
 
-def check_singles_first(
+def check_phases(
     rows: list[dict], team: ExpectedTeam, rep: Report, date: str
 ) -> None:
-    """MODEL: bij niet-gemengde teams starten alle dubbels/GD na de laatste single."""
-    if team.is_mixed:
+    """SPEC.md sectie 5: de fases van een team moeten elkaar netjes opvolgen.
+
+    Welke soorten in welke fase zitten hangt af van het teamtype; zie
+    `ExpectedTeam.phases`. Binnen een fase mag alles tegelijk — dat is juist de
+    bedoeling van de breedte-regels.
+    """
+    groups = []
+    for kinds in team.phases:
+        here = [r for r in rows if (r.get("kind") or "") in kinds]
+        if here:
+            groups.append((kinds, here))
+
+    for (kinds_a, earlier), (kinds_b, later) in zip(groups, groups[1:]):
+        latest_end = max(r["_end"] for r in earlier)
+        too_early = [r for r in later if r["_start"] < latest_end]
+        if too_early:
+            rep.add("FASE", "HARD", date,
+                    f"{', '.join(sorted(r.get('part', '?') for r in too_early))} "
+                    f"start voor fase {'+'.join(sorted(kinds_a))} klaar is "
+                    f"({to_hhmm(latest_end)})", subject=team.short)
+
+
+def check_first_start(
+    rows: list[dict], team: ExpectedTeam, rep: Report, date: str
+) -> None:
+    """SPEC.md sectie 2: deadline voor de eerste partij van een team.
+
+    Groen heeft in de spec geen eigen deadline. Tot dat is uitgezocht melden we
+    Groen apart en als MODEL, zodat de aanname niet als spec-regel telt.
+    """
+    if not rows:
         return
-    singles = [r for r in rows if (r.get("kind") or "") == "S"]
-    others = [r for r in rows if (r.get("kind") or "") in {"D", "M"}]
-    if not singles or not others:
-        return
-    last_single_end = max(r["_end"] for r in singles)
-    early = [r for r in others if r["_start"] < last_single_end]
-    if early:
-        rep.add("S-VOOR-D", "MODEL", date,
-                f"{', '.join(r.get('part', '?') for r in early)} start voor de laatste "
-                f"single is afgelopen ({to_hhmm(last_single_end)})", subject=team.short)
+    first = min(r["_start"] for r in rows)
+    earliest, latest, what = team.first_start_deadline
+
+    rule, severity = "EERSTE-START", "HARD"
+    if team.is_groen:
+        rule, severity = "EERSTE-START-GROEN", "MODEL"
+        what += " — aangenomen voor Groen, staat niet in de spec"
+
+    if latest is not None and first > latest:
+        rep.add(rule, severity, date,
+                f"eerste partij start {to_hhmm(first)}; {what}", subject=team.short)
+    if earliest is not None and first < earliest:
+        rep.add(rule, severity, date,
+                f"eerste partij start {to_hhmm(first)}, te vroeg; {what}",
+                subject=team.short)
 
 
 def check_courts_per_team(
@@ -550,9 +618,9 @@ def check_time_windows(
     for row in rows:
         s, part = row["_start"], row.get("part", "?")
         if team.is_mixed and s < 10 * 60:
-            rep.add("VENSTER-GEM", "MODEL", date,
-                    f"{part} start {to_hhmm(s)}, gemengd bij voorkeur vanaf 10:00",
-                    subject=team.short)
+            rep.add("VENSTER-GEM", "HARD", date,
+                    f"{part} start {to_hhmm(s)}, gemengd start pas vanaf 10:00 "
+                    f"(SPEC.md sectie 4)", subject=team.short)
         if team.is_jeugd_1317 and s < 11 * 60:
             rep.add("VENSTER-JEUGD", "MODEL", date,
                     f"{part} start {to_hhmm(s)}, model dwingt jeugd 13-17 vanaf "
@@ -677,7 +745,8 @@ def _validate(
         check_player_capacity(planned, team, rep, date)
         check_concurrent_matches(planned, team, rep, date)
         check_kind_conflicts(planned, team, rep, date)
-        check_singles_first(planned, team, rep, date)
+        check_phases(planned, team, rep, date)
+        check_first_start(planned, team, rep, date)
         check_courts_per_team(planned, team, rep, date)
         check_blocks(planned, team, rep, date)
         check_time_windows(planned, team, rep, date)

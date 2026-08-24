@@ -47,17 +47,21 @@ jobs:
       # De plafonds hieronder zijn de stand op het moment van invoeren. De
       # validator faalt bij méér overtredingen (regressie) én bij minder
       # (dan hoort het plafond omlaag, zodat de winst vastligt).
-      # Zie docs/REFACTOR_PLAN.md voor waar deze getallen vandaan komen.
+      #
+      # Ze zijn hoog omdat docs/SPEC.md (24-08-2026) eisen toevoegt die nog in
+      # geen enkele bron zitten: de faseregels (sectie 5) en de deadline voor de
+      # eerste partij (sectie 2). Zelfs het handmatige gold-schema haalt die
+      # niet. Zie docs/REFACTOR_PLAN.md en de vragen in Discord #baanschema.
 
       - name: Gold-schema (handmatige referentie)
         run: |
           python scripts/validate_schedule.py docs/gold_result.json \
-            --all --max-hard 7 --max-model 70
+            --all --max-hard 26 --max-model 68
 
       - name: Heuristiek
         run: |
           python scripts/validate_schedule.py docs/result.json \
-            --all --max-hard 1 --max-model 91
+            --all --max-hard 26 --max-model 91
 
       - name: OR-Tools planner
         run: |
@@ -69,4 +73,4 @@ jobs:
             docs/ortools_17-05-2026.json \
             docs/ortools_25-05-2026.json \
             docs/ortools_31-05-2026.json \
-            --max-hard 30 --max-model 0
+            --max-hard 60 --max-model 0

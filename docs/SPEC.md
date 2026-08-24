@@ -214,6 +214,38 @@ Waar de twee elkaar tegenspreken, wint dit document. Eén verschil om in de gate
 te houden: het experiment zet Rood en Oranje op index 2 (09:00) of 0 (08:30) met
 Oranje op baan 0, 1, 2 — dat is de code-conventie, niet die van sectie 3.
 
+## Wat de spec betekent voor de bestaande schema's
+
+`scripts/validate_schedule.py` toetst sinds 2026-08-24 ook sectie 2 (deadline
+eerste partij), sectie 4 (gemengd vanaf 10:00) en sectie 5 (fases). Stand:
+
+| bron | HARD | waarvan `FASE` | waarvan `EERSTE-START` |
+|---|---|---|---|
+| gold (handmatig) | 26 | 10 | 9 |
+| heuristiek | 26 | 10 | 15 |
+| OR-Tools | 60 | 22 | 8 |
+
+Twee dingen vallen op.
+
+**Elk 8-partijenteam in het gold-schema start te laat.** Sectie 2 wil ze tussen
+10:00 en 11:00; het handmatige schema zet ze op 11:15, 12:00 en 13:30 — negen
+gevallen, geen enkele uitzondering. Sectie 4 geeft die teams juist prioriteit 2
+"om hun slot van 10:00 te garanderen". De menselijke planner doet dus
+systematisch het omgekeerde. Er is geen enkele overtreding van de deadlines van
+13:00 (Junioren) en 15:00 (overige teams); die twee zijn niet in geding.
+
+**De faseregels worden door alle drie de bronnen gebroken.** Bij de
+5-partijenteams start het dubbel voordat de fase S+GD klaar is; bij de
+8-partijenteams start het gemengd dubbel voordat de dubbels klaar zijn; en bij
+twee niet-gemengde teams start het dubbel voordat de laatste single is
+afgelopen. Het model bewaakt nu alleen dat soorten niet *tegelijk* spelen, wat
+zwakker is dan een waterval: S1+S2, dan D1+D2, dan S3+S4 overlapt nergens maar
+breekt de fasering wel.
+
+Beide punten zijn een keuze, geen bug: of de spec is te streng, of de bestaande
+schema's waren dat niet streng genoeg. Zie de open punten hieronder en de vragen
+in Discord `#baanschema` van 24-08-2026.
+
 ## Open punten in de spec
 
 1. **Sectie 5 motiveert de strikte waterval met "slechts 4 spelers", maar het

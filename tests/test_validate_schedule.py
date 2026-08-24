@@ -73,17 +73,37 @@ def test_merge_slots_vouwt_aaneengesloten_slots_samen():
 # het gold-schema is de referentie
 # --------------------------------------------------------------------------- #
 
-def test_gold_schema_heeft_geen_harde_overtredingen():
-    """Het handmatige schema van 06-04 moet alle harde regels halen.
+# Regels waar het handmatige schema van 06-04 aantoonbaar niet aan voldoet.
+# Dit zijn allebei nieuwe eisen uit SPEC.md (24-08-2026); vóór die spec was het
+# schema schoon. Zolang deze set niet leeg is, is de spec strenger dan de
+# menselijke referentie — een besluit voor Oscar, niet iets om weg te poetsen.
+GOLD_BREEKT = {"FASE", "EERSTE-START"}
 
-    Zo niet, dan klopt de validator of season.tsv niet — niet het schema.
+
+def test_gold_schema_haalt_alle_harde_regels_op_twee_na():
+    """Het handmatige schema van 06-04 moet de harde regels halen.
+
+    Uitzondering: de twee regels in GOLD_BREEKT. Wijkt het schema op iets ánders
+    af, dan klopt de validator of season.tsv niet — niet het schema.
     """
     rep = _report_for(_gold_rows())
-    hard = rep.by_severity("HARD")
-    assert not hard, "\n".join(f.line() for f in hard)
+    onverwacht = [f for f in rep.hard if f.rule not in GOLD_BREEKT]
+    assert not onverwacht, "\n".join(f.line() for f in onverwacht)
 
 
-def test_gold_schema_breekt_de_jeugdvensterregel_van_het_model():
+def test_gold_schema_breekt_de_nieuwe_spec_regels():
+    """Vastgelegd: de nieuwe spec is strenger dan het handmatige schema.
+
+    Het 8-partijenteam start om 11:15 (spec sectie 2 wil 10:00-11:00) en zet zijn
+    gemengd dubbel neer voordat de dubbels klaar zijn (spec sectie 5, strikte
+    waterval). Zie de vragen in Discord #baanschema van 24-08-2026.
+    """
+    rep = _report_for(_gold_rows())
+    gebroken = {f.rule for f in rep.hard}
+    assert gebroken == GOLD_BREEKT, f"verwacht {GOLD_BREEKT}, kreeg {gebroken}"
+
+
+def test_gold_schema_breekt_de_jeugdvensterregel_van_het_model():  # noqa: E302
     """Vastgelegd gedrag: de harde 11:00-grens voor jeugd 13-17 is strenger dan
     het handmatige schema. Zie docs/REFACTOR_PLAN.md, observatie 3."""
     rep = _report_for(_gold_rows())
