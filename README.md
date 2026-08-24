@@ -77,6 +77,21 @@ Doel van deze tweede tool:
 - vergelijken met de heuristische planner op kwaliteit/runtime
 - betere bezetting op drukke dagen via CP-SAT objective
 
+## Schema valideren
+
+Elke uitvoer kan los van de solver getoetst worden tegen `data/season.tsv` en
+`docs/planningsregels.md`:
+
+```bash
+python scripts/validate_schedule.py docs/ortools_06-04-2026.json
+python scripts/validate_schedule.py docs/gold_result.json --all
+```
+
+Bevindingen zijn **HARD** (regel uit `planningsregels.md`) of **MODEL** (extra
+constraint die alleen het CP-SAT model oplegt). Die tweede categorie laat zien
+waar het model strenger is dan het handmatige schema. In CI staat per bron een
+plafond via `--max-hard` / `--max-model`, zodat regressies opvallen.
+
 ## Planningsregels
 
 Alle actuele planningsregels staan in:
@@ -87,7 +102,11 @@ Snelle handmatige versie (printbaar):
 
 ## Volgende stappen
 
-1. OR-Tools planner volledig alignen met alle KNLTB-regels + uitzonderingen
-2. Vergelijkingsrapport heuristiek vs OR-Tools per speeldag
-3. Export naar overzichtelijk schema (CSV / markdown)
-4. Pages uitbreiden met toggle: Heuristiek / OR-Tools
+Uitgewerkt plan met metingen: `docs/REFACTOR_PLAN.md`.
+
+1. ~~Validator + CI-vangnet~~ (klaar)
+2. Unieke teamsleutel en de S/D-bug
+3. CP-SAT model naar intervals + integer-startvariabelen
+4. Objective lexicografisch in plaats van gewogen som
+5. Vergelijkingsrapport oud vs nieuw vs gold per speeldag
+6. cuOpt- en Timefold-experimenten archiveren

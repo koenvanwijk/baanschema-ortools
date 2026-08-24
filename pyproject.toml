@@ -20,3 +20,8 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+# Zonder dit pikt pytest ook scripts/timefold_test.py op — een experiment dat
+# een niet-geinstalleerde dependency importeert en de hele run laat falen.
+testpaths = ["tests"]

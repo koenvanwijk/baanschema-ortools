@@ -9,6 +9,8 @@ from pathlib import Path
 
 from ortools.sat.python import cp_model
 
+from baanschema.rules import build_parts, player_demand
+
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "data" / "season.tsv"
 
@@ -87,62 +89,6 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
                 )
             )
     return teams, reservations
-
-
-def build_parts(team: TeamDay) -> list[tuple[str, str]]:
-    parts: list[tuple[str, str]] = []
-    parts += [(f"S{i+1}", "S") for i in range(team.singles)]
-    parts += [(f"D{i+1}", "D") for i in range(team.doubles)]
-    parts += [(f"GD{i+1}", "M") for i in range(team.mix)]
-    while len(parts) < team.matches:
-        parts.append((f"W{len(parts)+1}", "W"))
-    return parts[: team.matches]
-
-
-def player_demand(schema: str, label: str, kind: str) -> tuple[int, int, int]:
-    """Return (male, female, total) player demand for one match part.
-
-    For non-mixed teams we only enforce total<=4.
-    For mixed teams we enforce male<=2, female<=2, total<=4.
-    """
-    s = (schema or "").lower()
-    is_mixed = "gemengd zondag" in s
-
-    # Generic fallback (non-mixed or unknown part): S=1, D/M=2
-    if not is_mixed:
-        if kind == "S":
-            return (0, 0, 1)
-        if kind in {"D", "M"}:
-            return (0, 0, 2)
-        return (0, 0, 0)
-
-    # Mixed team specifics
-    # GD always 1 man + 1 woman
-    if label.startswith("GD") or kind == "M":
-        return (1, 1, 2)
-
-    # Singles mapping by known mixed schemas
-    if label.startswith("S"):
-        idx = int(label[1:]) if label[1:].isdigit() else 1
-        if "2de-2he" in s:
-            # convention: S1,S2=DE ; S3,S4=HE
-            return (0, 1, 1) if idx <= 2 else (1, 0, 1)
-        if "de-he" in s:
-            # convention: S1=DE ; S2=HE
-            return (0, 1, 1) if idx == 1 else (1, 0, 1)
-        # Unknown mixed schema: keep total only
-        return (0, 0, 1)
-
-    # Doubles mapping by known mixed schemas
-    if label.startswith("D") or kind == "D":
-        idx = int(label[1:]) if label[1:].isdigit() else 1
-        if "dd-hd" in s:
-            # convention: D1=DD ; D2=HD
-            return (0, 2, 2) if idx == 1 else (2, 0, 2)
-        # Unknown mixed schema: keep total only
-        return (0, 0, 2)
-
-    return (0, 0, 0)
 
 
 def mins_to_hhmm(m: int) -> str:

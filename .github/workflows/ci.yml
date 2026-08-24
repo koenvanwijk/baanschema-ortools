@@ -27,3 +27,46 @@ jobs:
 
       - name: Run example solver
         run: python -m baanschema.cli --example
+
+  validate-schedules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      # De plafonds hieronder zijn de stand op het moment van invoeren. De
+      # validator faalt bij méér overtredingen (regressie) én bij minder
+      # (dan hoort het plafond omlaag, zodat de winst vastligt).
+      # Zie docs/REFACTOR_PLAN.md voor waar deze getallen vandaan komen.
+
+      - name: Gold-schema (handmatige referentie)
+        run: |
+          python scripts/validate_schedule.py docs/gold_result.json \
+            --all --max-hard 7 --max-model 70
+
+      - name: Heuristiek
+        run: |
+          python scripts/validate_schedule.py docs/result.json \
+            --all --max-hard 1 --max-model 91
+
+      - name: OR-Tools planner
+        run: |
+          python scripts/validate_schedule.py \
+            docs/ortools_06-04-2026.json \
+            docs/ortools_12-04-2026.json \
+            docs/ortools_19-04-2026.json \
+            docs/ortools_10-05-2026.json \
+            docs/ortools_17-05-2026.json \
+            docs/ortools_25-05-2026.json \
+            docs/ortools_31-05-2026.json \
+            --max-hard 30 --max-model 0
