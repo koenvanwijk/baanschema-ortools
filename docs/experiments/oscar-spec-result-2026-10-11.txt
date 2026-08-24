@@ -1,0 +1,16 @@
+=== Oscar-spec baanschema 2026-10-11 — CP-SAT status: OPTIMAL (objective=8850.0) ===
+
+Tijd    | Baan 1 | Baan 2 | Baan 3 | Baan 4 | Baan 5 | Baan 6 | Baan 7 | Baan 8 | Baan 9 | Baan10
+---------------------------------------------------------------------------------------------------
+08:30   |          |          |          |          |          |          |    T2-S3 |    T2-S2 |    T2-S1 |    T2-S4
+10:00   |    T1-S1 |    T1-S3 |    T1-S2 |    T1-S4 |    T3-S1 |    T3-S2 |          |    T2-D5 |          |    T2-D6
+11:30   |          |    T1-D6 |          |    T1-D5 |    T3-D4 |    T3-D3 |          |          |          |         
+13:00   |          |    T1-M7 |          |    T1-M8 |    T3-M5 |          |          |          |          |         
+
+=== Legenda teams ===
+  T1: MIERLO 1 | Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1  (cat=8-partijen-team)
+  T2: MIERLO 1 | Heren Zondag – 4e klasse – Afdeling 4  (cat=Heren)
+  T3: MIERLO 2 | Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4  (cat=Gemengd)
+
+=== Soft-constraint overschrijdingen ===
+  Geen overschrijdingen — alle harde/soft deadlines gehaald.

@@ -1,0 +1,35 @@
+=== Oscar-spec baanschema 2026-09-27 — CP-SAT status: FEASIBLE (objective=40180.0) ===
+
+Tijd    | Baan 1 | Baan 2 | Baan 3 | Baan 4 | Baan 5 | Baan 6 | Baan 7 | Baan 8 | Baan 9 | Baan10
+---------------------------------------------------------------------------------------------------
+08:30   |    T2-S3 |    T2-S2 |    T2-S1 |    T6-S2 |    T9-S4 |    T9-S2 |    T6-S1 |    T6-S3 |    T9-S3 |    T9-S1
+09:15   |          |          |          |          |    T6-S4 |    T9-D6 |          |          |    T7-S1 |    T9-D5
+10:00   |    T1-S3 |    T1-S1 |    T1-S4 |    T1-S2 |          |    T7-S4 |    T4-S2 |    T4-S1 |          |    T7-S2
+10:45   |          |          |          |          |    T6-D6 |          |          |          |    T6-D5 |         
+11:30   |    T1-D5 |    T1-D6 |    T3-S2 |    T3-S4 |          |    T3-S1 |    T4-D3 |    T4-D4 |          |    T7-S3
+12:15   |          |          |          |          |   T11-S1 |          |          |          |    T3-S3 |         
+13:00   |    T1-M8 |    T2-S4 |    T5-S2 |    T1-M7 |          |   T11-S2 |    T8-S1 |    T4-M5 |          |    T8-S3
+13:45   |          |          |          |          |    T5-S4 |          |          |          |    T8-S2 |         
+14:30   |    T2-D6 |    T5-S3 |    T2-D5 |    T5-S1 |          |   T11-D3 |   T11-D4 |    T8-S4 |          |         
+15:00   |          |          |          |          |          |          |          |          |          |   T10-S2
+15:15   |          |          |          |          |   T10-S1 |          |          |          |    T7-D6 |         
+16:00   |    T3-D5 |    T5-D6 |    T3-D6 |    T5-D5 |          |   T10-S4 |   T11-M5 |   T10-S3 |          |         
+16:30   |          |          |          |          |          |          |          |          |          |    T8-D6
+16:45   |          |          |          |          |    T7-D5 |          |          |          |    T8-D5 |         
+17:30   |          |          |          |          |          |   T10-D6 |          |   T10-D5 |          |         
+
+=== Legenda teams ===
+  T1: MIERLO 1 | Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1  (cat=8-partijen-team)
+  T2: MIERLO 4 | Jongens 13 t/m 17 jaar Zondag – 2e klasse  – Afdeling 10  (cat=Jongens/Meisjes)
+  T3: MIERLO 1 | Meisjes 13 t/m 17 jaar Zondag – Hoofdklasse – Afdeling 2  (cat=Jongens/Meisjes)
+  T4: MIERLO 3 | Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2  (cat=Gemengd)
+  T5: MIERLO 4 | Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 2  (cat=Jongens/Meisjes)
+  T6: MIERLO 3 | Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2  (cat=Jongens/Meisjes)
+  T7: MIERLO 5 | Meisjes 13 t/m 17 jaar Zondag – 3e klasse – Afdeling 3  (cat=Jongens/Meisjes)
+  T8: MIERLO 2 | Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 30  (cat=Jongens/Meisjes)
+  T9: MIERLO 3 | Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 34  (cat=Junioren)
+  T10: MIERLO 1 | Heren Zondag – 4e klasse – Afdeling 4  (cat=Heren)
+  T11: MIERLO 4 | Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7  (cat=Gemengd)
+
+=== Soft-constraint overschrijdingen ===
+  Geen overschrijdingen — alle harde/soft deadlines gehaald.
