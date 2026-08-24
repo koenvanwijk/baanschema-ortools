@@ -80,14 +80,14 @@ Doel van deze tweede tool:
 ## Schema valideren
 
 Elke uitvoer kan los van de solver getoetst worden tegen `data/season.tsv` en
-`docs/planningsregels.md`:
+`docs/SPEC.md`:
 
 ```bash
 python scripts/validate_schedule.py docs/ortools_06-04-2026.json
 python scripts/validate_schedule.py docs/gold_result.json --all
 ```
 
-Bevindingen zijn **HARD** (regel uit `planningsregels.md`) of **MODEL** (extra
+Bevindingen zijn **HARD** (regel uit `SPEC.md`) of **MODEL** (extra
 constraint die alleen het CP-SAT model oplegt). Die tweede categorie laat zien
 waar het model strenger is dan het handmatige schema. In CI staat per bron een
 plafond via `--max-hard` / `--max-model`, zodat regressies opvallen.
@@ -95,7 +95,7 @@ plafond via `--max-hard` / `--max-model`, zodat regressies opvallen.
 ## Planningsregels
 
 Alle actuele planningsregels staan in:
-- `docs/planningsregels.md`
+- `docs/SPEC.md` — de gezaghebbende spec (seizoen 2026+)
 
 Snelle handmatige versie (printbaar):
 - `docs/planner-cheatsheet.md`

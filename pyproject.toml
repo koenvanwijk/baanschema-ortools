@@ -10,6 +10,8 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "ortools>=9.9,<11",
+  # scripts/parse_wedstrijden_xlsx.py leest de aangeleverde xlsx-export.
+  "openpyxl>=3.1",
 ]
 
 [project.scripts]

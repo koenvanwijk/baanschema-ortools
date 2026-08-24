@@ -1,15 +1,21 @@
 """Valideer een baanschema-uitvoer tegen de planningsregels.
 
 Solver-onafhankelijk: leest de uitvoer van de OR-Tools planner, de heuristiek of
-het handmatige gold-schema en toetst die tegen `data/season.tsv` en
-`docs/planningsregels.md`.
+het handmatige gold-schema en toetst die tegen `data/season.tsv` en de spec in
+`docs/SPEC.md`.
 
 Twee soorten bevindingen:
 
-  HARD   regels uit `docs/planningsregels.md` — een overtreding is een fout.
-  MODEL  extra constraints die het CP-SAT model oplegt maar die niet in de
-         planningsregels staan. Handig om te zien welke daarvan het handmatige
-         gold-schema breekt: dat zijn kandidaten om te versoepelen.
+  HARD   regels uit `docs/SPEC.md` — een overtreding is een fout.
+  MODEL  extra constraints die het CP-SAT model oplegt maar die niet in de spec
+         staan. Handig om te zien welke daarvan het handmatige gold-schema
+         breekt: dat zijn kandidaten om te versoepelen.
+
+Nog niet getoetst uit `docs/SPEC.md` (2026-08-24): de deadlines voor de eerste
+partij per team (sectie 2), de inplan-volgorde (sectie 4), de faseregels voor
+5- en 8-partijenteams (sectie 5), het baan-geheugen (sectie 3) en de
+waarschuwingstags (sectie 6). Een schoon rapport betekent dus nog niet dat een
+schema aan de hele spec voldoet.
 
 Gebruik:
     python scripts/validate_schedule.py docs/ortools_06-04-2026.json
@@ -34,6 +40,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from baanschema.rules import build_parts, player_demand  # noqa: E402
 from build_pages import parse_input, short_team_name  # noqa: E402
+
+SEASON_DEFAULT = ROOT / "data" / "season.tsv"
 
 SLOT = 15
 COURTS = range(1, 11)
@@ -70,12 +78,20 @@ class Report:
     def by_severity(self, sev: str) -> list[Finding]:
         return [f for f in self.findings if f.severity == sev]
 
+    @property
+    def hard(self) -> list[Finding]:
+        return self.by_severity("HARD")
+
+    @property
+    def model(self) -> list[Finding]:
+        return self.by_severity("MODEL")
+
 
 # --------------------------------------------------------------------------- #
 # hulp
 # --------------------------------------------------------------------------- #
 
-def to_min(hhmm: str) -> int | None:
+def hhmm_to_min(hhmm: str) -> int | None:
     """'09:15' -> 555. None voor NIET_GELUKT of onleesbare tijd."""
     s = (hhmm or "").strip()
     if not s or s == UNPLANNED:
@@ -135,26 +151,46 @@ class ExpectedTeam:
         return "2de-2he-dd-hd-2gd" in self.low
 
 
-def expected_for_date(date: str) -> tuple[list[ExpectedTeam], list[str]]:
-    """Verwachte teams en reserveringssoorten voor een datum."""
-    teams, reservations = parse_input(ROOT / "data" / "season.tsv")
-    out = []
-    for t in teams:
-        if t.date != date:
-            continue
-        out.append(
-            ExpectedTeam(
-                team_id=t.team_id,
-                date=t.date,
-                schema=t.schema,
-                short=short_team_name(t.schema, t.home_team),
-                duration=t.duration_min,
-                matches=t.matches,
-                parts=build_parts(t),
-            )
+def team_key_of(team) -> str:
+    """Unieke sleutel van een teamdag.
+
+    `ortools_planner.TeamDay` noemt hem `team_key`, `build_pages.TeamDay`
+    `team_id`. Zonder een van beide vallen we terug op datum + schema, wat twee
+    teams met hetzelfde schema op één dag samenvoegt — precies wat we willen
+    kunnen zien.
+    """
+    return (
+        getattr(team, "team_key", "")
+        or getattr(team, "team_id", "")
+        or f"{team.date}::{team.schema}"
+    )
+
+
+def expected_from_teams(teams) -> list[ExpectedTeam]:
+    """Zet teamdag-objecten om in verwachtingen. Accepteert beide TeamDay-vormen."""
+    return [
+        ExpectedTeam(
+            team_id=team_key_of(t),
+            date=t.date,
+            schema=t.schema,
+            short=short_team_name(t.schema, getattr(t, "home_team", "")),
+            duration=t.duration_min,
+            matches=t.matches,
+            parts=build_parts(t),
         )
+        for t in teams
+    ]
+
+
+def expected_for_date(
+    date: str, season: Path | None = None
+) -> tuple[list[ExpectedTeam], list[str]]:
+    """Verwachte teams en reserveringssoorten voor een datum, uit een seizoensbestand."""
+    path = season or SEASON_DEFAULT
+    teams, reservations = parse_input(path)
+    expected = expected_from_teams([t for t in teams if t.date == date])
     kinds = [r.kind for r in reservations if r.date == date]
-    return out, kinds
+    return expected, kinds
 
 
 # --------------------------------------------------------------------------- #
@@ -269,7 +305,7 @@ def check_rows_wellformed(
     unplanned: list[dict] = []
     for row in rows:
         subject = f"{row_team_key(row)} {row.get('part', '?')}"
-        start, end = to_min(row.get("start")), to_min(row.get("end"))
+        start, end = hhmm_to_min(row.get("start")), hhmm_to_min(row.get("end"))
 
         if (row.get("start") or "") == UNPLANNED:
             unplanned.append(row)
@@ -519,7 +555,8 @@ def check_time_windows(
                     subject=team.short)
         if team.is_jeugd_1317 and s < 11 * 60:
             rep.add("VENSTER-JEUGD", "MODEL", date,
-                    f"{part} start {to_hhmm(s)}, jeugd 13-17 nu hard vanaf 11:00",
+                    f"{part} start {to_hhmm(s)}, model dwingt jeugd 13-17 vanaf "
+                    f"11:00 af — die grens is met SPEC.md ingetrokken",
                     subject=team.short)
         if team.is_youth and s > 17 * 60 + 30:
             rep.add("VENSTER-JEUGD-LAAT", "MODEL", date,
@@ -541,7 +578,7 @@ def check_reservations(
     res_rows = [r for r in rows if is_reservation(r)]
     if res_rows:
         for row in res_rows:
-            s, e = to_min(row.get("start")), to_min(row.get("end"))
+            s, e = hhmm_to_min(row.get("start")), hhmm_to_min(row.get("end"))
             if s is None or e is None:
                 continue
             want = 60 if row_team_key(row).upper() == "ROOD" else 120
@@ -579,11 +616,46 @@ def check_reservations(
 # aansturing
 # --------------------------------------------------------------------------- #
 
-def validate_date(date: str, rows: list[dict], rep: Report) -> None:
-    expected, res_kinds = expected_for_date(date)
+def validate_day(
+    date: str,
+    teams,
+    rows: list[dict],
+    rep: Report | None = None,
+    res_kinds: list[str] | None = None,
+) -> Report:
+    """Valideer één speeldag tegen een expliciet meegegeven teamlijst.
+
+    Gebruik deze vorm als je de teams zelf samenstelt — in tests, of wanneer de
+    brondata niet uit een seizoens-tsv komt. `validate_date` is de variant die de
+    teams uit een seizoensbestand leest.
+
+    `teams` mag zowel `ortools_planner.TeamDay` als `build_pages.TeamDay` zijn.
+    """
+    rep = rep if rep is not None else Report()
+    expected = expected_from_teams(teams)
+    _validate(date, expected, res_kinds or [], rows, rep)
+    return rep
+
+
+def validate_date(
+    date: str, rows: list[dict], rep: Report, season: Path | None = None
+) -> None:
+    """Valideer één speeldag met de teams uit het seizoensbestand."""
+    expected, res_kinds = expected_for_date(date, season)
     if not expected:
-        rep.add("ONBEKENDE-DATUM", "HARD", date, "datum staat niet in season.tsv")
+        rep.add("ONBEKENDE-DATUM", "HARD", date,
+                f"datum staat niet in {(season or SEASON_DEFAULT).name}")
         return
+    _validate(date, expected, res_kinds, rows, rep)
+
+
+def _validate(
+    date: str,
+    expected: list[ExpectedTeam],
+    res_kinds: list[str],
+    rows: list[dict],
+    rep: Report,
+) -> None:
 
     clean, unplanned = check_rows_wellformed(rows, rep, date)
     check_court_overlap([r for r in clean if not is_reservation(r)], rep, date)

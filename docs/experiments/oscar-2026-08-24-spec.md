@@ -1,5 +1,11 @@
 # Oscar's baanschema-spec (24-08-2026)
 
+> **Sinds 24-08-2026 vervangen door [`docs/SPEC.md`](../SPEC.md).** Dat is de
+> leesbare masterversie van dezelfde regels en is gezaghebbend. Dit bestand
+> blijft staan als archief van de aangeleverde systeemprompt en als
+> verantwoording bij het experiment. De vergelijkingstabel onderaan zet Oscar's
+> spec naast `planningsregels.md`, dat nu ook door `SPEC.md` is vervangen.
+
 Bron: Discord `#baanschema`, gepost door superozz op 24-08-2026 (2x, met bijbehorende
 Excel-export `export_processed_NJ2026...xlsx`). Letterlijk overgenomen als referentie
 voor het experiment in `scripts/experiments/oscar_spec_planner.py`.

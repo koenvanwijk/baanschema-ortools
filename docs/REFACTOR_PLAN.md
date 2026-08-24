@@ -73,7 +73,7 @@ Het model heeft die integer-variabelen trouwens al: regel 713-724 bouwt
 constraints op te leggen, alleen voor de span-penalty. De refactor is dus vooral
 *bestaande variabelen tot hoofdvariabelen promoveren*, niet iets nieuws bedenken.
 
-## Observatie 2 — bug: S/D-niet-tegelijk geldt op één tijdslot
+## Observatie 2 — bug: S/D-niet-tegelijk geldt op één tijdslot — OPGELOST (`067d725`)
 
 `ortools_planner.py:462-502` bouwt de "singles en dubbels mogen niet tegelijk"-
 constraints, maar er staat geen `for t in slot_mins` boven. De variabele `t`
@@ -140,7 +140,7 @@ GPU-voordeel van cuOpt zit bij LP-relaxaties met honderdduizenden rijen; hier
 verlies je juist de expressiviteit (geen intervals, geen no-overlap, alles via
 big-M met handmatig getunede M-constanten) die dit probleem makkelijk maakt.
 
-## Observatie 6 — twee teams met hetzelfde schema worden één team
+## Observatie 6 — twee teams met hetzelfde schema worden één team — OPGELOST (`067d725`)
 
 `ortools_planner.py` groepeert teams op de schemanaam:
 
@@ -183,7 +183,7 @@ onderscheiden — de validator meldt dat als `AMBIGU-TEAM`.
 Dit is de eerste fix die ik zou doen na de validator: hij is klein, en levert
 op één dag tien partijen op.
 
-## Observatie 7 — CI is rood sinds 8 juni
+## Observatie 7 — CI is rood sinds 8 juni — OPGELOST
 
 `pytest -q` verzamelt ook `scripts/timefold_test.py`, dat `timefold` importeert.
 Dat pakket staat niet in `pyproject.toml`, dus de collectie faalt en daarmee de
@@ -253,7 +253,7 @@ Verder toegevoegd:
 - `testpaths = ["tests"]` in `pyproject.toml`, wat observatie 7 oplost.
 - CI-job `validate-schedules` met de drie ratchets hierboven.
 
-### Stap 2 — twee kleine bugfixes, los van de refactor
+### Stap 2 — twee kleine bugfixes, los van de refactor — UITGEVOERD (`067d725`)
 
 Beide met de validator ervoor en erna, zodat het effect meetbaar is.
 

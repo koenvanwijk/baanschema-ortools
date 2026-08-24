@@ -56,11 +56,11 @@ def _gold_rows():
 # hulpfuncties
 # --------------------------------------------------------------------------- #
 
-def test_to_min_leest_tijden_en_niet_gelukt():
-    assert V.to_min("09:15") == 555
-    assert V.to_min("NIET_GELUKT") is None
-    assert V.to_min("") is None
-    assert V.to_min("kwart over negen") is None
+def test_hhmm_to_min_leest_tijden_en_niet_gelukt():
+    assert V.hhmm_to_min("09:15") == 555
+    assert V.hhmm_to_min("NIET_GELUKT") is None
+    assert V.hhmm_to_min("") is None
+    assert V.hhmm_to_min("kwart over negen") is None
 
 
 def test_merge_slots_vouwt_aaneengesloten_slots_samen():
@@ -154,7 +154,7 @@ def test_dubbel_geplande_partij_wordt_gevonden():
 def test_verkeerde_wedstrijdduur_wordt_gevonden():
     rows = _gold_rows()
     victim = next(r for r in rows if r["kind"] == "S")
-    short = {**victim, "end": V.to_hhmm(V.to_min(victim["start"]) + 15)}
+    short = {**victim, "end": V.to_hhmm(V.hhmm_to_min(victim["start"]) + 15)}
     rep = _report_for([short if r is victim else r for r in rows])
     assert "DUUR" in _rules(rep.by_severity("HARD"))
 
