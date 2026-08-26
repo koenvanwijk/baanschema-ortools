@@ -66,7 +66,7 @@ jobs:
       - name: OR-Tools planner, seizoen 2026-2027 (het uitgangspunt)
         run: |
           python scripts/validate_schedule.py docs/ortools_2026-2027_*.json \
-            --max-hard 25 --max-model 7
+            --max-hard 20 --max-model 7
 
       - name: OR-Tools planner, voorjaar 2026 (historisch)
         run: |

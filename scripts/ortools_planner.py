@@ -122,6 +122,7 @@ def solve_day(
     w_team_court_penalty: int = 150_000,
     w_high_court_penalty: int = 200_000,
     w_team_span: int = 200_000,
+    w_fasering_soft: int = 300_000,
     random_seed: int = 42,
     two_phase: bool = False,  # Default: single-phase (beter voor age-based spreiding)
 ) -> dict:
@@ -147,14 +148,14 @@ def solve_day(
                 date, teams, reservations, time_limit_s,
                 w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
                 w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-                w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+                w_team_court_penalty, w_high_court_penalty, w_team_span, w_fasering_soft, random_seed,
                 day_start_pref=day_start_pref,
             )
         return _solve_single_phase(
             date, teams, reservations, time_limit_s,
             w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+            w_team_court_penalty, w_high_court_penalty, w_team_span, w_fasering_soft, random_seed,
             day_start_pref=day_start_pref,
         )
 
@@ -201,6 +202,7 @@ def solve_day_two_phase(
     w_team_court_penalty: int,
     w_high_court_penalty: int,
     w_team_span: int,
+    w_fasering_soft: int,
     random_seed: int,
     day_start_pref: int = 8 * 60 + 30,
     enforce_cutoff_hard: bool = False,
@@ -235,7 +237,7 @@ def solve_day_two_phase(
         date, phase_a_teams, reservations, time_limit_s / 2,
         w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
         w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-        w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+        w_team_court_penalty, w_high_court_penalty, w_team_span, w_fasering_soft, random_seed,
         day_start_pref=day_start_pref,
         enforce_cutoff_hard=enforce_cutoff_hard,
     )
@@ -266,7 +268,7 @@ def solve_day_two_phase(
             date, phase_b_teams, reservations, time_limit_s * 0.4,
             w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+            w_team_court_penalty, w_high_court_penalty, w_team_span, w_fasering_soft, random_seed,
             extra_reserved=phase_a_reservations,
             day_start_pref=day_start_pref,
             enforce_cutoff_hard=enforce_cutoff_hard,
@@ -278,7 +280,7 @@ def solve_day_two_phase(
             date, day_teams, reservations, time_limit_s * 0.6,
             w_block_rise, w_long_gap, w_morning_occ, w_total_occ,
             w_cutoff_bonus, w_early_start, w_late_start, w_youth_late,
-            w_team_court_penalty, w_high_court_penalty, w_team_span, random_seed,
+            w_team_court_penalty, w_high_court_penalty, w_team_span, w_fasering_soft, random_seed,
             day_start_pref=day_start_pref,
             enforce_cutoff_hard=enforce_cutoff_hard,
         )
@@ -318,6 +320,7 @@ def _solve_single_phase(
     w_team_court_penalty: int = 150_000,
     w_high_court_penalty: int = 200_000,
     w_team_span: int = 200_000,
+    w_fasering_soft: int = 300_000,
     random_seed: int = 42,
     extra_reserved: list = None,
     day_start_pref: int = 8 * 60 + 30,
@@ -350,13 +353,20 @@ def _solve_single_phase(
         reserved.extend(extra_reserved)  # Fase-A reserveringen indien twee-fase mode
     
     kinds_today = {r.kind for r in day_res}
+    # Reserveringsvensters gebruiken de dagstart als basis (besluit 2026-08-26,
+    # SPEC.md sectie 2/3). Voorkeur: dagstart_pref (bv 09:00). Val alleen terug
+    # op 08:30 als de dagstart later is dan 08:30 zou toestaan (d.w.z. nooit
+    # vroeger reserveren dan de eigenlijke dagstart, en nooit later dan nodig).
+    rood_oranje_base = day_start_pref if day_start_pref <= 8 * 60 + 30 else day_start_pref
     for r in day_res:
         if r.kind == "oranje":
-            for c in [1, 2, 3]:
-                reserved.append((c, 8 * 60 + 30, 10 * 60 + 30))
+            # Rood krijgt altijd baan 1 (SPEC.md sectie 3). Oranje schuift naar
+            # 2, 3, 4 zodra Rood ook speelt; anders houdt Oranje 1, 2, 3.
+            oranje_courts = [2, 3, 4] if "rood" in kinds_today else [1, 2, 3]
+            for c in oranje_courts:
+                reserved.append((c, rood_oranje_base, rood_oranje_base + 2 * 60))
         elif r.kind == "rood":
-            rood_court = 4 if "oranje" in kinds_today else 1
-            reserved.append((rood_court, 8 * 60 + 30, 9 * 60 + 30))
+            reserved.append((1, rood_oranje_base, rood_oranje_base + 60))
 
     parts = []
     for t in day_teams:
@@ -451,12 +461,23 @@ def _solve_single_phase(
         reserved_courts_here = {rc for rc, rs, re in reserved if rs <= t < re}
         return len(courts) - len(reserved_courts_here)
 
+    fasering_soft_penalty = []  # zachte fasering-penalty voor niet-8-partijenteams (SPEC.md sectie 5)
+
     for team, idxs in by_team.items():
         s_parts = [i for i in idxs if parts[i]["kind"] == "S"]
         d_parts = [i for i in idxs if parts[i]["kind"] == "D"]
         m_parts = [i for i in idxs if parts[i]["kind"] == "M"]
         combo_parts = [i for i in idxs if parts[i].get("is_4p_combo")]
         non_s_parts = [i for i in idxs if parts[i]["kind"] != "S"]
+
+        # Besluit Oscar/Koen 2026-08-26 (SPEC.md sectie 5): de strikte
+        # S->D->GD-waterval is alleen nog een HARDE eis voor 8-partijenteams
+        # (landelijke competitie, hoog niveau, 4 spelers). Voor alle overige
+        # teams (5-partijenteams, niet-gemengde teams, etc.) wordt de waterval
+        # een ZACHTE voorkeur: een optimaler baanschema/bezetting weegt daar
+        # zwaarder dan strikte fasering.
+        team_meta = team_meta_by_key.get(team)
+        is_8p_team = bool(team_meta and team_meta.matches == 8)
 
         # Extra startregel (planningsregels.md): kijk naar het eerste haalbare
         # startvenster van het team. Zijn daar nog maar 1-2 banen vrij (na
@@ -497,11 +518,12 @@ def _solve_single_phase(
                 for idx in range(0, len(parts_list) - 1, 2):
                     pair_same_start(parts_list[idx], parts_list[idx + 1])
 
-        # Per-slot occupancy constraints (S/D, D/GD, and S/GD-for-combo may not
-        # run at the same time). BUG #2 FIX: this MUST hold over ALL timeslots of
-        # the team, not just a single leftover `t`. Previously this block sat
-        # outside any timeslot loop and reused the last `t` from an earlier loop,
-        # so the non-overlap rule was only enforced in one 15-min slot.
+        # Per-slot occupancy: S/D, D/GD (en bij 4-spelersschema's ook S/GD) mogen
+        # elkaar niet overlappen. Voor 8-partijenteams is dit een HARDE waterval
+        # (fase N+1 mag pas starten als fase N helemaal klaar is, over de hele
+        # teamdag). Voor overige teams blijft dit de bestaande "geen twee
+        # soorten tegelijk actief in hetzelfde tijdslot"-vorm, als ZACHTE
+        # voorkeur via een penalty in de objective (fasering_soft_penalty).
         team_hash = abs(hash(team)) % 10_000_000
         for t in slot_mins[:-1]:
             s_occ = []
@@ -527,23 +549,64 @@ def _solve_single_phase(
             d_sum = sum(d_occ)
             m_sum = sum(m_occ)
 
-            # Singles en dubbels mogen niet tegelijk (alle teams).
-            if s_parts and d_parts:
-                z_sd = model.new_bool_var(f"team_{team_hash}_t{t}_sd_mode")
-                model.add(s_sum <= 10 * z_sd)
-                model.add(d_sum <= 10 * (1 - z_sd))
+            if is_8p_team:
+                # HARD: singles en dubbels mogen niet tegelijk.
+                if s_parts and d_parts:
+                    z_sd = model.new_bool_var(f"team_{team_hash}_t{t}_sd_mode")
+                    model.add(s_sum <= 10 * z_sd)
+                    model.add(d_sum <= 10 * (1 - z_sd))
 
-            # Gemengd dubbel (M/GD) en dubbel mogen niet tegelijk (alle teams).
-            if m_parts and d_parts:
-                z_md = model.new_bool_var(f"team_{team_hash}_t{t}_md_mode")
-                model.add(m_sum <= 10 * z_md)
-                model.add(d_sum <= 10 * (1 - z_md))
+                # HARD: gemengd dubbel (M/GD) en dubbel mogen niet tegelijk.
+                if m_parts and d_parts:
+                    z_md = model.new_bool_var(f"team_{team_hash}_t{t}_md_mode")
+                    model.add(m_sum <= 10 * z_md)
+                    model.add(d_sum <= 10 * (1 - z_md))
 
-            # Voor 2DE-2HE-DD-HD-2GD-teams: singles en GD ook niet tegelijk (4-spelers team).
-            if combo_parts and s_parts and m_parts:
-                z_sm = model.new_bool_var(f"team_{team_hash}_t{t}_sm_mode")
-                model.add(s_sum <= 10 * z_sm)
-                model.add(m_sum <= 10 * (1 - z_sm))
+                # HARD (4-spelersteam): singles en GD ook niet tegelijk.
+                if combo_parts and s_parts and m_parts:
+                    z_sm = model.new_bool_var(f"team_{team_hash}_t{t}_sm_mode")
+                    model.add(s_sum <= 10 * z_sm)
+                    model.add(m_sum <= 10 * (1 - z_sm))
+            else:
+                # SOFT: dezelfde niet-overlap-conditie, maar als penalty i.p.v.
+                # harde constraint. We gebruiken losse "is deze soort actief"
+                # indicatoren (niet de ruwe occupancy-som, die bij 2 gelijktijdige
+                # singles al >1 kan zijn zonder dat er sprake is van fase-overlap)
+                # en tellen een overlap alleen als twee VERSCHILLENDE soorten
+                # tegelijk actief zijn. Dat telt op in fasering_soft_penalty
+                # hieronder (objective).
+                if s_parts and d_parts:
+                    s_active = model.new_bool_var(f"team_{team_hash}_t{t}_s_active")
+                    d_active = model.new_bool_var(f"team_{team_hash}_t{t}_d_active")
+                    model.add(s_sum >= 1).only_enforce_if(s_active)
+                    model.add(s_sum == 0).only_enforce_if(s_active.Not())
+                    model.add(d_sum >= 1).only_enforce_if(d_active)
+                    model.add(d_sum == 0).only_enforce_if(d_active.Not())
+                    overlap_sd = model.new_bool_var(f"team_{team_hash}_t{t}_sd_overlap")
+                    model.add(overlap_sd >= s_active + d_active - 1)
+                    fasering_soft_penalty.append(overlap_sd)
+
+                if m_parts and d_parts:
+                    m_active = model.new_bool_var(f"team_{team_hash}_t{t}_m_active")
+                    d_active2 = model.new_bool_var(f"team_{team_hash}_t{t}_d_active2")
+                    model.add(m_sum >= 1).only_enforce_if(m_active)
+                    model.add(m_sum == 0).only_enforce_if(m_active.Not())
+                    model.add(d_sum >= 1).only_enforce_if(d_active2)
+                    model.add(d_sum == 0).only_enforce_if(d_active2.Not())
+                    overlap_md = model.new_bool_var(f"team_{team_hash}_t{t}_md_overlap")
+                    model.add(overlap_md >= m_active + d_active2 - 1)
+                    fasering_soft_penalty.append(overlap_md)
+
+                if combo_parts and s_parts and m_parts:
+                    s_active2 = model.new_bool_var(f"team_{team_hash}_t{t}_s_active2")
+                    m_active2 = model.new_bool_var(f"team_{team_hash}_t{t}_m_active2")
+                    model.add(s_sum >= 1).only_enforce_if(s_active2)
+                    model.add(s_sum == 0).only_enforce_if(s_active2.Not())
+                    model.add(m_sum >= 1).only_enforce_if(m_active2)
+                    model.add(m_sum == 0).only_enforce_if(m_active2.Not())
+                    overlap_sm = model.new_bool_var(f"team_{team_hash}_t{t}_sm_overlap")
+                    model.add(overlap_sm >= s_active2 + m_active2 - 1)
+                    fasering_soft_penalty.append(overlap_sm)
 
     # Player-resource constraints per team per timeslot (except rood/oranje; those are reservations)
     for team, idxs in by_team.items():
@@ -926,6 +989,9 @@ def _solve_single_phase(
         # Age-based start time preferences:
         + 300_000 * sum(junioren_early_bonus)  # Junioren vroeg = goed (3x verhoogd)
         - 5_000_000 * sum(jeugd_middag_penalty)  # Jeugd (13-17) vroeg = ZEER ZEER SLECHT (10x original!)
+        # Fasering (SPEC.md sectie 5, besluit 2026-08-26): voor niet-8-partijenteams
+        # is de S->D->GD-waterval een zachte voorkeur i.p.v. een harde eis.
+        - w_fasering_soft * sum(fasering_soft_penalty)
     )
 
     solver = cp_model.CpSolver()
@@ -997,6 +1063,7 @@ def main() -> None:
     ap.add_argument("--w-team-court-penalty", type=int, default=150_000)
     ap.add_argument("--w-high-court-penalty", type=int, default=80_000)
     ap.add_argument("--w-team-span", type=int, default=200_000)
+    ap.add_argument("--w-fasering-soft", type=int, default=300_000)
     ap.add_argument("--random-seed", type=int, default=42)
     args = ap.parse_args()
 
@@ -1021,6 +1088,7 @@ def main() -> None:
         w_team_court_penalty=args.w_team_court_penalty,
         w_high_court_penalty=args.w_high_court_penalty,
         w_team_span=args.w_team_span,
+        w_fasering_soft=args.w_fasering_soft,
         random_seed=args.random_seed,
         two_phase=False,  # Default: single-phase (better age-based spreading)
     )
