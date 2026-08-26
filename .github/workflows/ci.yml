@@ -56,14 +56,19 @@ jobs:
       - name: Gold-schema (handmatige referentie)
         run: |
           python scripts/validate_schedule.py docs/gold_result.json \
-            --all --max-hard 26 --max-model 68
+            --all --max-hard 18 --max-model 76
 
       - name: Heuristiek
         run: |
           python scripts/validate_schedule.py docs/result.json \
-            --all --max-hard 26 --max-model 91
+            --all --max-hard 16 --max-model 101
 
-      - name: OR-Tools planner
+      - name: OR-Tools planner, seizoen 2026-2027 (het uitgangspunt)
+        run: |
+          python scripts/validate_schedule.py docs/ortools_2026-2027_*.json \
+            --max-hard 25 --max-model 7
+
+      - name: OR-Tools planner, voorjaar 2026 (historisch)
         run: |
           python scripts/validate_schedule.py \
             docs/ortools_06-04-2026.json \
@@ -73,4 +78,4 @@ jobs:
             docs/ortools_17-05-2026.json \
             docs/ortools_25-05-2026.json \
             docs/ortools_31-05-2026.json \
-            --max-hard 60 --max-model 0
+            --max-hard 56 --max-model 8

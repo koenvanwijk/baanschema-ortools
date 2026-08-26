@@ -41,6 +41,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from baanschema.rules import build_parts, player_demand  # noqa: E402
 from build_pages import parse_input, short_team_name  # noqa: E402
 
+SEASON_FILES = sorted((ROOT / "data").glob("season*.tsv"))
 SEASON_DEFAULT = ROOT / "data" / "season.tsv"
 
 SLOT = 15
@@ -71,6 +72,7 @@ class Finding:
 class Report:
     findings: list[Finding] = field(default_factory=list)
     stats: dict = field(default_factory=dict)
+    sources: dict = field(default_factory=dict)  # datum -> gebruikt seizoensbestand
 
     def add(self, *a, **k) -> None:
         self.findings.append(Finding(*a, **k))
@@ -124,7 +126,8 @@ class ExpectedTeam:
     short: str
     duration: int
     matches: int
-    parts: list[tuple[str, str]]  # (label, kind)
+    parts: list[tuple[str, str]]
+    home: str = ""  # (label, kind)
 
     @property
     def low(self) -> str:
@@ -211,20 +214,45 @@ def expected_from_teams(teams) -> list[ExpectedTeam]:
             duration=t.duration_min,
             matches=t.matches,
             parts=build_parts(t),
+            home=(getattr(t, "home_team", "") or "").strip(),
         )
         for t in teams
     ]
 
 
+def find_season(date: str) -> Path | None:
+    """Zoek het seizoensbestand dat deze datum bevat.
+
+    De repo heeft meerdere seizoenen naast elkaar (`season.tsv`,
+    `season_2026-2027.tsv`). Een schema noemt alleen zijn datum, dus we zoeken
+    zelf het bijbehorende programma op. Staat een datum in meer dan één bestand,
+    dan is er geen goede keuze te maken en moet de aanroeper `--season` geven.
+    """
+    hits = []
+    for path in SEASON_FILES:
+        teams, _ = parse_input(path)
+        if any(t.date == date for t in teams):
+            hits.append(path)
+    if len(hits) == 1:
+        return hits[0]
+    return None
+
+
 def expected_for_date(
     date: str, season: Path | None = None
-) -> tuple[list[ExpectedTeam], list[str]]:
-    """Verwachte teams en reserveringssoorten voor een datum, uit een seizoensbestand."""
-    path = season or SEASON_DEFAULT
+) -> tuple[list[ExpectedTeam], list[str], Path | None]:
+    """Verwachte teams en reserveringssoorten voor een datum.
+
+    Zonder `season` wordt het seizoensbestand bij de datum gezocht. Geeft ook
+    terug welk bestand gebruikt is, zodat het rapport dat kan vermelden.
+    """
+    path = season or find_season(date)
+    if path is None:
+        return [], [], None
     teams, reservations = parse_input(path)
     expected = expected_from_teams([t for t in teams if t.date == date])
     kinds = [r.kind for r in reservations if r.date == date]
-    return expected, kinds
+    return expected, kinds, path
 
 
 # --------------------------------------------------------------------------- #
@@ -268,58 +296,98 @@ def is_reservation(row: dict) -> bool:
 # teams koppelen
 # --------------------------------------------------------------------------- #
 
+def row_keys(row: dict) -> list[tuple]:
+    """Sleutels waarmee een rij aan een team gekoppeld kan worden, sterkste eerst.
+
+    Schema's uit verschillende bronnen dragen verschillende velden. De sterkste
+    koppeling is schema + thuisteam, want die is uniek en staat in de nieuwe
+    uitvoer. Daarna vallen we terug op de losse identifiers, die bij twee teams
+    met hetzelfde schema op één dag niet meer onderscheidend zijn.
+    """
+    schema = (row.get("team") or row.get("schema") or "").strip()
+    home = (row.get("home_team") or "").strip()
+    keys: list[tuple] = []
+    if schema and home:
+        keys.append(("schema+thuis", schema, home))
+    for field_name in ("team_id", "team_key"):
+        v = (row.get(field_name) or "").strip()
+        if v:
+            keys.append(("id", v))
+    for field_name in ("team_short", "team", "schema"):
+        v = (row.get(field_name) or "").strip()
+        if v:
+            keys.append(("naam", v))
+    return keys
+
+
+def team_index(expected: list[ExpectedTeam]) -> dict[tuple, list[ExpectedTeam]]:
+    """Bouw een index van dezelfde sleutelvormen als `row_keys` produceert."""
+    index: dict[tuple, list[ExpectedTeam]] = defaultdict(list)
+    for t in expected:
+        if t.home:
+            index[("schema+thuis", t.schema, t.home)].append(t)
+        index[("id", t.team_id)].append(t)
+        # ortools_planner schrijft team_key als "<schema> · <thuisteam>".
+        if t.home:
+            index[("id", f"{t.schema} \u00b7 {t.home}")].append(t)
+        index[("naam", t.short)].append(t)
+        index[("naam", t.schema)].append(t)
+    return index
+
+
 def group_rows_by_team(
     rows: list[dict], expected: list[ExpectedTeam], rep: Report, date: str
 ) -> dict[str, tuple[ExpectedTeam | None, list[dict], list[ExpectedTeam]]]:
     """Koppel rijen aan verwachte teams.
 
-    De OR-Tools uitvoer zet het schema in `team` en `team_id`. Als twee teams op
-    dezelfde dag hetzelfde schema hebben, is die sleutel niet uniek en kunnen we
-    ze in de uitvoer niet meer scheiden. Dat melden we expliciet.
+    Lukt de koppeling op schema + thuisteam, dan is hij eenduidig. Draagt een
+    schema alleen de schemanaam en delen twee teams die naam op één dag, dan zijn
+    ze in dat bestand niet te scheiden; dat melden we als `AMBIGU-TEAM`.
     """
-    by_id = {t.team_id: t for t in expected}
-    by_short = defaultdict(list)
-    by_schema = defaultdict(list)
-    for t in expected:
-        by_short[t.short].append(t)
-        by_schema[t.schema].append(t)
+    index = team_index(expected)
 
-    ambiguous = {s: ts for s, ts in by_schema.items() if len(ts) > 1}
-
-    groups: dict[str, tuple[ExpectedTeam | None, list[dict], list[ExpectedTeam]]] = {}
     buckets: dict[str, list[dict]] = defaultdict(list)
+    resolved: dict[str, ExpectedTeam | None] = {}
+    sharing: dict[str, list[ExpectedTeam]] = {}
+
     for row in rows:
         if is_reservation(row):
             continue
-        buckets[row_team_key(row)].append(row)
+        team, group_of = None, []
+        for key in row_keys(row):
+            hits = index.get(key, [])
+            if len(hits) == 1:
+                team = hits[0]
+                break
+            if len(hits) > 1 and not group_of:
+                group_of = hits
+        label = team.team_id if team else (
+            f"AMBIGU::{group_of[0].schema}" if group_of else row_team_key(row)
+        )
+        buckets[label].append(row)
+        resolved[label] = team
+        sharing[label] = group_of
 
-    for key, group in buckets.items():
-        team = by_id.get(key)
-        if team is None and len(by_short.get(key, [])) == 1:
-            team = by_short[key][0]
-        if team is None and len(by_schema.get(key, [])) == 1:
-            team = by_schema[key][0]
-
-        if team is None and key in ambiguous:
-            ts = ambiguous[key]
+    for label, group in buckets.items():
+        team = resolved[label]
+        if team is not None:
+            continue
+        if sharing[label]:
             rep.add(
-                "AMBIGU-TEAM",
-                "HARD",
-                date,
-                f"{len(ts)} teams delen dit schema, maar de uitvoer onderscheidt ze niet. "
-                f"Teamregels (spelers, banen, blokken, S-voor-D) worden hier op de "
-                f"samengevoegde groep getoetst en zijn dus te streng.",
-                subject=key,
+                "AMBIGU-TEAM", "HARD", date,
+                f"{len(sharing[label])} teams delen dit schema en het schema draagt "
+                f"geen thuisteam, dus ze zijn niet te scheiden. Teamregels worden "
+                f"op de samengevoegde groep getoetst en zijn dus te streng.",
+                subject=sharing[label][0].schema,
             )
-        elif team is None:
+        else:
             rep.add(
                 "ONBEKEND-TEAM", "HARD", date,
-                "rijen horen bij geen enkel team uit season.tsv", subject=key,
+                "rijen horen bij geen enkel team uit het wedstrijdprogramma",
+                subject=row_team_key(group[0]),
             )
 
-        groups[key] = (team, group, ambiguous.get(key, []))
-
-    return groups
+    return {k: (resolved[k], v, sharing[k]) for k, v in buckets.items()}
 
 
 # --------------------------------------------------------------------------- #
@@ -543,11 +611,16 @@ def check_phases(
         if here:
             groups.append((kinds, here))
 
+    # Oscar, 26-08-2026: de 8-partijenteams spelen landelijke competitie op hoog
+    # niveau en zijn strikt in de fasering. Voor de overige teams is het een
+    # sterke voorkeur en weegt een beter schema zwaarder.
+    severity = "HARD" if team.matches == 8 else "MODEL"
+
     for (kinds_a, earlier), (kinds_b, later) in zip(groups, groups[1:]):
         latest_end = max(r["_end"] for r in earlier)
         too_early = [r for r in later if r["_start"] < latest_end]
         if too_early:
-            rep.add("FASE", "HARD", date,
+            rep.add("FASE", severity, date,
                     f"{', '.join(sorted(r.get('part', '?') for r in too_early))} "
                     f"start voor fase {'+'.join(sorted(kinds_a))} klaar is "
                     f"({to_hhmm(latest_end)})", subject=team.short)
@@ -631,45 +704,68 @@ def check_time_windows(
                     f"{part} start {to_hhmm(s)}, jeugd niet na 17:30", subject=team.short)
 
 
+def reservation_windows(res_kinds: list[str], day_start: int) -> list[tuple]:
+    """Gereserveerde (baan, van, tot, soort) volgens SPEC.md sectie 3.
+
+    Rood staat altijd op baan 1 — Oscar, 26-08-2026: naast die baan is extra
+    ruimte die meegebruikt wordt. Speelt Rood mee, dan wijkt Oranje uit naar
+    baan 2, 3 en 4. Beide beginnen op de dagstart.
+    """
+    heeft_rood = "rood" in res_kinds
+    windows = []
+    if heeft_rood:
+        windows.append((1, day_start, day_start + 60, "rood"))
+    if "oranje" in res_kinds:
+        banen = (2, 3, 4) if heeft_rood else (1, 2, 3)
+        windows += [(c, day_start, day_start + 120, "oranje") for c in banen]
+    return windows
+
+
 def check_reservations(
     rows: list[dict], res_kinds: list[str], rep: Report, date: str
 ) -> None:
-    """Rood/oranje reserveringen.
+    """Rood/oranje reserveringen: juiste baan, juiste duur, en vanaf de dagstart.
 
-    Staan ze als rij in het bestand (gold, heuristiek), dan toetsen we baan en
-    duur. Staan ze er niet in (OR-Tools uitvoer), dan toetsen we of de banen die
-    het model reserveert in dat venster vrij zijn gebleven.
+    Staan de reserveringen als rij in het schema (gold, heuristiek), dan toetsen
+    we baan, duur en starttijd. Staan ze er niet in (OR-Tools uitvoer), dan
+    toetsen we of de banen die gereserveerd horen te zijn ook vrij zijn gebleven.
     """
     if not res_kinds:
         return
 
-    res_rows = [r for r in rows if is_reservation(r)]
+    planned = [r for r in rows if not is_reservation(r) and "_start" in r]
+    res_rows = [r for r in rows if is_reservation(r) and "_start" in r]
+    if not planned and not res_rows:
+        return
+
+    # De dagstart is het vroegste moment waarop er iets gebeurt, inclusief de
+    # reserveringen zelf — die beginnen er per definitie op.
+    day_start = min(r["_start"] for r in (res_rows + planned))
+    windows = reservation_windows(res_kinds, day_start)
+
     if res_rows:
         for row in res_rows:
-            s, e = hhmm_to_min(row.get("start")), hhmm_to_min(row.get("end"))
-            if s is None or e is None:
-                continue
-            want = 60 if row_team_key(row).upper() == "ROOD" else 120
-            if e - s != want:
+            kind = "rood" if row_team_key(row).upper() == "ROOD" else "oranje"
+            duur_ok = 60 if kind == "rood" else 120
+            got = row["_end"] - row["_start"]
+            if got != duur_ok:
                 rep.add("RESERVERING", "HARD", date,
-                        f"{row_team_key(row)} duurt {e - s} min, verwacht {want}",
+                        f"{kind} duurt {got} min, verwacht {duur_ok}",
                         subject=row_team_key(row))
+            if row["_start"] != day_start:
+                rep.add("RESERVERING", "HARD", date,
+                        f"{kind} start {to_hhmm(row['_start'])}, maar de dag begint "
+                        f"om {to_hhmm(day_start)}", subject=row_team_key(row))
+            toegestaan = {c for c, _, _, k in windows if k == kind}
+            if toegestaan and row["_court"] not in toegestaan:
+                rep.add("RESERVERING", "HARD", date,
+                        f"{kind} staat op baan {row['_court']}, verwacht "
+                        f"{sorted(toegestaan)}", subject=row_team_key(row))
         return
-
-    planned = [r for r in rows if not is_reservation(r) and "_start" in r]
-    if not planned:
-        return
-    day_start = min(r["_start"] for r in planned)
-    windows = []
-    if "oranje" in res_kinds:
-        windows += [(c, day_start, day_start + 120, "oranje") for c in (1, 2, 3)]
-    if "rood" in res_kinds:
-        court = 4 if "oranje" in res_kinds else 1
-        windows.append((court, day_start, day_start + 60, "rood"))
 
     rep.add("RESERVERING", "INFO", date,
-            f"geen reserveringsrijen in de uitvoer; getoetst tegen dagstart "
-            f"{to_hhmm(day_start)} en {len(windows)} gereserveerde baanvensters")
+            f"geen reserveringsrijen in het schema; getoetst of de {len(windows)} "
+            f"gereserveerde baanvensters vrij zijn, met dagstart {to_hhmm(day_start)}")
 
     for court, ws, we, kind in windows:
         for row in planned:
@@ -709,11 +805,14 @@ def validate_date(
     date: str, rows: list[dict], rep: Report, season: Path | None = None
 ) -> None:
     """Valideer één speeldag met de teams uit het seizoensbestand."""
-    expected, res_kinds = expected_for_date(date, season)
+    expected, res_kinds, used = expected_for_date(date, season)
     if not expected:
+        namen = ", ".join(p.name for p in SEASON_FILES) or "geen"
         rep.add("ONBEKENDE-DATUM", "HARD", date,
-                f"datum staat niet in {(season or SEASON_DEFAULT).name}")
+                f"datum staat in geen enkel seizoensbestand ({namen}), of in "
+                f"meer dan één; geef dan --season op")
         return
+    rep.sources[date] = used.name if used else "?"
     _validate(date, expected, res_kinds, rows, rep)
 
 
@@ -781,6 +880,9 @@ def main() -> int:
                     help="idem voor MODEL-overtredingen")
     ap.add_argument("--json", type=Path, help="schrijf bevindingen als JSON")
     ap.add_argument("--quiet", action="store_true", help="alleen de samenvatting")
+    ap.add_argument("--season", type=Path, metavar="TSV",
+                    help="wedstrijdprogramma om tegen te toetsen; standaard wordt "
+                         "het bestand in data/ gezocht dat de datum bevat")
     args = ap.parse_args()
 
     rep = Report()
@@ -802,12 +904,14 @@ def main() -> int:
         print(f"\n=== {path.name} ===")
         for date, rows in sorted(per_date.items()):
             before = len(rep.findings)
-            validate_date(date, rows, rep)
+            validate_date(date, rows, rep, args.season)
             new = rep.findings[before:]
             s = rep.stats.get(date, {})
+            bron = rep.sources.get(date, "?")
             head = (f"{date}  {s.get('partijen_gepland', 0)}/"
                     f"{s.get('partijen_verwacht', 0)} partijen  "
-                    f"HARD={s.get('hard', 0)} MODEL={s.get('model', 0)}")
+                    f"HARD={s.get('hard', 0)} MODEL={s.get('model', 0)}"
+                    f"  [{bron}]")
             print(f"\n{head}")
             if not args.quiet:
                 for f in new:

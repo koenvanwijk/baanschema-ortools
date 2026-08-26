@@ -3,7 +3,13 @@
 Dit is de gezaghebbende spec. Bij twijfel tussen dit document, de code en
 `data/season.tsv` wint dit document.
 
-Vastgesteld: 2026-08-24. Vervangt `docs/planningsregels.md`.
+Vastgesteld: 2026-08-24, aangevuld met besluiten van 2026-08-26. Vervangt
+`docs/planningsregels.md`.
+
+**Uitgangspunt is het laatst aangeleverde wedstrijdprogramma**
+(`data/season_2026-2027.tsv`, zes zondagen september/oktober 2026). Het
+voorjaarsseizoen in `data/season.tsv` en het handmatige schema in
+`docs/gold_result.json` zijn historisch materiaal, geen norm. (Oscar, 26-08-2026)
 
 Secties 1 t/m 6 zijn de regels zoals aangeleverd. Secties 7 en 8 zijn
 overgenomen uit de vorige versie omdat de nieuwe regels ze niet behandelen en ze
@@ -32,24 +38,37 @@ implementatie, niet van de regels zelf.
 
 ## 2. Starttijden en harde tijdslimieten
 
-- **Standaard dagstart:** 09:00.
+- **Standaard dagstart:** 09:00. Dit is de **voorkeur/default** voor alle
+  dag-gebaseerde logica, inclusief de reserveringsvensters van Rood/Oranje in
+  sectie 3 (besluit Oscar/Koen 2026-08-26).
 - **Vroege dagstart:** alleen terugvallen op 08:30 indien noodzakelijk om te
-  voorkomen dat partijen de avond-deadline overschrijden. Op zeer rustige dagen
-  mag het schema vanzelf opschuiven naar een start om 10:00.
+  voorkomen dat partijen de avond-deadline overschrijden, of om te veel
+  onplanbare (`NIET_GELUKT`) partijen te voorkomen omdat er te veel wedstrijden
+  zijn om op tijd te starten met 09:00 als beginpunt. Op zeer rustige dagen mag
+  het schema vanzelf opschuiven naar een start om 10:00.
 - **Avond-deadline:** wedstrijden mogen starten tot en met 19:30.
 - **Deadline eerste partij per team:**
 
   | team | eerste partij start uiterlijk |
   |---|---|
   | Junioren (11 t/m 14) | 13:00 |
-  | Grote teams (8 partijen) | tussen 10:00 en 11:00 |
+  | Grote teams (8 partijen) | tussen 10:00 en 11:00 — **HARD**, niet aanpasbaar (reistijd van ver) |
   | overige reguliere teams | 15:00 |
+
+  Het startvenster van 10:00-11:00 voor 8-partijenteams (landelijke
+  competitie) blijft een harde eis: deze teams reizen van ver en kunnen niet
+  eerder of later starten (besluit Oscar/Koen 2026-08-26, bevestigt bestaand
+  gedrag — geen wijziging nodig).
 
 ## 3. Baan-toewijzing en baan-geheugen
 
-- **Rood:** speelt altijd op baan 1, vanaf de dagstart.
+- **Rood:** speelt altijd op baan 1, vanaf de dagstart. Naast die baan is extra
+  ruimte die meegebruikt wordt, dus baan 1 is geen willekeurige keuze.
+  (Oscar, 26-08-2026) Rood krijgt baan 1
+  ongeacht of Oranje die dag ook speelt (besluit Oscar/Koen 2026-08-26,
+  bevestigt de bestaande regel — de bug zat in de code, niet in de spec).
 - **Oranje:** speelt altijd vanaf de dagstart op baan 1, 2 en 3. Speelt Rood ook
-  die dag, dan schuift Oranje op naar baan 2, 3 en 4.
+  die dag, dan schuift Oranje op naar baan 2, 3 en 4 (Rood houdt baan 1).
 - **Grote teams (8 partijen):** sterke voorkeur voor baan 1 t/m 4, onderin het park.
 - **Baan-geheugen (vaste uitvalsbasis):** zodra een team zijn eerste partij(en)
   speelt en daarvoor banen pakt, worden die baannummers vastgelegd als de
@@ -81,10 +100,20 @@ wachttijden te minimaliseren.
 - **Uitzondering 5-wedstrijdteams (S en GD tegelijk):** deze teams hebben genoeg
   spelers, dus hun singles én hun gemengd dubbel mogen samen in fase 1 starten.
   Ze kunnen dus op 3 banen tegelijk openen. Daarna volgt fase 2, de dubbels.
-- **Uitzondering 8-wedstrijdteams (strikte waterval):** deze teams bestaan uit
-  slechts 4 spelers en moeten strikt in 3 fases spelen zonder overlap:
+- **Uitzondering 8-wedstrijdteams (strikte waterval, HARD):** deze teams bestaan
+  uit slechts 4 spelers en moeten strikt in 3 fases spelen zonder overlap:
   fase 1 singles → fase 2 dubbels → fase 3 gemengd dubbels. HD/DD en GD mogen
-  nooit tegelijk starten.
+  nooit tegelijk starten, en geen enkele partij van fase N+1 mag starten voordat
+  alle partijen van fase N klaar zijn. Dit is een **harde eis**: een landelijk
+  8-partijenteam speelt op hoog niveau met te weinig spelers om fases door
+  elkaar te laten lopen.
+- **Overige teams (SOFT, besluit Oscar/Koen 2026-08-26):** voor 5-partijenteams,
+  niet-gemengde teams en alle overige teamsoorten is de waterval-volgorde een
+  **voorkeur**, geen harde eis. Een schending telt als zachte penalty in de
+  objective/metrics, niet als harde overtreding. Reden: bij deze teams weegt een
+  optimaler baanschema en een betere baanbezetting zwaarder dan strikte
+  fasering — in de praktijk (zie gold-schema) wordt de waterval bij deze teams
+  toch al regelmatig doorbroken zonder dat dit een probleem is.
 
 ## 6. Foutafhandeling (niet-blocking)
 
@@ -154,28 +183,43 @@ Van de implementatie, niet van de regels. Getoetst tegen commit `1ba4d55` op
 - **Gemengd niet voor 10:00** en **8-partijenteams bij voorkeur op baan 1 t/m 4**
   zitten al in het model.
 
-### Twee conflicten tussen sectie 3 en de code
+### Twee conflicten tussen sectie 3 en de code — OPGELOST 2026-08-26
 
-**Rood en Oranje staan omgewisseld.** Sectie 3 zegt: Rood speelt *altijd* op baan
-1, en Oranje schuift op naar 2, 3, 4 als Rood ook speelt.
-`ortools_planner.py:354-359` doet het omgekeerd — Oranje houdt 1, 2, 3 en Rood
-verhuist naar baan 4:
+**Rood en Oranje stonden omgewisseld.** Sectie 3 zegt: Rood speelt *altijd* op
+baan 1, en Oranje schuift op naar 2, 3, 4 als Rood ook speelt.
+`ortools_planner.py:354-359` deed het omgekeerd — Oranje hield 1, 2, 3 en Rood
+verhuisde naar baan 4. Gefixt op 2026-08-26: Rood krijgt nu consequent baan 1,
+Oranje schuift naar 2, 3, 4 zodra Rood ook speelt.
 
-```python
-if r.kind == "oranje":
-    for c in [1, 2, 3]:
-        reserved.append((c, 8 * 60 + 30, 10 * 60 + 30))
-elif r.kind == "rood":
-    rood_court = 4 if "oranje" in kinds_today else 1
-```
-
-Ook de vorige regelversie zei al "Oranje naar 2, 3, 4", dus dit staat los van de
-nieuwe spec: de code week op dit punt altijd al af.
-
-**Reserveringen negeren de dagstart.** De vensters hierboven staan hard op
+**Reserveringen negeerden de dagstart.** De vensters stonden hard op
 `8 * 60 + 30`, terwijl `start_min = day_start_pref` is. Op een dag die om 09:00
-begint wordt Rood dus van 08:30 tot 09:30 gereserveerd — een half uur vóór de
-dagstart. Sectie 3 zegt "vanaf de dagstart".
+begint werd Rood dus van 08:30 tot 09:30 gereserveerd — een half uur vóór de
+dagstart. Gefixt op 2026-08-26: de reserveringsvensters gebruiken nu
+`day_start_pref` (dus 09:00 als dat de dagstart is), met terugval naar 08:30
+alleen als 09:00 niet haalbaar is (dezelfde escalatieladder als de rest van de
+dagstart-logica in sectie 2).
+
+## Besluiten Oscar/Koen (2026-08-26)
+
+Op basis van de open punten hieronder en Discord `#baanschema` van 24-08-2026
+zijn de volgende vier besluiten genomen:
+
+1. **8-partijenteams startvenster 10:00-11:00 blijft HARD.** Niet aanpasbaar:
+   deze teams reizen van ver. Bevestigt bestaand gedrag, geen codewijziging
+   nodig — alleen expliciet gedocumenteerd in sectie 2.
+2. **Fasering S→D→GD (waterval):**
+   - **8-partijenteams: HARD.** Landelijke competitie, hoog niveau, slechts 4
+     spelers — strikte waterval blijft een harde eis.
+   - **Overige teams (5-partijenteams, niet-gemengde teams, etc.): SOFT.** Een
+     optimaler baanschema/bezetting weegt hier zwaarder dan strikte fasering.
+     Schendingen tellen als zachte penalty in de objective, niet als harde
+     overtreding. Zie sectie 5.
+3. **Rood/Oranje baanvolgorde:** Rood krijgt altijd baan 1, Oranje schuift naar
+   2-3-4 als Rood ook speelt. De bug in `ortools_planner.py:354-359` (Oranje op
+   1-2-3, Rood op 4) is gefixt.
+4. **Reserveringsvensters Rood/Oranje:** gebruiken nu de dagstart-tijd
+   (`day_start_pref`, standaard 09:00) als basis. 08:30 blijft de fallback
+   wanneer 09:00 niet haalbaar is.
 
 ### Wat de nieuwe regels intrekken
 
@@ -248,11 +292,13 @@ in Discord `#baanschema` van 24-08-2026.
 
 ## Open punten in de spec
 
-1. **Sectie 5 motiveert de strikte waterval met "slechts 4 spelers", maar het
-   5-partijenteam heeft er ook 4.** Bij `DE-HE-GD-DD-HD` kosten 2 singles plus
-   1 gemengd dubbel samen 2 dames en 2 heren — precies vier spelers. Het
-   onderscheid tussen de twee uitzonderingen zit dus niet in de teamgrootte. Wat
-   is de eigenlijke reden: rust tussen partijen, of iets anders?
+1. ~~**Sectie 5 motiveert de strikte waterval met "slechts 4 spelers", maar het
+   5-partijenteam heeft er ook 4.**~~ **Beantwoord 2026-08-26:** het onderscheid
+   zit niet (meer) in de teamgrootte, maar in het niveau/de competitie. Alleen
+   8-partijenteams (landelijke competitie) krijgen de harde waterval; overige
+   teams, inclusief 5-partijenteams, krijgen 'm als zachte voorkeur omdat een
+   optimaler baanschema daar zwaarder weegt. Zie "Besluiten Oscar/Koen
+   (2026-08-26)" hierboven.
 2. **Sectie 6 noemt een tag `[>11:00]`.** De andere drie horen bij de deadlines
    uit sectie 2 (19:30, 15:00, 13:00). Bij welke regel hoort 11:00 — de
    bovengrens van het startvenster van de 8-partijenteams?
