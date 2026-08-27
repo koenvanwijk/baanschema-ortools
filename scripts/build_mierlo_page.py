@@ -69,6 +69,96 @@ def short_team_name(schema: str, home_team: str = "") -> str:
     return re.sub(r"\s+", " ", " ".join(x for x in [prefix, klasse, home_short] if x)).strip()
 
 
+def explain_row(row: dict, day_rows: list[dict]) -> str:
+    """Menselijke uitleg waarom deze partij op dit moment/deze baan gepland is.
+
+    Werkt puur op de output-rijen (geen solver-interne data nodig) door bekende
+    planningsregels (SPEC.md) te herkennen aan patronen in de uitkomst:
+    baan-bezetting vlak ervoor, eigen fasevolgorde (S voor D voor GD), starten
+    in ronde met een teamgenoot, en leeftijds-/schema-voorkeuren.
+    """
+    team = row.get("team", "")
+    team_l = team.lower()
+    kind = row.get("kind")
+    start = row.get("start")
+    court = row.get("court")
+    if not start or start == "NIET_GELUKT":
+        return ""
+    start_min = hhmm_to_min(start)
+    team_id = row.get("team_id") or team
+
+    is_mixed = "gemengd zondag" in team_l
+    is_jeugd_1317 = ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l)
+    is_junioren = "junioren" in team_l
+
+    same_team = [r for r in day_rows if (r.get("team_id") or r.get("team")) == team_id and r is not row and r.get("start") not in (None, "", "NIET_GELUKT")]
+
+    reasons: list[str] = []
+
+    # 1. Fasevolgorde binnen het team: D/GD start pas als de voorgaande fase
+    #    (singles, dan dubbels) klaar is — hard voor 8-partijenteams, en in de
+    #    praktijk ook zo gepland bij de meeste andere teams.
+    if kind in ("D", "M"):
+        earlier_s = [r for r in same_team if r.get("kind") == "S"]
+        if earlier_s:
+            last_s_end = max(hhmm_to_min(r["end"]) for r in earlier_s)
+            if start_min >= last_s_end:
+                reasons.append(
+                    f"Start pas na de singles van dit team (laatste eindigt om {min_to_hhmm(last_s_end)}) "
+                    "— singles gaan voor dubbels/gemengd (S→D→GD-volgorde)."
+                )
+    if kind == "M":
+        earlier_d = [r for r in same_team if r.get("kind") == "D"]
+        if earlier_d:
+            last_d_end = max(hhmm_to_min(r["end"]) for r in earlier_d)
+            if start_min >= last_d_end:
+                reasons.append(
+                    f"Start pas na de dubbels van dit team (laatste eindigt om {min_to_hhmm(last_d_end)})."
+                )
+
+    # 2. Rondegewijze afwikkeling: gelijktijdig met een teamgenoot van dezelfde soort.
+    siblings = [r for r in same_team if r.get("kind") == kind and r.get("start") == start and r.get("part") != row.get("part")]
+    if siblings:
+        names = ", ".join(sorted(r["part"] for r in siblings))
+        reasons.append(f"Start gelijktijdig met {names} van hetzelfde team (rondegewijze afwikkeling i.p.v. losse starts).")
+
+    # 3. Baanbezetting: wat zat er vlak voor deze partij op dezelfde baan?
+    prior_on_court = [
+        r for r in day_rows
+        if r.get("court") == court and r is not row
+        and r.get("start") not in (None, "", "NIET_GELUKT")
+        and hhmm_to_min(r["end"]) <= start_min
+    ]
+    if prior_on_court:
+        last = max(prior_on_court, key=lambda r: hhmm_to_min(r["end"]))
+        gap = start_min - hhmm_to_min(last["end"])
+        if gap == 0:
+            other = short_team_name(last.get("team", ""), last.get("home_team", ""))
+            reasons.append(f"Baan {court} was tot {last['end']} bezet door {other} ({last['part']}) — start meteen daarna.")
+        elif gap > 0 and not reasons:
+            other = short_team_name(last.get("team", ""), last.get("home_team", ""))
+            reasons.append(
+                f"Baan {court} was vrij vanaf {last['end']} ({other} {last['part']} klaar), "
+                f"maar dit team kon pas om {start} beginnen (zie hieronder)."
+            )
+
+    # 4. Schema-/leeftijdsregels die een latere start verklaren.
+    if is_mixed and start_min == 10 * 60:
+        reasons.append("Gemengd-teams starten volgens de parkregel nooit voor 10:00.")
+    if is_jeugd_1317 and start_min >= 11 * 60:
+        reasons.append("Jeugd 13-17 heeft een voorkeur voor een middagstart (vanaf ca. 11:00) i.p.v. vroeg in de ochtend — dit is een zachte optimalisatie-voorkeur, geen harde eis.")
+    if is_junioren and start_min <= 11 * 60:
+        reasons.append("Junioren (11-14) hebben juist een voorkeur voor een vroege start.")
+
+    if not reasons:
+        reasons.append(
+            "Startmoment volgt uit de baan-optimalisatie (compactheid, minimale wachttijd, "
+            "weinig baanwissels) — er is geen aparte regel die een latere start afdwingt."
+        )
+
+    return " ".join(reasons)
+
+
 def render_grid(rows: list[dict]) -> str:
     valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("court")]
     if not valid:
@@ -83,10 +173,15 @@ def render_grid(rows: list[dict]) -> str:
         short = short_team_name(r.get("team", ""), r.get("home_team", ""))
         away = r.get("away_team", "")
         label = f"{short} · {r['part']}" + (f" vs {away}" if away else "")
-        detail = f"{r.get('team','')} | {r['part']} | {r['start']}-{r['end']} | Baan {r.get('court')}" + (f" | vs {away}" if away else "")
+        why = explain_row(r, valid)
+        detail = (
+            f"{r.get('team','')} | {r['part']} | {r['start']}-{r['end']} | Baan {r.get('court')}"
+            + (f" | vs {away}" if away else "")
+            + (f"\n\nWaarom dit moment/deze baan?\n{why}" if why else "")
+        )
         color = color_for(r.get("team_id") or r.get("team", ""))
         for t in range(s, e, 15):
-            cell[(t, int(r["court"]))] = {"label": label, "detail": detail, "color": color, "is_start": t == s}
+            cell[(t, int(r["court"]))] = {"label": label, "detail": detail, "why": why, "color": color, "is_start": t == s}
 
     header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
     body = []
@@ -97,8 +192,9 @@ def render_grid(rows: list[dict]) -> str:
             v = cell.get((t, c))
             if v:
                 txt = v["label"] if v["is_start"] else "·"
+                title_attr = f" title='{html.escape(v['why'], quote=True)}'" if v.get("why") else ""
                 tds.append(
-                    f"<td class='tap-cell' style='background:{v['color']}' data-detail='{html.escape(v['detail'], quote=True)}'>"
+                    f"<td class='tap-cell' style='background:{v['color']}' data-detail='{html.escape(v['detail'], quote=True)}'{title_attr}>"
                     f"<div class='cell'>{html.escape(txt)}</div></td>"
                 )
             else:
