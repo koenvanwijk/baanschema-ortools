@@ -142,13 +142,41 @@ def explain_row(row: dict, day_rows: list[dict]) -> str:
                 f"maar dit team kon pas om {start} beginnen (zie hieronder)."
             )
 
-    # 4. Schema-/leeftijdsregels die een latere start verklaren.
+    # 4. Schema-/leeftijdsregels: alleen noemen als ze de start ook echt
+    #    verklaren. Voorheen citeerden we deze voorkeuren ook als er allang een
+    #    onverklaard gat zat (bijv. banen al vanaf 09:00 vrij, team startte toch
+    #    pas om 11:00) — dat wekte de indruk dat een regel de vertraging
+    #    afdwong, terwijl het gewoon een niet-optimale oplossing van de solver
+    #    was. Check daarom eerst of er een eerder moment was waarop dit team op
+    #    zijn eigen banen had kunnen beginnen.
+    own_courts = {r["court"] for r in same_team + [row]}
+    earliest_free_for_team = None
+    for cand_t in range(9 * 60, start_min, 15):
+        blocked = any(
+            r.get("court") in own_courts
+            and hhmm_to_min(r["start"]) <= cand_t < hhmm_to_min(r["end"])
+            for r in day_rows
+            if r.get("start") not in (None, "", "NIET_GELUKT") and (r.get("team_id") or r.get("team")) != team_id
+        )
+        if not blocked:
+            earliest_free_for_team = cand_t
+            break
+    could_start_earlier = earliest_free_for_team is not None and not reasons
+
     if is_mixed and start_min == 10 * 60:
-        reasons.append("Gemengd-teams starten volgens de parkregel nooit voor 10:00.")
-    if is_jeugd_1317 and start_min >= 11 * 60:
+        reasons.append("Gemengd-teams starten volgens de parkregel nooit voor 10:00 (harde eis).")
+    elif is_jeugd_1317 and start_min >= 11 * 60 and not could_start_earlier:
         reasons.append("Jeugd 13-17 heeft een voorkeur voor een middagstart (vanaf ca. 11:00) i.p.v. vroeg in de ochtend — dit is een zachte optimalisatie-voorkeur, geen harde eis.")
-    if is_junioren and start_min <= 11 * 60:
+    elif is_junioren and start_min <= 11 * 60 and not could_start_earlier:
         reasons.append("Junioren (11-14) hebben juist een voorkeur voor een vroege start.")
+    elif could_start_earlier:
+        reasons.append(
+            f"Dit kon in principe al vanaf {min_to_hhmm(earliest_free_for_team)} — er was geen regel of "
+            "bezette baan die een latere start afdwong. Dit is vermoedelijk een niet-volledig "
+            "uitgeoptimaliseerde plek in het schema (de solver stopt na een tijdslimiet met de "
+            "beste oplossing tot dan toe, niet per se de allerbeste); meld dit gerust, dan draaien "
+            "we die dag met meer rekentijd opnieuw."
+        )
 
     if not reasons:
         reasons.append(
@@ -157,6 +185,51 @@ def explain_row(row: dict, day_rows: list[dict]) -> str:
         )
 
     return " ".join(reasons)
+
+
+def render_gaps(rows: list[dict]) -> str:
+    """Lijst alle gaten van >=30 min op elke baan tussen twee partijen op die dag.
+
+    Voor elk gat wordt vermeld: baan, tijdvak, wat ervoor/erna gepland stond, en
+    of er een duidelijke reden is (bv. baan gereserveerd voor latere leeftijds-
+    groep, of team dat nog niet klaar was met een vorige fase elders) dan wel
+    dat het een onbenutte plek is die de solver had kunnen opvullen.
+    """
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("court")]
+    if not valid:
+        return ""
+    courts = sorted({int(r["court"]) for r in valid})
+    gaps_html = []
+    total_gap_min = 0
+    n_gaps = 0
+    for c in courts:
+        on_court = sorted((r for r in valid if int(r["court"]) == c), key=lambda r: hhmm_to_min(r["start"]))
+        for prev, nxt in zip(on_court, on_court[1:]):
+            gap = hhmm_to_min(nxt["start"]) - hhmm_to_min(prev["end"])
+            if gap < 30:
+                continue
+            n_gaps += 1
+            total_gap_min += gap
+            prev_short = short_team_name(prev.get("team", ""), prev.get("home_team", ""))
+            next_short = short_team_name(nxt.get("team", ""), nxt.get("home_team", ""))
+            why = explain_row(nxt, valid)
+            explained = bool(why) and "kon in principe al vanaf" not in why and "geen aparte regel" not in why
+            verdict = (
+                "<span class='gap-explained'>verklaard</span>" if explained
+                else "<span class='gap-unexplained'>mogelijk te vullen</span>"
+            )
+            gaps_html.append(
+                f"<li>Baan {c}: <strong>{prev['end']}–{nxt['start']}</strong> "
+                f"({gap} min) leeg — na {html.escape(prev_short)} ({prev['part']}), "
+                f"voor {html.escape(next_short)} ({nxt['part']}) {verdict}"
+                f"<div class='gap-why'>{html.escape(why)}</div></li>"
+            )
+    if not gaps_html:
+        return "<div class='ok'>✓ Geen gaten ≥30 min op enige baan deze dag.</div>"
+    return (
+        f"<div class='gaps'><strong>Gaten-analyse ({n_gaps} gaten, totaal {total_gap_min} baan-minuten leeg)</strong>"
+        "<ul>" + "".join(gaps_html) + "</ul></div>"
+    )
 
 
 def render_grid(rows: list[dict]) -> str:
@@ -271,7 +344,7 @@ def main() -> None:
             f"{st.get('partijen_gepland', '?')}/{st.get('partijen_verwacht', '?')} partijen gepland, "
             f"status {html.escape(data.get('status','?'))}</span></h2>"
         )
-        sections.append(head + render_violations(rep) + render_summary(rows) + render_grid(rows))
+        sections.append(head + render_violations(rep) + render_summary(rows) + render_gaps(rows) + render_grid(rows))
 
     page = f"""<!doctype html>
 <html lang='nl'>
@@ -289,6 +362,12 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .violations{{background:#fff6bf;border:1px solid #e6cc55;border-radius:10px;padding:.65rem .85rem;margin:.4rem 0 .8rem 0}}
 .violations ul{{margin:.35rem 0 .5rem 1.1rem;padding:0}}
 .ok{{background:#eefaf1;border:1px solid #b6e3c1;border-radius:10px;padding:.55rem .8rem;margin:.4rem 0 .8rem 0;font-size:13px;color:#175}}
+.gaps{{background:#eef3ff;border:1px solid #b7c8f2;border-radius:10px;padding:.6rem .85rem;margin:.4rem 0 .8rem 0;font-size:13px}}
+.gaps ul{{margin:.35rem 0 .3rem 1.1rem;padding:0}}
+.gaps li{{margin:.35rem 0}}
+.gap-explained{{color:#175;font-weight:600;font-size:11px}}
+.gap-unexplained{{color:#a15c00;font-weight:600;font-size:11px}}
+.gap-why{{color:#555;font-size:11.5px;margin:.1rem 0 0 0}}
 .ort-status-inline{{background:#f7f7f7;border:1px solid #ddd;border-radius:10px;padding:.55rem .75rem;margin:.2rem 0 1rem 0;font-size:12px;color:#333}}
 .grid-wrap{{overflow:auto;border:1px solid #eee;border-radius:10px;margin-bottom:2rem}}
 .grid{{border-collapse:collapse;width:100%;table-layout:fixed}}
