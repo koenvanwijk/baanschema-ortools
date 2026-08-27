@@ -384,7 +384,9 @@ def _solve_single_phase(
                     "duration": t.duration_min,
                     "is_mixed_team": "gemengd zondag" in tl,
                     "is_youth_team": ("junioren" in tl) or ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl) or ("groen zondag" in tl),
+                    "is_jeugd_1317": ("jongens 13 t/m 17" in tl) or ("meisjes 13 t/m 17" in tl),
                     "is_4p_combo": "2de-2he-dd-hd-2gd" in tl,
+                    "matches": t.matches,
                     "male_demand": male_d,
                     "female_demand": female_d,
                     "player_demand": total_d,
@@ -402,8 +404,12 @@ def _solve_single_phase(
         latest = end_min - dur
         starts = [m for m in slot_mins if m <= latest]
         
-        # Mixed teams: niet voor 10:00
-        if p["is_mixed_team"]:
+        # Gemengd-teams (parkregel): niet voor 10:00 is een HARDE eis, maar
+        # geldt volgens Koen/Oscar alleen voor de 8-partijenteams (landelijke
+        # competitie). Overige Gemengd-teams (5-partijen etc.) hebben geen
+        # harde ondergrens meer; zij mogen ook vroeger, met leeftijdsvolgorde
+        # (jeugd 13-17 krijgt voorrang op vroege sloten) als zachte voorkeur.
+        if p["is_mixed_team"] and p.get("matches") == 8:
             starts = [m for m in starts if m >= 10 * 60]
         
         # Jeugd 13-17: GEEN harde 11:00-grens meer (SPEC.md, ingetrokken 2026-08-24/26:
@@ -813,6 +819,40 @@ def _solve_single_phase(
             model.add(sum(team_rises) <= 1).only_enforce_if(long_gap.Not())
             long_gap_team_penalty.append(long_gap)
 
+        # HARDE eis (Koen, 2026-08-27): binnen een teamdag mag een team nooit
+        # langer dan 60 minuten (4 kwartierslots) aaneengesloten wachten
+        # tussen twee wedstrijden. Voorheen mocht dit gat oplopen tot een hele
+        # middag (bv. 6 uur op 27-09), wat geheel onacceptabel is voor spelers
+        # ter plekke. We verbieden elk venster van 5 opeenvolgende
+        # kwartierslots (75 min) dat volledig inactief is én zowel vóór als
+        # ná dit venster nog activiteit van hetzelfde team heeft — dat is
+        # equivalent aan "maximaal 60 min wachttijd tussen twee blokken".
+        max_wait_slots = 4  # 4 * 15 min = 60 min toegestaan
+        window = max_wait_slots + 1  # 5 slots = 75 min: verboden als volledig leeg tussen activiteit
+        n_slots = len(active_vars)
+        if n_slots >= window:
+            prefix_or = [None] * n_slots
+            prefix_or[0] = active_vars[0]
+            for t in range(1, n_slots):
+                pv = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_prefix_{t}")
+                model.add_max_equality(pv, [prefix_or[t - 1], active_vars[t]])
+                prefix_or[t] = pv
+            suffix_or = [None] * n_slots
+            suffix_or[-1] = active_vars[-1]
+            for t in range(n_slots - 2, -1, -1):
+                sv = model.new_bool_var(f"team_{abs(hash(team))%10_000_000}_suffix_{t}")
+                model.add_max_equality(sv, [suffix_or[t + 1], active_vars[t]])
+                suffix_or[t] = sv
+            for t0 in range(1, n_slots - window):
+                before_idx = t0 - 1
+                after_idx = t0 + window
+                if after_idx >= n_slots:
+                    continue
+                clause = [active_vars[t] for t in range(t0, t0 + window)]
+                clause.append(prefix_or[before_idx].Not())
+                clause.append(suffix_or[after_idx].Not())
+                model.add_bool_or(clause)
+
         # Team-first: kies een klein court-budget per team én banen dicht bij elkaar.
         # Hard constraint: team mag alleen op één baan-paar spelen (1+2, 3+4, 5+6, 7+8, 9+10).
         team_meta = team_meta_by_key.get(team)
@@ -934,11 +974,18 @@ def _solve_single_phase(
     junioren_early_bonus = []  # Junioren (11-14) prefer early (08:30-11:00)
     jeugd_middag_penalty = []  # Jeugd (13-17) avoid too early (<11:00)
     
+    age_order_penalty = []  # Leeftijdsvolgorde: jeugd (13-17) krijgt voorrang op vroege sloten t.o.v. niet-8p Gemengd
+
     for p_idx, p in enumerate(parts):
         team_l = p["team"].lower()
         is_junioren = "junioren" in team_l  # 11-14 jaar
         is_jeugd_1317 = ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l)
         is_youth = is_junioren or is_jeugd_1317 or ("groen zondag" in team_l)
+        # Niet-8-partijen Gemengd-teams hebben geen harde 10:00-ondergrens meer
+        # (die geldt alleen nog voor 8-partijenteams). Leeftijdsvolgorde-regel
+        # (Koen, 2026-08-27): plan bij voorkeur op leeftijd, dus Jeugd 13-17
+        # vóór Gemengd op vroege sloten, indien mogelijk (zachte voorkeur).
+        is_mixed_non8p = p["is_mixed_team"] and p.get("matches") != 8
         
         for s in allowed_starts[p_idx]:
             for c in courts:
@@ -967,6 +1014,12 @@ def _solve_single_phase(
                         for _ in range(penalty_mult):
                             jeugd_middag_penalty.append(x[(p_idx, s, c)])
 
+                # Leeftijdsvolgorde: niet-8p Gemengd op een vroeg slot (<11:00)
+                # is een zachte penalty, zodat Jeugd 13-17 bij gelijke keuze
+                # voorrang krijgt op die vroege sloten.
+                if is_mixed_non8p and s < 11 * 60:
+                    age_order_penalty.append(x[(p_idx, s, c)])
+
     model.maximize(
         scheduled_score
         # Team-first compactness first: contiguous day, tiny slack, tiny span, few courts.
@@ -989,6 +1042,9 @@ def _solve_single_phase(
         # Age-based start time preferences:
         + 300_000 * sum(junioren_early_bonus)  # Junioren vroeg = goed (3x verhoogd)
         - 5_000_000 * sum(jeugd_middag_penalty)  # Jeugd (13-17) vroeg = ZEER ZEER SLECHT (10x original!)
+        # Leeftijdsvolgorde (Koen, 2026-08-27): niet-8p Gemengd op vroeg slot is
+        # een zachte penalty, zodat Jeugd 13-17 daar bij voorkeur voor gaat.
+        - 200_000 * sum(age_order_penalty)
         # Fasering (SPEC.md sectie 5, besluit 2026-08-26): voor niet-8-partijenteams
         # is de S->D->GD-waterval een zachte voorkeur i.p.v. een harde eis.
         - w_fasering_soft * sum(fasering_soft_penalty)
