@@ -796,7 +796,7 @@ def validate_day(
     `teams` mag zowel `ortools_planner.TeamDay` als `build_pages.TeamDay` zijn.
     """
     rep = rep if rep is not None else Report()
-    expected = expected_from_teams(teams)
+    expected = expected_from_teams([t for t in teams if t.date == date])
     _validate(date, expected, res_kinds or [], rows, rep)
     return rep
 

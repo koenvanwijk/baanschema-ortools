@@ -406,11 +406,11 @@ def _solve_single_phase(
         if p["is_mixed_team"]:
             starts = [m for m in starts if m >= 10 * 60]
         
-        # Jeugd 13-17: HARD CONSTRAINT ≥11:00 (spreiding)
+        # Jeugd 13-17: GEEN harde 11:00-grens meer (SPEC.md, ingetrokken 2026-08-24/26:
+        # kostte partijen en klopte niet met het handmatige gold-schema). De
+        # voorkeur voor een middagstart blijft bestaan als zachte penalty
+        # (jeugd_middag_penalty verderop in de objective).
         team_l = p["team"].lower()
-        is_jeugd_1317 = ("jongens 13 t/m 17" in team_l) or ("meisjes 13 t/m 17" in team_l)
-        if is_jeugd_1317:
-            starts = [m for m in starts if m >= 11 * 60]  # HARD: ≥11:00
         
         # Youth/Groen: niet na 17:30
         if p["is_youth_team"]:

@@ -140,11 +140,11 @@ def render_violations(rep) -> str:
     out = ["<div class='violations'>"]
     if rep.hard:
         out.append("<strong>HARD-afwijkingen (mogen niet voorkomen)</strong><ul>")
-        out += [f"<li>{html.escape(v)}</li>" for v in rep.hard]
+        out += [f"<li>{html.escape(v.line().strip())}</li>" for v in rep.hard]
         out.append("</ul>")
     if rep.model:
         out.append("<strong>MODEL/soft-afwijkingen (niet-blokkerend)</strong><ul>")
-        out += [f"<li>{html.escape(v)}</li>" for v in rep.model]
+        out += [f"<li>{html.escape(v.line().strip())}</li>" for v in rep.model]
         out.append("</ul>")
     out.append("</div>")
     return "".join(out)
@@ -167,10 +167,12 @@ def main() -> None:
         data = json.loads(path.read_text(encoding="utf-8"))
         rows = data.get("rows", [])
         rep = validate_day(d, teams, rows)
+        st = rep.stats.get(d, {})
         pretty = datetime.strptime(d, "%d-%m-%Y").strftime("%A %d %B %Y")
         head = (
             f"<h2>{html.escape(d)} <span class='small'>({html.escape(pretty)}) — "
-            f"{rep.teams} thuiswedstrijden, {rep.scheduled_parts}/{rep.total_parts} partijen gepland, "
+            f"{st.get('teams_verwacht', '?')} thuiswedstrijden, "
+            f"{st.get('partijen_gepland', '?')}/{st.get('partijen_verwacht', '?')} partijen gepland, "
             f"status {html.escape(data.get('status','?'))}</span></h2>"
         )
         sections.append(head + render_violations(rep) + render_summary(rows) + render_grid(rows))
