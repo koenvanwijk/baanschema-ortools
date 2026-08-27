@@ -499,9 +499,14 @@ def _solve_single_phase(
         free_at_earliest = free_static_courts_at(earliest_start)
         prefer_doubles_first = (not team_is_mixed) and non_s_parts and free_at_earliest <= 2
 
-        # Singles vóór doubles: harde eis voor niet-gemengde teams (ongewijzigd).
-        # Gemengde teams (GEM): S en GD mogen overlappen (Gold doet dit ook).
-        if not team_is_mixed:
+        # Singles vóór doubles: harde eis voor niet-gemengde teams (ongewijzigd)
+        # én voor 8-partijenteams ongeacht Gemengd-status (SPEC.md sectie 5: de
+        # strikte waterval is een harde eis voor ALLE 8-partijenteams, inclusief
+        # het 8-partijen Gemengd-schema 2DE-2HE-DD-HD-2GD — slechts 4 spelers,
+        # geen overlap toegestaan). Voor overige (niet-8p) Gemengd-teams (GEM):
+        # S en GD mogen overlappen (Gold doet dit ook).
+        enforce_s_before_rest = (not team_is_mixed) or is_8p_team
+        if enforce_s_before_rest:
             for si in s_parts:
                 dur_s = parts[si]["duration"]
                 for ni in non_s_parts:
@@ -510,10 +515,26 @@ def _solve_single_phase(
                             if s_n < s_s + dur_s:
                                 model.add(start_used[(si, s_s)] + start_used[(ni, s_n)] <= 1)
 
+        # D vóór M (SPEC.md sectie 5): voor 8-partijenteams is de volgorde
+        # binnen de waterval niet alleen "niet overlappen" maar strikt S→D→M.
+        # Zonder deze losse check mocht de solver D en M laten omdraaien
+        # (M eerst, dan D) zolang ze elkaar niet overlapten — gevonden op
+        # 13-09-2026 (Gemengd 1e klasse Afd.1: GD1/GD2 speelden vóór D1/D2).
+        if is_8p_team:
+            for di in d_parts:
+                dur_d = parts[di]["duration"]
+                for mi in m_parts:
+                    for s_d in allowed_starts[di]:
+                        for s_m in allowed_starts[mi]:
+                            if s_m < s_d + dur_d:
+                                model.add(start_used[(di, s_d)] + start_used[(mi, s_m)] <= 1)
+
         # Rondenstructuur (Gold-patroon): pairs van wedstrijden starten tegelijk.
         # S1+S2 tegelijk, S3+S4 tegelijk, D1+D2 tegelijk.
-        # Alleen voor niet-gemengde teams.
-        if not team_is_mixed:
+        # Voor niet-gemengde teams én voor 8-partijen Gemengd-teams (zelfde
+        # redenering als hierboven: de strikte waterval/rondenstructuur geldt
+        # hard voor alle 8-partijenteams).
+        if enforce_s_before_rest:
             def pair_same_start(i0, i1):
                 for s0 in allowed_starts[i0]:
                     for s1 in allowed_starts[i1]:
