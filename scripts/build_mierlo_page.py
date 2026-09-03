@@ -337,19 +337,19 @@ def render_summary(rows: list[dict], captains: dict[str, str] | None = None) -> 
     valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT")]
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
-        by_team[r.get("team_id") or r.get("team")].append(r)
+        by_team[r.get("team_id") or r.get("team") or r.get("team_short")].append(r)
     if not by_team:
         return ""
     items = []
     for key, rr in sorted(by_team.items(), key=lambda kv: min(hhmm_to_min(x["start"]) for x in kv[1])):
-        schema = rr[0].get("team", "")
-        short = short_team_name(schema, rr[0].get("home_team", ""))
+        schema = rr[0].get("team", "") or rr[0].get("team_short", "")
+        short = rr[0].get("team_short") or short_team_name(schema, rr[0].get("home_team", ""))
         home, away = rr[0].get("home_team", ""), rr[0].get("away_team", "")
         matchup = f"{home} vs {away}" if (home or away) else "-"
         first = min_to_hhmm(min(hhmm_to_min(x["start"]) for x in rr))
         last = min_to_hhmm(max(hhmm_to_min(x["end"]) for x in rr))
         color = color_for(key)
-        captain = (captains or {}).get(short, "")
+        captain = (captains or {}).get(short, "") or next((x.get("captain") for x in rr if x.get("captain")), "")
         captain_html = f" — aanvoerder <strong>{html.escape(captain)}</strong>" if captain else ""
         items.append(
             f"<li><span class='sw' style='background:{color}'></span><strong>{html.escape(short)}</strong> "
@@ -357,6 +357,92 @@ def render_summary(rows: list[dict], captains: dict[str, str] | None = None) -> 
             f"partijen <strong>{len(rr)}</strong> — {first}–{last}{captain_html}</li>"
         )
     return "<div class='summary'><h3>Teams deze zondag</h3><ul>" + "".join(items) + "</ul></div>"
+
+
+_GOLD_MATCH_RE = re.compile(r"^(?P<label>\S+)\s+vs\s+(?P<opp>.+)$")
+
+
+def render_summary_gold(rows: list[dict], captains: dict[str, str] | None = None) -> str:
+    """Team-summary voor het Gold-schema (docs/gold_result_najaar2026.json).
+
+    Rijen hebben een ander schema dan de OR-Tools output: 'team_short' i.p.v.
+    'team'/'team_id', en reservering-/opwarmblokken (kind == 'W', part == '')
+    die niet als eigen 'team' in de samenvatting horen (die zijn geen partij,
+    maar een baanreservering). Die reservering-rijen blijven wel gewoon op het
+    rooster staan (render_grid_gold), ze worden alleen uit deze samenvatting
+    gefilterd.
+    """
+    matches = [r for r in rows if r.get("kind") != "W" and (r.get("part") or "").strip()]
+    by_team: dict[str, list[dict]] = defaultdict(list)
+    for r in matches:
+        by_team[r.get("team_short") or "?"].append(r)
+    if not by_team:
+        return ""
+    items = []
+    for short, rr in sorted(by_team.items(), key=lambda kv: min(hhmm_to_min(x["start"]) for x in kv[1])):
+        first = min_to_hhmm(min(hhmm_to_min(x["start"]) for x in rr))
+        last = min_to_hhmm(max(hhmm_to_min(x["end"]) for x in rr))
+        color = color_for(short)
+        captain = (captains or {}).get(short, "") or next((x.get("captain") for x in rr if x.get("captain")), "")
+        captain_html = f" — aanvoerder <strong>{html.escape(captain)}</strong>" if captain else ""
+        opp = ""
+        for r in rr:
+            m = _GOLD_MATCH_RE.match((r.get("part") or "").strip())
+            if m:
+                opp = m.group("opp").strip()
+                break
+        matchup = f" vs {html.escape(opp)}" if opp else ""
+        items.append(
+            f"<li><span class='sw' style='background:{color}'></span><strong>{html.escape(short)}</strong>{matchup} — "
+            f"partijen <strong>{len(rr)}</strong> — {first}–{last}{captain_html}</li>"
+        )
+    return "<div class='summary'><h3>Teams deze zondag (Gold)</h3><ul>" + "".join(items) + "</ul></div>"
+
+
+def render_grid_gold(rows: list[dict]) -> str:
+    """Roosterweergave voor Gold-rijen; toont ook reservering-/opwarmblokken (kind=='W')."""
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("court")]
+    if not valid:
+        return "<p>Geen Gold-planning beschikbaar.</p>"
+    start_min = min(hhmm_to_min(r["start"]) for r in valid)
+    end_min = max(hhmm_to_min(r["end"]) for r in valid)
+    times = list(range(start_min, end_min + 1, 15))
+
+    cell: dict[tuple[int, int], dict] = {}
+    for r in valid:
+        s, e = hhmm_to_min(r["start"]), hhmm_to_min(r["end"])
+        short = r.get("team_short", "")
+        part = (r.get("part") or "").strip()
+        label = f"{short} · {part}" if part else short
+        captain = r.get("captain", "")
+        detail = (
+            f"{short} | {part or '(reservering)'} | {r['start']}-{r['end']} | Baan {r.get('court')}"
+            + (f" | aanvoerder {captain}" if captain else "")
+        )
+        color = color_for(short)
+        for t in range(s, e, 15):
+            cell[(t, int(r["court"]))] = {"label": label, "detail": detail, "color": color, "is_start": t == s}
+
+    header = "".join(f"<th>Baan {c}</th>" for c in range(1, 11))
+    body = []
+    for t in times[:-1]:
+        row_cls = "major-row" if ((t - start_min) % 90 == 0) else ""
+        tds = [f"<td class='time'>{min_to_hhmm(t)}</td>"]
+        for c in range(1, 11):
+            v = cell.get((t, c))
+            if v:
+                txt = v["label"] if v["is_start"] else "·"
+                tds.append(
+                    f"<td class='tap-cell' style='background:{v['color']}' data-detail='{html.escape(v['detail'], quote=True)}'>"
+                    f"<div class='cell'>{html.escape(txt)}</div></td>"
+                )
+            else:
+                tds.append("<td class='empty'>—</td>")
+        body.append(f"<tr class='{row_cls}'>" + "".join(tds) + "</tr>")
+    return (
+        "<div class='grid-wrap'><table class='grid'><thead><tr><th>Tijd</th>"
+        + header + "</tr></thead><tbody>" + "".join(body) + "</tbody></table></div>"
+    )
 
 
 def render_violations(rep) -> str:
@@ -380,6 +466,7 @@ def main() -> None:
     ap.add_argument("--input", type=Path, default=ROOT / "data" / "season_2026-2027.tsv")
     ap.add_argument("--out", type=Path, default=DOCS / "mierlo-2026-2027.html")
     ap.add_argument("--captains", type=Path, default=DOCS / "gold_captains_najaar2026.json")
+    ap.add_argument("--gold", type=Path, default=DOCS / "gold_result_najaar2026.json")
     args = ap.parse_args()
 
     teams, _res = parse_input(args.input)
@@ -391,11 +478,28 @@ def main() -> None:
         except Exception:
             captains_by_date = {}
 
+    gold_by_date: dict[str, list[dict]] = {}
+    if args.gold.exists():
+        try:
+            gold_by_date = json.loads(args.gold.read_text(encoding="utf-8"))
+        except Exception:
+            gold_by_date = {}
+
     sections = []
     for d in DATES:
         path = DOCS / f"ortools_2026-2027_{d}.json"
+        day_captains = captains_by_date.get(d, {})
+        gold_rows = gold_by_date.get(d, [])
+        gold_block = (
+            (render_summary_gold(gold_rows, day_captains) + render_grid_gold(gold_rows))
+            if gold_rows else "<div class='ort-status-inline'>Gold-referentie niet beschikbaar voor deze datum.</div>"
+        )
         if not path.exists():
-            sections.append(f"<h2>{d}</h2><div class='ort-status-inline'>Nog geen planning beschikbaar.</div>")
+            sections.append(
+                f"<h2>{d}</h2><div class='ort-status-inline'>Nog geen OR-Tools planning beschikbaar.</div>"
+                f"<div class='plan-view ort-view'>{''}</div>"
+                f"<div class='plan-view gold-view hidden'>{gold_block}</div>"
+            )
             continue
         data = json.loads(path.read_text(encoding="utf-8"))
         rows = data.get("rows", [])
@@ -408,8 +512,12 @@ def main() -> None:
             f"{st.get('partijen_gepland', '?')}/{st.get('partijen_verwacht', '?')} partijen gepland, "
             f"status {html.escape(data.get('status','?'))}</span></h2>"
         )
-        day_captains = captains_by_date.get(d, {})
-        sections.append(head + render_violations(rep) + render_summary(rows, day_captains) + render_gaps(rows) + render_grid(rows))
+        ort_block = render_violations(rep) + render_summary(rows, day_captains) + render_gaps(rows) + render_grid(rows)
+        sections.append(
+            head
+            + f"<div class='plan-view ort-view'>{ort_block}</div>"
+            + f"<div class='plan-view gold-view hidden'>{gold_block}</div>"
+        )
 
     page = f"""<!doctype html>
 <html lang='nl'>
@@ -443,6 +551,10 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 .empty{{color:#aeb4c2;text-align:center}}
 .cell{{font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111;font-weight:600}}
 .tap-cell{{cursor:pointer}}
+.toggle{{display:flex;gap:.5rem;margin:.6rem 0 1rem 0}}
+.toggle button{{border:1px solid #ccc;background:#fff;padding:.35rem .6rem;border-radius:8px;cursor:pointer}}
+.toggle button.active{{background:#111;color:#fff;border-color:#111}}
+.hidden{{display:none}}
 </style>
 </head>
 <body>
@@ -458,6 +570,10 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
 Kolommen = banen (1–10), rijen = kwartierblokken. Tik op een cel voor detail.
 Zie ook de <a href='./index.html'>2025-2026 pagina</a> en
 <a href='./MIERLO_2026_2027_PLANNING.md'>de toelichting</a>.</p>
+<div class='toggle'>
+  <button id='btn-ort' class='active' onclick="setPlan('ort')">OR-Tools</button>
+  <button id='btn-gold' onclick="setPlan('gold')">Gold</button>
+</div>
 {''.join(sections)}
 <div id='bg' style='position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20' onclick='this.style.display="none"'>
   <div style='background:#fff;border-radius:12px;max-width:92vw;padding:.9rem 1rem' onclick='event.stopPropagation()'>
@@ -466,12 +582,35 @@ Zie ook de <a href='./index.html'>2025-2026 pagina</a> en
   </div>
 </div>
 <script>
-document.querySelectorAll('.tap-cell').forEach(function(el){{
-  el.addEventListener('click', function(){{
-    document.getElementById('mt').textContent = el.getAttribute('data-detail');
-    document.getElementById('bg').style.display = 'flex';
+function bindCellPopups(){{
+  document.querySelectorAll('.tap-cell').forEach(function(el){{
+    if(el.dataset.bound==='1') return;
+    el.dataset.bound='1';
+    el.addEventListener('click', function(){{
+      document.getElementById('mt').textContent = el.getAttribute('data-detail');
+      document.getElementById('bg').style.display = 'flex';
+    }});
   }});
-}});
+}}
+function setPlan(mode){{
+  const ort = document.querySelectorAll('.ort-view');
+  const gold = document.querySelectorAll('.gold-view');
+  const bo = document.getElementById('btn-ort');
+  const bg = document.getElementById('btn-gold');
+  ort.forEach(e=>e.classList.add('hidden'));
+  gold.forEach(e=>e.classList.add('hidden'));
+  bo.classList.remove('active');
+  bg.classList.remove('active');
+  if(mode==='gold'){{
+    gold.forEach(e=>e.classList.remove('hidden'));
+    bg.classList.add('active');
+  }} else {{
+    ort.forEach(e=>e.classList.remove('hidden'));
+    bo.classList.add('active');
+  }}
+  bindCellPopups();
+}}
+bindCellPopups();
 </script>
 </body>
 </html>
