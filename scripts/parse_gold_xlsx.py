@@ -36,7 +36,89 @@ def _norm_team_key(team_short: str) -> str:
     return re.sub(r"\s+", " ", (team_short or "").strip())
 
 
-def parse_gold_xlsx(path: Path) -> dict[str, list[dict]]:
+def _col_idx_to_letter(n: int) -> str:
+    s = ""
+    while n > 0:
+        n, r = divmod(n - 1, 26)
+        s = chr(65 + r) + s
+    return s
+
+
+def _extract_captains(row_cells_by_ref: list[dict[str, str | None]], short_team_name) -> dict[str, str]:
+    """Extract captain per team_short from the 'Thuis/Team/.../Captain' side-table columns.
+
+    The side table repeats a 'Thuis' (schema/afdeling text), 'Team' (home team, e.g. MIERLO 2)
+    and 'Captain' column, sometimes twice per sheet (two side-by-side blocks). Column layout
+    varies slightly between sheets, so we locate columns by header text rather than fixed letters.
+    """
+    if not row_cells_by_ref:
+        return {}
+    header = row_cells_by_ref[0]
+    thuis_cols = [c for c, v in header.items() if v == "Thuis"]
+    captain_cols = [c for c, v in header.items() if v == "Captain"]
+    if not thuis_cols or not captain_cols:
+        return {}
+
+    def col_to_idx(col: str) -> int:
+        n = 0
+        for ch in col:
+            n = n * 26 + (ord(ch) - 64)
+        return n
+
+    lookup: dict[str, str] = {}
+    for tc, cc in zip(thuis_cols, captain_cols):
+        home_col = _col_idx_to_letter(col_to_idx(tc) + 1)
+        for cells in row_cells_by_ref[1:]:
+            schema = cells.get(tc)
+            home = cells.get(home_col)
+            cap = cells.get(cc)
+            if schema and home and cap:
+                try:
+                    ts = short_team_name(schema, home)
+                except Exception:
+                    continue
+                if ts:
+                    lookup[ts] = cap
+    return lookup
+
+
+def _default_short_team_name(schema: str, home_team: str = "") -> str:
+    """Fallback team-short-name builder mirroring scripts/build_pages.py::short_team_name.
+
+    Kept local (duplicated) so this parser has no hard import dependency on build_pages.py.
+    """
+    low = (schema or "").lower()
+    if "gemengd zondag" in low:
+        prefix = "GEM"
+    elif "heren zondag" in low:
+        prefix = "HER"
+    elif "groen zondag" in low:
+        prefix = "GRO"
+    elif "jongens 13 t/m 17" in low:
+        prefix = "JO13-17"
+    elif "meisjes 13 t/m 17" in low:
+        prefix = "ME13-17"
+    elif "junioren 11 t/m 14" in low:
+        prefix = "JU11-14"
+    else:
+        prefix = (schema or "").split("–", 1)[0].strip()[:20]
+
+    parts = [p.strip() for p in (schema or "").split("–")]
+    klasse = ""
+    if len(parts) >= 2:
+        klasse = re.sub(r"\s*\([^)]*\)", "", parts[1])
+        klasse = klasse.replace("klasse", "").strip()
+
+    m = re.search(r"\bMIERLO\s*(\d+)\b", home_team or "", flags=re.I)
+    home_short = f"M{m.group(1)}" if m else ""
+
+    out = " ".join(x for x in [prefix, klasse, home_short] if x)
+    return re.sub(r"\s+", " ", out).strip()
+
+
+def parse_gold_xlsx(path: Path, short_team_name=None) -> dict[str, list[dict]]:
+    if short_team_name is None:
+        short_team_name = _default_short_team_name
     with zipfile.ZipFile(path) as z:
         shared = []
         if "xl/sharedStrings.xml" in z.namelist():
@@ -53,6 +135,7 @@ def parse_gold_xlsx(path: Path) -> dict[str, list[dict]]:
         }
 
         out: dict[str, list[dict]] = {}
+        captains_by_date: dict[str, dict[str, str]] = {}
 
         for sh in wb.findall("a:sheets/a:sheet", NS):
             sheet_name = sh.attrib["name"]
@@ -79,6 +162,17 @@ def parse_gold_xlsx(path: Path) -> dict[str, list[dict]]:
                     if isel is not None:
                         val = "".join(t.text or "" for t in isel.findall(".//a:t", NS))
                     grid[(rnum, ci)] = val
+
+            # Build per-row column-letter dicts once, for the side "Thuis/Team/.../Captain"
+            # table columns (used to extract captains per team_short).
+            row_cells_by_ref: list[dict[str, str | None]] = []
+            for rnum in range(1, max_row + 1):
+                row_dict: dict[str, str | None] = {}
+                for (r, ci), val in grid.items():
+                    if r != rnum:
+                        continue
+                    row_dict[_col_idx_to_letter(ci)] = val
+                row_cells_by_ref.append(row_dict)
 
             row_to_time: dict[int, str] = {}
             for r in range(2, max_row + 1):
@@ -137,6 +231,13 @@ def parse_gold_xlsx(path: Path) -> dict[str, list[dict]]:
                 continue
             day, mon = int(m.group(1)), int(m.group(2))
             date_key = f"{day:02d}-{mon:02d}-2026"
+
+            captains = _extract_captains(row_cells_by_ref, short_team_name)
+            for match in matches:
+                cap = captains.get(match["team_short"])
+                if cap:
+                    match["captain"] = cap
+            captains_by_date[date_key] = captains
             out[date_key] = matches
 
         return out

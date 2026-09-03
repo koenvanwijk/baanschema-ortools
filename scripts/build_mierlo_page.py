@@ -34,10 +34,64 @@ def min_to_hhmm(m: int) -> str:
     return f"{m//60:02d}:{m%60:02d}"
 
 
+# Consequente kleurfamilies per categorie (Koen, 2026-08-29): Rood/Oranje/Groen
+# waren al duidelijk; de overige categorieen krijgen nu ook een vaste hue-band
+# in plaats van een volledig willekeurige hash-kleur per team. Binnen een
+# categorie krijgt elk team nog een unieke tint (net als bij Rood/Oranje/Groen).
+_CATEGORY_HUES: list[tuple[str, int]] = [
+    ("rood", 0),
+    ("oranje", 30),
+    ("dames zondag", 60),
+    ("groen zondag", 125),
+    ("heren zondag", 170),
+    ("jongens 13 t/m 17", 210),
+    ("junioren 11 t/m 14", 250),
+    ("gemengd zondag", 290),
+    ("meisjes 13 t/m 17", 330),
+]
+
+_COLOR_CACHE: dict[str, str] = {}
+_USED_HUES: list[int] = []
+
+
+def _is_hue_far_enough(h: int, min_gap: int = 24) -> bool:
+    return all(min((h - u) % 360, (u - h) % 360) >= min_gap for u in _USED_HUES)
+
+
+def _base_hue_for(lname: str) -> int | None:
+    for needle, hue in _CATEGORY_HUES:
+        if needle in lname:
+            return hue
+    return None
+
+
 def color_for(name: str) -> str:
+    if name in _COLOR_CACHE:
+        return _COLOR_CACHE[name]
+
+    lname = name.lower()
+    base_hue = _base_hue_for(lname)
     seed = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16)
-    hue = (seed * 137 + 60) % 360
-    return f"hsl({hue} 82% 58%)"
+    if base_hue is None:
+        seed_hue = seed % 360
+    else:
+        seed_hue = (base_hue + (seed % 21) - 10) % 360
+
+    hue = None
+    for step in range(360):
+        cand = (seed_hue + step * 37) % 360
+        if _is_hue_far_enough(cand):
+            hue = cand
+            break
+    if hue is None:
+        hue = seed_hue
+
+    _USED_HUES.append(hue)
+    sat = 92 if base_hue is None else 88
+    light = 58 if base_hue is None else 56
+    color = f"hsl({hue} {sat}% {light}%)"
+    _COLOR_CACHE[name] = color
+    return color
 
 
 def short_team_name(schema: str, home_team: str = "") -> str:
@@ -279,7 +333,7 @@ def render_grid(rows: list[dict]) -> str:
     )
 
 
-def render_summary(rows: list[dict]) -> str:
+def render_summary(rows: list[dict], captains: dict[str, str] | None = None) -> str:
     valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT")]
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
@@ -295,10 +349,12 @@ def render_summary(rows: list[dict]) -> str:
         first = min_to_hhmm(min(hhmm_to_min(x["start"]) for x in rr))
         last = min_to_hhmm(max(hhmm_to_min(x["end"]) for x in rr))
         color = color_for(key)
+        captain = (captains or {}).get(short, "")
+        captain_html = f" — aanvoerder <strong>{html.escape(captain)}</strong>" if captain else ""
         items.append(
             f"<li><span class='sw' style='background:{color}'></span><strong>{html.escape(short)}</strong> "
             f"<span class='small'>({html.escape(schema)})</span>: {html.escape(matchup)} — "
-            f"partijen <strong>{len(rr)}</strong> — {first}–{last}</li>"
+            f"partijen <strong>{len(rr)}</strong> — {first}–{last}{captain_html}</li>"
         )
     return "<div class='summary'><h3>Teams deze zondag</h3><ul>" + "".join(items) + "</ul></div>"
 
@@ -323,9 +379,17 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--input", type=Path, default=ROOT / "data" / "season_2026-2027.tsv")
     ap.add_argument("--out", type=Path, default=DOCS / "mierlo-2026-2027.html")
+    ap.add_argument("--captains", type=Path, default=DOCS / "gold_captains_najaar2026.json")
     args = ap.parse_args()
 
     teams, _res = parse_input(args.input)
+
+    captains_by_date: dict[str, dict[str, str]] = {}
+    if args.captains.exists():
+        try:
+            captains_by_date = json.loads(args.captains.read_text(encoding="utf-8"))
+        except Exception:
+            captains_by_date = {}
 
     sections = []
     for d in DATES:
@@ -344,7 +408,8 @@ def main() -> None:
             f"{st.get('partijen_gepland', '?')}/{st.get('partijen_verwacht', '?')} partijen gepland, "
             f"status {html.escape(data.get('status','?'))}</span></h2>"
         )
-        sections.append(head + render_violations(rep) + render_summary(rows) + render_gaps(rows) + render_grid(rows))
+        day_captains = captains_by_date.get(d, {})
+        sections.append(head + render_violations(rep) + render_summary(rows, day_captains) + render_gaps(rows) + render_grid(rows))
 
     page = f"""<!doctype html>
 <html lang='nl'>

@@ -588,8 +588,10 @@ def render_day_summary(rows: list[dict], include_reservations: bool = False) -> 
         planned = len(rr_for_stats)
         target = int(rr_for_stats[0].get("matches") or planned)
         color = color_for(rr[0].get("team_id") or schema_name)
+        captain = next((x.get("captain") for x in rr if x.get("captain")), "")
+        captain_html = f" — aanvoerder <strong>{html.escape(captain)}</strong>" if captain else ""
         items.append(
-            f"<li><span class='team-swatch' style='background:{color}'></span><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema_name)} )</span>: {html.escape(matchup)} — wedstrijden <strong>{planned}/{target}</strong> — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong></li>"
+            f"<li><span class='team-swatch' style='background:{color}'></span><strong>{html.escape(team_short)}</strong> <span class='small'>( {html.escape(schema_name)} )</span>: {html.escape(matchup)} — wedstrijden <strong>{planned}/{target}</strong> — eerste start <strong>{first_start}</strong>, laatste eind <strong>{last_end}</strong>{captain_html}</li>"
         )
 
     return "<div class='summary'><h3>Teams vandaag</h3><ul>" + "".join(items) + "</ul></div>"
@@ -1008,6 +1010,7 @@ def main() -> None:
                                 "start": start,
                                 "end": end,
                                 "court": int(r.get("court") or 0),
+                                "captain": r.get("captain") or "",
                             }
                         )
                     gold_results[gd] = norm

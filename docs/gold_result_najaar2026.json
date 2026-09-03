@@ -1,0 +1,2860 @@
+{
+  "06-09-2026": [
+    {
+      "team_short": "Oranje 1 - Afdeling 37",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 1
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S1 vs GEMERT 3",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S4 vs GEMERT 3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D2 vs GEMERT 3",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "Oranje 1 - Afdeling 37",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S2 vs GEMERT 3",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 2,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S3 vs GEMERT 3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 2,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D1 vs GEMERT 3",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 2,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "Oranje 1 - Afdeling 37",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 3
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S2 vs MIERLO 3",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 3,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S4 vs MIERLO 3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 3,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "D2 vs MIERLO 3",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 3,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S1 vs MIERLO 3",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 4,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S3 vs MIERLO 3",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 4,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "D1 vs MIERLO 3",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 4,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S3 vs WEERT-OOST 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S2 vs WEERT-OOST 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "D2 vs WEERT-OOST 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S4 vs VENLO 6",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:00",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S2 vs VENLO 6",
+      "kind": "S",
+      "start": "12:00",
+      "end": "12:45",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "D2 vs VENLO 6",
+      "kind": "D",
+      "start": "12:45",
+      "end": "13:30",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S4 vs WEERT-OOST 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S1 vs WEERT-OOST 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "D1 vs WEERT-OOST 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S3 vs VENLO 6",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:00",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S1 vs VENLO 6",
+      "kind": "S",
+      "start": "12:00",
+      "end": "12:45",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "D1 vs VENLO 6",
+      "kind": "D",
+      "start": "12:45",
+      "end": "13:30",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S4 vs LIESSEL 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S2 vs LIESSEL 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D2 vs LIESSEL 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 7,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S4 vs BRZ 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 7,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S2 vs BRZ 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 7,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "D2 vs BRZ 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 7,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S3 vs LIESSEL 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S1 vs LIESSEL 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D1 vs LIESSEL 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 8,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S3 vs BRZ 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 8,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S1 vs BRZ 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 8,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "D1 vs BRZ 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 8,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S4 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S2 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D2 vs VALKENSWAARD 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 9,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S2 vs WETTENSEIND 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 9,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S4 vs WETTENSEIND 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 9,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D2 vs WETTENSEIND 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 9,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S3 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S1 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 10,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D1 vs VALKENSWAARD 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 10,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S1 vs WETTENSEIND 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 10,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S3 vs WETTENSEIND 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 10,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D1 vs WETTENSEIND 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 10,
+      "captain": "Jurn Van de Crommert"
+    }
+  ],
+  "13-09-2026": [
+    {
+      "team_short": "Rood 2 -Afdeling 19",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 1
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S4 vs BLADEL 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "GD1 vs BLADEL 1",
+      "kind": "M",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S3 vs BLADEL 1",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "D2 vs BLADEL 1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S1 vs BLADEL 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "GD2 vs BLADEL 1",
+      "kind": "M",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S2 vs BLADEL 1",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "D1 vs BLADEL 1",
+      "kind": "D",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S4 vs VENLO 4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S2 vs VENLO 4",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "D1 vs VENLO 4",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 3,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S1 vs BLEISWIJK 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 3,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S3 vs BLEISWIJK 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 3,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "D2 vs BLEISWIJK 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 3,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "D1 vs BLEISWIJK 1",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 3,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S3 vs VENLO 4",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S1 vs VENLO 4",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "D2 vs VENLO 4",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 4,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S4 vs BLEISWIJK 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 4,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S2 vs BLEISWIJK 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 4,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S4 vs LACOSTE 2",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S2 vs LACOSTE 2",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "D1 vs LACOSTE 2",
+      "kind": "D",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S4 vs GENNEPER PARKEN 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S2 vs GENNEPER PARKEN 2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "D2 vs GENNEPER PARKEN 2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S2 vs TOPSPIN-BOXMEER 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 5,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S4 vs TOPSPIN-BOXMEER 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 5,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S3 vs LACOSTE 2",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 5,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S1 vs LACOSTE 2",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 5,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "D2 vs LACOSTE 2",
+      "kind": "D",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 5,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S3 vs GENNEPER PARKEN 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S1 vs GENNEPER PARKEN 2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "D1 vs GENNEPER PARKEN 2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S1 vs TOPSPIN-BOXMEER 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 6,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S3 vs TOPSPIN-BOXMEER 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 6,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "D1 vs TOPSPIN-BOXMEER 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 6,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "D2 vs TOPSPIN-BOXMEER 1",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 6,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S4 vs WAALRE 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 7,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S2 vs WAALRE 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "D2 vs WAALRE 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S1 vs UBACH O WORMS 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S4 vs UBACH O WORMS 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "D1 vs UBACH O WORMS 1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 7,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S3 vs WAALRE 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 8,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S1 vs WAALRE 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "D1 vs WAALRE 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S2 vs UBACH O WORMS 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S3 vs UBACH O WORMS 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "D2 vs UBACH O WORMS 1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 8,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S3 vs EINDHOVEN NOORD 3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 9,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S2 vs EINDHOVEN NOORD 3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D2 vs EINDHOVEN NOORD 3",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S1 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S4 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D2 vs BOSHOVEN 1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S4 vs EINDHOVEN NOORD 3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 10,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S1 vs EINDHOVEN NOORD 3",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D1 vs EINDHOVEN NOORD 3",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S2 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S3 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D1 vs BOSHOVEN 1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 10,
+      "captain": "Elise van Heugten"
+    }
+  ],
+  "20-09-2026": [
+    {
+      "team_short": "Oranje 2 - Afdeling 41",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 1
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S1 vs WOLFSBOSCH 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S3 vs WOLFSBOSCH 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D1 vs WOLFSBOSCH 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D2 vs WOLFSBOSCH 2",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 1,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "Oranje 2 - Afdeling 41",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 2
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S2 vs WOLFSBOSCH 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 2,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S4 vs WOLFSBOSCH 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 2,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S1 vs SLOW 1",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 2,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D1 vs SLOW 1",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 2,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD1 vs SLOW 1",
+      "kind": "M",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 2,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "Oranje 2 - Afdeling 41",
+      "part": "",
+      "kind": "W",
+      "start": "09:00",
+      "end": "09:15",
+      "court": 3
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1 vs LACOSTE 4",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 3,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1 vs LACOSTE 4",
+      "kind": "D",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 3,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S2 vs SLOW 1",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 3,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D2 vs SLOW 1",
+      "kind": "D",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 3,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2 vs LACOSTE 4",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 4,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2 vs LACOSTE 4",
+      "kind": "D",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 4,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1 vs LACOSTE 4",
+      "kind": "M",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 4,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S1 vs MEIJEL 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S3 vs MEIJEL 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "D1 vs MEIJEL 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S4 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 5,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S2 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 5,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "D2 vs SITTARDSE LTC 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 5,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S2 vs MEIJEL 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S4 vs MEIJEL 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "D2 vs MEIJEL 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S3 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 6,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S1 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 6,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "D1 vs SITTARDSE LTC 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 6,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S4 vs VENRAY 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S1 vs VENRAY 2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "D2 vs VENRAY 2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 7,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S4 vs BAEXEM 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 7,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S2 vs BAEXEM 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 7,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D2 vs BAEXEM 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 7,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S3 vs VENRAY 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S2 vs VENRAY 2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "D1 vs VENRAY 2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 8,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S3 vs BAEXEM 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S1 vs BAEXEM 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D1 vs BAEXEM 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S2 vs CAROLUS 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 9,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S3 vs CAROLUS 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "D2 vs CAROLUS 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "D2 vs BOEKEL 2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "S2 vs BOEKEL 2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "GD1 vs BOEKEL 2",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S1 vs CAROLUS 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 10,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S4 vs CAROLUS 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "D1 vs CAROLUS 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "D1 vs BOEKEL 2",
+      "kind": "D",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "S1 vs BOEKEL 2",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10,
+      "captain": "Gus Cremers"
+    }
+  ],
+  "27-09-2026": [
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S1 vs DE HELSTER 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S3 vs DE HELSTER 1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "D1 vs DE HELSTER 1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "GD1 vs DE HELSTER 1",
+      "kind": "M",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S2 vs RODHE 1",
+      "kind": "S",
+      "start": "16:00",
+      "end": "16:45",
+      "court": 1,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S4 vs RODHE 1",
+      "kind": "S",
+      "start": "16:45",
+      "end": "17:30",
+      "court": 1,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "D2 vs RODHE 1",
+      "kind": "D",
+      "start": "17:30",
+      "end": "18:15",
+      "court": 1,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S2 vs DE HELSTER 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S4 vs DE HELSTER 1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "D2 vs DE HELSTER 1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "GD2 vs DE HELSTER 1",
+      "kind": "M",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S1 vs RODHE 1",
+      "kind": "S",
+      "start": "16:00",
+      "end": "16:45",
+      "court": 2,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "S3 vs RODHE 1",
+      "kind": "S",
+      "start": "16:45",
+      "end": "17:30",
+      "court": 2,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "JU11-14 2e M3",
+      "part": "D1 vs RODHE 1",
+      "kind": "D",
+      "start": "17:30",
+      "end": "18:15",
+      "court": 2,
+      "captain": "Mats van der Donk"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S1 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 3,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S3 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 3,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "D1 vs SITTARDSE LTC 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 3,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "S1 vs UDEN 2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 3,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "D1 vs UDEN 2",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 3,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "D2 vs UDEN 2",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 3,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "GD1 vs UDEN 2",
+      "kind": "M",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 3,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S2 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 4,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "S4 vs SITTARDSE LTC 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 4,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "ME13-17 1e M3",
+      "part": "D2 vs SITTARDSE LTC 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 4,
+      "captain": "Sophie van der Poel"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "S2 vs UDEN 2",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 4,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S2 vs DE KREKEL 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S4 vs DE KREKEL 1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "D2 vs DE KREKEL 1",
+      "kind": "D",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S1 vs BOKT 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 5,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S3 vs BOKT 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 5,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "D1 vs BOKT 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 5,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2 vs SLOW 6",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 5,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S1 vs DE KREKEL 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 5,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S3 vs DE KREKEL 1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 5,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "D1 vs DE KREKEL 1",
+      "kind": "D",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 5,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S2 vs BOKT 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 6,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "S4 vs BOKT 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 6,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "JO13-17 1e M2",
+      "part": "D2 vs BOKT 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 6,
+      "captain": "Lucas Liebens"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1 vs SLOW 6",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 6,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2 vs SLOW 6",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 6,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1 vs SLOW 6",
+      "kind": "M",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 6,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S1 vs BERLICUM 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 7,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S3 vs BERLICUM 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 7,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "D1 vs BERLICUM 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 7,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S1 vs WIMBLEDONCK 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 7,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1 vs SLOW 6",
+      "kind": "D",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 7,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D1 vs WIMBLEDONCK 1",
+      "kind": "D",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 7,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S2 vs BERLICUM 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 8,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "S4 vs BERLICUM 1",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 8,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 Hoofd M1",
+      "part": "D2 vs BERLICUM 1",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 8,
+      "captain": "Esmee Smit"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S2 vs WIMBLEDONCK 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S3 vs WIMBLEDONCK 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "S4 vs WIMBLEDONCK 1",
+      "kind": "S",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "ME13-17 3e M4",
+      "part": "D2 vs WIMBLEDONCK 1",
+      "kind": "D",
+      "start": "18:00",
+      "end": "19:30",
+      "court": 8,
+      "captain": "Elise van Heugten"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S1 vs RODHE 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 9,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S3 vs RODHE 2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 9,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "D1 vs RODHE 2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 9,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S1 vs DE HELZE 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 9,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S3 vs DE HELZE 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 9,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D1 vs DE HELZE 1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 9,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S2 vs RODHE 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "10:30",
+      "court": 10,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "S4 vs RODHE 2",
+      "kind": "S",
+      "start": "10:30",
+      "end": "12:00",
+      "court": 10,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JO13-17 2e M4",
+      "part": "D2 vs RODHE 2",
+      "kind": "D",
+      "start": "12:00",
+      "end": "13:30",
+      "court": 10,
+      "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S2 vs DE HELZE 1",
+      "kind": "S",
+      "start": "13:30",
+      "end": "15:00",
+      "court": 10,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "S4 vs DE HELZE 1",
+      "kind": "S",
+      "start": "15:00",
+      "end": "16:30",
+      "court": 10,
+      "captain": "Fieve van der Loo"
+    },
+    {
+      "team_short": "ME13-17 3e M5",
+      "part": "D2 vs DE HELZE 1",
+      "kind": "D",
+      "start": "16:30",
+      "end": "18:00",
+      "court": 10,
+      "captain": "Fieve van der Loo"
+    }
+  ],
+  "04-10-2026": [
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S1 vs NTC `72 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 1,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S3 vs NTC `72 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 1,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D2 vs NTC `72 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 1,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "S1 vs GTR 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 1,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "D2 vs GTR 1",
+      "kind": "D",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 1,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S1 vs AVANTI `55 3",
+      "kind": "S",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 1,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "GD1 vs AVANTI `55 3",
+      "kind": "M",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 1,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D2 vs AVANTI `55 3",
+      "kind": "D",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 1,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S2 vs NTC `72 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 2,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S4 vs NTC `72 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 2,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "D1 vs NTC `72 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 2,
+      "captain": "Diede Swinkels"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "S2 vs GTR 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 2,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "D1 vs GTR 1",
+      "kind": "D",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 2,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 4e M3",
+      "part": "GD1  vs GTR 1",
+      "kind": "M",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 2,
+      "captain": "Gus Cremers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "S2 vs AVANTI `55 3",
+      "kind": "S",
+      "start": "15:45",
+      "end": "17:15",
+      "court": 2,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GEM 5e M4",
+      "part": "D1 vs AVANTI `55 3",
+      "kind": "D",
+      "start": "17:15",
+      "end": "18:45",
+      "court": 2,
+      "captain": "Britney Lingers"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S2 vs RODHE 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 3,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S4 vs RODHE 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 3,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D2 vs RODHE 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 3,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S2 vs BOKT 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 3,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S4 vs BOKT 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 3,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "D2 vs BOKT 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 3,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S1 vs RODHE 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 4,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "S3 vs RODHE 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 4,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "GRO Groen 1 M1",
+      "part": "D1 vs RODHE 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 4,
+      "captain": "Lisa Paridaen"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S1 vs BOKT 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 4,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "S3 vs BOKT 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 4,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "ME13-17 1e M2",
+      "part": "D1 vs BOKT 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 4,
+      "captain": "Merel Vissers"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S2 vs `T ROOT 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S4 vs `T ROOT 2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "D2 vs `T ROOT 2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 5,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S2 vs BASTION BASELAAR 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 5,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S4 vs BASTION BASELAAR 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 5,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D2 vs BASTION BASELAAR 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 5,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S1 vs `T ROOT 2",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "S3 vs `T ROOT 2",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JU11-14 3e M4",
+      "part": "D1 vs `T ROOT 2",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 6,
+      "captain": "Nanon Besancon"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S1 vs BASTION BASELAAR 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 6,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "S3 vs BASTION BASELAAR 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 6,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JO13-17 1e M1",
+      "part": "D1 vs BASTION BASELAAR 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 6,
+      "captain": "Sven Rutten"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S4 vs ELTV 3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S2 vs ELTV 3",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 7,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "D2 vs ELTV 3",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 7,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S2 vs DE STAP 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 7,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S4 vs DE STAP 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 7,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D2 vs DE STAP 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 7,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S3 vs ELTV 3",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "S1 vs ELTV 3",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 8,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JU11-14 1e M1",
+      "part": "D1 vs ELTV 3",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 8,
+      "captain": "Ties van Doorn"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S1 vs DE STAP 2",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 8,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "S3 vs DE STAP 2",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 8,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "JO13-17 3e M5",
+      "part": "D1 vs DE STAP 2",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 8,
+      "captain": "Jurn Van de Crommert"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S4 vs ELTV 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 9,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S2 vs ELTV 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 9,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "D2 vs ELTV 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 9,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S4 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 9,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S2 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 9,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "D2 vs BOSHOVEN 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 9,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S3 vs ELTV 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 10,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "S1 vs ELTV 1",
+      "kind": "S",
+      "start": "09:45",
+      "end": "10:30",
+      "court": 10,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "GRO Groen 1 M2",
+      "part": "D1 vs ELTV 1",
+      "kind": "D",
+      "start": "10:30",
+      "end": "11:15",
+      "court": 10,
+      "captain": "Sam Evers"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S3 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "11:15",
+      "end": "12:45",
+      "court": 10,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "S1 vs BOSHOVEN 1",
+      "kind": "S",
+      "start": "12:45",
+      "end": "14:15",
+      "court": 10,
+      "captain": "Casper van de Rakt"
+    },
+    {
+      "team_short": "JO13-17 1e M3",
+      "part": "D1 vs BOSHOVEN 1",
+      "kind": "D",
+      "start": "14:15",
+      "end": "15:45",
+      "court": 10,
+      "captain": "Casper van de Rakt"
+    }
+  ],
+  "11-10-2026": [
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S1 vs RULEC 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "GD2 vs RULEC 1",
+      "kind": "M",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "D2 vs RULEC 1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S3 vs RULEC 1",
+      "kind": "S",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 1,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S4 vs RULEC 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "GD1 vs RULEC 1",
+      "kind": "M",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "D1 vs RULEC 1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "GEM 1e M1",
+      "part": "S2 vs RULEC 1",
+      "kind": "S",
+      "start": "14:30",
+      "end": "16:00",
+      "court": 2,
+      "captain": "Maartje Ruyters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S4 vs UDEN 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 3,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S2 vs UDEN 1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 3,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "D2 vs UDEN 1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 3,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S3 vs UDEN 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "S1 vs UDEN 1",
+      "kind": "S",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "HER 4e M1",
+      "part": "D1 vs UDEN 1",
+      "kind": "D",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 4,
+      "captain": "Stijn Kusters"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S1 vs BOEKEL 1",
+      "kind": "S",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 5,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D2 vs BOEKEL 1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 5,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "GD1 vs BOEKEL 1",
+      "kind": "M",
+      "start": "10:00",
+      "end": "11:30",
+      "court": 6,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "D1 vs BOEKEL 1",
+      "kind": "D",
+      "start": "11:30",
+      "end": "13:00",
+      "court": 6,
+      "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "GEM 3e M2",
+      "part": "S2 vs BOEKEL 1",
+      "kind": "S",
+      "start": "13:00",
+      "end": "14:30",
+      "court": 6,
+      "captain": "Cas Smulders"
+    }
+  ]
+}
