@@ -5,7 +5,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "11:00",
       "court": 1
     },
     {
@@ -40,7 +40,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "11:00",
       "court": 2
     },
     {
@@ -75,7 +75,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "11:00",
       "court": 3
     },
     {
@@ -463,7 +463,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "10:00",
       "court": 1
     },
     {
@@ -597,7 +597,7 @@
       "part": "D1 vs BLEISWIJK 1",
       "kind": "D",
       "start": "15:45",
-      "end": "17:15",
+      "end": "17:30",
       "court": 3,
       "captain": "Esmee Smit"
     },
@@ -1031,7 +1031,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "11:00",
       "court": 1
     },
     {
@@ -1075,7 +1075,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "11:00",
       "court": 2
     },
     {
@@ -1128,7 +1128,7 @@
       "part": "",
       "kind": "W",
       "start": "09:00",
-      "end": "09:15",
+      "end": "11:00",
       "court": 3
     },
     {
@@ -2171,15 +2171,6 @@
       "captain": "Britney Lingers"
     },
     {
-      "team_short": "GEM 5e M4",
-      "part": "D2 vs AVANTI `55 3",
-      "kind": "D",
-      "start": "17:15",
-      "end": "18:45",
-      "court": 1,
-      "captain": "Britney Lingers"
-    },
-    {
       "team_short": "JU11-14 2e M2",
       "part": "S2 vs NTC `72 1",
       "kind": "S",
@@ -2239,15 +2230,6 @@
       "kind": "S",
       "start": "15:45",
       "end": "17:15",
-      "court": 2,
-      "captain": "Britney Lingers"
-    },
-    {
-      "team_short": "GEM 5e M4",
-      "part": "D1 vs AVANTI `55 3",
-      "kind": "D",
-      "start": "17:15",
-      "end": "18:45",
       "court": 2,
       "captain": "Britney Lingers"
     },
@@ -2714,15 +2696,6 @@
     },
     {
       "team_short": "GEM 1e M1",
-      "part": "S3 vs RULEC 1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1,
-      "captain": "Maartje Ruyters"
-    },
-    {
-      "team_short": "GEM 1e M1",
       "part": "S4 vs RULEC 1",
       "kind": "S",
       "start": "10:00",
@@ -2745,15 +2718,6 @@
       "kind": "D",
       "start": "13:00",
       "end": "14:30",
-      "court": 2,
-      "captain": "Maartje Ruyters"
-    },
-    {
-      "team_short": "GEM 1e M1",
-      "part": "S2 vs RULEC 1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
       "court": 2,
       "captain": "Maartje Ruyters"
     },

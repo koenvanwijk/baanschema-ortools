@@ -189,11 +189,20 @@ def parse_gold_xlsx(path: Path, short_team_name=None) -> dict[str, list[dict]]:
                 rows = sorted(row_to_time)
                 for r in rows + [rows[-1] + 1 if rows else 2]:
                     raw = grid.get((r, col)) if r in row_to_time else None
-                    s = (str(raw).strip() if raw is not None else "")
-                    if s == "·":
-                        s = cur  # continuation marker
-                    elif s in {"", "—", "None"}:
-                        s = ""
+                    if raw is None:
+                        # Merged-cell continuation: the source xlsx merges cells for
+                        # multi-slot blocks (e.g. Rood/Oranje reservations), so only
+                        # the first row of the merge has a value and the following
+                        # rows are physically empty (None) rather than the '·'
+                        # marker used for regular (unmerged) match rows. Treat an
+                        # empty cell as a continuation, not as an end-of-block.
+                        s = cur
+                    else:
+                        s = str(raw).strip()
+                        if s == "·":
+                            s = cur  # continuation marker
+                        elif s in {"", "—", "None"}:
+                            s = ""
 
                     if s != cur:
                         if cur and start_row is not None:
