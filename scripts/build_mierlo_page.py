@@ -571,8 +571,8 @@ Kolommen = banen (1–10), rijen = kwartierblokken. Tik op een cel voor detail.
 Zie ook de <a href='./index.html'>2025-2026 pagina</a> en
 <a href='./MIERLO_2026_2027_PLANNING.md'>de toelichting</a>.</p>
 <div class='toggle'>
-  <button id='btn-ort' class='active' onclick="setPlan('ort')">OR-Tools</button>
-  <button id='btn-gold' onclick="setPlan('gold')">Gold</button>
+  <button id='btn-ort' onclick="setPlan('ort')">OR-Tools</button>
+  <button id='btn-gold' class='active' onclick="setPlan('gold')">Gold</button>
 </div>
 {''.join(sections)}
 <div id='bg' style='position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20' onclick='this.style.display="none"'>
@@ -611,6 +611,7 @@ function setPlan(mode){{
   bindCellPopups();
 }}
 bindCellPopups();
+setPlan('gold');
 </script>
 </body>
 </html>
