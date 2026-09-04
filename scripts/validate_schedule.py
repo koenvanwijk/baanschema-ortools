@@ -690,10 +690,21 @@ def check_time_windows(
     """MODEL: leeftijds- en schemavensters zoals het CP-SAT model ze oplegt."""
     for row in rows:
         s, part = row["_start"], row.get("part", "?")
-        if team.is_mixed and s < 10 * 60:
+        # Besluit Oscar/Koen 2026-08-27 (commit 5f00463): "Gemengd niet voor
+        # 10:00" is alleen nog HARD voor 8-partijenteams (landelijke
+        # competitie, reistijd). Overige Gemengd-teams (5-partijenteams e.d.)
+        # hebben geen harde ondergrens meer; zij mogen ook vroeger starten,
+        # met leeftijdsvolgorde als zachte voorkeur. Zie ortools_planner.py
+        # regel ~412 voor de implementatie van dit onderscheid.
+        if team.is_mixed and team.matches == 8 and s < 10 * 60:
             rep.add("VENSTER-GEM", "HARD", date,
-                    f"{part} start {to_hhmm(s)}, gemengd start pas vanaf 10:00 "
-                    f"(SPEC.md sectie 4)", subject=team.short)
+                    f"{part} start {to_hhmm(s)}, gemengd 8-partijenteam start pas "
+                    f"vanaf 10:00 (SPEC.md sectie 4)", subject=team.short)
+        elif team.is_mixed and team.matches != 8 and s < 10 * 60:
+            rep.add("VENSTER-GEM", "MODEL", date,
+                    f"{part} start {to_hhmm(s)}, model laat niet-8p Gemengd ook "
+                    f"voor 10:00 toe — dit is met besluit 2026-08-27 een zachte "
+                    f"voorkeur geworden", subject=team.short)
         if team.is_jeugd_1317 and s < 11 * 60:
             rep.add("VENSTER-JEUGD", "MODEL", date,
                     f"{part} start {to_hhmm(s)}, model dwingt jeugd 13-17 vanaf "

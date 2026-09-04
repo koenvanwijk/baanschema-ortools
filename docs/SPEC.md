@@ -84,7 +84,10 @@ De banen worden in deze dwingende volgorde uitgedeeld:
 3. Groen
 4. Junioren (11 t/m 14)
 5. Jongens en Meisjes (13 t/m 17)
-6. Gemengd — start überhaupt pas vanaf 10:00
+6. Gemengd — start überhaupt pas vanaf 10:00 voor 8-partijenteams (landelijke
+   competitie, HARD, zie sectie 2). Overige Gemengd-teams (5-partijenteams
+   e.d.) mogen ook vóór 10:00 starten; dat venster is voor hen een zachte
+   voorkeur, geen harde eis (besluit Oscar/Koen 2026-08-27, commit 5f00463).
 7. Heren / Senioren
 
 ## 5. Fasering en gelijktijdigheid (de "breedte"-regels)

@@ -29,8 +29,8 @@
       "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
       "home_team": "MIERLO 2",
       "away_team": "BOEKEL 1",
-      "part": "S2",
-      "kind": "S",
+      "part": "GD1",
+      "kind": "M",
       "start": "09:00",
       "end": "10:30",
       "court": 5
@@ -40,8 +40,8 @@
       "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
       "home_team": "MIERLO 2",
       "away_team": "BOEKEL 1",
-      "part": "GD1",
-      "kind": "M",
+      "part": "S2",
+      "kind": "S",
       "start": "09:00",
       "end": "10:30",
       "court": 6
