@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field, asdict
@@ -286,6 +287,21 @@ def row_team_key(row: dict) -> str:
     return "?"
 
 
+_GOLD_PART_RE = re.compile(r"^(?P<label>\S+)\s+vs\s+.+$")
+
+
+def part_label(row: dict) -> str:
+    """Partij-label zonder Gold's ' vs TEGENSTANDER'-suffix.
+
+    Gold-rijen dragen 'part' als bv. 'S1 vs GEMERT 3'; OR-Tools/heuristiek
+    dragen kaal 'S1'. Zonder deze normalisatie matcht season.tsv nooit tegen
+    Gold-rijen (validate_schedule meldde dan valse ONBEKENDE-PARTIJ/
+    NIET-GEPLAND voor elke Gold-partij).
+    """
+    part = (row.get("part") or "").strip()
+    m = _GOLD_PART_RE.match(part)
+    return m.group("label") if m else part
+
 def is_reservation(row: dict) -> bool:
     if (row.get("kind") or "").strip().upper() in {"R", "O", "W"}:
         return True
@@ -469,7 +485,7 @@ def check_completeness(
     got = defaultdict(int)
     marked_unplanned = set()
     for row in rows:
-        part = (row.get("part") or "?").strip()
+        part = part_label(row) or "?"
         got[part] += 1
         if "_start" not in row:
             marked_unplanned.add(part)
@@ -553,7 +569,7 @@ def check_player_capacity(
     for t, here in sorted(team_slot_map(rows).items()):
         male = female = total = 0
         for row in here:
-            m, f, tot = player_demand(team.schema, row.get("part") or "", row.get("kind") or "")
+            m, f, tot = player_demand(team.schema, part_label(row), row.get("kind") or "")
             male, female, total = male + m, female + f, total + tot
         if total > 4:
             hits[f"{total} spelers nodig, team heeft 4"].append(t)
