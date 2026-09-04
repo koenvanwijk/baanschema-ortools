@@ -287,7 +287,7 @@ def row_team_key(row: dict) -> str:
 
 
 def is_reservation(row: dict) -> bool:
-    if (row.get("kind") or "").strip().upper() in {"R", "O"}:
+    if (row.get("kind") or "").strip().upper() in {"R", "O", "W"}:
         return True
     return row_team_key(row).upper() in {"ROOD", "ORANJE"}
 
@@ -756,7 +756,7 @@ def check_reservations(
 
     if res_rows:
         for row in res_rows:
-            kind = "rood" if row_team_key(row).upper() == "ROOD" else "oranje"
+            kind = "rood" if "ROOD" in row_team_key(row).upper() else "oranje"
             duur_ok = 60 if kind == "rood" else 120
             got = row["_end"] - row["_start"]
             if got != duur_ok:

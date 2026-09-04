@@ -297,6 +297,14 @@ def render_grid(rows: list[dict]) -> str:
     cell: dict[tuple[int, int], dict] = {}
     for r in valid:
         s, e = hhmm_to_min(r["start"]), hhmm_to_min(r["end"])
+        if r.get("kind") == "W":
+            # Rood/Oranje-baanreservering (geen partij, geen 'why'-uitleg nodig).
+            label = r.get("team", "")
+            detail = f"{label} | (reservering) | {r['start']}-{r['end']} | Baan {r.get('court')}"
+            color = color_for(r.get("team_id") or label)
+            for t in range(s, e, 15):
+                cell[(t, int(r["court"]))] = {"label": label, "detail": detail, "why": "", "color": color, "is_start": t == s}
+            continue
         short = short_team_name(r.get("team", ""), r.get("home_team", ""))
         away = r.get("away_team", "")
         label = f"{short} · {r['part']}" + (f" vs {away}" if away else "")
@@ -334,7 +342,7 @@ def render_grid(rows: list[dict]) -> str:
 
 
 def render_summary(rows: list[dict], captains: dict[str, str] | None = None) -> str:
-    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT")]
+    valid = [r for r in rows if r.get("start") not in (None, "", "NIET_GELUKT") and r.get("kind") != "W"]
     by_team: dict[str, list[dict]] = defaultdict(list)
     for r in valid:
         by_team[r.get("team_id") or r.get("team") or r.get("team_short")].append(r)

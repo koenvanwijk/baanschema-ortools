@@ -35,6 +35,7 @@ class TeamDay:
 class Reservation:
     date: str
     kind: str
+    label: str = ""
 
 
 def _to_int(v: str) -> int:
@@ -54,10 +55,10 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
                 continue
             low = schema.lower()
             if "rood" in low:
-                reservations.append(Reservation(date=date, kind="rood"))
+                reservations.append(Reservation(date=date, kind="rood", label=schema))
                 continue
             if "oranje" in low:
-                reservations.append(Reservation(date=date, kind="oranje"))
+                reservations.append(Reservation(date=date, kind="oranje", label=schema))
                 continue
 
             m = _to_int(row.get("Wedstrijden") or "")
@@ -93,6 +94,38 @@ def parse_input(path: Path) -> tuple[list[TeamDay], list[Reservation]]:
 
 def mins_to_hhmm(m: int) -> str:
     return f"{m//60:02d}:{m%60:02d}"
+
+
+def _reservation_rows(day_res: list, rood_oranje_base: int) -> list[dict]:
+    """Render Rood/Oranje-reserveringen als 'W'-rijen, net als het gold-schema
+    (kind=='W', part=''), zodat de OR-Tools-weergave ze ook toont i.p.v. ze
+    alleen intern als baanbezetting mee te nemen."""
+    kinds_today = {r.kind for r in day_res}
+    rows = []
+    for r in day_res:
+        if r.kind == "oranje":
+            courts = [2, 3, 4] if "rood" in kinds_today else [1, 2, 3]
+            end = rood_oranje_base + 2 * 60
+        elif r.kind == "rood":
+            courts = [1]
+            end = rood_oranje_base + 60
+        else:
+            continue
+        for c in courts:
+            rows.append(
+                {
+                    "team": r.label or r.kind.capitalize(),
+                    "team_id": r.label or r.kind.capitalize(),
+                    "home_team": "",
+                    "away_team": "",
+                    "part": "",
+                    "kind": "W",
+                    "start": mins_to_hhmm(rood_oranje_base),
+                    "end": mins_to_hhmm(end),
+                    "court": c,
+                }
+            )
+    return rows
 
 
 def estimate_parallel_capacity(team: TeamDay) -> int:
@@ -1118,7 +1151,7 @@ def _solve_single_phase(
     return {
         "status": solver.status_name(st),
         "date": date,
-        "rows": sorted(rows, key=lambda r: (r["start"], r["court"] or 99, r["team"], r["part"])),
+        "rows": sorted(rows + _reservation_rows(day_res, rood_oranje_base), key=lambda r: (r["start"], r["court"] or 99, r["team"], r["part"])),
         "objective": solver.objective_value,
     }
 
