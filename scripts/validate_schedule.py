@@ -580,20 +580,28 @@ def check_concurrent_matches(
 def check_kind_conflicts(
     rows: list[dict], team: ExpectedTeam, rep: Report, date: str
 ) -> None:
-    """S niet tegelijk met D; D niet tegelijk met GD; bij 4-spelersschema S ook niet met GD."""
+    """S niet tegelijk met D; D niet tegelijk met GD; bij 4-spelersschema S ook niet met GD.
+
+    Besluit Oscar/Koen 2026-08-26 (SPEC.md sectie 5): dit is alleen nog een
+    HARDE eis voor 8-partijenteams (landelijke competitie, 4 spelers, strikte
+    waterval). Voor overige teams (5-partijenteams e.d.) is de niet-overlap
+    een zachte voorkeur — conform de planner's fasering_soft_penalty.
+    """
     forbidden = [("S", "D"), ("D", "M")]
     if team.is_4p_combo:
         forbidden.append(("S", "M"))
 
+    severity = "HARD" if team.matches == 8 else "MODEL"
     labels = {"S": "singles", "D": "dubbels", "M": "gemengd dubbel"}
     hits: dict[str, list[int]] = defaultdict(list)
     for t, here in sorted(team_slot_map(rows).items()):
         present = {(r.get("kind") or "").strip() for r in here}
         for a, b in forbidden:
             if a in present and b in present:
-                hits[f"{labels[a]} en {labels[b]} spelen tegelijk"].append(t)
+                suffix = "" if severity == "HARD" else " (zachte voorkeur voor niet-8p teams, SPEC.md sectie 5)"
+                hits[f"{labels[a]} en {labels[b]} spelen tegelijk{suffix}"].append(t)
 
-    report_slot_findings(hits, "SOORT-CONFLICT", "HARD", rep, date, team.short)
+    report_slot_findings(hits, "SOORT-CONFLICT", severity, rep, date, team.short)
 
 
 def check_phases(
