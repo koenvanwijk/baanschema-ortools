@@ -1207,6 +1207,7 @@ body{{font-family:Inter,system-ui,sans-serif;max-width:1550px;margin:1.2rem auto
   <button id='btn-gold' class='active' onclick='setPlan("gold")'>Gold</button>
   <a href='editor.html?plan=gold' id='link-bewerk-gold'><button style='background:#7c3aed;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600'>📝 Bewerk Gold</button></a>
   <a href='editor.html'><button style='background:#7c3aed;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600'>✏️ Editor</button></a>
+  <a href='editor-najaar.html'><button style='background:#2563eb;color:#fff;border:none;padding:.35rem .8rem;border-radius:4px;cursor:pointer;font-weight:600'>🔁 Inhaaldagen (11/18/25 okt + 1 nov)</button></a>
   <a href='./replan.html' style='margin-left:.5rem;align-self:center'>Open wedstrijddag herplanning →</a>
 </div>
 {''.join(sections)}
