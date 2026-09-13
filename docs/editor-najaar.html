@@ -24,6 +24,10 @@ button:hover{background:#475569}
 .tab{padding:.4rem .9rem;font-size:.8rem;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;position:relative}
 .tab.active{color:#a78bfa;border-bottom-color:#a78bfa;font-weight:600}
 .tab:hover{color:#e2e8f0}
+.tab.tab-speeldag{opacity:.85}
+.tab.tab-speeldag::after{content:'speeldag';font-size:.55rem;display:block;color:#64748b}
+.tab.tab-inhaaldag::after{content:'inhaaldag';font-size:.55rem;display:block;color:#38bdf8}
+.tab-sep{width:1px;background:#334155;margin:.4rem .4rem}
 .tab .cnt{font-size:.65rem;background:#334155;border-radius:8px;padding:0 .35rem;margin-left:.3rem}
 .tab.drop-target{background:rgba(124,58,237,.35);border-radius:4px}
 .main{display:flex;flex:1;overflow:hidden}
@@ -79,7 +83,7 @@ button:hover{background:#475569}
 <div class="main">
   <div class="sidebar">
     <h2>📋 Niet ingepland</h2>
-    <p class="hint">Sleep een afgelaste wedstrijd hierheen als je hem tijdelijk uit het schema haalt, of sleep 'm terug het rooster in. Sleep een blok op een dag-tab hierboven om het naar een andere inhaaldag te verzetten.</p>
+    <p class="hint">Sleep een wedstrijd van een <b>speeldag</b>-tab (grijs) naar een <b>inhaaldag</b>-tab (blauw) om 'm te verzetten, bijv. bij afgelasting wegens weer. Ga daarna naar die inhaaldag en sleep de partij vanuit deze lijst naar een baan/tijd. Sleep terug naar de originele speeldag om een verzetting ongedaan te maken.</p>
     <div class="sidebar-list" id="sidebar-list"></div>
   </div>
   <div class="grid-area" id="grid-area">
@@ -97,12 +101,19 @@ const SLOT_W    = 20;      // px per 15-min slot
 const COURT_H   = 44;      // px per row
 const SLOTS     = (DAY_END - DAY_START) / 15; // 46 slots
 
-// Inhaaldagen (11 en 18 en 25 oktober zijn opgegeven; de zondag na 25-10 is 01-11-2026).
+// Speeldagen (bron) + inhaaldagen (doel). Sleep een wedstrijd van een
+// speeldag-tab naar een inhaaldag-tab om 'm te verzetten (bijv. bij afgelasting
+// wegens weer). Sleep 'm terug als een verzetting ongedaan gemaakt moet worden.
 const DATES = [
-  { key: '11-10-2026', label: '11 okt 2026' },
-  { key: '18-10-2026', label: '18 okt 2026' },
-  { key: '25-10-2026', label: '25 okt 2026' },
-  { key: '01-11-2026', label: '1 nov 2026 (zondag na 25-10)' },
+  { key: '06-09-2026', label: '6 sep', kind: 'speeldag' },
+  { key: '13-09-2026', label: '13 sep', kind: 'speeldag' },
+  { key: '20-09-2026', label: '20 sep', kind: 'speeldag' },
+  { key: '27-09-2026', label: '27 sep', kind: 'speeldag' },
+  { key: '04-10-2026', label: '4 okt', kind: 'speeldag' },
+  { key: '11-10-2026', label: '11 okt', kind: 'inhaaldag' },
+  { key: '18-10-2026', label: '18 okt', kind: 'inhaaldag' },
+  { key: '25-10-2026', label: '25 okt', kind: 'inhaaldag' },
+  { key: '01-11-2026', label: '1 nov', kind: 'inhaaldag' },
 ];
 
 const API_BASE = 'https://baanschema-api-706645656518.europe-west1.run.app';
@@ -313,11 +324,18 @@ function checkViolations(rows) {
 function renderTabs() {
   const tabs = document.getElementById('tabs');
   tabs.innerHTML = '';
+  let lastKind = null;
   for (const d of DATES) {
+    if (lastKind && lastKind !== d.kind) {
+      const sep = document.createElement('div');
+      sep.className = 'tab-sep';
+      tabs.appendChild(sep);
+    }
+    lastKind = d.kind;
     const rows = allRows[d.key] || [];
     const scheduledCnt = rows.filter(r => r.start !== 'NIET_GELUKT').length;
     const tab = document.createElement('div');
-    tab.className = 'tab' + (d.key === currentDate ? ' active' : '');
+    tab.className = 'tab' + (d.key === currentDate ? ' active' : '') + (d.kind === 'speeldag' ? ' tab-speeldag' : ' tab-inhaaldag');
     tab.dataset.date = d.key;
     tab.innerHTML = `${d.label} <span class="cnt">${scheduledCnt}</span>`;
     tab.addEventListener('click', () => { currentDate = d.key; renderTabs(); renderAll(); });
