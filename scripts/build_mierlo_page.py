@@ -581,6 +581,7 @@ Zie ook de <a href='./index.html'>2025-2026 pagina</a> en
 <div class='toggle'>
   <button id='btn-ort' onclick="setPlan('ort')">OR-Tools</button>
   <button id='btn-gold' class='active' onclick="setPlan('gold')">Gold</button>
+  <a href='editor-najaar.html' style='margin-left:auto'><button style='background:#2563eb;color:#fff;border:none;padding:.35rem .8rem;border-radius:8px;cursor:pointer;font-weight:600'>🔁 Inhaaldagen (11/18/25 okt + 1 nov)</button></a>
 </div>
 {''.join(sections)}
 <div id='bg' style='position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20' onclick='this.style.display="none"'>
