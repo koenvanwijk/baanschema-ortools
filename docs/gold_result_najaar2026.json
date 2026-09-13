@@ -566,42 +566,6 @@
       "captain": "Mats van der Donk"
     },
     {
-      "team_short": "ME13-17 Hoofd M1",
-      "part": "S1 vs BLEISWIJK 1",
-      "kind": "S",
-      "start": "11:15",
-      "end": "12:45",
-      "court": 3,
-      "captain": "Esmee Smit"
-    },
-    {
-      "team_short": "ME13-17 Hoofd M1",
-      "part": "S3 vs BLEISWIJK 1",
-      "kind": "S",
-      "start": "12:45",
-      "end": "14:15",
-      "court": 3,
-      "captain": "Esmee Smit"
-    },
-    {
-      "team_short": "ME13-17 Hoofd M1",
-      "part": "D2 vs BLEISWIJK 1",
-      "kind": "D",
-      "start": "14:15",
-      "end": "15:45",
-      "court": 3,
-      "captain": "Esmee Smit"
-    },
-    {
-      "team_short": "ME13-17 Hoofd M1",
-      "part": "D1 vs BLEISWIJK 1",
-      "kind": "D",
-      "start": "15:45",
-      "end": "17:30",
-      "court": 3,
-      "captain": "Esmee Smit"
-    },
-    {
       "team_short": "JU11-14 2e M3",
       "part": "S3 vs VENLO 4",
       "kind": "S",
@@ -627,24 +591,6 @@
       "end": "11:15",
       "court": 4,
       "captain": "Mats van der Donk"
-    },
-    {
-      "team_short": "ME13-17 Hoofd M1",
-      "part": "S4 vs BLEISWIJK 1",
-      "kind": "S",
-      "start": "11:15",
-      "end": "12:45",
-      "court": 4,
-      "captain": "Esmee Smit"
-    },
-    {
-      "team_short": "ME13-17 Hoofd M1",
-      "part": "S2 vs BLEISWIJK 1",
-      "kind": "S",
-      "start": "12:45",
-      "end": "14:15",
-      "court": 4,
-      "captain": "Esmee Smit"
     },
     {
       "team_short": "HER 4e M1",
