@@ -22,7 +22,7 @@ from validate_schedule import validate_day  # type: ignore
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 
-DATES = ["06-09-2026", "13-09-2026", "20-09-2026", "27-09-2026", "04-10-2026", "11-10-2026"]
+DATES = ["06-09-2026", "13-09-2026", "20-09-2026", "27-09-2026", "04-10-2026", "11-10-2026", "18-10-2026", "25-10-2026", "01-11-2026"]
 
 
 def hhmm_to_min(s: str) -> int:

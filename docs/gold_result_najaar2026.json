@@ -2608,15 +2608,6 @@
   ],
   "11-10-2026": [
     {
-      "team_short": "JU11-14 2e M2",
-      "part": "S1 vs VALKENSWAARD 1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 1,
-      "captain": "Diede Swinkels"
-    },
-    {
       "team_short": "GEM 1e M1",
       "part": "S1 vs RULEC 1",
       "kind": "S",
@@ -2651,15 +2642,6 @@
       "end": "16:00",
       "court": 1,
       "captain": "Maartje Ruyters"
-    },
-    {
-      "team_short": "JU11-14 2e M2",
-      "part": "S2 vs VALKENSWAARD 1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 2,
-      "captain": "Diede Swinkels"
     },
     {
       "team_short": "GEM 1e M1",
@@ -2698,15 +2680,6 @@
       "captain": "Maartje Ruyters"
     },
     {
-      "team_short": "JU11-14 2e M2",
-      "part": "S3 vs VALKENSWAARD 1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 3,
-      "captain": "Diede Swinkels"
-    },
-    {
       "team_short": "HER 4e M1",
       "part": "S4 vs UDEN 1",
       "kind": "S",
@@ -2732,15 +2705,6 @@
       "end": "14:30",
       "court": 3,
       "captain": "Stijn Kusters"
-    },
-    {
-      "team_short": "JU11-14 2e M2",
-      "part": "S4 vs VALKENSWAARD 1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 4,
-      "captain": "Diede Swinkels"
     },
     {
       "team_short": "HER 4e M1",
@@ -2770,6 +2734,15 @@
       "captain": "Stijn Kusters"
     },
     {
+      "team_short": "JU11-14 2e M2",
+      "part": "S1 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 5,
+      "captain": "Diede Swinkels"
+    },
+    {
       "team_short": "GEM 3e M2",
       "part": "S1 vs BOEKEL 1",
       "kind": "S",
@@ -2786,6 +2759,15 @@
       "end": "13:00",
       "court": 5,
       "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S2 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 6,
+      "captain": "Diede Swinkels"
     },
     {
       "team_short": "GEM 3e M2",
@@ -2813,6 +2795,15 @@
       "end": "14:30",
       "court": 6,
       "captain": "Cas Smulders"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S3 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 7,
+      "captain": "Diede Swinkels"
     },
     {
       "team_short": "JU11-14 2e M2",
@@ -2849,6 +2840,15 @@
       "end": "15:00",
       "court": 7,
       "captain": "Dex Wassink"
+    },
+    {
+      "team_short": "JU11-14 2e M2",
+      "part": "S4 vs VALKENSWAARD 1",
+      "kind": "S",
+      "start": "09:00",
+      "end": "09:45",
+      "court": 8,
+      "captain": "Diede Swinkels"
     },
     {
       "team_short": "JU11-14 2e M2",
