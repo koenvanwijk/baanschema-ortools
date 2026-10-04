@@ -54,7 +54,7 @@ _COLOR_CACHE: dict[str, str] = {}
 _USED_HUES: list[int] = []
 
 
-def _is_hue_far_enough(h: int, min_gap: int = 24) -> bool:
+def _is_hue_far_enough(h: int, min_gap: int = 40) -> bool:
     return all(min((h - u) % 360, (u - h) % 360) >= min_gap for u in _USED_HUES)
 
 
