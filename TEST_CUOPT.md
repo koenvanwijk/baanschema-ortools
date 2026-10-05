@@ -1,5 +1,12 @@
 # cuOpt MILP Implementation Test Plan
 
+> **UPDATE 2026-08-19 — the solver now runs.** The "blocked by cudf/pandas"
+> status below is out of date. The planner was successfully run on all 7
+> play-days using the official cuOpt Docker image. See
+> [`docs/CUOPT_TEST_RESULTS.md`](docs/CUOPT_TEST_RESULTS.md) for the full results,
+> the bugs that were fixed, and the important caveats. The historical plan below
+> is kept for reference.
+
 ## Date: 2026-06-04
 
 ## Current Status

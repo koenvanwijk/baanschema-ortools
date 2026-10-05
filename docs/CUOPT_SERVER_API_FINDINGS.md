@@ -1,5 +1,15 @@
 # cuOpt Server API Findings (2026-06-04)
 
+> **CORRECTION (2026-08-19):** The central conclusion of this document — that
+> cuOpt MILP is only available via a server/client architecture — is **wrong for
+> cuOpt 25.12**. That release ships a full symbolic MILP modelling API as
+> `cuopt.linear_programming.problem.Problem` (`addVariable` / `addConstraint` /
+> `setObjective` / `solve`), which is exactly what `cuopt_planner.py` uses. The
+> planner now runs directly against this in-process Python API inside the official
+> `nvidia/cuopt` Docker image — no server needed. See
+> [`CUOPT_TEST_RESULTS.md`](CUOPT_TEST_RESULTS.md). The notes below are retained
+> for historical context only.
+
 ## Discovery: MILP is Server-Based
 
 ### What We Learned
