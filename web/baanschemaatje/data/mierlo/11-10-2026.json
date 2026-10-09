@@ -8,7 +8,7 @@
  "stats": {
   "scheduled": 19,
   "unscheduled": 0,
-  "solve_time_s": 15.73
+  "solve_time_s": 14.72
  },
  "attempts": [
   {
@@ -52,6 +52,19 @@
    "away_team": "BOEKEL 1",
    "category": "gemengd",
    "label": "GEM",
+   "part": "S1",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 7
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "label": "GEM",
    "part": "GD1",
    "kind": "M",
    "start": "09:00",
@@ -72,26 +85,13 @@
    "court": 9
   },
   {
-   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
-   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
-   "home_team": "MIERLO 2",
-   "away_team": "BOEKEL 1",
-   "category": "gemengd",
-   "label": "GEM",
-   "part": "S1",
-   "kind": "S",
-   "start": "09:00",
-   "end": "10:30",
-   "court": 10
-  },
-  {
    "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
    "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
    "home_team": "MIERLO 1",
    "away_team": "RULEC 1",
    "category": "gemengd",
    "label": "GEM",
-   "part": "S4",
+   "part": "S3",
    "kind": "S",
    "start": "10:00",
    "end": "11:30",
@@ -104,7 +104,7 @@
    "away_team": "RULEC 1",
    "category": "gemengd",
    "label": "GEM",
-   "part": "S3",
+   "part": "S4",
    "kind": "S",
    "start": "10:00",
    "end": "11:30",
@@ -147,7 +147,7 @@
    "kind": "D",
    "start": "10:30",
    "end": "12:00",
-   "court": 8
+   "court": 7
   },
   {
    "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
@@ -169,7 +169,7 @@
    "away_team": "RULEC 1",
    "category": "gemengd",
    "label": "GEM",
-   "part": "S2",
+   "part": "S1",
    "kind": "S",
    "start": "11:30",
    "end": "13:00",
@@ -182,7 +182,7 @@
    "away_team": "RULEC 1",
    "category": "gemengd",
    "label": "GEM",
-   "part": "S1",
+   "part": "S2",
    "kind": "S",
    "start": "11:30",
    "end": "13:00",
@@ -195,7 +195,7 @@
    "away_team": "UDEN 1",
    "category": "senioren",
    "label": "HEREN",
-   "part": "D2",
+   "part": "D1",
    "kind": "D",
    "start": "12:00",
    "end": "13:30",
@@ -208,7 +208,7 @@
    "away_team": "UDEN 1",
    "category": "senioren",
    "label": "HEREN",
-   "part": "D1",
+   "part": "D2",
    "kind": "D",
    "start": "12:00",
    "end": "13:30",
@@ -283,6 +283,13 @@
     "rule": "VENSTER-GEM",
     "severity": "MODEL",
     "date": "11-10-2026",
+    "message": "S1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
+    "subject": "GEM 3e M2"
+   },
+   {
+    "rule": "VENSTER-GEM",
+    "severity": "MODEL",
+    "date": "11-10-2026",
     "message": "GD1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
     "subject": "GEM 3e M2"
    },
@@ -291,13 +298,6 @@
     "severity": "MODEL",
     "date": "11-10-2026",
     "message": "S2 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
-    "subject": "GEM 3e M2"
-   },
-   {
-    "rule": "VENSTER-GEM",
-    "severity": "MODEL",
-    "date": "11-10-2026",
-    "message": "S1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
     "subject": "GEM 3e M2"
    }
   ]

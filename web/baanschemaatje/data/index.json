@@ -1,6 +1,6 @@
 {
  "generator": "baanschemaatje",
- "generated_at": "2026-10-09T14:50:03+00:00",
+ "generated_at": "2026-10-09T15:10:38+00:00",
  "season_file": "season_2026-2027.tsv",
  "time_limit_s": 20.0,
  "clubs": [
@@ -271,9 +271,9 @@
      "fixtures": 9,
      "scheduled": 48,
      "unscheduled": 0,
-     "solve_time_s": 20.73,
+     "solve_time_s": 21.06,
      "hard": 0,
-     "model": 0
+     "model": 4
     },
     {
      "solutions_file": null,
@@ -285,9 +285,9 @@
      "fixtures": 11,
      "scheduled": 62,
      "unscheduled": 0,
-     "solve_time_s": 21.32,
+     "solve_time_s": 56.25,
      "hard": 0,
-     "model": 8
+     "model": 12
     },
     {
      "solutions_file": null,
@@ -299,9 +299,9 @@
      "fixtures": 10,
      "scheduled": 51,
      "unscheduled": 0,
-     "solve_time_s": 21.12,
+     "solve_time_s": 21.33,
      "hard": 0,
-     "model": 15
+     "model": 13
     },
     {
      "solutions_file": null,
@@ -309,13 +309,13 @@
      "date": "27-09-2026",
      "file": "mierlo/27-09-2026.json",
      "status": "FEASIBLE",
-     "day_start": "09:00",
+     "day_start": "08:30",
      "fixtures": 11,
      "scheduled": 66,
      "unscheduled": 0,
-     "solve_time_s": 59.65,
+     "solve_time_s": 63.93,
      "hard": 0,
-     "model": 16
+     "model": 12
     },
     {
      "solutions_file": null,
@@ -327,9 +327,9 @@
      "fixtures": 11,
      "scheduled": 64,
      "unscheduled": 0,
-     "solve_time_s": 20.96,
+     "solve_time_s": 22.09,
      "hard": 0,
-     "model": 6
+     "model": 11
     },
     {
      "solutions_file": null,
@@ -341,7 +341,7 @@
      "fixtures": 3,
      "scheduled": 19,
      "unscheduled": 0,
-     "solve_time_s": 15.73,
+     "solve_time_s": 14.72,
      "hard": 0,
      "model": 4
     }
@@ -590,7 +590,7 @@
      "fixtures": 9,
      "scheduled": 48,
      "unscheduled": 0,
-     "solve_time_s": 21.62,
+     "solve_time_s": 51.98,
      "hard": 0,
      "model": 10
     },
@@ -602,11 +602,11 @@
      "status": "FEASIBLE",
      "day_start": "08:30",
      "fixtures": 11,
-     "scheduled": 47,
-     "unscheduled": 15,
-     "solve_time_s": 85.27,
+     "scheduled": 45,
+     "unscheduled": 17,
+     "solve_time_s": 85.38,
      "hard": 11,
-     "model": 11
+     "model": 3
     },
     {
      "solutions_file": "voorbeeld-6-banen/20-09-2026.solutions.json",
@@ -618,9 +618,9 @@
      "fixtures": 10,
      "scheduled": 43,
      "unscheduled": 8,
-     "solve_time_s": 83.47,
-     "hard": 4,
-     "model": 17
+     "solve_time_s": 83.03,
+     "hard": 5,
+     "model": 13
     },
     {
      "solutions_file": "voorbeeld-6-banen/27-09-2026.solutions.json",
@@ -628,13 +628,13 @@
      "date": "27-09-2026",
      "file": "voorbeeld-6-banen/27-09-2026.json",
      "status": "FEASIBLE",
-     "day_start": "08:30",
+     "day_start": "09:00",
      "fixtures": 11,
-     "scheduled": 45,
-     "unscheduled": 21,
-     "solve_time_s": 84.68,
-     "hard": 12,
-     "model": 12
+     "scheduled": 44,
+     "unscheduled": 22,
+     "solve_time_s": 84.55,
+     "hard": 8,
+     "model": 14
     },
     {
      "solutions_file": "voorbeeld-6-banen/04-10-2026.solutions.json",
@@ -646,9 +646,9 @@
      "fixtures": 11,
      "scheduled": 55,
      "unscheduled": 9,
-     "solve_time_s": 83.8,
+     "solve_time_s": 86.87,
      "hard": 4,
-     "model": 19
+     "model": 20
     },
     {
      "solutions_file": null,
@@ -660,9 +660,9 @@
      "fixtures": 3,
      "scheduled": 19,
      "unscheduled": 0,
-     "solve_time_s": 20.3,
+     "solve_time_s": 20.28,
      "hard": 3,
-     "model": 3
+     "model": 4
     }
    ]
   }
