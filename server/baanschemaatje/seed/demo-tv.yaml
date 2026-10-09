@@ -1,0 +1,17 @@
+# DEMO — fictieve vereniging om Baanschemaatje uit te proberen.
+# Gebaseerd op clubs/voorbeeld-6-banen.yaml; het seizoen (demo-season.tsv) is
+# een afgeleide van een echte KNLTB-export met "DEMO TV" als thuisclub.
+# Iedereen mag deze club aanpassen; hij wordt bij een nieuwe seed teruggezet.
+
+club:
+  name: "Demo TV (demo)"
+  knltb_name: "DEMO TV"
+
+courts:
+  count: 6
+
+day:
+  start: "09:00"
+  fallback_start: "08:30"
+  last_start: "19:30"
+  end: "20:00"

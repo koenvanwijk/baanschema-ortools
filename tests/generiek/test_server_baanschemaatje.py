@@ -14,7 +14,10 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 
 @pytest.fixture(scope="module")
-def client(root):
+def client(root, tmp_path_factory):
+    import os
+
+    os.environ["BS_STORE"] = str(tmp_path_factory.mktemp("store"))
     spec = importlib.util.spec_from_file_location("bs_server_app", root / "server" / "baanschemaatje" / "app.py")
     mod = importlib.util.module_from_spec(spec)
     sys.modules["bs_server_app"] = mod
@@ -75,3 +78,60 @@ def test_scenarios_day_that_fits(client):
     j = client.post("/scenarios", json={"club": "mierlo", "date": "11-10-2026", "time_limit_s": 5,
                                         "validate": False}).json()
     assert j["base_solved"] and j["base_unscheduled"] == 0 and j["solutions"] == []
+
+
+def test_builtin_club_not_editable(client):
+    # Ingebouwde voorbeeldprofielen (clubs/*.yaml zonder opgeslagen kopie) zijn alleen-lezen.
+    assert client.put("/clubs/voorbeeld-6-banen/profile", json={}).status_code == 403
+    nep = {"club": {"name": "Nep"}, "courts": {"count": 4}}
+    assert client.post("/clubs", json={"id": "mierlo", "profile": nep}).status_code == 409
+
+
+def test_auth_hook_is_used_for_writes(client, monkeypatch):
+    """Login per club komt later; alle schrijfroutes lopen via auth.authorize_write."""
+    from fastapi import HTTPException
+
+    import auth
+
+    calls = []
+
+    def deny(club_id, request=None):
+        calls.append(club_id)
+        raise HTTPException(401, "login vereist")
+
+    mod = sys.modules["bs_server_app"]
+    monkeypatch.setattr(mod, "authorize_write", deny)
+    prof = {"club": {"name": "TV Geweigerd"}, "courts": {"count": 4}}
+    assert client.post("/clubs", json={"profile": prof}).status_code == 401
+    assert calls == ["tv-geweigerd"]
+    assert auth.authorize_write("x") is None  # nu nog open
+
+
+def test_club_lifecycle(client, root):
+    prof = {"club": {"name": "TV Testclub", "knltb_name": "MIERLO"}, "courts": {"count": 8},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    r = client.post("/clubs", json={"profile": prof})
+    assert r.status_code == 201, r.text
+    cid = r.json()["id"]
+    assert cid == "tv-testclub"
+    assert client.post("/clubs", json={"profile": prof}).status_code == 409
+    assert any(c["id"] == cid and c["stored"] for c in client.get("/clubs").json()["clubs"])
+    # profiel wijzigen (ongeldig → 422, geldig → opgeslagen)
+    assert client.put(f"/clubs/{cid}/profile", json={**prof, "courts": {"count": 0}}).status_code == 422
+    assert client.put(f"/clubs/{cid}/profile", json={**prof, "courts": {"count": 7}}).status_code == 200
+    assert client.get(f"/clubs/{cid}").json()["summary"]["courts"] == 7
+    # ruwe KNLTB-export uploaden
+    data = (root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes()
+    r = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"})
+    assert r.status_code == 200, r.text
+    j = r.json()
+    assert j["report"]["imported"] == 52 and j["report"]["format"] == "ruwe KNLTB-export"
+    assert [d["date"] for d in j["dates"]][:2] == ["06-09-2026", "13-09-2026"]
+    assert "Aanvoerder" not in r.text
+    s = client.get(f"/clubs/{cid}/season").json()
+    assert s["own_season"] and len(s["dates"]) == 6
+    # onleesbaar bestand → 422
+    assert client.post(f"/clubs/{cid}/season", content=b"onzin", params={"filename": "x.csv"}).status_code == 422
+    # live plannen met het eigen seizoen
+    p = client.post("/plan", json={"club": cid, "date": "11-10-2026", "time_limit_s": 5}).json()
+    assert p["courts"] == 7 and p["summary"]["solved"] and p["live"]["season_file"].startswith(cid)

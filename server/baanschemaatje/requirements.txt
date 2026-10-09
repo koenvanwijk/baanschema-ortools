@@ -1,3 +1,5 @@
 fastapi>=0.110,<1
 uvicorn[standard]>=0.29
 ortools>=9.9,<11
+openpyxl>=3.1
+google-cloud-storage>=2.14

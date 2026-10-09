@@ -68,7 +68,7 @@ Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is gee
 **Succescriteria**
 
 - Editor werkt tegen een generieke API (club/seizoen-storage).
-- Schrijven vereist auth.
+- Schrijven vereist auth (issue 27 "Login per club"; tot dan staat de testomgeving open).
 - Geen vaste club-URL’s of open write naar object storage in de productcode.
 
 **Deliverables**
@@ -142,6 +142,7 @@ Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en ac
 13. Chore: configureerbare API-basis-URL in frontend + docs (geen vaste club-URL in code)
 14. Feature: generieke editor (speeldagen + verplaatsen) op club/seizoen-storage
 15. Feature: OR-draft syncen met handmatig verplaatste partijen (geen valse TEAM-ONTBREEKT)
+27. Security: **Login per club** — schrijven (clubinstellingen, seizoen-upload, later schema's) alleen na inloggen voor die club. Nu staat de clubpagina bewust open (besluit Oscar 09-10-2026); alle schrijfroutes van de live-backend lopen al via één hook (`server/baanschemaatje/auth.py`, `authorize_write`), zodat login daar zonder routewijziging in kan.
 
 ### Fase 3
 
