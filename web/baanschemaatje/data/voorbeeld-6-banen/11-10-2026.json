@@ -1,0 +1,299 @@
+{
+ "generator": "baanschemaatje",
+ "club": "TV Voorbeeld",
+ "date": "11-10-2026",
+ "courts": 6,
+ "status": "FEASIBLE",
+ "day_start": "09:00",
+ "stats": {
+  "scheduled": 19,
+  "unscheduled": 0,
+  "solve_time_s": 20.56
+ },
+ "attempts": [
+  {
+   "day_start": "09:00",
+   "status": "FEASIBLE",
+   "unscheduled": 0
+  }
+ ],
+ "rows": [
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "part": "D1",
+   "kind": "D",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 1
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "part": "D2",
+   "kind": "D",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 2
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "part": "S4",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 3
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "part": "S3",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 4
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "S4",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 5
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "S3",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 6
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "part": "GD1",
+   "kind": "M",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 1
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "part": "S1",
+   "kind": "S",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 2
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "part": "S2",
+   "kind": "S",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 3
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "part": "S1",
+   "kind": "S",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 4
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "S2",
+   "kind": "S",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 5
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "S1",
+   "kind": "S",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 6
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "part": "S2",
+   "kind": "S",
+   "start": "12:00",
+   "end": "13:30",
+   "court": 2
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "part": "D2",
+   "kind": "D",
+   "start": "12:00",
+   "end": "13:30",
+   "court": 3
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "part": "D1",
+   "kind": "D",
+   "start": "12:00",
+   "end": "13:30",
+   "court": 4
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "D2",
+   "kind": "D",
+   "start": "12:00",
+   "end": "13:30",
+   "court": 5
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "D1",
+   "kind": "D",
+   "start": "12:00",
+   "end": "13:30",
+   "court": 6
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "GD2",
+   "kind": "M",
+   "start": "13:30",
+   "end": "15:00",
+   "court": 5
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "part": "GD1",
+   "kind": "M",
+   "start": "13:30",
+   "end": "15:00",
+   "court": 6
+  }
+ ],
+ "validator": {
+  "available": true,
+  "hard": 3,
+  "model": 3,
+  "findings": [
+   {
+    "rule": "EERSTE-START",
+    "severity": "HARD",
+    "date": "11-10-2026",
+    "message": "eerste partij start 09:00, te vroeg; 8-partijenteam: tussen 10:00 en 11:00",
+    "subject": "GEM 1e M1"
+   },
+   {
+    "rule": "VENSTER-GEM",
+    "severity": "HARD",
+    "date": "11-10-2026",
+    "message": "S4 start 09:00, gemengd 8-partijenteam start pas vanaf 10:00 (SPEC.md sectie 4)",
+    "subject": "GEM 1e M1"
+   },
+   {
+    "rule": "VENSTER-GEM",
+    "severity": "HARD",
+    "date": "11-10-2026",
+    "message": "S3 start 09:00, gemengd 8-partijenteam start pas vanaf 10:00 (SPEC.md sectie 4)",
+    "subject": "GEM 1e M1"
+   },
+   {
+    "rule": "FASE",
+    "severity": "MODEL",
+    "date": "11-10-2026",
+    "message": "D1, D2 start voor fase M+S klaar is (13:30)",
+    "subject": "GEM 3e M2"
+   },
+   {
+    "rule": "VENSTER-GEM",
+    "severity": "MODEL",
+    "date": "11-10-2026",
+    "message": "D1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
+    "subject": "GEM 3e M2"
+   },
+   {
+    "rule": "VENSTER-GEM",
+    "severity": "MODEL",
+    "date": "11-10-2026",
+    "message": "D2 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
+    "subject": "GEM 3e M2"
+   }
+  ]
+ }
+}

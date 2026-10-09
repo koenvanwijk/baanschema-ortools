@@ -1,0 +1,667 @@
+{
+ "generator": "baanschemaatje",
+ "generated_at": "2026-10-09T10:53:52+00:00",
+ "season_file": "season_2026-2027.tsv",
+ "time_limit_s": 20.0,
+ "clubs": [
+  {
+   "id": "mierlo",
+   "name": "Mierlose T.V.",
+   "knltb_name": "MIERLO",
+   "courts": 10,
+   "day": {
+    "start": "09:00",
+    "fallback_start": "08:30",
+    "last_start": "19:30",
+    "end": "20:00"
+   },
+   "reservations": {
+    "rood": {
+     "courts": [
+      1
+     ],
+     "courts_if_rood": null
+    },
+    "oranje": {
+     "courts": [
+      1,
+      2,
+      3
+     ],
+     "courts_if_rood": [
+      2,
+      3,
+      4
+     ]
+    }
+   },
+   "court_pairs": [
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     9,
+     10
+    ]
+   ],
+   "max_courts_per_team": 2,
+   "preferred_courts_8p": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "durations": {
+    "rood": 60,
+    "oranje": 120,
+    "groen": 45,
+    "junioren_11_14": 45,
+    "jeugd_13_17": 90,
+    "gemengd": 90,
+    "senioren": 90,
+    "overig": 90
+   },
+   "min_reservation": {
+    "rood": null,
+    "oranje": null,
+    "groen": null,
+    "junioren_11_14": 45,
+    "jeugd_13_17": 90,
+    "gemengd": 90,
+    "senioren": 90,
+    "overig": 90
+   },
+   "rules": [
+    {
+     "name": "match_start_grid",
+     "source": "KNLTB CR Bijlage 3, 1.1",
+     "hard": true,
+     "params": {
+      "value": 30
+     },
+     "core_params": {
+      "value": 30
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "match_start_window",
+     "source": "KNLTB CR Bijlage 3, 1.1",
+     "hard": true,
+     "params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "junioren_start_window",
+     "source": "KNLTB CR Bijlage 3, 1.1.a",
+     "hard": false,
+     "params": {
+      "from": "08:30",
+      "to": "12:00"
+     },
+     "core_params": {
+      "from": "08:30",
+      "to": "12:00"
+     },
+     "core_hard": false,
+     "club_override": false
+    },
+    {
+     "name": "junioren_latest_start",
+     "source": "KNLTB CR Bijlage 3, 1.1.a",
+     "hard": true,
+     "params": {
+      "time": "13:00"
+     },
+     "core_params": {
+      "time": "15:00"
+     },
+     "core_hard": true,
+     "club_override": true
+    },
+    {
+     "name": "junioren_mixed_8p_latest_start",
+     "source": "KNLTB CR Bijlage 3, 1.1.a",
+     "hard": true,
+     "params": {
+      "time": "13:00"
+     },
+     "core_params": {
+      "time": "13:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "mixed_8p_latest_start",
+     "source": "KNLTB CR Bijlage 3, 1.1.b",
+     "hard": true,
+     "params": {
+      "time": "14:00"
+     },
+     "core_params": {
+      "time": "14:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "travel_not_before",
+     "source": "KNLTB CR Bijlage 3, 1.2",
+     "hard": true,
+     "params": {
+      "value": 80,
+      "time": "10:00"
+     },
+     "core_params": {
+      "value": 80,
+      "time": "10:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "min_reservation",
+     "source": "KNLTB CR Bijlage 3, 2.1.a",
+     "hard": true,
+     "params": {},
+     "core_params": {},
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "start_window_8p",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "from": "10:00",
+      "to": "11:00"
+     },
+     "core_params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_hard": true,
+     "club_override": true
+    },
+    {
+     "name": "mixed_8p_not_before",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "time": "10:00"
+     },
+     "core_params": {
+      "time": "08:30"
+     },
+     "core_hard": true,
+     "club_override": true
+    },
+    {
+     "name": "youth_last_start",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "time": "17:30"
+     },
+     "core_params": {
+      "time": "19:30"
+     },
+     "core_hard": true,
+     "club_override": true
+    },
+    {
+     "name": "first_start_deadline",
+     "source": "product",
+     "hard": false,
+     "params": {
+      "time": "15:00"
+     },
+     "core_params": {
+      "time": "15:00"
+     },
+     "core_hard": false,
+     "club_override": false
+    },
+    {
+     "name": "max_wait_minutes",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "value": 60
+     },
+     "core_params": {
+      "value": 60
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "max_blocks_per_team",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "value": 2
+     },
+     "core_params": {
+      "value": 2
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "waterfall_8p",
+     "source": "product",
+     "hard": true,
+     "params": {},
+     "core_params": {},
+     "core_hard": true,
+     "club_override": false
+    }
+   ],
+   "dates": [
+    {
+     "date": "06-09-2026",
+     "file": "mierlo/06-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 9,
+     "scheduled": 48,
+     "unscheduled": 0,
+     "solve_time_s": 20.69,
+     "hard": 0,
+     "model": 0
+    },
+    {
+     "date": "13-09-2026",
+     "file": "mierlo/13-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 11,
+     "scheduled": 62,
+     "unscheduled": 0,
+     "solve_time_s": 21.01,
+     "hard": 0,
+     "model": 8
+    },
+    {
+     "date": "20-09-2026",
+     "file": "mierlo/20-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 10,
+     "scheduled": 51,
+     "unscheduled": 0,
+     "solve_time_s": 20.88,
+     "hard": 0,
+     "model": 14
+    },
+    {
+     "date": "27-09-2026",
+     "file": "mierlo/27-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 11,
+     "scheduled": 62,
+     "unscheduled": 4,
+     "solve_time_s": 42.37,
+     "hard": 2,
+     "model": 18
+    },
+    {
+     "date": "04-10-2026",
+     "file": "mierlo/04-10-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 11,
+     "scheduled": 64,
+     "unscheduled": 0,
+     "solve_time_s": 20.91,
+     "hard": 0,
+     "model": 11
+    },
+    {
+     "date": "11-10-2026",
+     "file": "mierlo/11-10-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 3,
+     "scheduled": 19,
+     "unscheduled": 0,
+     "solve_time_s": 20.35,
+     "hard": 0,
+     "model": 3
+    }
+   ]
+  },
+  {
+   "id": "voorbeeld-6-banen",
+   "name": "TV Voorbeeld",
+   "knltb_name": "MIERLO",
+   "courts": 6,
+   "day": {
+    "start": "09:00",
+    "fallback_start": "08:30",
+    "last_start": "19:30",
+    "end": "20:00"
+   },
+   "reservations": {},
+   "court_pairs": null,
+   "max_courts_per_team": 2,
+   "preferred_courts_8p": [],
+   "durations": {
+    "rood": 60,
+    "oranje": 120,
+    "groen": 45,
+    "junioren_11_14": 45,
+    "jeugd_13_17": 90,
+    "gemengd": 90,
+    "senioren": 90,
+    "overig": 90
+   },
+   "min_reservation": {
+    "rood": null,
+    "oranje": null,
+    "groen": null,
+    "junioren_11_14": 45,
+    "jeugd_13_17": 90,
+    "gemengd": 90,
+    "senioren": 90,
+    "overig": 90
+   },
+   "rules": [
+    {
+     "name": "match_start_grid",
+     "source": "KNLTB CR Bijlage 3, 1.1",
+     "hard": true,
+     "params": {
+      "value": 30
+     },
+     "core_params": {
+      "value": 30
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "match_start_window",
+     "source": "KNLTB CR Bijlage 3, 1.1",
+     "hard": true,
+     "params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "junioren_start_window",
+     "source": "KNLTB CR Bijlage 3, 1.1.a",
+     "hard": false,
+     "params": {
+      "from": "08:30",
+      "to": "12:00"
+     },
+     "core_params": {
+      "from": "08:30",
+      "to": "12:00"
+     },
+     "core_hard": false,
+     "club_override": false
+    },
+    {
+     "name": "junioren_latest_start",
+     "source": "KNLTB CR Bijlage 3, 1.1.a",
+     "hard": true,
+     "params": {
+      "time": "15:00"
+     },
+     "core_params": {
+      "time": "15:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "junioren_mixed_8p_latest_start",
+     "source": "KNLTB CR Bijlage 3, 1.1.a",
+     "hard": true,
+     "params": {
+      "time": "13:00"
+     },
+     "core_params": {
+      "time": "13:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "mixed_8p_latest_start",
+     "source": "KNLTB CR Bijlage 3, 1.1.b",
+     "hard": true,
+     "params": {
+      "time": "14:00"
+     },
+     "core_params": {
+      "time": "14:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "travel_not_before",
+     "source": "KNLTB CR Bijlage 3, 1.2",
+     "hard": true,
+     "params": {
+      "value": 80,
+      "time": "10:00"
+     },
+     "core_params": {
+      "value": 80,
+      "time": "10:00"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "min_reservation",
+     "source": "KNLTB CR Bijlage 3, 2.1.a",
+     "hard": true,
+     "params": {},
+     "core_params": {},
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "start_window_8p",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_params": {
+      "from": "08:30",
+      "to": "16:30"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "mixed_8p_not_before",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "time": "08:30"
+     },
+     "core_params": {
+      "time": "08:30"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "youth_last_start",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "time": "19:30"
+     },
+     "core_params": {
+      "time": "19:30"
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "first_start_deadline",
+     "source": "product",
+     "hard": false,
+     "params": {
+      "time": "15:00"
+     },
+     "core_params": {
+      "time": "15:00"
+     },
+     "core_hard": false,
+     "club_override": false
+    },
+    {
+     "name": "max_wait_minutes",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "value": 60
+     },
+     "core_params": {
+      "value": 60
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "max_blocks_per_team",
+     "source": "product",
+     "hard": true,
+     "params": {
+      "value": 2
+     },
+     "core_params": {
+      "value": 2
+     },
+     "core_hard": true,
+     "club_override": false
+    },
+    {
+     "name": "waterfall_8p",
+     "source": "product",
+     "hard": true,
+     "params": {},
+     "core_params": {},
+     "core_hard": true,
+     "club_override": false
+    }
+   ],
+   "dates": [
+    {
+     "date": "06-09-2026",
+     "file": "voorbeeld-6-banen/06-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "08:30",
+     "fixtures": 9,
+     "scheduled": 48,
+     "unscheduled": 0,
+     "solve_time_s": 42.04,
+     "hard": 3,
+     "model": 10
+    },
+    {
+     "date": "13-09-2026",
+     "file": "voorbeeld-6-banen/13-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "08:30",
+     "fixtures": 11,
+     "scheduled": 48,
+     "unscheduled": 14,
+     "solve_time_s": 43.1,
+     "hard": 14,
+     "model": 16
+    },
+    {
+     "date": "20-09-2026",
+     "file": "voorbeeld-6-banen/20-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 10,
+     "scheduled": 42,
+     "unscheduled": 9,
+     "solve_time_s": 41.47,
+     "hard": 7,
+     "model": 13
+    },
+    {
+     "date": "27-09-2026",
+     "file": "voorbeeld-6-banen/27-09-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "08:30",
+     "fixtures": 11,
+     "scheduled": 44,
+     "unscheduled": 22,
+     "solve_time_s": 42.73,
+     "hard": 14,
+     "model": 11
+    },
+    {
+     "date": "04-10-2026",
+     "file": "voorbeeld-6-banen/04-10-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "08:30",
+     "fixtures": 11,
+     "scheduled": 57,
+     "unscheduled": 7,
+     "solve_time_s": 42.75,
+     "hard": 9,
+     "model": 22
+    },
+    {
+     "date": "11-10-2026",
+     "file": "voorbeeld-6-banen/11-10-2026.json",
+     "status": "FEASIBLE",
+     "day_start": "09:00",
+     "fixtures": 3,
+     "scheduled": 19,
+     "unscheduled": 0,
+     "solve_time_s": 20.56,
+     "hard": 3,
+     "model": 3
+    }
+   ]
+  }
+ ]
+}
