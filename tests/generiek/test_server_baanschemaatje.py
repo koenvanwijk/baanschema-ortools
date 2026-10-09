@@ -135,3 +135,50 @@ def test_club_lifecycle(client, root):
     # live plannen met het eigen seizoen
     p = client.post("/plan", json={"club": cid, "date": "11-10-2026", "time_limit_s": 5}).json()
     assert p["courts"] == 7 and p["summary"]["solved"] and p["live"]["season_file"].startswith(cid)
+
+
+# ---------------------------------------------------------------- verzetten (zonder solver)
+
+def _mierlo_fixture(client, date="27-09-2026"):
+    day = next(d for d in client.get("/clubs/mierlo/season").json()["dates"] if d["date"] == date)
+    return next(w for w in day["wedstrijden"] if w["category"] not in ("rood", "oranje"))
+
+
+def test_season_view_has_part_counts(client):
+    w = _mierlo_fixture(client)
+    assert w["singles"] + w["doubles"] + w["mix"] == w["matches"]
+
+
+def test_apply_moves_to_inhaaldag(client):
+    mod = sys.modules["bs_server_app"]
+    w = _mierlo_fixture(client)
+    req = mod.PlanRequest(club="mierlo", date="18-10-2026",
+                          moves=[{"schema": w["schema"], "home": w["home"], "from": "27-09-2026", "to": "18-10-2026"}])
+    _, prof, _, season, spath = mod._resolve(req)
+    assert spath != mod.SEASON_FILE and spath.name.startswith("moved-")
+    moved = season.day("18-10-2026")
+    assert [(f.schema, f.home_team) for f in moved] == [(w["schema"], w["home"])]
+    assert all(not (f.schema == w["schema"] and f.home_team == w["home"]) for f in season.day("27-09-2026"))
+    assert req._moves_applied[0]["to"] == "18-10-2026"
+    # Zonder verzetting bestaat 18-10 niet als speeldag.
+    with pytest.raises(mod.HTTPException) as e:
+        mod._resolve(mod.PlanRequest(club="mierlo", date="18-10-2026"))
+    assert e.value.status_code == 404
+
+
+def test_apply_moves_unknown_wedstrijd(client):
+    r = client.post("/plan", json={"club": "mierlo", "date": "18-10-2026",
+                                   "moves": [{"schema": "Bestaat niet", "home": "MIERLO 9", "from": "27-09-2026", "to": "18-10-2026"}]})
+    assert r.status_code == 404 and "verzetting" in r.json()["detail"]
+    r = client.post("/plan", json={"club": "mierlo", "date": "18-10-2026",
+                                   "moves": [{"schema": "x", "home": "y", "from": "2026-09-27", "to": "18-10-2026"}]})
+    assert r.status_code == 422
+
+
+def test_apply_moves_ignores_whitespace_differences(client):
+    mod = sys.modules["bs_server_app"]
+    w = _mierlo_fixture(client)
+    sloppy = w["schema"].replace(" – ", "  –  ")
+    _, _, _, season, _ = mod._resolve(mod.PlanRequest(club="mierlo", date="25-10-2026",
+                                                      moves=[{"schema": sloppy, "home": w["home"], "from": "27-09-2026", "to": "25-10-2026"}]))
+    assert len(season.day("25-10-2026")) == 1

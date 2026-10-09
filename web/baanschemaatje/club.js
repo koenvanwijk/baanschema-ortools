@@ -254,27 +254,70 @@ async function upload() {
 
 const COMPUTING = new Set();
 
+// Verzettingen per club (verzetten.js), alleen in dit tabblad: opslag voor wijzigingen bestaat nog niet.
+const CMOVES = new Map();
+function cmv() { if (!CMOVES.has(CLUB.id)) CMOVES.set(CLUB.id, new MoveState()); return CMOVES.get(CLUB.id); }
+
+// Plan van een dag zoals het nu is. Nog niet berekend → alle partijen "niet ingepland" (uit de seizoensweergave).
+function clubDayPlan(date) {
+  const p = PLANS.get(date);
+  const ok = p && !p.error && p.rows;
+  if (ok && p.sig === cmv().sig(date)) return { plan: p, computed: true, changed: false };
+  const d = DATES.find((x) => x.date === date);
+  const s = CLUB.summary;
+  const base = ok ? p : { status: "", day_start: s.day.start, courts: s.courts, validator: {}, stats: {},
+    rows: (d ? d.wedstrijden : []).flatMap((x) => mvRowsFor({ ...mvFromSeason(x), from: undefined })) };
+  return { plan: mvApplyPlan(base, date, cmv()), computed: !!ok, changed: cmv().into(date).length > 0 || (ok && cmv().touches(date)) };
+}
+
+function renderMoveBars() {
+  for (const id of ["mv-bar-ov", "mv-bar-day"]) {
+    const el = $(id);
+    el.innerHTML = mvBarHtml(cmv(), "Opslaan komt later: er is nog geen opslag voor wijzigingen, verzettingen gelden alleen in dit tabblad.");
+    const u = el.querySelector(".mv-undo"), r = el.querySelector(".mv-reset");
+    if (u) u.onclick = () => { cmv().undo(); afterMove(); };
+    if (r) r.onclick = () => { cmv().reset(); afterMove(); };
+  }
+}
+
+function afterMove() {
+  renderDates();
+  if (SHOWN_DATE && !$("plan-sec").hidden) showPlan(SHOWN_DATE, false);
+}
+
 function renderDates() {
-  const byDate = new Map(DATES.map((d) => [d.date, d]));
+  renderMoveBars();
   const days = ovSeasonDays(DATES).map((x) => {
-    const d = byDate.get(x.date), p = PLANS.get(x.date);
-    const stats = p && !p.error && p.rows ? ovPlanStats(p, CLUB.summary) : null;
-    const day = ovDay(x, { wedstrijden: d ? d.fixtures : 0, partijen: stats ? stats.partijen : d ? d.partijen : null, stats });
+    const { plan, computed, changed } = clubDayPlan(x.date);
+    const stats = computed ? ovPlanStats(plan, CLUB.summary) : null;
+    const day = ovDay(x, { wedstrijden: mvFromRows(plan.rows).length, partijen: plan.rows.filter((r) => r.kind !== "W").length || null,
+      stats, moves: cmv() });
+    day.changed = changed;
+    const p = PLANS.get(x.date);
     if (p && p.error) day.note = `Fout: ${p.error}`;
     return day;
   });
-  ovRender($("overview"), days, { onOpen: (date) => showPlan(date), onCompute: (date) => planDay(date, true), recompute: true, computing: COMPUTING });
+  ovRender($("overview"), days, { onOpen: (date) => showPlan(date), onCompute: (date) => planDay(date, true), recompute: true,
+    computing: COMPUTING, openAlways: true, onMove: (date) => showPlan(date) });
 }
 
 async function planDay(date, show) {
   status(`${date} berekenen…`, "busy");
   COMPUTING.add(date); renderDates();
   try {
-    const p = await api("/plan", jsonOpts("POST", { club: CLUB.id, date, time_limit_s: +$("tl").value }));
+    const sig = cmv().sig(date);
+    const body = { club: CLUB.id, date, time_limit_s: +$("tl").value };
+    if (cmv().count) body.moves = cmv().forServer();
+    const p = await api("/plan", jsonOpts("POST", body));
+    if (body.moves && !p.moves_applied && cmv().touches(date)) {
+      throw new Error("de server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold); sleep de verzette partijen zelf op het baanschema");
+    }
+    p.sig = sig;
     PLANS.set(date, p);
     status(`${date}: ${p.summary.scheduled} ingepland, ${p.summary.unscheduled} niet (${p.live.wall_time_s}s).`, p.summary.unscheduled ? "warn" : "ok");
     if (show) showPlan(date);
   } catch (e) {
+    if (cmv().into(date).length && /niet in seizoen/.test(e.message)) e.message = "de server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold)";
     PLANS.set(date, { error: e.message });
     status(`${date}: ${e.message}`, "err");
   }
@@ -289,23 +332,50 @@ async function planAll() {
   status(`Alle ${DATES.length} speeldagen berekend.`, "ok");
 }
 
-function showPlan(date) {
-  const plan = PLANS.get(date);
+function showPlan(date, scroll = true) {
+  const { plan, computed, changed } = clubDayPlan(date);
   const s = CLUB.summary;
+  if (SHOWN_DATE !== date) HL = null;
   $("plan-sec").hidden = false;
-  $("plan-title").textContent = `Baanschema ${s.name} — ${date}`;
+  $("plan-title").textContent = `Baanschema ${s.name} — ${ovWeekday(date)} ${date}`;
   const v = plan.validator || {};
+  const st = ovPlanStats(plan, s);
   const card = (k, val, cls = "", tip = "") => `<div class="card"${tip ? ` title="${esc(tip)}"` : ""}><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
-  $("summary").innerHTML = [card("Ingepland", plan.summary.scheduled, "good"),
-    card("Niet ingepland", plan.summary.unscheduled, plan.summary.unscheduled ? "bad" : "good"),
+  $("summary").innerHTML = [card("Ingepland", st.scheduled, "good"),
+    card("Niet ingepland", st.unscheduled, st.unscheduled ? "bad" : "good"),
     card("Overtredingen", v.hard ?? "–", v.hard ? "bad" : "good", "Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn."),
     card("Niet-gehaalde voorkeuren", v.model ?? "–", v.model ? "warn" : "", "Niet-gehaalde voorkeuren: mag, maar kan mooier."), card("Dagstart", plan.day_start),
-    card("Rekentijd", `${plan.stats.solve_time_s}s`), card("Solver", plan.status)].join("");
+    card("Rekentijd", plan.stats && typeof plan.stats.solve_time_s === "number" ? `${plan.stats.solve_time_s}s` : "–"), card("Solver", plan.status || "–")].join("");
+  $("plan-state").innerHTML = changed ? `<div class="banner">Aangepast: ${cmv().into(date).length} wedstrijd(en) hierheen verzet, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
+    : !computed ? `<div class="banner">Nog niet berekend: alle partijen staan bij "Niet ingepland". <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>` : "";
+  if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
   SHOWN_DATE = date;
   EDITOR.load(plan); // werkkopie: slepen + directe controle, niets opgeslagen
   $("print-btn").onclick = () => printPlan(EDITOR.plan, { clubName: s.name, date, dayStart: s.day.fallback_start || s.day.start, dayEnd: s.day.end,
     note: EDITOR.edited ? "nu berekend, handmatig aangepast (niet opgeslagen)" : "nu berekend" });
-  $("plan-sec").scrollIntoView({ behavior: "smooth" });
+  if (scroll) $("plan-sec").scrollIntoView({ behavior: "smooth" });
+}
+
+let HL = null;
+function bindLegend(plan) {
+  const date = SHOWN_DATE;
+  const ws = new Map(mvFromRows(plan.rows).map((w) => [w.key, w]));
+  const sd = ovSeasonDays(DATES);
+  for (const chip of document.querySelectorAll("#legend .chip")) {
+    chip.onclick = (ev) => {
+      ev.stopPropagation();
+      const w = ws.get(chip.dataset.team), team = chip.dataset.team;
+      mvOpenMenu(chip, w, date, sd, { highlighted: HL === team,
+        onHighlight: () => { HL = HL === team ? null : team; mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL); },
+        onMove: (to) => {
+          if (HL === team) HL = null;
+          cmv().move([{ w, at: date, to }]);
+          status(`${w.label} ${w.home} verzet naar ${to}. Niet opgeslagen; ${to} is nog niet berekend.`, "ok");
+          afterMove();
+        } });
+    };
+  }
+  if (HL) mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL);
 }
 
 let SHOWN_DATE = null;
@@ -342,10 +412,13 @@ function renderPlanGrid(plan) {
       <span class="cat">${esc(r.label || r.category)}</span><b>${esc(r.part || "reservering")}</b><div>${esc(isRes ? "baanreservering" : r.home_team || "")}</div><div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
   }
   g.innerHTML = html.join("");
+  for (const r of plan.rows) if (r.kind !== "W" && !teams.has(r.team_id)) teams.set(r.team_id, r); // ook niet-ingeplande teams
   $("legend").innerHTML = [...teams.values()].sort((a, b) => (a.category || "").localeCompare(b.category || ""))
-    .map((r) => `<span style="background:${COL.get(r.team_id).bg};color:${COL.get(r.team_id).fg}" title="${esc(r.team)}">${esc(r.label || "")} ${esc(r.home_team || "")}</span>`).join("");
+    .map((r) => { const col = COL.get(r.team_id) || { bg: "#ddd", fg: "#111" };
+      return `<span class="chip" data-team="${esc(r.team_id)}" style="background:${col.bg};color:${col.fg}" title="${esc(r.team)} — klik voor markeren / verzetten">${esc(r.label || "")} ${esc(r.home_team || "")}${r.moved_from ? " ↪" : ""}</span>`; }).join("");
   const un = plan.rows.map((r, i) => [r, i]).filter(([r]) => r.start === "NIET_GELUKT");
-  $("unscheduled").innerHTML = un.length ? `<h3>Niet ingepland</h3><p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag" data-ri="${i}"><b>${esc(r.part)}</b> · ${esc(r.label || "")} ${esc(r.home_team || "")} – ${esc(r.away_team || "")}</li>`).join("")}</ul>` : "";
+  $("unscheduled").innerHTML = un.length ? `<h3>Niet ingepland</h3><p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag${r.moved_from ? " moved" : ""}" data-ri="${i}"><b>${esc(r.part || "reservering")}</b> · ${esc(r.label || "")} ${esc(r.home_team || "")} – ${esc(r.away_team || "")}${r.moved_from ? ` <span class="mv-tag">niet ingepland (verzet van ${esc(r.moved_from)})</span>` : ""}</li>`).join("")}</ul>` : "";
+  bindLegend(plan);
 }
 
 // ---------------------------------------------------------------- init

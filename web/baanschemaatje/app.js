@@ -82,6 +82,43 @@ function club() { return INDEX.clubs.find((c) => c.id === $("club").value); }
 
 let CUR_DATE = null; // null = seizoensoverzicht
 
+// Verzettingen per club (verzetten.js) en "Nu berekend"-plannen per club/dag (met de verzettingen van dat moment).
+const MOVES = new Map();
+const LIVE = new Map();
+function mv() { const id = club().id; if (!MOVES.has(id)) MOVES.set(id, new MoveState()); return MOVES.get(id); }
+
+// Plan van een dag zoals het nu is: nu berekend (als de verzettingen nog kloppen), anders vooraf berekend
+// met de verzettingen erop. changed = er zijn wedstrijden naartoe verzet en nog niet berekend.
+async function dayPlan(c, date) {
+  const live = LIVE.get(`${c.id}/${date}`);
+  if (live && live.sig === mv().sig(date)) return { plan: live.plan, changed: false, live: true };
+  const d = c.dates.find((x) => x.date === date);
+  let base = null;
+  if (d) base = await getJSON(`data/${d.file}`).catch(() => null);
+  const known = !!base;
+  base = base || { status: "", day_start: c.day.start, courts: c.courts, rows: [], validator: {}, stats: { solve_time_s: "–" } };
+  const plan = mv().touches(date) ? mvApplyPlan(base, date, mv()) : base;
+  return { plan, changed: mv().into(date).length > 0, known };
+}
+
+function renderMoveBars() {
+  for (const id of ["mv-bar-ov", "mv-bar-day"]) {
+    const el = $(id);
+    if (!el) continue;
+    el.innerHTML = mvBarHtml(mv());
+    const u = el.querySelector(".mv-undo"), r = el.querySelector(".mv-reset");
+    if (u) u.onclick = () => { mv().undo(); rerender(); };
+    if (r) r.onclick = () => { mv().reset(); rerender(); };
+  }
+}
+function rerender() { return CUR_DATE ? render() : renderOverview(); }
+function doMove(items) {
+  mv().move(items);
+  setLive(`${items.length} wedstrijd${items.length === 1 ? "" : "en"} verzet: ${items.map((x) => `${x.w.label} ${x.w.home} → ${x.to}`).join(", ")}. Niet opgeslagen; de doeldag is nog niet berekend.`, "ok");
+  const msg = $("live-status").textContent;
+  return Promise.resolve(rerender()).then(() => { if (!$("live-status").textContent) setLive(msg, "ok"); });
+}
+
 function updateHash() {
   const h = `#${encodeURIComponent($("club").value)}${CUR_DATE ? `/${encodeURIComponent(CUR_DATE)}` : ""}`;
   if (location.hash !== h) history.pushState(null, "", h);
@@ -98,7 +135,7 @@ function route() {
   const [hc, hd] = decodeURIComponent(location.hash.slice(1)).split("/");
   if (hc && INDEX.clubs.some((c) => c.id === hc)) $("club").value = hc;
   const c = club();
-  CUR_DATE = hd && c.dates.some((d) => d.date === hd) ? hd : null;
+  CUR_DATE = hd && (c.dates.some((d) => d.date === hd) || mv().into(hd).length) ? hd : null;
   return CUR_DATE ? render() : renderOverview();
 }
 
@@ -112,38 +149,76 @@ async function renderOverview() {
   setLive("");
   renderProfile(c);
   $("note").textContent = `${c.name} · ${c.courts} banen · seizoen ${INDEX.season_file} · berekend ${new Date(INDEX.generated_at).toLocaleString("nl-NL")} (tijdslimiet ${INDEX.time_limit_s}s per poging)`;
-  const plans = await Promise.all(c.dates.map((d) => getJSON(`data/${d.file}`).catch(() => null)));
+  renderMoveBars();
+  const sd = ovSeasonDays(c.dates);
+  const res = await Promise.all(sd.map((x) => dayPlan(c, x.date)));
   if (club().id !== c.id || CUR_DATE) return; // intussen doorgeklikt
-  const byDate = new Map(c.dates.map((d, i) => [d.date, { d, plan: plans[i] }]));
-  const days = ovSeasonDays(c.dates).map((x) => {
-    const m = byDate.get(x.date);
-    const stats = m && m.plan ? ovPlanStats(m.plan, c) : null;
-    return ovDay(x, { wedstrijden: m ? m.d.fixtures : 0, partijen: stats ? stats.partijen : null, stats });
+  const days = sd.map((x, i) => {
+    const { plan, changed, known, live } = res[i];
+    const stats = (known || live) && plan.rows.length ? ovPlanStats(plan, c) : null;
+    const wed = mvFromRows(plan.rows).length;
+    return ovDay(x, { wedstrijden: wed, partijen: stats ? stats.partijen : plan.rows.filter((r) => r.kind !== "W").length || null,
+      stats, moves: mv() });
+  }).map((d, i) => ({ ...d, changed: res[i].changed }));
+  ovRender($("overview"), days, {
+    onOpen: openDay,
+    onCompute: async (date) => { CUR_DATE = date; await render(); livePlan(); },
+    onMove: async (date) => { CUR_DATE = date; await render(); $("legend").scrollIntoView({ block: "center" }); },
   });
-  ovRender($("overview"), days, { onOpen: openDay, onCompute: async (date) => { CUR_DATE = date; await render(); livePlan(); } });
 }
 
 async function render() {
   const c = club();
-  const d = c.dates.find((x) => x.date === CUR_DATE);
-  if (!d) return renderOverview();
+  const date = CUR_DATE;
+  if (!CURRENT || CURRENT.d.date !== date || CURRENT.c.id !== c.id) { HL = null; }
+  const d0 = c.dates.find((x) => x.date === date);
+  if (!d0 && !mv().into(date || "").length) return renderOverview();
   updateHash();
   setView(true);
   renderProfile(c);
-  $("day-title").textContent = `${c.name} — ${ovWeekday(d.date)} ${d.date}`;
+  renderMoveBars();
+  $("day-title").textContent = `${c.name} — ${ovWeekday(date)} ${date}`;
   $("note").textContent = `${c.name} · ${c.courts} banen · seizoen ${INDEX.season_file} · berekend ${new Date(INDEX.generated_at).toLocaleString("nl-NL")} (tijdslimiet ${INDEX.time_limit_s}s per poging)`;
-  let plan;
-  try {
-    plan = await getJSON(`data/${d.file}`);
-  } catch (e) {
-    $("grid").innerHTML = `<p class="note">Kon plan niet laden: ${esc(e.message)}</p>`;
-    return;
-  }
-  CURRENT = { c, d, plan };
-  setLive("");
+  const { plan, changed } = await dayPlan(c, date);
+  if (CUR_DATE !== date) return;
+  const st = ovPlanStats(plan, c);
+  const d = { ...(d0 || { date, file: null, solutions_file: null, solve_time_s: "–" }),
+    fixtures: mvFromRows(plan.rows).length, scheduled: st.scheduled, unscheduled: st.unscheduled };
+  CURRENT = { c, d, plan, changed };
+  setLive(changed ? `Aangepast: ${mv().into(date).length} wedstrijd(en) hierheen verzet, nog niet berekend. Sleep de partijen zelf op het baanschema of druk op "Nu berekenen".` : "", changed ? "warn" : "");
   showPlan(plan, null);
-  renderSolutions(c, d);
+  if (changed || mv().touches(date)) $("solutions-sec").hidden = true; else renderSolutions(c, d);
 }
+
+// ---------------------------------------------------------------- teamchips: markeren + verzetten
+
+let HL = null;            // team_id dat gemarkeerd is
+function highlight(team) { HL = team; mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, team); }
+
+function bindLegend(plan) {
+  if (!CURRENT) return;
+  const { c, d } = CURRENT;
+  const date = d.date;
+  const ws = new Map(mvFromRows(plan.rows).map((w) => [w.key, w]));
+  const sd = ovSeasonDays(c.dates);
+  let tools = $("legend-tools");
+  if (!tools) { tools = document.createElement("div"); tools.id = "legend-tools"; $("legend").before(tools); }
+  tools.innerHTML = `<span class="hint">Klik op een team om het te markeren in het rooster of te verzetten naar een andere dag (bv. een inhaaldag).</span>
+    ${HL ? `<button class="btn2 ov-calc" id="hl-off">Markering uit</button>` : ""}`;
+  if ($("hl-off")) $("hl-off").onclick = () => { highlight(null); bindLegend(EDITOR.plan); };
+  for (const chip of document.querySelectorAll("#legend .chip")) {
+    chip.onclick = (ev) => {
+      ev.stopPropagation();
+      const w = ws.get(chip.dataset.team);
+      mvOpenMenu(chip, w, date, sd, { highlighted: HL === chip.dataset.team,
+        onHighlight: () => { highlight(HL === chip.dataset.team ? null : chip.dataset.team); bindLegend(EDITOR.plan); },
+        onMove: (to) => { if (HL === w.key) HL = null; doMove([{ w, at: date, to }]); } });
+    };
+  }
+  if (HL) highlight(HL);
+}
+
+
 
 let CURRENT = null;
 let SHOWN = null; // plan dat nu in beeld is (voorstel, scenario of live) — voor Printen
@@ -152,7 +227,7 @@ let SHOWN = null; // plan dat nu in beeld is (voorstel, scenario of live) — vo
 const EDITOR = new PlanEditor({
   bar: () => $("edit-bar"),
   club: () => CURRENT.c,
-  render: (plan) => { renderGrid(CURRENT.c, plan); renderUnscheduled(plan); if (SHOWN) SHOWN.plan = plan; },
+  render: (plan) => { renderGrid(CURRENT.c, plan); renderUnscheduled(plan); if (SHOWN) SHOWN.plan = plan; bindLegend(plan); },
 });
 
 function printDay() {
@@ -235,7 +310,7 @@ function renderSummary(c, d, plan) {
     card("Niet-gehaalde voorkeuren", v.model ?? "–", v.model ? "warn" : "", "Niet-gehaalde voorkeuren: mag, maar kan mooier."),
     card("Dagstart", plan.day_start),
     card("Wedstrijden", d.fixtures),
-    card("Rekentijd", `${d.solve_time_s}s`),
+    card("Rekentijd", typeof d.solve_time_s === "number" ? `${d.solve_time_s}s` : "–"),
     card("Solver", plan.status),
   ].join("");
 }
@@ -279,17 +354,19 @@ function renderGrid(c, plan) {
       <div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
   }
   g.innerHTML = html.join("");
+  for (const r of plan.rows) if (r.kind !== "W" && !teams.has(r.team_id)) teams.set(r.team_id, r); // ook niet-ingeplande teams
   $("legend").innerHTML = [...teams.values()]
     .sort((a, b) => a.team.localeCompare(b.team))
     .sort((a, b) => (a.category || "").localeCompare(b.category || ""))
-    .map((r) => `<span style="background:${COL.get(r.team_id).bg};color:${COL.get(r.team_id).fg}" title="${esc(r.team)}">${esc(rowLabel(r))} ${esc(shortTeam(r))}</span>`)
+    .map((r) => { const col = COL.get(r.team_id) || { bg: "#ddd", fg: "#111" };
+      return `<span class="chip${HL === r.team_id ? " on" : ""}" data-team="${esc(r.team_id)}" style="background:${col.bg};color:${col.fg}" title="${esc(r.team)} — klik voor markeren / verzetten">${esc(rowLabel(r))} ${esc(shortTeam(r))}${r.moved_from ? " ↪" : ""}</span>`; })
     .join("");
 }
 
 function renderUnscheduled(plan) {
   const un = plan.rows.map((r, i) => [r, i]).filter(([r]) => r.start === "NIET_GELUKT");
   $("unscheduled").innerHTML = un.length
-    ? `<p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag" data-ri="${i}"><b>${esc(r.part)}</b> · ${esc(rowLabel(r))} ${esc(shortTeam(r))}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
+    ? `<p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag${r.moved_from ? " moved" : ""}" data-ri="${i}"><b>${esc(r.part || "reservering")}</b> · ${esc(rowLabel(r))} ${esc(shortTeam(r))}${r.moved_from ? ` <span class="mv-tag">niet ingepland (verzet van ${esc(r.moved_from)})</span>` : ""}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
     : `<p class="empty">Alle partijen zijn ingepland.</p>`;
 }
 
@@ -370,13 +447,21 @@ async function livePlan() {
   setLive(`Bezig met berekenen (${c.name}, ${d.date}, max ${tl}s per poging; eerste aanroep kan ~10s extra kosten)…`, "busy");
   const t0 = performance.now();
   try {
-    const plan = await livePost("/plan", { club: c.id, date: d.date, time_limit_s: tl });
+    const sig = mv().sig(d.date);
+    const body = { club: c.id, date: d.date, time_limit_s: tl };
+    if (mv().count) body.moves = mv().forServer();
+    const plan = await livePost("/plan", body);
     if (CURRENT.d.date !== d.date || CURRENT.c.id !== c.id) return; // gebruiker is doorgeklikt
+    if (body.moves && !plan.moves_applied && mv().touches(d.date)) {
+      setLive("De server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold). Er is niets veranderd; je kunt de verzette partijen wel zelf op het baanschema slepen.", "warn");
+      return;
+    }
     const s = plan.summary;
     if (!s.solved) {
       setLive(`Live: geen oplossing gevonden binnen ${tl}s per poging (solver: ${plan.status}). Probeer een langere rekentijd. Het vooraf berekende plan blijft getoond.`, "warn");
       return;
     }
+    LIVE.set(`${c.id}/${d.date}`, { plan, sig });
     showPlan(plan, { live: true, title: `${s.scheduled} ingepland, ${s.unscheduled} niet, ${plan.stats.solve_time_s}s rekentijd`,
       scheduled: s.scheduled, unscheduled: s.unscheduled, solve_time_s: s.solve_time_s, moved_wedstrijden: 0 });
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
@@ -388,7 +473,8 @@ async function livePlan() {
       $("live-sol").onclick = () => liveScenarios(c, d, tl);
     }
   } catch (e) {
-    setLive(`Live server niet bereikbaar of fout (${e.name === "AbortError" ? "time-out" : e.message}). Het vooraf berekende plan blijft getoond.`, "err");
+    const hint = mv().into(d.date).length && /HTTP 404/.test(e.message) ? " De server kent verzetten waarschijnlijk nog niet (nieuwe serverversie moet nog worden uitgerold)." : "";
+    setLive(`Server niet bereikbaar of fout (${e.name === "AbortError" ? "time-out" : e.message}).${hint} Het getoonde plan blijft staan.`, "err");
   } finally { btn.disabled = false; }
 }
 

@@ -15,6 +15,7 @@ Endpoints
   GET  /clubs/{id}/season            speeldagen + wedstrijden
   GET  /dates?club=<id>              speeldagen met aantal wedstrijden
   POST /plan                         één speeldag plannen  → plan-JSON zoals web/baanschemaatje/data/<club>/<datum>.json
+                                     optioneel "moves": [{schema, home, from, to}] = verzette wedstrijden (bv. naar een inhaaldag)
   POST /scenarios                    oplossingen voor een dag die niet past → zoals <datum>.solutions.json
 
 Beveiliging: alles is voorlopig open, ook schrijven (besluit Oscar
@@ -38,6 +39,8 @@ Request-body voor /plan en /scenarios::
 from __future__ import annotations
 
 import copy
+import csv
+import io
 import hashlib
 import json
 import os
@@ -54,7 +57,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 import baanschemaatje
 from baanschemaatje import miniyaml
@@ -213,6 +216,60 @@ def _deep_merge(base: Any, over: Any) -> Any:
     return copy.deepcopy(over)
 
 
+class Move(BaseModel):
+    """Eén verzette thuiswedstrijd: (schema, thuisteam) van speeldag ``from`` naar ``to``."""
+    schema_: str = Field(..., alias="schema", description="Schema zoals in de export/het plan (rij 'team')")
+    home: str = Field(..., description="thuisteam, bv. MIERLO 3")
+    from_: str = Field(..., alias="from", description="oorspronkelijke speeldag dd-mm-YYYY")
+    to: str = Field(..., description="nieuwe dag dd-mm-YYYY, bv. een KNLTB-inhaaldag")
+
+    model_config = {"populate_by_name": True}
+
+
+def _apply_moves(spath: Path, moves: list[Move]) -> tuple[Path, list[dict[str, Any]]]:
+    """Schrijf een kopie van het seizoensbestand met verzette wedstrijden (alleen de kolom Datum wijzigt).
+
+    Zo plannen planner én validator met hetzelfde seizoen. Geeft (pad, toegepaste verzettingen)."""
+    if not moves:
+        return spath, []
+    for m in moves:
+        for d in (m.from_, m.to):
+            try:
+                datetime.strptime(d, "%d-%m-%Y")
+            except ValueError as exc:
+                raise HTTPException(422, f"ongeldige datum '{d}' in verzetting (verwacht dd-mm-jjjj)") from exc
+    with spath.open("r", encoding="utf-8", newline="") as fh:
+        rows = list(csv.reader(fh, delimiter="\t"))
+    if not rows:
+        return spath, []
+    hdr = rows[0]
+    try:
+        i_d, i_s, i_1, i_2 = (hdr.index(k) for k in ("Datum", "Schema", "Team 1", "Team 2"))
+    except ValueError as exc:
+        raise HTTPException(422, f"seizoensbestand mist kolom: {exc}") from exc
+    applied = []
+    for m in moves:
+        hit = 0
+        for r in rows[1:]:
+            if len(r) <= max(i_d, i_s, i_1, i_2):
+                continue
+            if (r[i_d].strip() == m.from_ and " ".join(r[i_s].split()) == " ".join(m.schema_.split())
+                    and m.home.strip().upper() in (r[i_1].strip().upper(), r[i_2].strip().upper())):
+                r[i_d] = m.to
+                hit += 1
+        if not hit:
+            raise HTTPException(404, f"verzetting: geen wedstrijd '{m.schema_}' van {m.home} op {m.from_}")
+        applied.append({"schema": m.schema_, "home": m.home, "from": m.from_, "to": m.to})
+    buf = io.StringIO()
+    csv.writer(buf, delimiter="\t", lineterminator="\n").writerows(rows)
+    b = buf.getvalue().encode("utf-8")
+    _SEASON_DIR.mkdir(parents=True, exist_ok=True)
+    p = _SEASON_DIR / f"moved-{hashlib.sha256(b).hexdigest()[:16]}.tsv"
+    if not p.exists():
+        p.write_bytes(b)
+    return p, applied
+
+
 class PlanRequest(BaseModel):
     club: str | dict[str, Any] = Field(..., description="club-id (opgeslagen of clubs/*.yaml) of een inline clubprofiel")
     date: str = Field(..., description="speeldag als dd-mm-YYYY")
@@ -220,8 +277,10 @@ class PlanRequest(BaseModel):
     time_limit_s: float | None = Field(None, gt=0, description=f"per solverpoging, max {MAX_TIME_LIMIT}s")
     seed: int = 42
     validate_plan: bool = Field(True, alias="validate")
+    moves: list[Move] | None = Field(None, description="verzette wedstrijden (bv. naar een inhaaldag); alleen voor deze berekening")
 
     model_config = {"populate_by_name": True}
+    _moves_applied: list[dict[str, Any]] = PrivateAttr(default_factory=list)
 
 
 def _resolve(req: PlanRequest) -> tuple[str, ClubProfile, dict[str, Any], Season, Path]:
@@ -236,6 +295,7 @@ def _resolve(req: PlanRequest) -> tuple[str, ClubProfile, dict[str, Any], Season
         raw = _deep_merge(raw, req.overrides)
         club_id = f"{club_id}+overrides"
     prof = _profile(raw, club_id)
+    spath, req._moves_applied = _apply_moves(spath, req.moves or [])
     season = _season(prof.knltb_name, spath)
     if req.date not in season.dates():
         raise HTTPException(404, f"datum {req.date} niet in seizoen; beschikbaar: {', '.join(season.dates())}")
@@ -271,7 +331,8 @@ def _season_view(season: Season) -> list[dict[str, Any]]:
         out.append({"date": d, "weekday": WEEKDAYS_NL[datetime.strptime(d, "%d-%m-%Y").weekday()], "fixtures": len(fx),
                     "partijen": sum(f.matches for f in fx),
                     "wedstrijden": [{"label": f.label, "schema": f.schema, "category": f.category.value,
-                                     "matches": f.matches, "home": f.home_team, "away": f.away_team} for f in fx]})
+                                     "matches": f.matches, "singles": f.singles, "doubles": f.doubles, "mix": f.mix,
+                                     "home": f.home_team, "away": f.away_team} for f in fx]})
     out.sort(key=lambda x: datetime.strptime(x["date"], "%d-%m-%Y"))
     return out
 
@@ -438,6 +499,7 @@ def plan(req: PlanRequest) -> dict[str, Any]:
     out["profile"] = profile_summary(prof, club_id)
     out["live"] = {"time_limit_s": tl, "wall_time_s": round(time.perf_counter() - t0, 2), "workers": WORKERS,
                    "season_file": spath.name}
+    out["moves_applied"] = req._moves_applied
     out["cached"] = False
     _store_cache(key, out)
     return out

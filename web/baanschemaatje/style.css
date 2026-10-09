@@ -132,3 +132,22 @@ tr.ov-row.extreme .ov-date b { color: #b3261e; }
 .backlink { display: inline-block; margin: 10px 0 0; font-weight: 600; color: var(--accent); }
 .day-title { margin-top: 6px; }
 .controls label[hidden], .controls button[hidden] { display: none; }
+.ov-pill.changed { background: #ece4fb; color: #5b2fa0; }
+tr.ov-row.changed td:first-child { border-left-color: #7b4fc9; }
+.ov-dot.changed { background: #7b4fc9; } .ov-st.changed { color: #5b2fa0; font-weight: 600; }
+.mv-tag { display: inline-block; font-size: 11px; font-weight: 600; background: #ece4fb; color: #5b2fa0; border-radius: 4px; padding: 0 6px; margin: 1px 0; }
+.ov-note.mv-tag { display: block; width: max-content; }
+.mv-tag.in { background: #e3ecfa; color: #24519a; }
+.mv-bar .btn2 { margin-left: 8px; font-size: 12px; padding: 2px 8px; }
+.mv-bar .hint { font-weight: 400; margin-top: 4px; }
+li.drag.moved { border-color: #7b4fc9; background: #f6f1fe; }
+.legend .chip { cursor: pointer; user-select: none; }
+.legend .chip:hover { box-shadow: 0 0 0 2px rgba(0,0,0,.35); }
+.legend .chip.on { box-shadow: 0 0 0 3px #111; }
+#legend-tools { display: flex; gap: 12px; align-items: center; margin: 4px 0; font-size: 13px; }
+.grid.hl-mode .blk:not(.hl) { opacity: .25; }
+.grid .blk.hl { box-shadow: 0 0 0 3px #111; z-index: 2; }
+.chip-menu { position: absolute; z-index: 50; width: 330px; background: #fff; border: 1px solid #c9d1c7; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.2); padding: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
+.chip-menu select { max-width: 100%; border: 1px solid #c9d1c7; }
+.chip-menu .cm-move { display: flex; gap: 6px; align-items: flex-end; }
+.chip-menu .cm-move label { display: flex; flex-direction: column; gap: 3px; flex: 1; }

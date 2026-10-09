@@ -29,12 +29,14 @@
   <section id="overview-view">
     <h2>Seizoensoverzicht</h2>
     <p class="hint">Alle speeldagen van het seizoen, inclusief de officiële KNLTB-inhaaldagen. Groen = in orde, oranje = alleen niet-gehaalde voorkeuren, rood = overtredingen of partijen die niet passen, grijs = nog niet berekend.</p>
+    <div id="mv-bar-ov"></div>
     <div id="overview"><p class="note">Overzicht laden…</p></div>
   </section>
 
   <div id="day-view" hidden>
   <a href="#" id="back-link" class="backlink">← Terug naar overzicht</a>
   <h2 id="day-title" class="day-title"></h2>
+  <div id="mv-bar-day"></div>
   <section id="summary" class="cards"></section>
 
   <section id="solutions-sec" hidden>
@@ -78,6 +80,7 @@
 <script src="config.js"></script>
 <script src="knltb-kalender.js"></script>
 <script src="overzicht.js"></script>
+<script src="verzetten.js"></script>
 <script src="colors.js"></script>
 <script src="print.js"></script>
 <script src="editor.js"></script>
