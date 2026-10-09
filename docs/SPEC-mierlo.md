@@ -72,7 +72,7 @@ Product-UI moet uiteindelijk clubneutraal zijn met config uit het clubprofiel.
 Bij de eerste commit op `product/generiek`:
 
 1. Generieke regels → SPEC-core; cluboverrides → dit clubprofiel.
-2. `docs/SPEC.md` wordt een korte pointer (zie skelet).
+2. `docs/SPEC.md` blijft de operationele SPEC van de live stack (ongewijzigd); de wegwijzer staat in `docs/SPEC-INDEX.md`.
 3. `docs/planningsregels.md` blijft historisch / deprecated.
 
 ---

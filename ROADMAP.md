@@ -1,4 +1,6 @@
-# ROADMAP — Baanschema
+# ROADMAP — Baanschemaatje
+
+**Productnaam:** **Baanschemaatje** — het generieke baanschema-product voor elke tennisvereniging (code: package `baanschemaatje`, CLI `python -m baanschemaatje`). De bestaande Baanschema-stack op `main` blijft ongewijzigd draaien.
 
 **Branch:** `product/generiek` (vanaf `main`)  
 **Status:** productrichting vastgelegd — 2026-10-05  
@@ -6,7 +8,7 @@
 
 ## Houding (belangrijk)
 
-Baanschema is een **generiek product** voor elke tennisvereniging. Er is geen “hoofdclub”.
+Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is geen “hoofdclub”.
 
 - **Mierlose T.V.** is het **eerste clubprofiel** en de eerste referentie-implementatie — niet een uitzondering op de regels.
 - Elke andere vereniging kan hetzelfde pad volgen: clubprofiel + KNLTB-data → automatisch voorstel.
@@ -16,7 +18,7 @@ Baanschema is een **generiek product** voor elke tennisvereniging. Er is geen �
 
 1. Input: KNLTB-data (platte export; later bij voorkeur een koppeling).
 2. De vereniging configureert haar clubprofiel (aantal banen, openingsuren, optionele reserveringen).
-3. Baanschema maakt automatisch een **eerste baanschema-voorstel**.
+3. Baanschemaatje maakt automatisch een **eerste baanschema-voorstel**.
 4. Dat voorstel kan later handmatig worden aangepast.
 5. Later stadium: herplannen op een wedstrijddag (uitloop / uitvallers) en een clubdashboard.
 
@@ -43,7 +45,7 @@ Baanschema is een **generiek product** voor elke tennisvereniging. Er is geen �
 - `ROADMAP.md` (dit bestand)
 - `docs/SPEC-core.md`
 - `docs/SPEC-mierlo.md` (eerste clubprofiel)
-- Korte pointer in `docs/SPEC.md` (compat)
+- Index `docs/SPEC-INDEX.md` (wegwijzer); de operationele `docs/SPEC.md` blijft ongewijzigd zoals op `main`
 
 ### Fase 1 — Automatisch eerste voorstel (MVP)
 

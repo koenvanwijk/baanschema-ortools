@@ -1,4 +1,4 @@
-# SPEC-core — generieke planningsregels Baanschema
+# SPEC-core — generieke planningsregels Baanschemaatje
 
 **Status:** productkern voor branch `product/generiek`  
 **Doel:** regels en parameters die voor **elke** tennisvereniging gelden.  
@@ -7,7 +7,8 @@
 
 Vastgesteld als productrichting: 2026-10-05 (Oscar). Inhoudelijke regels hieronder zijn gedistilleerd uit KNLTB-competitiestandaard en eerdere planningsdocumentatie; fase 0–1 scherpt configureerbare club-parameters verder aan.
 
-**Houding:** Baanschema is generiek. Geen club is een speciaal geval. Een clubprofiel is configuratie (banen, park-layout, seizoen, UI) — geen parallelle productdefinitie.
+**Product:** Baanschemaatje (package `baanschemaatje`, naast de bestaande stack).  
+**Houding:** Baanschemaatje is generiek. Geen club is een speciaal geval. Een clubprofiel is configuratie (banen, park-layout, seizoen, UI) — geen parallelle productdefinitie.
 
 **KNLTB-standaard (generiek):** de competitiecategorieën **Rood**, **Oranje**, **Groen** en **jeugd 11 t/m 14 (Junioren)** horen in SPEC-core. **Groen** en **jeugd 11 t/m 14** spelen standaard wedstrijden van **45 minuten (drie kwartier)**. Clubprofielen mogen duur of baanreserveringen alleen overschrijven met expliciete reden; de categorieën zelf verdwijnen niet naar een clubdocument.
 
@@ -131,3 +132,4 @@ Huidige code volgt vooral **B**. Eerdere clubdocumentatie neigt naar **A**.
 | 2026-10-05 | Skelet aangemaakt voor productbranch |
 | 2026-10-05 | KNLTB: Rood/Oranje/Groen/jeugd 11–14 in core; Groen + jeugd 11–14 = 45 min |
 | 2026-10-05 | Houding: product volledig generiek; eerste clubprofiel is referentie, geen uitzondering |
+| 2026-10-09 | Productnaam Baanschemaatje; implementatie start in `src/baanschemaatje/` |
