@@ -82,6 +82,7 @@ Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is gee
 **Succescriteria**
 
 - Herplan van resterende partijen bij uitloop/uitval via **echte** solver (geen stub).
+- Herplan volgt KNLTB Competitiereglement (11-11-2025) **Bijlage 3, 2.2**: verplicht zodra partijen ≥ 1 uur later worden gespeeld dan gepland; voorrang voor (a) afgebroken partijen, dan (b) teams met > 80 km reisafstand, dan (c) het volledig afspelen van hele wedstrijden boven delen van andere wedstrijden; art. 41 blijft gelden (2.3). Zie SPEC-core §7.
 - Read-only clubdashboard (TV/tablet) op het actuele schema — bruikbaar voor elke club.
 
 **Deliverables**
@@ -130,9 +131,9 @@ Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en ac
 5. Feature: club-profielconfig (banen, uren, reserveringen, soft/hard toggles)
 6. Feature: KNLTB-export → genormaliseerd seizoenmodel (geen club-hardcodes in de kern)
 7. Refactor: ortools_planner los van vaste N-banen / vaste court-pairs uit één clubprofiel
-8. Fix: 8p-startvenster 10:00–11:00 in planner óf SPEC-core bijstellen
+8. Fix: begintijden volgens KNLTB CR Bijlage 3 in de planner-kern (core: gemengd 8p ≤ 14:00); 8p 10:00–11:00 als clubafspraak in het profiel
 9. Decision: SPEC §6 — alles inplannen + tags vs NIET_GELUKT (één beleid in SPEC-core)
-10. Feature: eerste-start-deadlines (Junioren/overig) als hard of getagd soft
+10. Feature: eerste-start-deadlines volgens CR Bijlage 3 (junioren 08:30–12:00, uiterlijk 13:00/15:00) + productdeadline overige teams
 11. Test: CI-ratchet op SPEC-core; clubprofiel-fixtures (eerste: Mierlo) als voorbeelddata
 
 ### Fase 2
@@ -144,7 +145,7 @@ Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en ac
 
 ### Fase 3
 
-16. Feature: POST /replan met echte CP-SAT op resterende partijen
+16. Feature: POST /replan met echte CP-SAT op resterende partijen (voorrangsregels CR Bijlage 3, 2.2)
 17. Feature: clubdashboard (read-only actueel schema, TV-vriendelijk)
 
 ### Spoor KNLTB

@@ -1,6 +1,6 @@
 # Clubprofiel: Mierlose T.V.
 
-**Rol:** eerste referentie-implementatie van een Baanschema-clubprofiel — **geen** speciaal productgeval.  
+**Rol:** eerste referentie-implementatie van een Baanschemaatje-clubprofiel (`clubs/mierlo.yaml`) — **geen** speciaal productgeval.  
 **Basis:** `SPEC-core.md` (geldt onverkort; dit bestand bevat alleen overrides en ops van deze vereniging).  
 **Status:** skelet voor branch `product/generiek`  
 **Bron:** eerdere planningsdocumentatie en operationele praktijk najaar 2026-2027.
@@ -38,13 +38,18 @@ Andere clubs laten deze reserveringen leeg of vullen hun eigen park-layout in op
 
 ---
 
-## Clubbesluiten die core-defaults bevestigen of aanscherpen
+## Clubafspraken bovenop het KNLTB-reglement
 
-Rood/Oranje/Groen/jeugd 11–14 horen **niet** hier (zie SPEC-core). Wel relevant voor dit park:
+Rood/Oranje/Groen/jeugd 11–14 horen **niet** hier (zie SPEC-core). De KNLTB-regels uit Competitiereglement Bijlage 3 (11-11-2025) gelden onverkort via SPEC-core. Hieronder staan **clubafspraken** — strenger dan het reglement, géén KNLTB-regels:
 
-- 8-partijenteams: startvenster **10:00–11:00 HARD** (reistijd van ver) — bevestigt de core-default tot een club het uitzet.
-- Gemengd 8p niet vóór 10:00 HARD; kleinere Gemengd-teams mogen eerder (zachtere voorkeur).
-- Baan-geheugen gewenst; huidige planner gebruikt nog vaste court-pairs als tijdelijke benadering (productdoel blijft dynamisch geheugen in core).
+| Afspraak (deze club) | KNLTB-grens (SPEC-core) | In `clubs/mierlo.yaml` |
+|---|---|---|
+| 8-partijenteams: begintijd tussen **10:00 en 11:00, HARD** (reistijd van ver) | gemengd 8p uiterlijk 14:00 **[CR B3 1.1.b]**; begintijd 08:30–16:30 **[CR B3 1.1]** | `rules.start_window_8p` |
+| Gemengd 8p niet vóór 10:00, HARD | geen ondergrens behalve 08:30 (en 10:00 bij ≥ 80 km reisafstand **[CR B3 1.2]**) | `rules.mixed_8p_not_before` |
+| Jeugd: laatste partij start uiterlijk 17:30 | laatste partij uiterlijk 19:30 **[CR B3 2.1.c]** | `rules.youth_last_start` |
+| Team speelt op één vast baanpaar (1+2, 3+4, …) | twee banen per team **[CR B3 2.1.b]** | `court_assignment.pairs` |
+
+- Baan-geheugen gewenst; de vaste baanparen zijn een tijdelijke benadering (productdoel blijft dynamisch geheugen in core).
 
 ---
 
@@ -84,3 +89,4 @@ Bij de eerste commit op `product/generiek`:
 | 2026-10-05 | Skelet aangemaakt als club-overrides |
 | 2026-10-05 | KNLTB-categorieën uit dit bestand; alleen baanreserveringen |
 | 2026-10-05 | Herschreven als eerste clubprofiel / referentie — niet als productcentrum |
+| 2026-10-09 | Clubafspraken expliciet als strenger dan KNLTB CR Bijlage 3 (o.a. 8p 10:00–11:00 vs KNLTB max 14:00) |

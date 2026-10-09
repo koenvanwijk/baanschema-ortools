@@ -14,6 +14,17 @@ Vastgesteld als productrichting: 2026-10-05 (Oscar). Inhoudelijke regels hierond
 
 ---
 
+## Bron: KNLTB-reglement
+
+Regels gemarkeerd met **[CR B3 x.y]** komen uit het KNLTB Competitiereglement Tennis (vastgesteld door het Bestuur d.d. 11-11-2025), Bijlage 3 “Variabele begintijden bij wedstrijden en baanplanning” (op zaterdag en zondag geldt de hele dag variabele begintijden). Zie ook art. 22 en 34 (planning in ten hoogste het door de CM vastgestelde aantal speelronden) en art. 41 (starten, spelen en afspelen van partijen; volgorde van partijen).
+
+- **KNLTB-regels zijn de core-defaults.** Een clubprofiel mag **strenger** zijn (bv. een smaller startvenster), maar nooit ruimer dan het reglement.
+- Regels zonder CR-markering zijn **productdefaults** van Baanschemaatje (geen KNLTB-regel); een club mag die aanpassen.
+- **Begintijd** = de aanvangstijd van de wedstrijd = start van de eerste partij van het team.
+- Let op: art. 22.1/22.2 verwijzen naar “bijlage C” voor speelronden; in deze versie heet de bijlage met speelronden “Bijlage 3”. Bij een nieuwe reglementversie opnieuw controleren.
+
+---
+
 ## 0. Productuitgangspunt
 
 - **Input:** KNLTB-wedstrijdprogramma (platte export in fase 1; koppeling later).
@@ -32,8 +43,20 @@ Vastgesteld als productrichting: 2026-10-05 (Oscar). Inhoudelijke regels hierond
 | Tijdgrid | 15 minuten | ja (alleen met expliciete reden) |
 | Max 1 partij per baan per slot | hard | nee |
 | Geen dubbele boeking dezelfde speler | hard | nee |
+| Twee banen per team | elk team kan steeds over twee banen beschikken **[CR B3 2.1.b]** | nee (alleen strenger) |
+| Lukt twee banen niet | wedstrijden van 8, 6, 5 resp. 4 partijen in ten hoogste 5, 4, 3 resp. 3 speelronden **[CR B3 2.1.b]** | nee — *nog niet in de planner* |
 
-**Speelduur per soort** — KNLTB-competitiedefaults (club mag alleen met expliciete reden afwijken):
+**Minimale baanreservering per partij** **[CR B3 2.1.a]** — dit is een ondergrens voor de *gereserveerde* tijd, niet de *verwachte* speelduur:
+
+| soort | minimale reservering |
+|---|---|
+| Elke partij (senioren, gemengd, jeugd 13–17, …) | **1,5 uur** (“minimaal anderhalf uur”) |
+| Junioren 11 t/m 14 jaar | **45 min** (“minimaal drie kwartier”) |
+| Tenniskids (Rood/Oranje/Groen) | niet expliciet in Bijlage 3 — verwachte duur gebruiken; *te verifiëren* |
+
+De planner reserveert per partij `max(verwachte duur, minimale reservering)`. Een clubprofiel mag de verwachte duur niet onder de minimale reservering zetten.
+
+**Verwachte speelduur per soort** — KNLTB-competitiedefaults (club mag alleen met expliciete reden afwijken):
 
 | soort | duur | Bron |
 |---|---|---|
@@ -47,19 +70,22 @@ Vastgesteld als productrichting: 2026-10-05 (Oscar). Inhoudelijke regels hierond
 
 ---
 
-## 2. Starttijden en limieten
+## 2. Begintijden en limieten
 
-| Regel | Default | Hard/soft |
-|---|---|---|
-| Standaard dagstart | 09:00 | voorkeur |
-| Vroege dagstart | 08:30 alleen indien nodig (avond-deadline / te veel onplanbaar) | soft terugval |
-| Avond-deadline (laatste start) | 19:30 | hard (of getagd — zie §6) |
-| Eerste partij Junioren | ≤ 13:00 | TBD: hard of getagd soft |
-| Eerste partij grote teams (8 partijen) | start tussen 10:00 en 11:00 | **HARD** (tenzij club in profiel uitzet) |
-| Eerste partij overige reguliere teams | ≤ 15:00 | TBD: hard of getagd soft |
-| Gemengd 8p | niet vóór 10:00 | hard voor 8p; zachte voorkeur voor kleinere teams |
+| Regel | Core-default | Hard/soft | Bron |
+|---|---|---|---|
+| Begintijd alleen op hele of halve uren | :00 / :30 | hard | **[CR B3 1.1]** |
+| Begintijd niet vroeger dan / niet later dan | 08:30 – 16:30 | hard | **[CR B3 1.1]** |
+| Juniorencompetities: begintijd | 08:30 – 12:00 | voorkeur (zacht) | **[CR B3 1.1.a]** |
+| Junioren, bij baancapaciteitsproblemen | uiterlijk **13:00** bij 8 partijen gemengd junioren, uiterlijk **15:00** bij de overige competities | hard | **[CR B3 1.1.a]** |
+| Reguliere gemengde 8 partijen-competitie | begintijd uiterlijk **14:00** | hard | **[CR B3 1.1.b]** |
+| Reisafstand uitspelend team ≥ 80 km | niet vóór 10:00 | hard (zodra reisafstand in de input staat) | **[CR B3 1.2]** |
+| Laatste partij van een wedstrijd | begint uiterlijk **19:30** | hard | **[CR B3 2.1.c]** |
+| Standaard dagstart | 09:00, terugval 08:30 | voorkeur | product |
+| Eerste partij overige teams | ≤ 15:00 | zacht | product |
+| 8-partijenteams: smaller startvenster | geen (= KNLTB-grenzen) | — | club mag strenger (bv. 10:00–11:00) |
 
-> **Open besluit (issue):** 8p-venster en eerste-start-deadlines moeten in de planner worden afgedwongen of bewust als club-toggle / SPEC-bijstelling worden vastgelegd.
+Interpretatie (te verifiëren): “juniorencompetities” = Junioren 11–14 en Jeugd 13–17; Tenniskids (Rood/Oranje/Groen) vallen daar niet onder.
 
 ---
 
@@ -93,7 +119,7 @@ Dwingende default-volgorde op KNLTB-categorieën (club mag herordenen in profiel
 - Niet wachten op symmetrie: 1 vrije baan → start direct.
 - Volle breedte benutten wanneer meerdere banen vrij zijn.
 - **Max opeenvolgende wachttijd** tussen activiteiten van hetzelfde team: default 60 minuten (hard of sterk soft — TBD).
-- 8-partijenteams: harde S→D→(G) waterfall + ronde-logica zoals in de bestaande planner, tenzij clubprofiel anders bepaalt.
+- 8-partijenteams: harde S→D→(G) waterfall + ronde-logica zoals in de bestaande planner, tenzij clubprofiel anders bepaalt (productdefault; de volgorde van partijen zelf volgt art. 41).
 
 ---
 
@@ -111,9 +137,16 @@ Huidige code volgt vooral **B**. Eerdere clubdocumentatie neigt naar **A**.
 
 ## 7. Wedstrijddag-herplan (fase 3)
 
-- Input: actueel schema + wat al gespeeld / uitgevallen / uitgelopen is.
+- Input: actueel schema + wat al gespeeld / afgebroken / uitgevallen / uitgelopen is.
 - Output: herplan van **resterende** partijen op beschikbare banen/tijd.
 - Mag handmatige locks respecteren (vaste banen/tijden die de club vasthoudt).
+- **Wanneer verplicht [CR B3 2.2]:** de CL maakt een nieuwe planning als door (weers)omstandigheden de partijen ten minste **één uur** later worden gespeeld dan gepland.
+- **Voorrangsregels bij de nieuwe planning [CR B3 2.2], in deze volgorde:**
+  1. **afgebroken partijen** gaan voor partijen die nog moeten beginnen (a);
+  2. partijen van teams met een reisafstand van **meer dan 80 km** gaan voor andere partijen (b);
+  3. **alle (resterende) partijen van één wedstrijd** laten (af)spelen gaat voor het (af)spelen van slechts een deel van de partijen in andere wedstrijden (c).
+- Daarbij gelden ook bij herplannen art. 41 en de grenzen uit §1–§2 (o.a. laatste partij ≤ 19:30) **[CR B3 2.3]**.
+- Let op het verschil in formulering: bij begintijden “80 km of meer” (1.2), bij herplannen “meer dan 80 km” (2.2.b).
 
 ---
 
@@ -133,3 +166,4 @@ Huidige code volgt vooral **B**. Eerdere clubdocumentatie neigt naar **A**.
 | 2026-10-05 | KNLTB: Rood/Oranje/Groen/jeugd 11–14 in core; Groen + jeugd 11–14 = 45 min |
 | 2026-10-05 | Houding: product volledig generiek; eerste clubprofiel is referentie, geen uitzondering |
 | 2026-10-09 | Productnaam Baanschemaatje; implementatie start in `src/baanschemaatje/` |
+| 2026-10-09 | KNLTB CR Bijlage 3 (11-11-2025) als core-defaults met bronvermelding: begintijden, minimale reservering vs verwachte duur, twee banen/speelronden, 19:30, herplan-voorrang |
