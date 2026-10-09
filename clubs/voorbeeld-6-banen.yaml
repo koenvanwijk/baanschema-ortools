@@ -1,0 +1,16 @@
+# Fictief clubprofiel: een kleinere vereniging met 6 banen en geen vaste
+# reserveringen. Dient als bewijs dat Baanschemaatje zonder codewijziging
+# met een andere club werkt.
+
+club:
+  name: "TV Voorbeeld"
+  knltb_name: "MIERLO"        # demo: hergebruikt de echte export als testdata
+
+courts:
+  count: 6
+
+day:
+  start: "09:00"
+  fallback_start: "08:30"
+  last_start: "19:30"
+  end: "20:00"

@@ -1,0 +1,36 @@
+# Clubprofiel: Mierlose T.V. — eerste referentie-implementatie van een
+# generiek Baanschemaatje-clubprofiel. Geen speciaal geval: elke vereniging
+# vult hetzelfde schema in. KNLTB-categorieën en speelduren staan in de core.
+
+club:
+  name: "Mierlose T.V."
+  knltb_name: "MIERLO"        # teamnaam in de KNLTB-export (thuisteam herkennen)
+
+courts:
+  count: 10
+
+day:
+  start: "09:00"
+  fallback_start: "08:30"     # alleen als 09:00 onplanbare partijen geeft
+  last_start: "19:30"
+  end: "20:00"                # alle partijen klaar
+
+# Park-layout: vaste banen voor de KNLTB-blokcategorieën Rood en Oranje.
+reservations:
+  rood:
+    courts: [1]
+  oranje:
+    courts: [1, 2, 3]
+    courts_if_rood: [2, 3, 4]
+
+court_assignment:
+  max_courts_per_team: 2
+  # Huidige praktijk: een team speelt op één vast baanpaar.
+  pairs: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]]
+  preferred_courts_8p: [1, 2, 3, 4]
+
+# Regels: zonder overrides gelden de SPEC-core-defaults.
+rules:
+  first_start_deadline:
+    time: "15:00"
+    hard: false
