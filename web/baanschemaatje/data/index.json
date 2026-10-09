@@ -1,6 +1,6 @@
 {
  "generator": "baanschemaatje",
- "generated_at": "2026-10-09T10:53:52+00:00",
+ "generated_at": "2026-10-09T13:04:13+00:00",
  "season_file": "season_2026-2027.tsv",
  "time_limit_s": 20.0,
  "clubs": [
@@ -283,6 +283,8 @@
    ],
    "dates": [
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "06-09-2026",
      "file": "mierlo/06-09-2026.json",
      "status": "FEASIBLE",
@@ -290,11 +292,13 @@
      "fixtures": 9,
      "scheduled": 48,
      "unscheduled": 0,
-     "solve_time_s": 20.69,
+     "solve_time_s": 20.98,
      "hard": 0,
      "model": 0
     },
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "13-09-2026",
      "file": "mierlo/13-09-2026.json",
      "status": "FEASIBLE",
@@ -302,11 +306,13 @@
      "fixtures": 11,
      "scheduled": 62,
      "unscheduled": 0,
-     "solve_time_s": 21.01,
-     "hard": 0,
-     "model": 8
+     "solve_time_s": 21.22,
+     "hard": 1,
+     "model": 6
     },
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "20-09-2026",
      "file": "mierlo/20-09-2026.json",
      "status": "FEASIBLE",
@@ -314,23 +320,27 @@
      "fixtures": 10,
      "scheduled": 51,
      "unscheduled": 0,
-     "solve_time_s": 20.88,
+     "solve_time_s": 20.71,
      "hard": 0,
-     "model": 14
+     "model": 19
     },
     {
+     "solutions_file": "mierlo/27-09-2026.solutions.json",
+     "best_solution": "Teams mogen 3 banen tegelijk gebruiken (geen vaste paren)",
      "date": "27-09-2026",
      "file": "mierlo/27-09-2026.json",
      "status": "FEASIBLE",
      "day_start": "09:00",
      "fixtures": 11,
-     "scheduled": 62,
-     "unscheduled": 4,
-     "solve_time_s": 42.37,
-     "hard": 2,
-     "model": 18
+     "scheduled": 59,
+     "unscheduled": 7,
+     "solve_time_s": 84.97,
+     "hard": 3,
+     "model": 19
     },
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "04-10-2026",
      "file": "mierlo/04-10-2026.json",
      "status": "FEASIBLE",
@@ -338,11 +348,13 @@
      "fixtures": 11,
      "scheduled": 64,
      "unscheduled": 0,
-     "solve_time_s": 20.91,
+     "solve_time_s": 21.02,
      "hard": 0,
-     "model": 11
+     "model": 10
     },
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "11-10-2026",
      "file": "mierlo/11-10-2026.json",
      "status": "FEASIBLE",
@@ -350,7 +362,7 @@
      "fixtures": 3,
      "scheduled": 19,
      "unscheduled": 0,
-     "solve_time_s": 20.35,
+     "solve_time_s": 20.49,
      "hard": 0,
      "model": 3
     }
@@ -590,66 +602,78 @@
    ],
    "dates": [
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "06-09-2026",
      "file": "voorbeeld-6-banen/06-09-2026.json",
      "status": "FEASIBLE",
-     "day_start": "08:30",
+     "day_start": "09:00",
      "fixtures": 9,
      "scheduled": 48,
      "unscheduled": 0,
-     "solve_time_s": 42.04,
-     "hard": 3,
-     "model": 10
+     "solve_time_s": 61.54,
+     "hard": 2,
+     "model": 8
     },
     {
+     "solutions_file": "voorbeeld-6-banen/13-09-2026.solutions.json",
+     "best_solution": null,
      "date": "13-09-2026",
      "file": "voorbeeld-6-banen/13-09-2026.json",
      "status": "FEASIBLE",
      "day_start": "08:30",
      "fixtures": 11,
-     "scheduled": 48,
-     "unscheduled": 14,
-     "solve_time_s": 43.1,
-     "hard": 14,
+     "scheduled": 47,
+     "unscheduled": 15,
+     "solve_time_s": 85.75,
+     "hard": 9,
      "model": 16
     },
     {
+     "solutions_file": "voorbeeld-6-banen/20-09-2026.solutions.json",
+     "best_solution": "Wedstrijd J13-17 MIERLO 4 – CAROLUS 1 naar een inhaaldag",
      "date": "20-09-2026",
      "file": "voorbeeld-6-banen/20-09-2026.json",
      "status": "FEASIBLE",
-     "day_start": "09:00",
+     "day_start": "08:30",
      "fixtures": 10,
-     "scheduled": 42,
-     "unscheduled": 9,
-     "solve_time_s": 41.47,
+     "scheduled": 41,
+     "unscheduled": 10,
+     "solve_time_s": 82.62,
      "hard": 7,
-     "model": 13
+     "model": 18
     },
     {
+     "solutions_file": "voorbeeld-6-banen/27-09-2026.solutions.json",
+     "best_solution": null,
      "date": "27-09-2026",
      "file": "voorbeeld-6-banen/27-09-2026.json",
      "status": "FEASIBLE",
      "day_start": "08:30",
      "fixtures": 11,
-     "scheduled": 44,
-     "unscheduled": 22,
-     "solve_time_s": 42.73,
-     "hard": 14,
-     "model": 11
+     "scheduled": 45,
+     "unscheduled": 21,
+     "solve_time_s": 85.67,
+     "hard": 11,
+     "model": 15
     },
     {
+     "solutions_file": "voorbeeld-6-banen/04-10-2026.solutions.json",
+     "best_solution": null,
      "date": "04-10-2026",
      "file": "voorbeeld-6-banen/04-10-2026.json",
      "status": "FEASIBLE",
      "day_start": "08:30",
      "fixtures": 11,
-     "scheduled": 57,
-     "unscheduled": 7,
-     "solve_time_s": 42.75,
+     "scheduled": 58,
+     "unscheduled": 6,
+     "solve_time_s": 86.95,
      "hard": 9,
      "model": 22
     },
     {
+     "solutions_file": null,
+     "best_solution": null,
      "date": "11-10-2026",
      "file": "voorbeeld-6-banen/11-10-2026.json",
      "status": "FEASIBLE",
@@ -657,7 +681,7 @@
      "fixtures": 3,
      "scheduled": 19,
      "unscheduled": 0,
-     "solve_time_s": 20.56,
+     "solve_time_s": 20.3,
      "hard": 3,
      "model": 3
     }
