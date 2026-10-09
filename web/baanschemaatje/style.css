@@ -96,3 +96,39 @@ li.drag.viol { border-color: #e53935; }
 .ed-issues.clubafspraak { background: #fff7e0; border: 1px solid #f0d58a; }
 .ed-issues.Baanschemaatje { background: #eef3fb; border: 1px solid #c9d8f0; }
 .ed-ok { margin-top: 6px; color: #2f855a; font-weight: 600; }
+
+/* Seizoensoverzicht */
+.ov-sum { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 0 0 8px; font-size: 13px; }
+.ov-pill { padding: 2px 9px; border-radius: 10px; font-weight: 600; }
+.ov-pill.red { background: #fdecea; color: #b3261e; } .ov-pill.orange { background: #fff1db; color: #9a5b00; }
+.ov-pill.green { background: #e3f3e8; color: #2f6f4f; } .ov-pill.grey { background: #eceee9; color: #555; }
+table.ov td { vertical-align: middle; }
+tr.ov-row td:first-child { border-left: 5px solid transparent; }
+tr.ov-row.green td:first-child { border-left-color: #2f9e5b; } tr.ov-row.orange td:first-child { border-left-color: #e8930c; }
+tr.ov-row.red td:first-child { border-left-color: #d32f2f; } tr.ov-row.grey td:first-child { border-left-color: #b0b5ae; }
+tr.ov-row.neutral td:first-child { border-left-color: #dfe3dd; }
+tr.ov-row.red td { background: #fff6f5; }
+tr.ov-row.inh td { background: repeating-linear-gradient(135deg, #f7f8fb, #f7f8fb 8px, #eef1f7 8px, #eef1f7 16px); }
+tr.ov-row.neutral td { color: #7a817c; }
+tr.ov-row.click:hover td { background: #e6f1ea; }
+.ov-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: #ccc; vertical-align: middle; }
+.ov-dot.green { background: #2f9e5b; } .ov-dot.orange { background: #e8930c; } .ov-dot.red { background: #d32f2f; }
+.ov-dot.grey { background: #b0b5ae; } .ov-dot.neutral { background: transparent; border: 1px solid #c3c8c1; }
+.ov-kind { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; background: #e3f3e8; color: #2f6f4f; }
+.ov-kind.inh { background: #dfe6f7; color: #2c4a8f; }
+.ov-note { font-size: 11px; margin: 2px 0 0; white-space: nowrap; }
+table.ov th { white-space: normal; vertical-align: bottom; min-width: 60px; }
+table.ov td.ov-st { white-space: normal; min-width: 130px; }
+td.num.bad { color: var(--hard); font-weight: 700; } td.num.warn { color: var(--model); font-weight: 600; }
+.ov-st.red { color: #b3261e; font-weight: 600; } .ov-st.orange { color: #9a5b00; } .ov-st.green { color: #2f6f4f; font-weight: 600; } .ov-st.grey { color: #777; }
+.ov-bar { position: relative; display: inline-block; width: 130px; height: 16px; background: #eceee9; border-radius: 8px; overflow: hidden; vertical-align: middle; cursor: help; }
+.ov-bar span { position: absolute; left: 0; top: 0; bottom: 0; background: #5aa77a; }
+.ov-bar.busy span { background: #e8930c; } .ov-bar.extreme span { background: #d32f2f; }
+.ov-bar b { position: relative; display: block; text-align: center; font-size: 11px; line-height: 16px; color: #111; }
+.ov-hot { margin-left: 6px; font-size: 11px; font-weight: 700; color: #fff; background: #d32f2f; padding: 1px 6px; border-radius: 4px; }
+tr.ov-row.extreme .ov-date b { color: #b3261e; }
+.ov-open { font-weight: 600; color: var(--accent); margin-right: 6px; }
+.ov-calc { padding: 3px 9px; font-size: 12px; }
+.backlink { display: inline-block; margin: 10px 0 0; font-weight: 600; color: var(--accent); }
+.day-title { margin-top: 6px; }
+.controls label[hidden], .controls button[hidden] { display: none; }

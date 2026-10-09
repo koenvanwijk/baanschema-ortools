@@ -1,7 +1,7 @@
 "use strict";
 // Baanschemaatje web-GUI: leest vooraf berekende plannen uit ./data/.
 // Geen build-stap, geen externe bibliotheken; alle paden zijn relatief.
-// Optioneel: "Live berekenen" rekent de speeldag opnieuw via de live-backend
+// Optioneel: "Nu berekenen" rekent de speeldag opnieuw via de live-backend
 // (server/baanschemaatje, Cloud Run). Is die onbereikbaar, dan blijven de
 // vooraf berekende plannen gewoon staan.
 
@@ -80,23 +80,57 @@ async function getJSON(path) {
 
 function club() { return INDEX.clubs.find((c) => c.id === $("club").value); }
 
-function fillDates(keep) {
-  const c = club();
-  $("date").innerHTML = c.dates.map((d) =>
-    `<option value="${esc(d.date)}">${esc(d.date)} — ${d.scheduled} ingepland${d.unscheduled ? `, ${d.unscheduled} niet` : ""}</option>`).join("");
-  if (keep && c.dates.some((d) => d.date === keep)) $("date").value = keep;
-}
+let CUR_DATE = null; // null = seizoensoverzicht
 
 function updateHash() {
-  history.replaceState(null, "", `#${encodeURIComponent($("club").value)}/${encodeURIComponent($("date").value)}`);
+  const h = `#${encodeURIComponent($("club").value)}${CUR_DATE ? `/${encodeURIComponent(CUR_DATE)}` : ""}`;
+  if (location.hash !== h) history.pushState(null, "", h);
+}
+
+function setView(day) {
+  $("overview-view").hidden = day;
+  $("day-view").hidden = !day;
+  for (const el of document.querySelectorAll(".day-only")) el.hidden = !day;
+}
+
+// Hash → overzicht (#club) of dagweergave (#club/dd-mm-jjjj).
+function route() {
+  const [hc, hd] = decodeURIComponent(location.hash.slice(1)).split("/");
+  if (hc && INDEX.clubs.some((c) => c.id === hc)) $("club").value = hc;
+  const c = club();
+  CUR_DATE = hd && c.dates.some((d) => d.date === hd) ? hd : null;
+  return CUR_DATE ? render() : renderOverview();
+}
+
+function openDay(date) { CUR_DATE = date; render(); window.scrollTo({ top: 0 }); }
+
+async function renderOverview() {
+  const c = club();
+  CUR_DATE = null;
+  updateHash();
+  setView(false);
+  setLive("");
+  renderProfile(c);
+  $("note").textContent = `${c.name} · ${c.courts} banen · seizoen ${INDEX.season_file} · berekend ${new Date(INDEX.generated_at).toLocaleString("nl-NL")} (tijdslimiet ${INDEX.time_limit_s}s per poging)`;
+  const plans = await Promise.all(c.dates.map((d) => getJSON(`data/${d.file}`).catch(() => null)));
+  if (club().id !== c.id || CUR_DATE) return; // intussen doorgeklikt
+  const byDate = new Map(c.dates.map((d, i) => [d.date, { d, plan: plans[i] }]));
+  const days = ovSeasonDays(c.dates).map((x) => {
+    const m = byDate.get(x.date);
+    const stats = m && m.plan ? ovPlanStats(m.plan, c) : null;
+    return ovDay(x, { wedstrijden: m ? m.d.fixtures : 0, partijen: stats ? stats.partijen : null, stats });
+  });
+  ovRender($("overview"), days, { onOpen: openDay, onCompute: async (date) => { CUR_DATE = date; await render(); livePlan(); } });
 }
 
 async function render() {
   const c = club();
-  const d = c.dates.find((x) => x.date === $("date").value);
+  const d = c.dates.find((x) => x.date === CUR_DATE);
+  if (!d) return renderOverview();
   updateHash();
-  renderDays(c);
+  setView(true);
   renderProfile(c);
+  $("day-title").textContent = `${c.name} — ${ovWeekday(d.date)} ${d.date}`;
   $("note").textContent = `${c.name} · ${c.courts} banen · seizoen ${INDEX.season_file} · berekend ${new Date(INDEX.generated_at).toLocaleString("nl-NL")} (tijdslimiet ${INDEX.time_limit_s}s per poging)`;
   let plan;
   try {
@@ -125,7 +159,7 @@ function printDay() {
   if (!CURRENT || !SHOWN) return;
   const { c, d } = CURRENT;
   const sc = SHOWN.scenario;
-  const note = sc ? (sc.live ? "live berekend" : `oplossing: ${sc.title}`) : "";
+  const note = sc ? (sc.live ? "nu berekend" : `oplossing: ${sc.title}`) : "";
   printPlan(SHOWN.plan, { clubName: c.name, date: d.date, dayStart: c.day.fallback_start || c.day.start, dayEnd: c.day.end, note });
 }
 
@@ -145,7 +179,7 @@ function showPlan(plan, scenario) {
   const vw = $("viewing");
   if (scenario && scenario.live) {
     vw.hidden = false;
-    vw.innerHTML = `Je bekijkt een <b>live berekend</b> plan (${esc(scenario.title)}) — geen gepubliceerd schema.<button id="back">Terug naar vooraf berekend</button>`;
+    vw.innerHTML = `Je bekijkt een <b>nu berekend</b> plan (${esc(scenario.title)}) — geen gepubliceerd schema.<button id="back">Terug naar vooraf berekend</button>`;
     $("back").onclick = () => { showPlan(CURRENT.plan, null); renderSolutions(CURRENT.c, CURRENT.d); };
   } else if (scenario) {
     vw.hidden = false;
@@ -272,22 +306,6 @@ function renderFindings(plan) {
     (model.length ? `<details><summary>${model.length} niet-gehaalde voorkeur(en) tonen</summary><ul class="plain">${model.map(item).join("")}</ul></details>` : "");
 }
 
-function renderDays(c) {
-  const sel = $("date").value;
-  $("days").innerHTML =
-    `<tr><th>Speeldag</th><th>Wedstrijden</th><th>Ingepland</th><th>Niet</th><th>Dagstart</th><th title="Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn.">Overtredingen</th><th title="Niet-gehaalde voorkeuren: mag, maar kan mooier.">Voorkeuren niet gehaald</th><th>Rekentijd</th><th>Oplossing</th></tr>` +
-    c.dates.map((d) => `<tr class="click${d.date === sel ? " sel" : ""}" data-date="${esc(d.date)}">
-      <td>${esc(d.date)}</td><td class="num">${d.fixtures}</td><td class="num">${d.scheduled}</td>
-      <td class="num" style="${d.unscheduled ? "color:var(--hard);font-weight:600" : ""}">${d.unscheduled}</td>
-      <td>${esc(d.day_start)}</td>
-      <td class="num" style="${d.hard ? "color:var(--hard);font-weight:600" : ""}">${d.hard ?? "–"}</td>
-      <td class="num">${d.model ?? "–"}</td><td class="num">${d.solve_time_s}s</td>
-      <td style="white-space:normal">${d.unscheduled ? esc(d.best_solution || (d.solutions_file ? "geen passende gevonden" : "–")) : ""}</td></tr>`).join("");
-  for (const tr of $("days").querySelectorAll("tr.click")) {
-    tr.onclick = () => { $("date").value = tr.dataset.date; render(); window.scrollTo({ top: 0, behavior: "smooth" }); };
-  }
-}
-
 function renderProfile(c) {
   const res = Object.entries(c.reservations || {});
   const resTxt = res.length
@@ -349,7 +367,7 @@ async function livePlan() {
   const tl = +$("live-tl").value;
   const btn = $("live-btn");
   btn.disabled = true;
-  setLive(`Bezig met live rekenen (${c.name}, ${d.date}, max ${tl}s per poging; eerste aanroep kan ~10s extra kosten)…`, "busy");
+  setLive(`Bezig met berekenen (${c.name}, ${d.date}, max ${tl}s per poging; eerste aanroep kan ~10s extra kosten)…`, "busy");
   const t0 = performance.now();
   try {
     const plan = await livePost("/plan", { club: c.id, date: d.date, time_limit_s: tl });
@@ -362,7 +380,7 @@ async function livePlan() {
     showPlan(plan, { live: true, title: `${s.scheduled} ingepland, ${s.unscheduled} niet, ${plan.stats.solve_time_s}s rekentijd`,
       scheduled: s.scheduled, unscheduled: s.unscheduled, solve_time_s: s.solve_time_s, moved_wedstrijden: 0 });
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
-    setLive(`Live berekend in ${secs}s${plan.cached ? " (uit cache)" : ""}: ${s.scheduled} ingepland, ${s.unscheduled} niet ingepland.`, s.unscheduled ? "warn" : "ok");
+    setLive(`Nu berekend in ${secs}s${plan.cached ? " (uit cache)" : ""}: ${s.scheduled} ingepland, ${s.unscheduled} niet ingepland.`, s.unscheduled ? "warn" : "ok");
     const sec = $("solutions-sec");
     if (s.unscheduled) {
       sec.hidden = false;
@@ -394,14 +412,12 @@ async function init() {
     return;
   }
   $("club").innerHTML = INDEX.clubs.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} (${c.courts} banen)</option>`).join("");
-  const [hc, hd] = decodeURIComponent(location.hash.slice(1)).split("/");
-  if (hc && INDEX.clubs.some((c) => c.id === hc)) $("club").value = hc;
-  fillDates(hd);
-  $("club").onchange = () => { fillDates($("date").value); render(); };
-  $("date").onchange = render;
+  $("club").onchange = () => { CUR_DATE = null; renderOverview(); };
+  $("back-link").onclick = (e) => { e.preventDefault(); renderOverview(); window.scrollTo({ top: 0 }); };
+  window.addEventListener("popstate", route);
   $("live-btn").onclick = livePlan;
   $("print-btn").onclick = printDay;
-  $("live-btn").title = `Rekent deze speeldag opnieuw op ${LIVE_API}`;
-  render();
+  $("live-btn").title = `Rekent deze speeldag nu opnieuw op ${LIVE_API} (alleen als je hierop drukt)`;
+  route();
 }
 init();

@@ -15,11 +15,10 @@
   </div>
   <div class="controls">
     <label>Club <select id="club"></select></label>
-    <label>Speeldag <select id="date"></select></label>
-    <label title="Maximale rekentijd per solverpoging">Rekentijd <select id="live-tl">
+    <label class="day-only" hidden title="Maximale rekentijd per solverpoging">Rekentijd <select id="live-tl">
       <option value="10">10s</option><option value="20">20s</option><option value="30" selected>30s</option></select></label>
-    <button id="live-btn" class="live-btn">Live berekenen</button>
-    <button id="print-btn" class="live-btn" title="Dagoverzicht op één A4 printen">Printen</button>
+    <button id="live-btn" class="live-btn day-only" hidden>Nu berekenen</button>
+    <button id="print-btn" class="live-btn day-only" hidden title="Dagoverzicht op één A4 printen">Printen</button>
   </div>
 </header>
 
@@ -27,6 +26,15 @@
   <p class="note" id="note">Laden…</p>
   <p id="live-status" class="live-status"></p>
 
+  <section id="overview-view">
+    <h2>Seizoensoverzicht</h2>
+    <p class="hint">Alle speeldagen van het seizoen, inclusief de officiële KNLTB-inhaaldagen. Groen = in orde, oranje = alleen niet-gehaalde voorkeuren, rood = overtredingen of partijen die niet passen, grijs = nog niet berekend.</p>
+    <div id="overview"><p class="note">Overzicht laden…</p></div>
+  </section>
+
+  <div id="day-view" hidden>
+  <a href="#" id="back-link" class="backlink">← Terug naar overzicht</a>
+  <h2 id="day-title" class="day-title"></h2>
   <section id="summary" class="cards"></section>
 
   <section id="solutions-sec" hidden>
@@ -55,10 +63,7 @@
     </section>
   </div>
 
-  <section>
-    <h2>Alle speeldagen</h2>
-    <div class="tablewrap"><table id="days"></table></div>
-  </section>
+  </div>
 
   <section>
     <h2>Clubprofiel</h2>
@@ -68,9 +73,11 @@
 
 <footer>
   Plannen zijn vooraf berekend met de generieke OR-Tools-planner (<code>python -m baanschemaatje build-web</code>).
-  Met "Live berekenen" rekent de Baanschemaatje-server (Google Cloud Run) de gekozen speeldag opnieuw; lukt dat niet, dan blijft het vooraf berekende plan staan. Dit staat los van de live Mierlo-pagina.
+  Met "Nu berekenen" rekent de Baanschemaatje-server (Google Cloud Run) de gekozen speeldag opnieuw; lukt dat niet, dan blijft het vooraf berekende plan staan. Dit staat los van de live Mierlo-pagina.
 </footer>
 <script src="config.js"></script>
+<script src="knltb-kalender.js"></script>
+<script src="overzicht.js"></script>
 <script src="colors.js"></script>
 <script src="print.js"></script>
 <script src="editor.js"></script>

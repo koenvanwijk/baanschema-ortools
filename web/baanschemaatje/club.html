@@ -12,7 +12,7 @@
 <header>
   <div class="brand">
     <h1>Baanschemaatje</h1>
-    <span class="sub">clubpagina · instellingen, KNLTB-export, live plannen · <a href="index.html" style="color:inherit">← vooraf berekende schema's</a></span>
+    <span class="sub">clubpagina · instellingen, KNLTB-export, seizoensoverzicht · <a href="index.html" style="color:inherit">← vooraf berekende schema's</a></span>
   </div>
   <div class="controls">
     <label>Club <select id="club"></select></label>
@@ -24,6 +24,25 @@
   <p id="status" class="live-status"></p>
   <div id="open-note" class="banner">Let op: deze testomgeving heeft nog geen login. Iedereen met de link kan clubinstellingen en seizoenen wijzigen. "Login per club" staat op de ROADMAP.</div>
 
+  <section id="overview-sec">
+    <h2>Seizoensoverzicht</h2>
+    <p class="hint">Alle speeldagen van het seizoen, inclusief de officiële KNLTB-inhaaldagen. Groen = in orde, oranje = alleen niet-gehaalde voorkeuren, rood = overtredingen of partijen die niet passen, grijs = nog niet berekend.
+      Berekenen gebeurt op de Baanschemaatje-server en alleen als je op een knop drukt; een drukke dag duurt ongeveer 30–90 seconden.
+      Rekentijd per poging <select id="tl"><option value="10">10s</option><option value="20">20s</option><option value="30" selected>30s</option></select>
+      <button id="plan-all" class="btn2">Alle dagen nu berekenen</button></p>
+    <div id="overview"></div>
+  </section>
+
+  <section id="plan-sec" hidden>
+    <a href="#" id="back-link" class="backlink">← Terug naar overzicht</a>
+    <h2 id="plan-title">Baanschema</h2>
+    <p><button id="print-btn" class="btn2">Printen (1 A4)</button></p>
+    <section id="summary" class="cards"></section>
+    <div id="edit-bar" class="edit-bar"></div>
+    <div class="legend" id="legend"></div>
+    <div class="gridwrap"><div id="grid" class="grid"></div></div>
+    <div id="unscheduled"></div>
+  </section>
   <section id="new-sec" hidden>
     <h2>Nieuwe club</h2>
     <div class="form">
@@ -36,6 +55,7 @@
 
   <section>
     <h2 id="club-title">Club</h2>
+    <p class="hint">Instellingen van de club. Na opslaan wordt er niets vanzelf opnieuw berekend.</p>
     <p id="club-kind" class="hint"></p>
 
     <h3>Algemeen</h3>
@@ -85,27 +105,12 @@
     <div id="season-info"></div>
   </section>
 
-  <section>
-    <h2>Speeldagen en live plannen</h2>
-    <p class="hint">Live plannen gebeurt op de Baanschemaatje-server met de OR-Tools-planner. Een drukke dag duurt ongeveer 30–90 seconden.
-      Rekentijd per poging <select id="tl"><option value="10">10s</option><option value="20">20s</option><option value="30" selected>30s</option></select>
-      <button id="plan-all" class="btn2">Alle dagen plannen</button></p>
-    <div class="tablewrap"><table id="dates"></table></div>
-  </section>
-
-  <section id="plan-sec" hidden>
-    <h2 id="plan-title">Baanschema</h2>
-    <p><button id="print-btn" class="btn2">Printen (1 A4)</button></p>
-    <section id="summary" class="cards"></section>
-    <div id="edit-bar" class="edit-bar"></div>
-    <div class="legend" id="legend"></div>
-    <div class="gridwrap"><div id="grid" class="grid"></div></div>
-    <div id="unscheduled"></div>
-  </section>
 </main>
 
 <footer>Baanschemaatje — generieke baanschema-planner. Dit staat los van de live Mierlo-pagina.</footer>
 <script src="config.js"></script>
+<script src="knltb-kalender.js"></script>
+<script src="overzicht.js"></script>
 <script src="colors.js"></script>
 <script src="print.js"></script>
 <script src="editor.js"></script>

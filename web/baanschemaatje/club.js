@@ -1,5 +1,5 @@
 "use strict";
-// Baanschemaatje clubpagina: instellingen, KNLTB-export uploaden, live plannen.
+// Baanschemaatje clubpagina: instellingen, KNLTB-export uploaden, seizoensoverzicht, plannen op verzoek.
 // Praat met de live-backend (server/baanschemaatje). Geen login (nog): zie ROADMAP "Login per club".
 
 const API_DEFAULT = "https://baanschemaatje-356953092000.europe-west1.run.app";
@@ -252,23 +252,23 @@ async function upload() {
 
 // ---------------------------------------------------------------- plannen
 
+const COMPUTING = new Set();
+
 function renderDates() {
-  $("dates").innerHTML = `<tr><th>Speeldag</th><th>Dag</th><th>Wedstrijden</th><th>Partijen</th><th>Wedstrijden (thuis – uit)</th><th>Resultaat</th><th></th></tr>` +
-    DATES.map((d, i) => {
-      const p = PLANS.get(d.date);
-      const resTxt = !p ? "" : p.error ? `<td class="res-bad">${esc(p.error)}</td>`
-        : `<td class="${p.summary.unscheduled ? "res-bad" : "res-ok"}">${p.summary.solved ? `${p.summary.scheduled} ingepland, ${p.summary.unscheduled} niet` : "geen oplossing binnen rekentijd"}${p.summary.hard != null ? ` · overtredingen ${p.summary.hard}` : ""}</td>`;
-      return `<tr><td>${esc(d.date)}</td><td>${esc(d.weekday)}</td><td class="num">${d.fixtures}</td><td class="num">${d.partijen}</td>
-        <td class="wed">${d.wedstrijden.map((w) => `<b>${esc(w.label)}</b> ${esc(w.home)} – ${esc(w.away)}`).join("<br>")}</td>
-        ${resTxt || "<td></td>"}
-        <td><button class="btn2" data-plan="${i}">Plan live</button>${p && !p.error ? ` <button class="btn2" data-show="${i}">Bekijk</button>` : ""}</td></tr>`;
-    }).join("");
-  for (const b of $("dates").querySelectorAll("button[data-plan]")) b.onclick = () => planDay(DATES[+b.dataset.plan].date, true);
-  for (const b of $("dates").querySelectorAll("button[data-show]")) b.onclick = () => showPlan(DATES[+b.dataset.show].date);
+  const byDate = new Map(DATES.map((d) => [d.date, d]));
+  const days = ovSeasonDays(DATES).map((x) => {
+    const d = byDate.get(x.date), p = PLANS.get(x.date);
+    const stats = p && !p.error && p.rows ? ovPlanStats(p, CLUB.summary) : null;
+    const day = ovDay(x, { wedstrijden: d ? d.fixtures : 0, partijen: stats ? stats.partijen : d ? d.partijen : null, stats });
+    if (p && p.error) day.note = `Fout: ${p.error}`;
+    return day;
+  });
+  ovRender($("overview"), days, { onOpen: (date) => showPlan(date), onCompute: (date) => planDay(date, true), recompute: true, computing: COMPUTING });
 }
 
 async function planDay(date, show) {
-  status(`${date} live plannen…`, "busy");
+  status(`${date} berekenen…`, "busy");
+  COMPUTING.add(date); renderDates();
   try {
     const p = await api("/plan", jsonOpts("POST", { club: CLUB.id, date, time_limit_s: +$("tl").value }));
     PLANS.set(date, p);
@@ -278,6 +278,7 @@ async function planDay(date, show) {
     PLANS.set(date, { error: e.message });
     status(`${date}: ${e.message}`, "err");
   }
+  COMPUTING.delete(date);
   renderDates();
 }
 
@@ -285,7 +286,7 @@ async function planAll() {
   $("plan-all").disabled = true;
   for (const d of DATES) await planDay(d.date, false);
   $("plan-all").disabled = false;
-  status(`Alle ${DATES.length} speeldagen gepland.`, "ok");
+  status(`Alle ${DATES.length} speeldagen berekend.`, "ok");
 }
 
 function showPlan(date) {
@@ -303,7 +304,7 @@ function showPlan(date) {
   SHOWN_DATE = date;
   EDITOR.load(plan); // werkkopie: slepen + directe controle, niets opgeslagen
   $("print-btn").onclick = () => printPlan(EDITOR.plan, { clubName: s.name, date, dayStart: s.day.fallback_start || s.day.start, dayEnd: s.day.end,
-    note: EDITOR.edited ? "live berekend, handmatig aangepast (niet opgeslagen)" : "live berekend" });
+    note: EDITOR.edited ? "nu berekend, handmatig aangepast (niet opgeslagen)" : "nu berekend" });
   $("plan-sec").scrollIntoView({ behavior: "smooth" });
 }
 
@@ -354,6 +355,7 @@ async function init() {
   $("save").onclick = save;
   $("upload").onclick = upload;
   $("plan-all").onclick = planAll;
+  $("back-link").onclick = (e) => { e.preventDefault(); $("plan-sec").hidden = true; $("overview-sec").scrollIntoView({ behavior: "smooth" }); };
   $("new-btn").onclick = () => { $("new-sec").hidden = false; $("new-name").focus(); };
   $("new-cancel").onclick = () => { $("new-sec").hidden = true; };
   $("new-create").onclick = createClub;
