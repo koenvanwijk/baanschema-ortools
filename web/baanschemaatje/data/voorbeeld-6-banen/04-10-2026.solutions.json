@@ -879,8 +879,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 9,
-     "model": 18,
+     "hard": 8,
+     "model": 17,
      "findings": [
       {
        "rule": "NIET-GEPLAND",
@@ -915,13 +915,6 @@
        "severity": "MODEL",
        "date": "04-10-2026",
        "message": "D1, D2 start voor fase M+S klaar is (19:30)",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [4, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "GEM 5e M4"
       },
       {
@@ -974,17 +967,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [3, 6] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -1075,7 +1061,7 @@
     }
    },
    "rank": 1,
-   "validator_hard": 9
+   "validator_hard": 8
   },
   {
    "id": "dagstart_0830",
@@ -1954,8 +1940,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 8,
-     "model": 20,
+     "hard": 5,
+     "model": 18,
      "findings": [
       {
        "rule": "FASE",
@@ -1986,18 +1972,11 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M1"
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
+       "subject": "GEM 5e M4"
       },
       {
        "rule": "NIET-GEPLAND",
@@ -2042,17 +2021,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -2070,17 +2042,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -2105,25 +2070,11 @@
        "subject": "JU11-14 1e M1"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "4 van 6 partijen niet gepland: D2, S1, S2, S3",
        "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
       },
       {
        "rule": "NIET-GEPLAND",
@@ -2157,7 +2108,7 @@
     }
    },
    "rank": 2,
-   "validator_hard": 8
+   "validator_hard": 5
   },
   {
    "id": "wachttijd_90",
@@ -3036,8 +2987,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 11,
-     "model": 20,
+     "hard": 8,
+     "model": 18,
      "findings": [
       {
        "rule": "FASE",
@@ -3082,25 +3033,11 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [4, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M1"
       },
       {
        "rule": "NIET-GEPLAND",
@@ -3145,10 +3082,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -3173,17 +3110,10 @@
        "subject": "JO13-17 3e M5"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [3, 6] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -3191,13 +3121,6 @@
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "eerste partij start 14:30; Junioren 11-14: uiterlijk 13:00",
-       "subject": "JU11-14 1e M1"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "JU11-14 1e M1"
       },
       {
@@ -3212,13 +3135,6 @@
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "1 van 6 partijen niet gepland: D2",
-       "subject": "JU11-14 3e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [4, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "JU11-14 3e M4"
       },
       {
@@ -3260,7 +3176,7 @@
     }
    },
    "rank": 3,
-   "validator_hard": 11
+   "validator_hard": 8
   },
   {
    "id": "blokken_3",
@@ -4139,8 +4055,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 10,
-     "model": 25,
+     "hard": 8,
+     "model": 18,
      "findings": [
       {
        "rule": "SOORT-CONFLICT",
@@ -4185,20 +4101,6 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
@@ -4210,13 +4112,6 @@
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "2 van 6 partijen niet gepland: D1, D2",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "JO13-17 1e M1"
       },
       {
@@ -4255,17 +4150,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [4, 6] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -4290,17 +4178,10 @@
        "subject": "JO13-17 3e M5"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -4311,24 +4192,10 @@
        "subject": "JU11-14 1e M1"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "1 van 6 partijen niet gepland: D1",
-       "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "JU11-14 2e M2"
       },
       {
@@ -4339,24 +4206,10 @@
        "subject": "JU11-14 3e M4"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [4, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "1 van 6 partijen niet gepland: D1",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "ME13-17 1e M2"
       },
       {
@@ -4391,7 +4244,7 @@
     }
    },
    "rank": 4,
-   "validator_hard": 10
+   "validator_hard": 8
   },
   {
    "id": "dagstart_0830+wachttijd_90",
@@ -5270,8 +5123,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 10,
-     "model": 23,
+     "hard": 7,
+     "model": 20,
      "findings": [
       {
        "rule": "FASE",
@@ -5309,10 +5162,10 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "GEM 5e M4"
       },
       {
@@ -5320,13 +5173,6 @@
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "1 van 6 partijen niet gepland: S1",
-       "subject": "GRO Groen 1 M1"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "GRO Groen 1 M1"
       },
       {
@@ -5365,17 +5211,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -5400,17 +5239,10 @@
        "subject": "JO13-17 3e M5"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -5435,13 +5267,6 @@
        "subject": "JU11-14 1e M1"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
@@ -5449,24 +5274,10 @@
        "subject": "JU11-14 2e M2"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [3, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 2e M2"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "1 van 6 partijen niet gepland: D1",
-       "subject": "JU11-14 3e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [4, 6] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "JU11-14 3e M4"
       },
       {
@@ -5508,7 +5319,7 @@
     }
    },
    "rank": 5,
-   "validator_hard": 10
+   "validator_hard": 7
   },
   {
    "id": "dagstart_0830+blokken_3",
@@ -6387,8 +6198,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 8,
-     "model": 21,
+     "hard": 5,
+     "model": 18,
      "findings": [
       {
        "rule": "NIET-GEPLAND",
@@ -6426,18 +6237,11 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M1"
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
+       "subject": "GEM 5e M4"
       },
       {
        "rule": "NIET-GEPLAND",
@@ -6475,17 +6279,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -6503,17 +6300,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -6538,32 +6328,11 @@
        "subject": "JU11-14 1e M1"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "2 van 6 partijen niet gepland: S2, S3",
        "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
       },
       {
        "rule": "VENSTER-JEUGD",
@@ -6597,7 +6366,7 @@
     }
    },
    "rank": 6,
-   "validator_hard": 8
+   "validator_hard": 5
   },
   {
    "id": "wachttijd_90+blokken_3",
@@ -7476,7 +7245,7 @@
     ],
     "validator": {
      "available": true,
-     "hard": 10,
+     "hard": 7,
      "model": 18,
      "findings": [
       {
@@ -7522,10 +7291,10 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 16:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "GEM 5e M4"
       },
       {
@@ -7533,13 +7302,6 @@
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "1 van 6 partijen niet gepland: D1",
-       "subject": "GRO Groen 1 M1"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "GRO Groen 1 M1"
       },
       {
@@ -7585,10 +7347,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -7613,10 +7375,10 @@
        "subject": "JO13-17 3e M5"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -7627,25 +7389,11 @@
        "subject": "JU11-14 1e M1"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "6 van 6 partijen niet gepland: D1, D2, S1, S2, S3, S4",
        "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
       },
       {
        "rule": "VENSTER-JEUGD",
@@ -7679,7 +7427,7 @@
     }
    },
    "rank": 7,
-   "validator_hard": 10
+   "validator_hard": 7
   },
   {
    "id": "drie_banen",
@@ -8558,8 +8306,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 12,
-     "model": 17,
+     "hard": 9,
+     "model": 19,
      "findings": [
       {
        "rule": "NIET-GEPLAND",
@@ -8604,10 +8352,10 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "GEM 5e M4"
       },
       {
@@ -8653,10 +8401,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -8667,10 +8415,10 @@
        "subject": "JO13-17 3e M5"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
+       "rule": "EERSTE-START-VOORKEUR",
+       "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00",
+       "message": "eerste partij start 15:30; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -8713,13 +8461,6 @@
        "severity": "MODEL",
        "date": "04-10-2026",
        "message": "gebruikt 3 banen ([2, 3, 4]), model staat 2 toe",
-       "subject": "JU11-14 1e M1"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
        "subject": "JU11-14 1e M1"
       },
       {
@@ -8768,1958 +8509,6 @@
     }
    },
    "rank": 8,
-   "validator_hard": 12
-  },
-  {
-   "id": "inhaaldag_GRO_MIERLO_1",
-   "title": "Wedstrijd GRO MIERLO 1 – RODHE 1 naar een inhaaldag",
-   "kind": "inhaaldag",
-   "knltb_ok": true,
-   "cost": 5,
-   "scheduled": 50,
-   "unscheduled": 8,
-   "moved_wedstrijden": 1,
-   "knltb_hard": 0,
-   "knltb_findings": [],
-   "day_start": "09:00",
-   "status": "FEASIBLE",
-   "solve_time_s": 41.7,
-   "fits": false,
-   "plan": {
-    "generator": "baanschemaatje",
-    "club": "TV Voorbeeld",
-    "date": "04-10-2026",
-    "courts": 6,
-    "status": "FEASIBLE",
-    "day_start": "09:00",
-    "stats": {
-     "scheduled": 50,
-     "unscheduled": 8,
-     "solve_time_s": 41.71
-    },
-    "attempts": [
-     {
-      "day_start": "09:00",
-      "mode": "optimize",
-      "status": "FEASIBLE",
-      "unscheduled": 8
-     },
-     {
-      "day_start": "09:00",
-      "mode": "feasibility",
-      "status": "UNKNOWN",
-      "unscheduled": null
-     }
-    ],
-    "rows": [
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 1
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S4",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 2
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S3",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 3
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "GD1",
-      "kind": "M",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 4
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 5
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D1",
-      "kind": "D",
-      "start": "09:45",
-      "end": "10:30",
-      "court": 2
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D2",
-      "kind": "D",
-      "start": "09:45",
-      "end": "10:30",
-      "court": 3
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D1",
-      "kind": "D",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 3
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 4
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 5
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S2",
-      "kind": "S",
-      "start": "12:00",
-      "end": "12:45",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S1",
-      "kind": "S",
-      "start": "12:00",
-      "end": "12:45",
-      "court": 4
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 5
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S4",
-      "kind": "S",
-      "start": "12:45",
-      "end": "13:30",
-      "court": 1
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S3",
-      "kind": "S",
-      "start": "12:45",
-      "end": "13:30",
-      "court": 4
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 1
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 2
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 4
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S4",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 5
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S3",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 6
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 2
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 5
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 6
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "16:00",
-      "court": 4
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "D2",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 2
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "D1",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D2",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 5
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D1",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 6
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 1
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "GD1",
-      "kind": "M",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S2",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 3
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 4
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BOSHOVEN 1",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 5
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BOSHOVEN 1",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 6
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 1
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D2",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D1",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 3
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 4
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BOSHOVEN 1",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 5
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BOSHOVEN 1",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 6
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BOSHOVEN 1",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 8 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "BOSHOVEN 1",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S2",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     }
-    ],
-    "validator": {
-     "available": true,
-     "hard": 9,
-     "model": 15,
-     "findings": [
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "1 van 5 partijen niet gepland: S1",
-       "subject": "GEM 4e M3"
-      },
-      {
-       "rule": "SOORT-CONFLICT",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "singles en dubbels spelen tegelijk (zachte voorkeur voor niet-8p teams, SPEC.md sectie 5) (10:30-12:00)",
-       "subject": "GEM 4e M3"
-      },
-      {
-       "rule": "FASE",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "D1 start voor fase M+S klaar is (12:00)",
-       "subject": "GEM 4e M3"
-      },
-      {
-       "rule": "VENSTER-GEM",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "GD1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
-       "subject": "GEM 4e M3"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "1 van 5 partijen niet gepland: S1",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M2"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "2 van 6 partijen niet gepland: D1, S2",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S1 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S4 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S3 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "2 van 6 partijen niet gepland: S1, S4",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 13:30; Junioren 11-14: uiterlijk 13:00",
-       "subject": "JU11-14 1e M1"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "2 van 6 partijen niet gepland: S1, S2",
-       "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S3 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S4 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S2 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S1 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "TEAM-ONTBREEKT",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "geen enkele partij van dit team in de uitvoer, ook niet als niet-gepland (6 verwacht)",
-       "subject": "GRO Groen 1 M1"
-      }
-     ]
-    }
-   },
-   "rank": 9,
-   "validator_hard": 9
-  },
-  {
-   "id": "inhaaldag_J13-17_MIERLO_3",
-   "title": "Wedstrijd J13-17 MIERLO 3 – BOSHOVEN 1 naar een inhaaldag",
-   "kind": "inhaaldag",
-   "knltb_ok": true,
-   "cost": 5,
-   "scheduled": 50,
-   "unscheduled": 8,
-   "moved_wedstrijden": 1,
-   "knltb_hard": 0,
-   "knltb_findings": [],
-   "day_start": "09:00",
-   "status": "FEASIBLE",
-   "solve_time_s": 42.1,
-   "fits": false,
-   "plan": {
-    "generator": "baanschemaatje",
-    "club": "TV Voorbeeld",
-    "date": "04-10-2026",
-    "courts": 6,
-    "status": "FEASIBLE",
-    "day_start": "09:00",
-    "stats": {
-     "scheduled": 50,
-     "unscheduled": 8,
-     "solve_time_s": 42.07
-    },
-    "attempts": [
-     {
-      "day_start": "09:00",
-      "mode": "optimize",
-      "status": "FEASIBLE",
-      "unscheduled": 8
-     },
-     {
-      "day_start": "09:00",
-      "mode": "feasibility",
-      "status": "UNKNOWN",
-      "unscheduled": null
-     }
-    ],
-    "rows": [
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "GD1",
-      "kind": "M",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S2",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 4
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S3",
-      "kind": "S",
-      "start": "09:00",
-      "end": "09:45",
-      "court": 5
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "09:00",
-      "end": "10:30",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D1",
-      "kind": "D",
-      "start": "09:45",
-      "end": "10:30",
-      "court": 4
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D2",
-      "kind": "D",
-      "start": "09:45",
-      "end": "10:30",
-      "court": 5
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S1",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 3
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S2",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 4
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 5
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "10:30",
-      "end": "12:00",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S4",
-      "kind": "S",
-      "start": "12:00",
-      "end": "12:45",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 2
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S3",
-      "kind": "S",
-      "start": "12:00",
-      "end": "12:45",
-      "court": 4
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 5
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "12:00",
-      "end": "13:30",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S2",
-      "kind": "S",
-      "start": "12:45",
-      "end": "13:30",
-      "court": 1
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S1",
-      "kind": "S",
-      "start": "12:45",
-      "end": "13:30",
-      "court": 4
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D2",
-      "kind": "D",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 1
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 2
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 3e klasse – Afdeling 22 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "`T ROOT 2",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D1",
-      "kind": "D",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 4
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S2",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 5
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S1",
-      "kind": "S",
-      "start": "13:30",
-      "end": "14:15",
-      "court": 6
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 2
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 3
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S4",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 5
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "S3",
-      "kind": "S",
-      "start": "14:15",
-      "end": "15:00",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S2",
-      "kind": "S",
-      "start": "14:30",
-      "end": "15:15",
-      "court": 1
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S1",
-      "kind": "S",
-      "start": "14:30",
-      "end": "15:15",
-      "court": 4
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "D2",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 2
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 36",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 36 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "RODHE 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "D1",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 3
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "GD1",
-      "kind": "M",
-      "start": "15:00",
-      "end": "16:30",
-      "court": 5
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "D1",
-      "kind": "D",
-      "start": "15:00",
-      "end": "15:45",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S4",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:00",
-      "court": 1
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S3",
-      "kind": "S",
-      "start": "15:15",
-      "end": "16:00",
-      "court": 4
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S2",
-      "kind": "S",
-      "start": "15:45",
-      "end": "17:15",
-      "court": 6
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D2",
-      "kind": "D",
-      "start": "16:00",
-      "end": "16:45",
-      "court": 1
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S2",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 2
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "16:00",
-      "end": "17:30",
-      "court": 3
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 1e klasse  – Afdeling 5 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "ELTV 3",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:00",
-      "end": "16:45",
-      "court": 4
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D1",
-      "kind": "D",
-      "start": "16:30",
-      "end": "18:00",
-      "court": 5
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D2",
-      "kind": "D",
-      "start": "17:15",
-      "end": "18:45",
-      "court": 6
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S4",
-      "kind": "S",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 2
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "S3",
-      "kind": "S",
-      "start": "17:30",
-      "end": "19:00",
-      "court": 3
-     },
-     {
-      "team": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7",
-      "team_id": "Gemengd Zondag – 5e klasse (DE-HE-GD-DD-HD) – Afdeling 7 · MIERLO 4",
-      "home_team": "MIERLO 4",
-      "away_team": "AVANTI `55 3",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "S1",
-      "kind": "S",
-      "start": "18:00",
-      "end": "19:30",
-      "court": 5
-     },
-     {
-      "team": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2",
-      "team_id": "Gemengd Zondag – 4e klasse (DE-HE-GD-DD-HD) – Afdeling 2 · MIERLO 3",
-      "home_team": "MIERLO 3",
-      "away_team": "GTR 1",
-      "category": "gemengd",
-      "label": "GEM",
-      "part": "D1",
-      "kind": "D",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Groen Zondag – Groen 1  – Afdeling 38",
-      "team_id": "Groen Zondag – Groen 1  – Afdeling 38 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "ELTV 1",
-      "category": "groen",
-      "label": "GRO",
-      "part": "D2",
-      "kind": "D",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 1e klasse  – Afdeling 12 · MIERLO 1",
-      "home_team": "MIERLO 1",
-      "away_team": "BASTION BASELAAR 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D1",
-      "kind": "D",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6",
-      "team_id": "Jongens 13 t/m 17 jaar Zondag – 3e klasse  – Afdeling 6 · MIERLO 5",
-      "home_team": "MIERLO 5",
-      "away_team": "DE STAP 2",
-      "category": "jeugd_13_17",
-      "label": "J13-17",
-      "part": "D2",
-      "kind": "D",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8",
-      "team_id": "Junioren 11 t/m 14 jaar Zondag – 2e klasse  – Afdeling 8 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "NTC `72 1",
-      "category": "junioren_11_14",
-      "label": "JU11-14",
-      "part": "S4",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     },
-     {
-      "team": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2",
-      "team_id": "Meisjes 13 t/m 17 jaar Zondag – 1e klasse – Afdeling 2 · MIERLO 2",
-      "home_team": "MIERLO 2",
-      "away_team": "BOKT 1",
-      "category": "jeugd_13_17",
-      "label": "M13-17",
-      "part": "S1",
-      "kind": "S",
-      "start": "NIET_GELUKT",
-      "end": "",
-      "court": null
-     }
-    ],
-    "validator": {
-     "available": true,
-     "hard": 9,
-     "model": 15,
-     "findings": [
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "1 van 5 partijen niet gepland: D1",
-       "subject": "GEM 4e M3"
-      },
-      {
-       "rule": "VENSTER-GEM",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "GD1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
-       "subject": "GEM 4e M3"
-      },
-      {
-       "rule": "SOORT-CONFLICT",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "singles en dubbels spelen tegelijk (zachte voorkeur voor niet-8p teams, SPEC.md sectie 5) (16:30-17:15, 18:00-18:45)",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "FASE",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "D1, D2 start voor fase M+S klaar is (19:30)",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M1"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "1 van 6 partijen niet gepland: D2",
-       "subject": "GRO Groen 1 M2"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "1 van 6 partijen niet gepland: D2",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S1 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S2 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S4 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S3 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "JO13-17 1e M1"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "2 van 6 partijen niet gepland: D1, D2",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 14:30; Junioren 11-14: uiterlijk 13:00",
-       "subject": "JU11-14 1e M1"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "2 van 6 partijen niet gepland: S1, S4",
-       "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [4, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
-      },
-      {
-       "rule": "NIET-GEPLAND",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "1 van 6 partijen niet gepland: S1",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S2 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S4 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "VENSTER-JEUGD",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "S3 start 10:30, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken",
-       "subject": "ME13-17 1e M2"
-      },
-      {
-       "rule": "TEAM-ONTBREEKT",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "geen enkele partij van dit team in de uitvoer, ook niet als niet-gepland (6 verwacht)",
-       "subject": "JO13-17 1e M3"
-      }
-     ]
-    }
-   },
-   "rank": 10,
    "validator_hard": 9
   },
   {
@@ -11599,8 +9388,8 @@
     ],
     "validator": {
      "available": true,
-     "hard": 8,
-     "model": 23,
+     "hard": 5,
+     "model": 20,
      "findings": [
       {
        "rule": "SOORT-CONFLICT",
@@ -11645,25 +9434,11 @@
        "subject": "GEM 5e M4"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [1, 5] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "GEM 5e M4"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "GRO Groen 1 M1"
       },
       {
        "rule": "NIET-GEPLAND",
@@ -11708,17 +9483,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 1e M3"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [4, 6] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 1e M3"
       },
       {
@@ -11736,17 +9504,10 @@
        "subject": "JO13-17 1e M3"
       },
       {
-       "rule": "EERSTE-START",
-       "severity": "HARD",
-       "date": "04-10-2026",
-       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00",
-       "subject": "JO13-17 3e M5"
-      },
-      {
-       "rule": "BAANPAAR",
+       "rule": "EERSTE-START-VOORKEUR",
        "severity": "MODEL",
        "date": "04-10-2026",
-       "message": "banen [2, 3] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
+       "message": "eerste partij start 16:00; reguliere teams: uiterlijk 15:00 (zachte voorkeur in het clubprofiel)",
        "subject": "JO13-17 3e M5"
       },
       {
@@ -11771,25 +9532,11 @@
        "subject": "JU11-14 1e M1"
       },
       {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 1e M1"
-      },
-      {
        "rule": "NIET-GEPLAND",
        "severity": "HARD",
        "date": "04-10-2026",
        "message": "4 van 6 partijen niet gepland: D1, D2, S2, S4",
        "subject": "JU11-14 2e M2"
-      },
-      {
-       "rule": "BAANPAAR",
-       "severity": "MODEL",
-       "date": "04-10-2026",
-       "message": "banen [1, 4] vormen geen aangrenzend paar (1+2, 3+4, 5+6, 7+8, 9+10)",
-       "subject": "JU11-14 3e M4"
       },
       {
        "rule": "NIET-GEPLAND",
@@ -11822,8 +9569,8 @@
      ]
     }
    },
-   "rank": 11,
-   "validator_hard": 8
+   "rank": 9,
+   "validator_hard": 5
   }
  ]
 }

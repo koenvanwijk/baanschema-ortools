@@ -3,18 +3,18 @@
  "club": "Mierlose T.V.",
  "date": "11-10-2026",
  "courts": 10,
- "status": "FEASIBLE",
+ "status": "OPTIMAL",
  "day_start": "09:00",
  "stats": {
   "scheduled": 19,
   "unscheduled": 0,
-  "solve_time_s": 20.49
+  "solve_time_s": 15.73
  },
  "attempts": [
   {
    "day_start": "09:00",
    "mode": "optimize",
-   "status": "FEASIBLE",
+   "status": "OPTIMAL",
    "unscheduled": 0
   }
  ],
@@ -26,115 +26,24 @@
    "away_team": "UDEN 1",
    "category": "senioren",
    "label": "HEREN",
-   "part": "S3",
-   "kind": "S",
-   "start": "09:00",
-   "end": "10:30",
-   "court": 1
-  },
-  {
-   "team": "Heren Zondag – 4e klasse – Afdeling 4",
-   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
-   "home_team": "MIERLO 1",
-   "away_team": "UDEN 1",
-   "category": "senioren",
-   "label": "HEREN",
    "part": "S4",
    "kind": "S",
    "start": "09:00",
    "end": "10:30",
-   "court": 2
+   "court": 5
   },
   {
-   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
-   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
-   "home_team": "MIERLO 2",
-   "away_team": "BOEKEL 1",
-   "category": "gemengd",
-   "label": "GEM",
-   "part": "D1",
-   "kind": "D",
-   "start": "09:00",
-   "end": "10:30",
-   "court": 9
-  },
-  {
-   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
-   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
-   "home_team": "MIERLO 2",
-   "away_team": "BOEKEL 1",
-   "category": "gemengd",
-   "label": "GEM",
-   "part": "D2",
-   "kind": "D",
-   "start": "09:00",
-   "end": "10:30",
-   "court": 10
-  },
-  {
-   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
-   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
    "home_team": "MIERLO 1",
-   "away_team": "RULEC 1",
-   "category": "gemengd",
-   "label": "GEM",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "label": "HEREN",
    "part": "S3",
    "kind": "S",
-   "start": "10:00",
-   "end": "11:30",
-   "court": 3
-  },
-  {
-   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
-   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
-   "home_team": "MIERLO 1",
-   "away_team": "RULEC 1",
-   "category": "gemengd",
-   "label": "GEM",
-   "part": "S4",
-   "kind": "S",
-   "start": "10:00",
-   "end": "11:30",
-   "court": 4
-  },
-  {
-   "team": "Heren Zondag – 4e klasse – Afdeling 4",
-   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
-   "home_team": "MIERLO 1",
-   "away_team": "UDEN 1",
-   "category": "senioren",
-   "label": "HEREN",
-   "part": "S1",
-   "kind": "S",
-   "start": "10:30",
-   "end": "12:00",
-   "court": 1
-  },
-  {
-   "team": "Heren Zondag – 4e klasse – Afdeling 4",
-   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
-   "home_team": "MIERLO 1",
-   "away_team": "UDEN 1",
-   "category": "senioren",
-   "label": "HEREN",
-   "part": "S2",
-   "kind": "S",
-   "start": "10:30",
-   "end": "12:00",
-   "court": 2
-  },
-  {
-   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
-   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
-   "home_team": "MIERLO 2",
-   "away_team": "BOEKEL 1",
-   "category": "gemengd",
-   "label": "GEM",
-   "part": "S2",
-   "kind": "S",
-   "start": "10:30",
-   "end": "12:00",
-   "court": 9
+   "start": "09:00",
+   "end": "10:30",
+   "court": 6
   },
   {
    "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
@@ -145,8 +54,34 @@
    "label": "GEM",
    "part": "GD1",
    "kind": "M",
-   "start": "10:30",
-   "end": "12:00",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 8
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "label": "GEM",
+   "part": "S2",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
+   "court": 9
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "label": "GEM",
+   "part": "S1",
+   "kind": "S",
+   "start": "09:00",
+   "end": "10:30",
    "court": 10
   },
   {
@@ -156,11 +91,76 @@
    "away_team": "RULEC 1",
    "category": "gemengd",
    "label": "GEM",
+   "part": "S4",
+   "kind": "S",
+   "start": "10:00",
+   "end": "11:30",
+   "court": 3
+  },
+  {
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "label": "GEM",
+   "part": "S3",
+   "kind": "S",
+   "start": "10:00",
+   "end": "11:30",
+   "court": 4
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "label": "HEREN",
+   "part": "S2",
+   "kind": "S",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 5
+  },
+  {
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "label": "HEREN",
    "part": "S1",
    "kind": "S",
-   "start": "11:30",
-   "end": "13:00",
-   "court": 3
+   "start": "10:30",
+   "end": "12:00",
+   "court": 6
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "label": "GEM",
+   "part": "D2",
+   "kind": "D",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 8
+  },
+  {
+   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
+   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
+   "home_team": "MIERLO 2",
+   "away_team": "BOEKEL 1",
+   "category": "gemengd",
+   "label": "GEM",
+   "part": "D1",
+   "kind": "D",
+   "start": "10:30",
+   "end": "12:00",
+   "court": 9
   },
   {
    "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
@@ -173,20 +173,20 @@
    "kind": "S",
    "start": "11:30",
    "end": "13:00",
-   "court": 4
+   "court": 3
   },
   {
-   "team": "Heren Zondag – 4e klasse – Afdeling 4",
-   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
+   "team_id": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1 · MIERLO 1",
    "home_team": "MIERLO 1",
-   "away_team": "UDEN 1",
-   "category": "senioren",
-   "label": "HEREN",
-   "part": "D1",
-   "kind": "D",
-   "start": "12:00",
-   "end": "13:30",
-   "court": 1
+   "away_team": "RULEC 1",
+   "category": "gemengd",
+   "label": "GEM",
+   "part": "S1",
+   "kind": "S",
+   "start": "11:30",
+   "end": "13:00",
+   "court": 4
   },
   {
    "team": "Heren Zondag – 4e klasse – Afdeling 4",
@@ -199,20 +199,20 @@
    "kind": "D",
    "start": "12:00",
    "end": "13:30",
-   "court": 2
+   "court": 5
   },
   {
-   "team": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4",
-   "team_id": "Gemengd Zondag – 3e klasse (DE-HE-GD-DD-HD) – Afdeling 4 · MIERLO 2",
-   "home_team": "MIERLO 2",
-   "away_team": "BOEKEL 1",
-   "category": "gemengd",
-   "label": "GEM",
-   "part": "S1",
-   "kind": "S",
+   "team": "Heren Zondag – 4e klasse – Afdeling 4",
+   "team_id": "Heren Zondag – 4e klasse – Afdeling 4 · MIERLO 1",
+   "home_team": "MIERLO 1",
+   "away_team": "UDEN 1",
+   "category": "senioren",
+   "label": "HEREN",
+   "part": "D1",
+   "kind": "D",
    "start": "12:00",
    "end": "13:30",
-   "court": 9
+   "court": 6
   },
   {
    "team": "Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD) – Afdeling 1",
@@ -270,27 +270,34 @@
  "validator": {
   "available": true,
   "hard": 0,
-  "model": 3,
+  "model": 4,
   "findings": [
    {
-    "rule": "FASE",
+    "rule": "TEGELIJK",
     "severity": "MODEL",
     "date": "11-10-2026",
-    "message": "D1, D2 start voor fase M+S klaar is (13:30)",
+    "message": "3 partijen tegelijk (GD1, S1, S2), model staat 2 toe (09:00-10:30)",
     "subject": "GEM 3e M2"
    },
    {
     "rule": "VENSTER-GEM",
     "severity": "MODEL",
     "date": "11-10-2026",
-    "message": "D1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
+    "message": "GD1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
     "subject": "GEM 3e M2"
    },
    {
     "rule": "VENSTER-GEM",
     "severity": "MODEL",
     "date": "11-10-2026",
-    "message": "D2 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
+    "message": "S2 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
+    "subject": "GEM 3e M2"
+   },
+   {
+    "rule": "VENSTER-GEM",
+    "severity": "MODEL",
+    "date": "11-10-2026",
+    "message": "S1 start 09:00, model laat niet-8p Gemengd ook voor 10:00 toe — dit is met besluit 2026-08-27 een zachte voorkeur geworden",
     "subject": "GEM 3e M2"
    }
   ]
