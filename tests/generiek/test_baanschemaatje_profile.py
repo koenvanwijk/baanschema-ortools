@@ -45,7 +45,9 @@ def test_load_mierlo(root):
     assert p.preferred_courts_8p == (1, 2, 3, 4)
     assert p.day_start == 9 * 60 and p.fallback_start == 8 * 60 + 30
     # Regels zonder override komen uit de core-defaults.
-    assert p.rule("start_window_8p").hard is True
+    # Clubafspraak, strenger dan KNLTB (gemengd 8p tot 14:00).
+    sw = p.rule("start_window_8p")
+    assert sw.hard is True and sw.params == {"from": 600, "to": 660}
     assert p.duration_for(Category.GROEN) == 45
 
 
@@ -58,9 +60,9 @@ def test_load_voorbeeld(root):
 
 def test_duration_precedence():
     p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}, "durations": {"groen": 60}})
-    assert p.duration_for(Category.GROEN, export_minutes=45) == 60  # club-override
-    assert p.duration_for(Category.GEMENGD, export_minutes=75) == 75  # export
-    assert p.duration_for(Category.GEMENGD) == 90  # core-default
+    assert p.expected_duration(Category.GROEN, export_minutes=45) == 60  # club-override
+    assert p.expected_duration(Category.GEMENGD, export_minutes=75) == 75  # export
+    assert p.expected_duration(Category.GEMENGD) == 90  # core-default
 
 
 @pytest.mark.parametrize(
@@ -108,3 +110,37 @@ rules:
     assert d["court_assignment"]["pairs"] == [[1, 2], [3, 4]]
     assert d["court_assignment"]["lijst"] == [1, 2]
     assert d["rules"]["max_wait_minutes"] == {"value": 45, "hard": False}
+
+
+def test_core_rules_follow_knltb_bijlage_3():
+    p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}})
+    assert p.rule("match_start_grid").params["value"] == 30 and p.rule("match_start_grid").hard
+    assert p.rule("match_start_window").params == {"from": 8 * 60 + 30, "to": 16 * 60 + 30}
+    assert p.rule("junioren_start_window").params == {"from": 8 * 60 + 30, "to": 12 * 60}
+    assert p.rule("junioren_latest_start").params["time"] == 15 * 60
+    assert p.rule("junioren_mixed_8p_latest_start").params["time"] == 13 * 60
+    assert p.rule("mixed_8p_latest_start").params["time"] == 14 * 60
+    assert p.rule("travel_not_before").params == {"value": 80, "time": 10 * 60}
+    assert p.last_start == 19 * 60 + 30
+    assert p.max_courts_per_team == 2
+    # Generiek default: geen extra 8p-venster bovenop KNLTB.
+    assert p.rule("start_window_8p").params == {"from": 8 * 60 + 30, "to": 16 * 60 + 30}
+
+
+def test_min_reservation_vs_expected_duration():
+    from baanschemaatje.categories import MIN_RESERVATION
+
+    assert MIN_RESERVATION[Category.SENIOREN] == 90
+    assert MIN_RESERVATION[Category.JUNIOREN_11_14] == 45
+    p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}})
+    # Export zegt 60 min voor senioren: verwacht 60, maar reservering minimaal 90.
+    assert p.expected_duration(Category.SENIOREN, 60) == 60
+    assert p.duration_for(Category.SENIOREN, 60) == 90
+    assert p.duration_for(Category.JUNIOREN_11_14, 45) == 45
+    with pytest.raises(ProfileError, match="minimumreservering"):
+        profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}, "durations": {"senioren": 60}})
+
+
+def test_day_start_must_be_on_half_hour():
+    with pytest.raises(ProfileError, match="heel/half uur"):
+        profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}, "day": {"start": "09:15"}})

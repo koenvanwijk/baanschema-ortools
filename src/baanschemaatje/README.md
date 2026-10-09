@@ -83,21 +83,36 @@ Senioren 90).
 
 ### Regels (core-defaults, per club hard/zacht te zetten)
 
-| Regel | Default |
-|---|---|
-| `mixed_8p_not_before` | Gemengd 8p niet vóór 10:00 — hard |
-| `start_window_8p` | eerste partij 8p-team tussen 10:00 en 11:00 — hard |
-| `youth_last_start` | jeugd start uiterlijk 17:30 — hard |
-| `first_start_deadline_junioren` | eerste partij Junioren ≤ 13:00 — zacht |
-| `first_start_deadline` | eerste partij elk team ≤ 15:00 — zacht |
-| `max_wait_minutes` | max 60 min wachten tussen partijen — hard |
-| `max_blocks_per_team` | max 2 speelblokken per team — hard |
-| `waterfall_8p` | strikte S → D → GD + rondes voor 8p-teams — hard |
+[CR B3] = KNLTB Competitiereglement (vastgesteld 11-11-2025), Bijlage 3. Een
+club mag strenger zijn dan het reglement, niet ruimer. "Begintijd" = start van
+de eerste partij van een team.
+
+| Regel | Default | Bron |
+|---|---|---|
+| `match_start_grid` | begintijd op hele/halve uren — hard | CR B3 1.1 |
+| `match_start_window` | begintijd 08:30–16:30 — hard | CR B3 1.1 |
+| `junioren_start_window` | junioren begintijd 08:30–12:00 — zacht | CR B3 1.1.a |
+| `junioren_latest_start` | junioren uiterlijk 15:00 — hard | CR B3 1.1.a |
+| `junioren_mixed_8p_latest_start` | gemengd 8p junioren uiterlijk 13:00 — hard | CR B3 1.1.a |
+| `mixed_8p_latest_start` | gemengd 8p uiterlijk 14:00 — hard | CR B3 1.1.b |
+| `travel_not_before` | ≥ 80 km reisafstand: niet vóór 10:00 — hard (als de input reisafstand heeft) | CR B3 1.2 |
+| `min_reservation` | min. reservering per partij 90 min, Junioren 11–14 45 min — hard | CR B3 2.1.a |
+| `day.last_start` | laatste partij start uiterlijk 19:30 | CR B3 2.1.c |
+| `max_courts_per_team` | 2 banen per team | CR B3 2.1.b |
+| `start_window_8p` | 8p-begintijd 08:30–16:30 (club mag strenger; Mierlo 10:00–11:00) | product |
+| `mixed_8p_not_before` | 08:30 (Mierlo 10:00) | product |
+| `youth_last_start` | 19:30 (Mierlo 17:30) | product |
+| `first_start_deadline` | eerste partij elk team ≤ 15:00 — zacht | product |
+| `max_wait_minutes` | max 60 min wachten tussen partijen — hard | product |
+| `max_blocks_per_team` | max 2 speelblokken per team — hard | product |
+| `waterfall_8p` | strikte S → D → GD + rondes voor 8p-teams — hard | product |
+
+Verwachte speelduur (export/core-default) ≠ minimale reservering: de planner
+reserveert `max(verwacht, minimum)`.
 
 Altijd hard (niet configureerbaar): 15-min-grid, max 1 partij per baan,
-`max_courts_per_team` gelijktijdig, max 4 spelers tegelijk per team (gemengd:
-2 heren + 2 dames), singles vóór de rest bij niet-gemengde teams, Rood/Oranje
-als blok vanaf dagstart.
+max 4 spelers tegelijk per team (gemengd: 2 heren + 2 dames), singles vóór de
+rest bij niet-gemengde teams, Rood/Oranje als blok vanaf dagstart.
 
 ## Wat is geport uit `scripts/ortools_planner.py`
 
@@ -109,9 +124,10 @@ max 60 min wachten; Gemengd-8p ≥ 10:00; jeugd ≤ 17:30; zachte
 eerste-start-deadline; dagstart 09:00 met terugval 08:30; NIET_GELUKT-rijen.
 
 Nieuw t.o.v. het origineel: aantal banen/dagtijden/regels uit het profiel;
-8p-startvenster 10:00–11:00 ook aan de bovenkant afgedwongen (SPEC-core §2);
-Junioren-deadline 13:00 als zachte regel; inplanvolgorde (SPEC-core §4) als
-zachte voorkeur op vroege slots.
+KNLTB CR Bijlage 3-begintijden als core-regels (heel/half uur, 08:30–16:30,
+junioren, gemengd 8p ≤ 14:00, 80 km); minimale reservering; 8p-startvenster
+als clubregel ook aan de bovenkant afgedwongen; inplanvolgorde (SPEC-core §4)
+als zachte voorkeur op vroege slots.
 
 **Nog niet geport / bewust weggelaten:**
 
@@ -125,8 +141,12 @@ zachte voorkeur op vroege slots.
 - Twee-fasen-modus (fase A/B) en de gewichten-CLI.
 - Echte lexicografische oplossing: geprobeerd (fase 1 = alleen aantal
   partijen), maar zocht trager; nu net als het origineel een gewogen doel.
+- KNLTB-terugval "8/6/5/4 partijen in max 5/4/3/3 speelronden" als twee
+  banen per team niet lukt (CR B3 2.1.b).
+- Reisafstand zit niet in de huidige export; `travel_not_before` werkt pas
+  met een kolom `Reisafstand` (km).
 - Baan-geheugen (SPEC-core §3), waarschuwingstags (§6), seizoensbrede runs,
-  herplan op de wedstrijddag, UI.
+  herplan op de wedstrijddag (CR B3 2.2), UI.
 
 ## Tests
 

@@ -21,7 +21,7 @@ from typing import Any
 from ortools.sat.python import cp_model
 
 from baanschema.rules import build_parts, player_demand  # pure regels, gedeeld met de bestaande stack
-from baanschemaatje.categories import DEFAULT_PRIORITY, YOUTH_CATEGORIES, Category
+from baanschemaatje.categories import DEFAULT_PRIORITY, JUNIOR_CATEGORIES, YOUTH_CATEGORIES, Category
 from baanschemaatje.profile import ClubProfile, min_to_hhmm
 from baanschemaatje.season import Fixture
 
@@ -108,6 +108,42 @@ def _block_courts(profile: ClubProfile, f: Fixture, cats_today: set[Category]) -
     return res.courts
 
 
+def _lb(r) -> int:
+    return r.params.get("from", r.params.get("time"))
+
+
+def _lower_bound_rules(R, f: Fixture) -> list:
+    """Regels 'niet vóór X' — gelden voor élke partij van het team."""
+    out = [R["match_start_window"]]  # CR B3 1.1: niet vroeger dan 08:30
+    if f.is_8p:
+        out.append(R["start_window_8p"])
+    if f.is_8p and f.is_mixed:
+        out.append(R["mixed_8p_not_before"])
+    if f.category in JUNIOR_CATEGORIES:
+        out.append(R["junioren_start_window"])  # CR B3 1.1.a
+    rt = R["travel_not_before"]
+    if f.travel_km is not None and f.travel_km >= rt.params["value"]:
+        out.append(rt)  # CR B3 1.2
+    return out
+
+
+def _upper_bound_rules(R, f: Fixture) -> list:
+    """Regels 'begintijd uiterlijk X' — gelden voor de eerste partij."""
+    out = [(R["match_start_window"], R["match_start_window"].params["to"])]  # CR B3 1.1
+    out.append((R["first_start_deadline"], R["first_start_deadline"].params["time"]))
+    junior = f.category in JUNIOR_CATEGORIES
+    if f.is_8p:
+        out.append((R["start_window_8p"], R["start_window_8p"].params["to"]))
+    if f.is_8p and f.is_mixed and not junior:
+        out.append((R["mixed_8p_latest_start"], R["mixed_8p_latest_start"].params["time"]))  # CR B3 1.1.b
+    if junior:
+        out.append((R["junioren_start_window"], R["junioren_start_window"].params["to"]))  # CR B3 1.1.a
+        out.append((R["junioren_latest_start"], R["junioren_latest_start"].params["time"]))
+        if f.is_8p and f.is_mixed:
+            out.append((R["junioren_mixed_8p_latest_start"], R["junioren_mixed_8p_latest_start"].params["time"]))
+    return out
+
+
 def _solve(
     profile: ClubProfile,
     day: list[Fixture],
@@ -162,13 +198,11 @@ def _solve(
     allowed: dict[int, list[int]] = {}
     for i, p in enumerate(parts):
         f: Fixture = p["f"]
+        # CR Bijlage 3, 2.1.c: laatste partij start uiterlijk 19:30 (day.last_start).
         st = [s for s in slots if s + p["dur"] <= end and s <= profile.last_start]
-        r = R["mixed_8p_not_before"]
-        if r.hard and f.category == Category.GEMENGD and f.is_8p:
-            st = [s for s in st if s >= r.params["time"]]
-        r = R["start_window_8p"]
-        if r.hard and f.is_8p:
-            st = [s for s in st if s >= r.params["from"]]
+        for r in _lower_bound_rules(R, f):
+            if r.hard:
+                st = [s for s in st if s >= _lb(r)]
         r = R["youth_last_start"]
         if r.hard and f.category in YOUTH_CATEGORIES:
             st = [s for s in st if s <= r.params["time"]]
@@ -222,7 +256,7 @@ def _solve(
         d_p = [i for i in idxs if parts[i]["kind"] == "D"]
         m_p = [i for i in idxs if parts[i]["kind"] == "M"]
         non_s = [i for i in idxs if parts[i]["kind"] != "S"]
-        is_mixed = f.category == Category.GEMENGD
+        is_mixed = f.is_mixed
 
         def before(a_list: list[int], b_list: list[int]) -> None:
             for a in a_list:
@@ -371,48 +405,51 @@ def _solve(
         model.add_max_equality(any_y, [y[i] for i in idxs])
         obj_pen.append(200_000 * sum(act))  # actieve slots ≈ span bij 1 blok
 
-        # Eerste start: 8p-venster (to) en algemene deadline.
+        # Begintijd van de wedstrijd (= eerste partij van het team).
         def early_terms(limit: int) -> list:
             return [start_used[(i, s)] for i in idxs for s in allowed[i] if s <= limit]
 
-        if f.is_8p:
-            r = R["start_window_8p"]
-            et = early_terms(r.params["to"])
+        for k, (r, limit) in enumerate(_upper_bound_rules(R, f)):
+            et = early_terms(limit)
             if r.hard:
                 if et:
                     model.add(sum(et) >= 1).only_enforce_if(any_y)
                 else:
                     model.add(any_y == 0)
             elif et:
-                ok = model.new_bool_var(f"w8_{h}")
-                model.add(sum(et) >= 1).only_enforce_if(ok)
-                obj_bonus.append(1_000_000 * ok)
-        deadlines = [R["first_start_deadline"]]
-        if f.category == Category.JUNIOREN_11_14:
-            deadlines.append(R["first_start_deadline_junioren"])
-        for k, r in enumerate(deadlines):
-            et = early_terms(r.params["time"])
-            if r.hard:
-                if et:
-                    model.add(sum(et) >= 1).only_enforce_if(any_y)
-                else:
-                    model.add(any_y == 0)
-            elif et:
-                ok = model.new_bool_var(f"fd_{h}_{k}")
+                ok = model.new_bool_var(f"ub_{h}_{k}")
                 model.add(sum(et) >= 1).only_enforce_if(ok)
                 obj_bonus.append(3_000_000 * ok)
 
-        # Zachte categorie-regels (SPEC-core §2/§4).
+        # CR Bijlage 3, 1.1: begintijd alleen op hele of halve uren. Een partij
+        # mag op een ander kwartier starten zolang er al een eerdere partij van
+        # hetzelfde team is gestart (dan is het niet de begintijd).
+        rg = R["match_start_grid"]
+        g = rg.params["value"]
+        if g > GRID:
+            for i in idxs:
+                for s in allowed[i]:
+                    if s % g == 0:
+                        continue
+                    earlier = [start_used[(j, s2)] for j in idxs for s2 in allowed[j] if s2 < s]
+                    clause = [start_used[(i, s)].Not()] + earlier
+                    if not rg.hard:
+                        viol = model.new_bool_var(f"grid_{h}_{i}_{s}")
+                        clause.append(viol)
+                        obj_pen.append(1_000_000 * viol)
+                    model.add_bool_or(clause)
+
+        # Zachte varianten van ondergrenzen + inplanvolgorde (SPEC-core §4).
         prio = DEFAULT_PRIORITY[f.category]
-        r = R["mixed_8p_not_before"]
+        soft_lb = [_lb(r) for r in _lower_bound_rules(R, f) if not r.hard]
+        ry = R["youth_last_start"]
         for i in idxs:
             for s in allowed[i]:
                 su = start_used[(i, s)]
                 # Inplanvolgorde: lagere prioriteit-rang krijgt de vroege slots.
                 obj_pen.append(prio * ((s - day_start) // GRID) * 2_000 * su)
-                if (not r.hard) and is_mixed and f.is_8p and s < r.params["time"]:
+                if any(s < lb for lb in soft_lb):
                     obj_pen.append(500_000 * su)
-                ry = R["youth_last_start"]
                 if (not ry.hard) and f.category in YOUTH_CATEGORIES and s > ry.params["time"]:
                     obj_pen.append(500_000 * su)
 

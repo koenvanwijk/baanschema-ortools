@@ -33,6 +33,8 @@ class Fixture:
     mix: int
     home_team: str
     away_team: str
+    #: Reisafstand van het uitspelende team in km (CR Bijlage 3, 1.2); None = onbekend.
+    travel_km: int | None = None
 
     @property
     def team_key(self) -> str:
@@ -43,6 +45,10 @@ class Fixture:
     def is_block(self) -> bool:
         """Rood/Oranje: blokreservering i.p.v. losse partijen."""
         return self.category in BLOCK_CATEGORIES
+
+    @property
+    def is_mixed(self) -> bool:
+        return "gemengd" in self.schema.lower()
 
     @property
     def is_8p(self) -> bool:
@@ -109,6 +115,8 @@ def load_season_tsv(path: str | Path, home_name: str = "") -> Season:
                     mix=_int(row.get("Mix")),
                     home_team=home,
                     away_team=away,
+                    # Optionele kolom; de huidige export heeft hem niet.
+                    travel_km=_int(row.get("Reisafstand")) if (row.get("Reisafstand") or "").strip() else None,
                 )
             )
     return Season(fixtures=fixtures, source=str(p))

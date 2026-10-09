@@ -29,8 +29,24 @@ court_assignment:
   pairs: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]]
   preferred_courts_8p: [1, 2, 3, 4]
 
-# Regels: zonder overrides gelden de SPEC-core-defaults.
+# Regels: zonder overrides gelden de SPEC-core-defaults (KNLTB Competitie-
+# reglement, Bijlage 3). Hieronder staan clubafspraken die STRENGER zijn dan
+# het reglement — geen KNLTB-regels.
 rules:
+  # Clubafspraak: 8-partijenteams beginnen tussen 10:00 en 11:00 (hard).
+  # KNLTB staat voor gemengd 8p een begintijd tot uiterlijk 14:00 toe.
+  start_window_8p:
+    from: "10:00"
+    to: "11:00"
+    hard: true
+  # Clubafspraak: gemengd 8p niet vóór 10:00.
+  mixed_8p_not_before:
+    time: "10:00"
+    hard: true
+  # Clubafspraak: jeugd start uiterlijk 17:30 (KNLTB: laatste partij 19:30).
+  youth_last_start:
+    time: "17:30"
+    hard: true
   first_start_deadline:
     time: "15:00"
     hard: false

@@ -155,3 +155,39 @@ def test_profile_court_count_is_respected_for_tiny_club(profiles):
     res = plan_day(tiny, fixtures, "01-01-2030", time_limit_s=5)
     assert res.unscheduled == 0
     assert {r["court"] for r in res.rows} <= {1, 2}
+
+
+def _first_starts(rows):
+    first = {}
+    for r in _placed(rows):
+        if r["kind"] != "W":
+            first[r["team_id"]] = min(first.get(r["team_id"], 99 * 60), _m(r["start"]))
+    return first
+
+
+@pytest.mark.parametrize("club", ["mierlo", "voorbeeld"])
+@pytest.mark.parametrize("date", ["06-09-2026", "11-10-2026"])
+def test_knltb_bijlage_3_begintijden(plans, club, date):
+    """CR Bijlage 3, 1.1: begintijd op heel/half uur, 08:30-16:30;
+    juniorencompetities uiterlijk 15:00; laatste partij start <= 19:30."""
+    res = plans[(club, date)]
+    for team, s in _first_starts(res.rows).items():
+        assert s % 30 == 0, (team, s)
+        assert 8 * 60 + 30 <= s <= 16 * 60 + 30, (team, s)
+        low = team.lower()
+        if "junioren" in low or "13 t/m 17" in low:
+            assert s <= 15 * 60, (team, s)
+        if "gemengd" in low and "2de-2he-dd-hd-2gd" in low:
+            assert s <= 14 * 60, (team, s)
+    for r in _placed(res.rows):
+        assert _m(r["start"]) <= 19 * 60 + 30
+
+
+def test_travel_80km_not_before_10(profiles):
+    import dataclasses
+
+    fx = _fx("Heren Zondag – 4e klasse", Category.SENIOREN, 4, 90, s=2, d=2)
+    far = dataclasses.replace(fx, travel_km=95)
+    res = plan_day(profiles["voorbeeld"], [far], "01-01-2030", time_limit_s=5)
+    assert res.unscheduled == 0
+    assert min(_first_starts(res.rows).values()) >= 10 * 60

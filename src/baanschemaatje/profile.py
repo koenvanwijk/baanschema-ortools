@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from baanschemaatje import miniyaml
-from baanschemaatje.categories import BLOCK_CATEGORIES, DEFAULT_DURATIONS, Category
+from baanschemaatje.categories import BLOCK_CATEGORIES, DEFAULT_DURATIONS, MIN_RESERVATION, Category
 
 
 class ProfileError(ValueError):
@@ -39,24 +39,45 @@ def min_to_hhmm(m: int) -> str:
     return f"{m // 60:02d}:{m % 60:02d}"
 
 
-#: Generieke regel-defaults (SPEC-core §2/§3/§5). Een clubprofiel mag elke
-#: regel aanpassen of hard/soft zetten onder ``rules:``.
+#: Generieke regel-defaults. Bron per regel staat erbij:
+#:   [CR B3] = KNLTB Competitiereglement (vastgesteld 11-11-2025), Bijlage 3
+#:             "Variabele begintijden bij wedstrijden en baanplanning";
+#:   [product] = Baanschemaatje-default (geen KNLTB-regel), club mag aanpassen.
+#: Een clubprofiel mag strenger zijn dan het reglement (bv. 8p-venster 10-11).
+#: "Begintijd" = start van de eerste partij van een team (de wedstrijd).
 CORE_RULE_DEFAULTS: dict[str, dict[str, Any]] = {
-    # Gemengd 8-partijenteams niet vóór 10:00.
-    "mixed_8p_not_before": {"time": "10:00", "hard": True},
-    # Eerste partij van een 8-partijenteam tussen 10:00 en 11:00.
-    "start_window_8p": {"from": "10:00", "to": "11:00", "hard": True},
-    # Jeugd (Groen, 11-14, 13-17) start uiterlijk 17:30.
-    "youth_last_start": {"time": "17:30", "hard": True},
-    # Eerste partij Junioren (11 t/m 14) uiterlijk 13:00 (SPEC-core: TBD, nu zacht).
-    "first_start_deadline_junioren": {"time": "13:00", "hard": False},
-    # Eerste partij van elk team uiterlijk 15:00 (SPEC-core: TBD, nu zacht).
+    # [CR B3 1.1] Begintijd alleen op hele of halve uren ...
+    "match_start_grid": {"value": 30, "hard": True},
+    # [CR B3 1.1] ... niet vroeger dan 08:30 en niet later dan 16:30.
+    "match_start_window": {"from": "08:30", "to": "16:30", "hard": True},
+    # [CR B3 1.1.a] Juniorencompetities: begintijd tussen 08:30 en 12:00 ...
+    "junioren_start_window": {"from": "08:30", "to": "12:00", "hard": False},
+    # [CR B3 1.1.a] ... bij baancapaciteitsproblemen uiterlijk 15:00 ...
+    "junioren_latest_start": {"time": "15:00", "hard": True},
+    # [CR B3 1.1.a] ... en uiterlijk 13:00 bij 8 partijen gemengd junioren.
+    "junioren_mixed_8p_latest_start": {"time": "13:00", "hard": True},
+    # [CR B3 1.1.b] Reguliere gemengde 8 partijen: begintijd uiterlijk 14:00.
+    "mixed_8p_latest_start": {"time": "14:00", "hard": True},
+    # [CR B3 1.2] Reisafstand uitspelend team >= 80 km: niet vóór 10:00.
+    # Geldt alleen als de seizoensinput een reisafstand bevat.
+    "travel_not_before": {"value": 80, "time": "10:00", "hard": True},
+    # [CR B3 2.1.a] Minimale baanreservering per partij (zie MIN_RESERVATION).
+    "min_reservation": {"hard": True},
+    # [product] 8p-teams: begintijd-venster. Default = KNLTB-grenzen; een club
+    # mag strenger zijn (Mierlo: 10:00-11:00).
+    "start_window_8p": {"from": "08:30", "to": "16:30", "hard": True},
+    # [product] Gemengd 8p niet vóór ... (default 08:30 = geen extra eis).
+    "mixed_8p_not_before": {"time": "08:30", "hard": True},
+    # [product] Jeugd: laatste partij start uiterlijk ... (default 19:30 =
+    # gelijk aan CR B3 2.1.c; club mag strenger, bv. 17:30).
+    "youth_last_start": {"time": "19:30", "hard": True},
+    # [product] Eerste partij van elk team bij voorkeur uiterlijk 15:00.
     "first_start_deadline": {"time": "15:00", "hard": False},
-    # Max aaneengesloten wachttijd tussen partijen van één team.
+    # [product] Max aaneengesloten wachttijd tussen partijen van één team.
     "max_wait_minutes": {"value": 60, "hard": True},
-    # Max aantal speelblokken per team per dag.
+    # [product] Max aantal speelblokken per team per dag.
     "max_blocks_per_team": {"value": 2, "hard": True},
-    # Strikte S → D → GD-waterval + rondes (paren tegelijk) voor 8p-teams.
+    # [product] Strikte S → D → GD-waterval + rondes voor 8p-teams.
     "waterfall_8p": {"hard": True},
 }
 
@@ -98,13 +119,23 @@ class ClubProfile:
     def court_list(self) -> list[int]:
         return list(range(1, self.courts + 1))
 
-    def duration_for(self, category: Category, export_minutes: int = 0) -> int:
-        """Speelduur: clubprofiel-override > KNLTB-export > core-default."""
+    def expected_duration(self, category: Category, export_minutes: int = 0) -> int:
+        """Verwachte speelduur: clubprofiel-override > KNLTB-export > core-default."""
         if category in self.durations:
             return self.durations[category]
         if export_minutes:
             return export_minutes
         return DEFAULT_DURATIONS[category]
+
+    def duration_for(self, category: Category, export_minutes: int = 0) -> int:
+        """Gereserveerde tijd per partij: verwachte duur, maar nooit korter dan
+        de KNLTB-minimumreservering (CR Bijlage 3, 2.1.a) als die regel hard is."""
+        d = self.expected_duration(category, export_minutes)
+        r = self.rules.get("min_reservation")
+        m = MIN_RESERVATION.get(category)
+        if r is not None and r.hard and m:
+            d = max(d, m)
+        return d
 
     def rule(self, name: str) -> Rule:
         return self.rules[name]
@@ -246,6 +277,15 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
             errors.append(f"rules.{key}.value moet een niet-negatief geheel getal zijn")
         rules[key] = Rule(key, bool(merged.get("hard")), params)
 
+    rg = rules.get("match_start_grid")
+    if rg and rg.hard and isinstance(rg.params.get("value"), int) and rg.params["value"] > 0:
+        for key, v in (("start", day_start), ("fallback_start", fallback)):
+            if v is not None and v % rg.params["value"]:
+                errors.append(
+                    f"day.{key} ({min_to_hhmm(v)}) ligt niet op een heel/half uur; "
+                    "Rood/Oranje beginnen op de dagstart (CR Bijlage 3, 1.1)"
+                )
+
     durations: dict[Category, int] = {}
     for key, v in (data.get("durations") or {}).items():
         try:
@@ -255,6 +295,13 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
             continue
         if not isinstance(v, int) or v <= 0 or v % 15:
             errors.append(f"durations.{key}: verwacht positief veelvoud van 15 minuten")
+            continue
+        m = MIN_RESERVATION.get(cat)
+        if m and rules.get("min_reservation") and rules["min_reservation"].hard and v < m:
+            errors.append(
+                f"durations.{key}: {v} min is korter dan de KNLTB-minimumreservering "
+                f"van {m} min (CR Bijlage 3, 2.1.a)"
+            )
             continue
         durations[cat] = v
 
