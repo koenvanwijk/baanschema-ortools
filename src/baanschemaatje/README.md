@@ -33,6 +33,26 @@ python scripts/validate_schedule.py out/baanschemaatje/mierlose-t-v_06-09-2026.j
     --season data/season_2026-2027.tsv
 ```
 
+## Web-GUI (testomgeving)
+
+Statische pagina in `web/baanschemaatje/` (geen build-stap, geen externe
+CDN's). Kies club + speeldag: baanschema per baan (kwartierrijen), partijen
+gekleurd per team met categorie, niet-ingeplande partijen, validator-
+bevindingen, overzicht van alle speeldagen en het clubprofiel (clubafspraken
+vs KNLTB-defaults).
+
+De plannen zijn **vooraf berekend**; opnieuw genereren:
+
+```bash
+python -m baanschemaatje build-web            # alle clubs/*.yaml, alle speeldagen
+python -m baanschemaatje build-web --club clubs/mierlo.yaml --date 13-09-2026
+```
+
+Bekijken zonder Pages, rechtstreeks van de branch:
+https://raw.githack.com/koenvanwijk/baanschema-ortools/product/generiek/web/baanschemaatje/index.html
+— of lokaal: `python -m http.server -d web/baanschemaatje`.
+Live (her)plannen vanuit de GUI vraagt later een backend.
+
 ## Opbouw
 
 | Module | Rol |
@@ -42,6 +62,7 @@ python scripts/validate_schedule.py out/baanschemaatje/mierlose-t-v_06-09-2026.j
 | `miniyaml.py` | YAML-lezer: PyYAML als die er is, anders een kleine ingebouwde parser (geen extra dependency) |
 | `season.py` | KNLTB-export (TSV) → genormaliseerd `Season`/`Fixture`-model (read-only) |
 | `planner.py` | CP-SAT-planner voor één speeldag met configureerbaar aantal banen |
+| `webexport.py` | Plannen + profielsamenvatting als JSON voor de web-GUI |
 | `cli.py` | `python -m baanschemaatje` |
 
 ## Clubprofiel

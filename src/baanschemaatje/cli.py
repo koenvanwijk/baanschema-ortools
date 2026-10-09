@@ -4,6 +4,7 @@ Commando's:
   check  --club FILE                       clubprofiel valideren
   dates  --season FILE [--club FILE]       speeldagen in het seizoen tonen
   plan   --club FILE --season FILE --date dd-mm-YYYY [--out FILE]
+  build-web [--club FILE ...] [--season FILE] [--out DIR]   web-GUI-data
 
 Output gaat standaard naar ``out/baanschemaatje/`` (gitignored), nooit naar
 ``docs/`` — de live site blijft onaangeroerd.
@@ -46,6 +47,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--out", type=Path, help=f"JSON-uitvoer (default: {DEFAULT_OUT}/<club>_<datum>.json)")
 
+    w = sub.add_parser("build-web", help="plannen voor alle speeldagen vooraf berekenen voor de web-GUI")
+    w.add_argument("--club", action="append", type=Path, help="clubprofiel (herhaalbaar; default: alle clubs/*.yaml)")
+    w.add_argument("--season", type=Path, default=Path("data/season_2026-2027.tsv"))
+    w.add_argument("--out", type=Path, default=Path("web/baanschemaatje/data"))
+    w.add_argument("--time-limit", type=float, default=20.0)
+    w.add_argument("--date", action="append", help="alleen deze speeldag(en)")
+
     a = ap.parse_args(argv)
     try:
         if a.cmd == "check":
@@ -58,6 +66,13 @@ def main(argv: list[str] | None = None) -> int:
             season = load_season_tsv(a.season, home)
             for date, fx in season.by_date().items():
                 print(f"{date}  {len(fx)} wedstrijden")
+            return 0
+        if a.cmd == "build-web":
+            from baanschemaatje.webexport import build_web
+
+            clubs = a.club or sorted(Path("clubs").glob("*.yaml"))
+            build_web(clubs, a.season, a.out, time_limit_s=a.time_limit, dates=a.date)
+            print(f"Klaar: {a.out}/index.json")
             return 0
         prof = load_profile(a.club)
         season = load_season_tsv(a.season, prof.knltb_name)

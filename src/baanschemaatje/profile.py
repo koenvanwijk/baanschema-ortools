@@ -82,6 +82,19 @@ CORE_RULE_DEFAULTS: dict[str, dict[str, Any]] = {
 }
 
 
+#: Bron per regel (voor UI/rapportage). "product" = geen KNLTB-regel.
+RULE_SOURCES: dict[str, str] = {
+    "match_start_grid": "KNLTB CR Bijlage 3, 1.1",
+    "match_start_window": "KNLTB CR Bijlage 3, 1.1",
+    "junioren_start_window": "KNLTB CR Bijlage 3, 1.1.a",
+    "junioren_latest_start": "KNLTB CR Bijlage 3, 1.1.a",
+    "junioren_mixed_8p_latest_start": "KNLTB CR Bijlage 3, 1.1.a",
+    "mixed_8p_latest_start": "KNLTB CR Bijlage 3, 1.1.b",
+    "travel_not_before": "KNLTB CR Bijlage 3, 1.2",
+    "min_reservation": "KNLTB CR Bijlage 3, 2.1.a",
+}
+
+
 @dataclass(frozen=True)
 class Rule:
     name: str
