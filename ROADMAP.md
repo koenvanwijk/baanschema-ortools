@@ -94,6 +94,22 @@ Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is gee
 
 **Spike KNLTB-koppeling:** mogelijkheden, auth, datamodel. Pas daarna “liefst koppeling” i.p.v. alleen export.
 
+### Spoor KNLTB-regelhulp (AI) — parallel, niet blocker voor fase 1
+
+Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en actueel houdt (de regels wijzigen vaak), en vragen beantwoordt over o.a. invallers, uitval, verplaatsen en opgave.
+
+**Ontwerpprincipes**
+
+- **Gegrond in officiële bronnen:** elk antwoord is gebaseerd op de officiële KNLTB-reglementdocumenten en citeert **artikel + versie/datum** van het reglement. Geen bron gevonden → dat expliciet zeggen, niet gissen.
+- **Actueel houden:** geplande check op nieuwe reglementversies; wijzigingen landen in een **changelog** (wat is er veranderd, sinds welke versie/datum).
+- **Officieel vs clubafspraak gescheiden:** KNLTB-regels (regelbank) staan los van clubafspraken (clubprofiel). Een antwoord maakt altijd duidelijk wat officieel reglement is en wat een afspraak van de eigen vereniging.
+- **Adviseert, handelt niet:** de assistent wijzigt nooit zelf een schema; hij geeft advies, de mens (of de planner via een expliciete actie) beslist.
+
+**Succescriteria**
+
+- Antwoorden op een testset vragen (invallers, uitval, verplaatsen) bevatten correcte artikelcitaten met versie/datum.
+- Een nieuwe reglementversie wordt automatisch gedetecteerd en in de changelog gezet.
+
 ## Acceptatie per fase
 
 - CI groen op SPEC-core-tests.
@@ -134,6 +150,13 @@ Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is gee
 ### Spoor KNLTB
 
 18. Spike: KNLTB-koppeling — mogelijkheden, auth, datamodel (geen implementatie)
+
+### Spoor KNLTB-regelhulp (AI) — parallel, niet blocker
+
+22. Spike: bronnen KNLTB-reglementen + updatefrequentie
+23. Feature: regelbank met versies en bronverwijzingen
+24. Feature: AI-regelhulp met citaten (invallers, uitval, verplaatsen)
+25. Feature: automatische check op nieuwe reglementversies
 
 ### P2 engineering (na MVP of parallel)
 
