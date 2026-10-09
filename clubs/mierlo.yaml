@@ -28,6 +28,9 @@ court_assignment:
   # vaste baanparen (was: max 2 banen op een vast paar 1+2, 3+4, ...).
   # KNLTB CR Bijlage 3 vraagt minimaal 2 banen per team; 3 mag.
   max_courts_per_team: 3
+  # Besluit Oscar 09-10-2026: de banen van een team liggen naast elkaar
+  # (bv. 1-2-3 of 6-7, niet 1 en 3). Clubafspraak, hard.
+  adjacent: true
   preferred_courts_8p: [1, 2, 3, 4]
 
 # Regels: zonder overrides gelden de SPEC-core-defaults (KNLTB Competitie-

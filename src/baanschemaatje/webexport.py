@@ -57,6 +57,7 @@ def profile_summary(prof: ClubProfile, club_id: str) -> dict[str, Any]:
         },
         "court_pairs": [list(p) for p in prof.court_pairs] if prof.court_pairs else None,
         "max_courts_per_team": prof.max_courts_per_team,
+        "adjacent_courts": prof.adjacent_courts,
         "preferred_courts_8p": list(prof.preferred_courts_8p),
         "durations": {k.value: prof.expected_duration(k) for k in DEFAULT_DURATIONS},
         "min_reservation": {k.value: v for k, v in MIN_RESERVATION.items()},

@@ -179,3 +179,21 @@ def test_short_labels_split_13_17_by_gender(schema, label):
     from baanschemaatje.categories import short_label
 
     assert short_label(schema) == label
+
+
+def test_adjacent_courts_default_on_and_configurable():
+    base = {"club": {"name": "X"}, "courts": {"count": 6}}
+    assert profile_from_dict(base).adjacent_courts is True
+    off = profile_from_dict({**base, "court_assignment": {"max_courts_per_team": 3, "adjacent": False}})
+    assert off.adjacent_courts is False
+    with pytest.raises(ProfileError):
+        profile_from_dict({**base, "court_assignment": {"adjacent": "ja"}})
+
+
+def test_mierlo_adjacent_courts_on(root):
+    from baanschemaatje.profile import load_profile
+    from baanschemaatje.webexport import profile_summary
+
+    p = load_profile(root / "clubs" / "mierlo.yaml")
+    assert p.adjacent_courts is True and p.max_courts_per_team == 3 and p.court_pairs is None
+    assert profile_summary(p, "mierlo")["adjacent_courts"] is True

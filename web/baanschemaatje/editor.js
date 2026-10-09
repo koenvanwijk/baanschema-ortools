@@ -91,6 +91,14 @@ function checkPlan(rows, club) {
       add("clubafspraak", "max-banen-dag", `${nm}: speelt op ${usedCourts.length} verschillende banen (${usedCourts.sort((a, b) => a - b).join(", ")}), max ${maxC} per team`, pl);
     }
 
+    // Aangrenzende banen (clubafspraak, standaard aan; niet bij vaste baanparen): één aaneengesloten blok.
+    if (club.adjacent_courts !== false && !club.court_pairs && usedCourts.length > 1) {
+      const cs = usedCourts.slice().sort((a, b) => a - b);
+      if (cs[cs.length - 1] - cs[0] + 1 !== cs.length) {
+        add("clubafspraak", "banen-aangrenzend", `Banen niet aangrenzend: ${nm} speelt op baan ${cs.join(", ")} (moet één aaneengesloten blok zijn, bv. baan ${cs[0]}–${cs[0] + cs.length - 1})`, pl);
+      }
+    }
+
     // Spelers: max 4 spelers tegelijk bezet (zelfde spelers spelen S en D), gemengd max 2 heren + 2 dames.
     const mixed = /gemengd/i.test(t0.team || "");
     const pts = [...new Set(pl.flatMap((i) => [_m(rows[i].start), _m(rows[i].end)]))].sort((a, b) => a - b);

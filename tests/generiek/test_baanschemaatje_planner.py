@@ -194,3 +194,22 @@ def test_travel_80km_not_before_10(profiles):
     res = plan_day(profiles["voorbeeld"], [far], "01-01-2030", time_limit_s=5)
     assert res.unscheduled == 0
     assert min(_first_starts(res.rows).values()) >= 10 * 60
+
+
+def _assert_adjacent_courts(rows):
+    by_team = defaultdict(set)
+    for r in _placed(rows):
+        if r["kind"] != "W":
+            by_team[r["team_id"]].add(r["court"])
+    for team, cs in by_team.items():
+        assert max(cs) - min(cs) + 1 == len(cs), f"{team}: banen {sorted(cs)} niet aangrenzend"
+
+
+@pytest.mark.parametrize("club,date", [("mierlo", "11-10-2026"), ("voorbeeld", "11-10-2026")])
+def test_adjacent_courts_hard(profiles, season, club, date):
+    prof = profiles[club]
+    assert prof.adjacent_courts
+    res = plan_day(prof, season.fixtures, date, time_limit_s=TL)
+    assert res.status in ("OPTIMAL", "FEASIBLE")
+    _assert_adjacent_courts(res.rows)
+    _assert_no_court_overlap(res.rows)

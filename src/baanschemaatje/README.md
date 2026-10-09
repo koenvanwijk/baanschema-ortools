@@ -90,6 +90,7 @@ reservations:                 # optioneel, alleen voor rood/oranje
 court_assignment:             # optioneel
   max_courts_per_team: 2
   pairs: [[1, 2], [3, 4]]     # optioneel: team speelt op één vast paar
+  adjacent: true              # default: banen van een team liggen naast elkaar (1-2-3, niet 1+3)
   preferred_courts_8p: [1, 2, 3, 4]
 rules:                        # optioneel: overrides op de core-defaults
   first_start_deadline:

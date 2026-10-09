@@ -405,7 +405,7 @@ function renderProfile(c) {
       <div class="card"><div class="k">Laatste start / einde</div><div class="v">${esc(c.day.last_start)} / ${esc(c.day.end)}</div></div>
     </div>
     <p><b>Baanreserveringen:</b> ${resTxt}<br>
-    <b>Baantoewijzing:</b> max ${c.max_courts_per_team} banen per team${c.court_pairs ? `; vaste baanparen ${c.court_pairs.map((p) => p.join("+")).join(", ")}` : ""}${c.preferred_courts_8p.length ? `; 8p-teams bij voorkeur op baan ${c.preferred_courts_8p.join(", ")}` : ""}<br>
+    <b>Baantoewijzing:</b> max ${c.max_courts_per_team} banen per team${c.adjacent_courts !== false && !c.court_pairs ? ", aangrenzend" : ""}${c.court_pairs ? `; vaste baanparen ${c.court_pairs.map((p) => p.join("+")).join(", ")}` : ""}${c.preferred_courts_8p.length ? `; 8p-teams bij voorkeur op baan ${c.preferred_courts_8p.join(", ")}` : ""}<br>
     <b>Verwachte speelduur (min, KNLTB-default):</b> ${durs}</p>
     <div class="tablewrap"><table>
       <tr><th>Regel</th><th>Waarde</th><th>Hard/zacht</th><th>Soort</th><th>KNLTB/core-default</th><th>Bron</th></tr>${rows}

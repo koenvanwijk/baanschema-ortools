@@ -123,6 +123,9 @@ class ClubProfile:
     reservations: dict[Category, Reservation] = field(default_factory=dict)
     max_courts_per_team: int = 2
     court_pairs: tuple[tuple[int, int], ...] | None = None
+    #: Clubafspraak "aangrenzende banen": alle banen die een team op een dag gebruikt
+    #: vormen één aaneengesloten blok (bv. 1-2, 1-2-3, 6-7-8). Default aan.
+    adjacent_courts: bool = True
     preferred_courts_8p: tuple[int, ...] = ()
     rules: dict[str, Rule] = field(default_factory=dict)
     durations: dict[Category, int] = field(default_factory=dict)
@@ -257,6 +260,10 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
                 pairs = tuple((p[0], p[1]) for p in raw)
                 if mcpt > 2:
                     errors.append("court_assignment.pairs vereist max_courts_per_team <= 2")
+    adjacent = ca.get("adjacent", True)
+    if not isinstance(adjacent, bool):
+        errors.append("court_assignment.adjacent moet true of false zijn")
+        adjacent = True
     pref = ()
     if ca.get("preferred_courts_8p") is not None:
         pref = _as_courts(ca["preferred_courts_8p"], "court_assignment.preferred_courts_8p", n, errors)
@@ -332,6 +339,7 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
         reservations=reservations,
         max_courts_per_team=mcpt,
         court_pairs=pairs,
+        adjacent_courts=adjacent,
         preferred_courts_8p=pref,
         rules=rules,
         durations=durations,

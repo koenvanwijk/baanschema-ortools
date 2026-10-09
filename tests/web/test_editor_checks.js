@@ -78,10 +78,11 @@ const levels = (res) => res.issues.map((i) => i.level);
 const loadPlan = (club_, date) => JSON.parse(fs.readFileSync(path.join(DATA, club_, `${date}.json`)));
 
 test("alle vooraf berekende plannen: geen Spelersconflict/Volgorde/wachttijd/blokken", () => {
+  // Aangrenzende banen is nieuw (09-10-2026); de vooraf berekende plannen zijn nog zonder die regel gemaakt.
   const idx = JSON.parse(fs.readFileSync(path.join(DATA, "index.json")));
   for (const c of idx.clubs) for (const d of c.dates) {
     const plan = JSON.parse(fs.readFileSync(path.join(DATA, d.file)));
-    assert.deepStrictEqual(checkPlan(plan.rows, c).issues, [], d.file);
+    assert.deepStrictEqual(checkPlan(plan.rows, c).issues.filter((i) => i.rule !== "banen-aangrenzend"), [], d.file);
   }
 });
 
@@ -92,7 +93,7 @@ test("Oscar: M13-17 1e MIERLO 3 S3 over D1/D2 heen slepen (27-09) → Spelerscon
   const d1 = plan.rows.findIndex((r) => team(r) && r.part === "D1");
   const d2 = plan.rows.findIndex((r) => team(r) && r.part === "D2");
   assert.ok(s3 >= 0 && d1 >= 0 && d2 >= 0);
-  assert.deepStrictEqual(checkPlan(plan.rows, club).issues, []);
+  assert.deepStrictEqual(checkPlan(plan.rows, club).issues.filter((i) => i.rule !== "banen-aangrenzend"), []);
   const rows = JSON.parse(JSON.stringify(plan.rows));
   Object.assign(rows[s3], { start: rows[d1].start, end: "14:00", court: rows[d1].court === 9 ? 3 : 9 });
   // S3 naar een vrije baan om 12:30, dus geen baanconflict, wel dezelfde spelers tegelijk bezet.
@@ -150,4 +151,31 @@ test("wachttijd > 60 min en te veel speelblokken (hard productstandaard)", () =>
 test("banen per team over de dag: meer dan max verschillende banen", () => {
   const rs = [team4("S1", "10:00", "11:30", 1), team4("S2", "10:00", "11:30", 2), team4("D1", "11:30", "13:00", 5), team4("D2", "11:30", "13:00", 6)];
   assert.ok(checkPlan(rs, club).issues.some((x) => x.rule === "max-banen-dag"));
+});
+
+// ---------------------------------------------------------------- aangrenzende banen
+
+test("Oscar: 27-09 JU11-14 2e MIERLO 3 (baan 1 en 3) en M13-17 Hoofdklasse MIERLO 1 (baan 2 en 7) niet aangrenzend", () => {
+  const plan = loadPlan("mierlo", "27-09-2026");
+  const res = checkPlan(plan.rows, club);
+  const adj = res.issues.filter((i) => i.rule === "banen-aangrenzend");
+  const ju = adj.find((i) => /JU11-14 MIERLO 3/.test(i.msg));
+  const hk = adj.find((i) => /M13-17 MIERLO 1/.test(i.msg));
+  assert.ok(ju && /baan 1, 3\b/.test(ju.msg), JSON.stringify(adj));
+  assert.ok(hk && /baan 2, 7\b/.test(hk.msg), JSON.stringify(adj));
+  assert.strictEqual(ju.level, "clubafspraak");
+  assert.ok(/^Banen niet aangrenzend/.test(ju.msg));
+  // Alle partijen van het team krijgen de rode rand.
+  const juRows = plan.rows.map((r, i) => [r, i]).filter(([r]) => r.label === "JU11-14" && r.home_team === "MIERLO 3").map(([, i]) => i);
+  for (const i of juRows) assert.ok(res.byRow.get(i).some((x) => x.rule === "banen-aangrenzend"));
+});
+
+test("aangrenzend: 1-2-3 en 6-7 mag, 1+3 niet; uit in profiel of bij vaste baanparen geen melding", () => {
+  const t = (courts) => courts.map((c, k) => team4(`S${k + 1}`, "10:00", "11:30", c));
+  const adj = (rs, cl = club) => checkPlan(rs, cl).issues.some((i) => i.rule === "banen-aangrenzend");
+  assert.ok(!adj(t([1, 2, 3])));
+  assert.ok(!adj(t([7, 6])));
+  assert.ok(adj(t([1, 3])));
+  assert.ok(!adj(t([1, 3]), { ...club, adjacent_courts: false }));
+  assert.ok(!adj(t([1, 3]), { ...club, court_pairs: [[1, 3]] }));
 });

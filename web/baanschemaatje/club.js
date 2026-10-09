@@ -89,6 +89,7 @@ function fillForm() {
   $("f-maxcourts").value = s.max_courts_per_team;
   $("f-pairs").value = s.court_pairs ? s.court_pairs.map((x) => x.join("-")).join(", ") : "";
   $("f-pref8p").value = (s.preferred_courts_8p || []).join(", ");
+  $("f-adjacent").checked = s.adjacent_courts !== false;
   renderRules(s.rules);
   for (const el of document.querySelectorAll('[id^="f-"], #rules input, #days-pick input')) el.disabled = !CLUB.editable;
   $("save").disabled = !CLUB.editable;
@@ -179,6 +180,7 @@ function buildProfile() {
   const ca = { max_courts_per_team: parseInt($("f-maxcourts").value, 10) };
   if ($("f-pairs").value.trim()) ca.pairs = $("f-pairs").value.split(",").map((p) => courtsList(p.replace("-", " ")));
   if ($("f-pref8p").value.trim()) ca.preferred_courts_8p = courtsList($("f-pref8p").value);
+  ca.adjacent = $("f-adjacent").checked;
   raw.court_assignment = ca;
   const rules = {};
   for (const r of CLUB.summary.rules) {

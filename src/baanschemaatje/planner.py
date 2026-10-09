@@ -364,6 +364,11 @@ def _solve(
                 model.add(mx >= c).only_enforce_if(use[c])
             spread = model.new_int_var(0, len(courts), f"spr_{h}")
             model.add(spread >= mx - mn)
+            if profile.adjacent_courts:
+                # Aangrenzende banen (hard): aantal gebruikte banen == mx - mn + 1, dus
+                # mn/mx zijn exact de laagste/hoogste baan en er zit geen gat tussen.
+                # Gebruikt het team geen baan, dan geldt mx = mn - 1.
+                model.add(sum(use.values()) == mx - mn + 1)
             obj_pen.append(100_000 * spread)
         obj_pen.append(150_000 * sum(use.values()))
 
