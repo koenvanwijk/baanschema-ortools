@@ -237,6 +237,8 @@ class PlanEditor {
   decorate(res) {
     for (const el of document.querySelectorAll("[data-ri]")) {
       const iss = res.byRow.get(+el.dataset.ri);
+      if (el.dataset.tip === undefined) el.dataset.tip = el.title || "";
+      el.dataset.iss = iss ? iss.map((x) => `[${x.level}] ${x.msg}`).join("\n") : "";
       el.classList.toggle("viol", !!iss);
       if (iss) el.title = iss.map((x) => `[${x.level}] ${x.msg}`).join("\n");
     }
@@ -250,12 +252,16 @@ class PlanEditor {
     const groups = ["conflict", "Spelersconflict", "Volgorde", "KNLTB", "clubafspraak", "Baanschemaatje"].map((lv) => [lv, res.issues.filter((x) => x.level === lv)]).filter(([, l]) => l.length);
     const label = { conflict: "Baanconflict", Spelersconflict: "Spelersconflict", Volgorde: "Volgorde", KNLTB: "KNLTB-reglement", clubafspraak: "Clubafspraak", Baanschemaatje: "Baanschemaatje-standaard" };
     bar.innerHTML = `<div class="ed-tools">
-        <span class="hint">Sleep een partij naar een andere baan of tijd (per kwartier). Niet-ingeplande partijen kun je op het grid slepen.</span>
+        <button class="btn2 ed-toggle${edOn() ? " on" : ""}" id="ed-toggle" aria-pressed="${edOn()}" title="Slepen van partijen aan- of uitzetten">Bewerken ${edOn() ? "aan" : "uit"}</button>
+        <span class="hint">${edOn()
+          ? (ED_TOUCH ? "Houd een partij even vast (tot hij oplicht) en sleep hem naar een andere baan of tijd (per kwartier). Gewoon vegen scrolt." : "Sleep een partij naar een andere baan of tijd (per kwartier). Niet-ingeplande partijen kun je op het grid slepen.")
+          : `Bewerken staat uit: ${ED_TOUCH ? "vegen scrolt, tik" : "klik"} op een partij voor details. Zet Bewerken aan om partijen te verslepen.`}</span>
         <button class="btn2" id="ed-undo" ${this.history.length ? "" : "disabled"}>Ongedaan maken</button>
         <button class="btn2" id="ed-reset" ${this.edited ? "" : "disabled"}>Terug naar origineel</button></div>
       ${this.edited ? `<div class="ed-banner">Aangepast, niet opgeslagen (${this.history.length} wijziging${this.history.length === 1 ? "" : "en"}). De directe controle hieronder geldt voor deze aangepaste stand.</div>` : ""}
       ${groups.length ? groups.map(([lv, l]) => `<div class="ed-issues ${lv}"><b>${label[lv]} (${l.length})</b><ul>${l.slice(0, 12).map((x) => `<li>${e(x.msg)}</li>`).join("")}${l.length > 12 ? `<li>… en ${l.length - 12} meer</li>` : ""}</ul></div>`).join("")
         : (this.edited ? `<div class="ed-ok">Geen overtredingen gevonden door de directe controle.</div>` : "")}`;
+    bar.querySelector("#ed-toggle").onclick = () => { edSet(!edOn()); edClosePop(); this.renderBar(res); this.enableDrag(); };
     bar.querySelector("#ed-undo").onclick = () => this.undo();
     bar.querySelector("#ed-reset").onclick = () => this.reset();
   }
@@ -266,35 +272,137 @@ class PlanEditor {
     return null;
   }
 
+  // Muis: direct slepen (als Bewerken aan staat). Touch: alleen na lang indrukken (~400 ms) zonder
+  // bewegen, zodat gewoon vegen het grid scrolt. Bewerken uit: tikken/klikken toont details.
   enableDrag() {
-    const items = document.querySelectorAll("[data-ri]:not(.res)");
-    for (const el of items) {
-      el.style.touchAction = "none";
+    const grid = document.body.classList;
+    grid.toggle("ed-on", edOn());
+    grid.toggle("ed-touch", ED_TOUCH);
+    for (const el of document.querySelectorAll("[data-ri]")) {
+      el.style.touchAction = "";
+      el.oncontextmenu = (e) => { if (ED_TOUCH) e.preventDefault(); };
       el.onpointerdown = (ev) => {
         if (ev.button !== 0) return;
-        ev.preventDefault();
-        const ri = +el.dataset.ri;
-        const rect = el.getBoundingClientRect();
-        const fromGrid = el.classList.contains("blk");
-        const offY = fromGrid ? ev.clientY - rect.top : 4;
-        const ghost = el.cloneNode(true);
-        Object.assign(ghost.style, { position: "fixed", left: `${rect.left}px`, top: `${rect.top}px`, width: `${Math.max(rect.width, 90)}px`,
-          height: fromGrid ? `${rect.height}px` : "auto", opacity: ".8", pointerEvents: "none", zIndex: 1000, margin: 0 });
-        ghost.classList.add("ghost");
-        document.body.appendChild(ghost);
-        const mv = (e) => { ghost.style.left = `${e.clientX - (fromGrid ? ev.clientX - rect.left : 10)}px`; ghost.style.top = `${e.clientY - offY}px`; };
-        const up = (e) => {
-          document.removeEventListener("pointermove", mv);
-          document.removeEventListener("pointerup", up);
-          ghost.remove();
-          const cell = this._cellAt(e.clientX, e.clientY - offY + 3);
-          if (cell) this.move(ri, +cell.dataset.court, +cell.dataset.min);
+        const res = el.classList.contains("res");
+        const touch = ev.pointerType !== "mouse";
+        const x0 = ev.clientX, y0 = ev.clientY;
+        let moved = false, timer = null;
+        const cleanup = () => {
+          clearTimeout(timer);
+          document.removeEventListener("pointermove", pmv);
+          document.removeEventListener("pointerup", pup);
+          document.removeEventListener("pointercancel", pcan);
         };
-        document.addEventListener("pointermove", mv);
-        document.addEventListener("pointerup", up);
+        const pmv = (e) => { if (Math.hypot(e.clientX - x0, e.clientY - y0) > 8) { moved = true; cleanup(); } };
+        const pup = () => { cleanup(); if (!moved) edShowPop(el); };
+        const pcan = () => cleanup(); // browser neemt het over (scrollen)
+        if (!edOn() || res) {
+          // alleen tik/klik → details; vegen blijft gewoon scrollen
+          document.addEventListener("pointermove", pmv);
+          document.addEventListener("pointerup", pup);
+          document.addEventListener("pointercancel", pcan);
+          return;
+        }
+        if (!touch) { ev.preventDefault(); this._drag(el, ev); return; }
+        // touch + Bewerken aan: lang indrukken start slepen
+        document.addEventListener("pointermove", pmv);
+        document.addEventListener("pointerup", pup); // korte tik: details
+        document.addEventListener("pointercancel", pcan);
+        timer = setTimeout(() => {
+          cleanup();
+          if (navigator.vibrate) try { navigator.vibrate(15); } catch (_) { /* niet ondersteund */ }
+          this._drag(el, ev);
+        }, ED_LONGPRESS_MS);
       };
     }
   }
+
+  _drag(el, ev) {
+    edClosePop();
+    const ri = +el.dataset.ri;
+    const rect = el.getBoundingClientRect();
+    const fromGrid = el.classList.contains("blk");
+    const offY = fromGrid ? ev.clientY - rect.top : 4;
+    const offX = fromGrid ? ev.clientX - rect.left : 10;
+    const ghost = el.cloneNode(true);
+    Object.assign(ghost.style, { position: "fixed", left: `${rect.left}px`, top: `${rect.top}px`, width: `${Math.max(rect.width, 90)}px`,
+      height: fromGrid ? `${rect.height}px` : "auto", opacity: ".9", pointerEvents: "none", zIndex: 1000, margin: 0 });
+    ghost.classList.add("ghost", "lifted");
+    el.classList.add("lift-src");
+    document.body.appendChild(ghost);
+    document.body.classList.add("ed-dragging");
+    // touch: voorkom dat de pagina gaat scrollen zolang we slepen
+    const noScroll = (e) => { if (e.cancelable) e.preventDefault(); };
+    document.addEventListener("touchmove", noScroll, { passive: false });
+    const mv = (e) => { ghost.style.left = `${e.clientX - offX}px`; ghost.style.top = `${e.clientY - offY}px`; };
+    const end = (e, drop) => {
+      document.removeEventListener("pointermove", mv);
+      document.removeEventListener("pointerup", up);
+      document.removeEventListener("pointercancel", cancel);
+      document.removeEventListener("touchmove", noScroll);
+      document.body.classList.remove("ed-dragging");
+      el.classList.remove("lift-src");
+      ghost.remove();
+      if (!drop) return;
+      const cell = this._cellAt(e.clientX, e.clientY - offY + 3);
+      if (cell) this.move(ri, +cell.dataset.court, +cell.dataset.min);
+    };
+    const up = (e) => end(e, true);
+    const cancel = (e) => end(e, false);
+    document.addEventListener("pointermove", mv);
+    document.addEventListener("pointerup", up);
+    document.addEventListener("pointercancel", cancel);
+  }
+}
+
+// ---------------------------------------------------------------- bewerken aan/uit + details
+
+const ED_TOUCH = typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+const ED_LONGPRESS_MS = 400;
+let ED_ON = null; // null = standaard (aan met muis, uit op touch)
+function edOn() {
+  if (ED_ON === null) {
+    let s = null;
+    try { s = sessionStorage.getItem("bs-bewerken"); } catch (_) { /* geen storage */ }
+    ED_ON = s === null ? !ED_TOUCH : s === "1";
+  }
+  return ED_ON;
+}
+function edSet(on) { ED_ON = !!on; try { sessionStorage.setItem("bs-bewerken", on ? "1" : "0"); } catch (_) { /* geen storage */ } }
+
+function edClosePop() {
+  const p = document.getElementById("ed-pop");
+  if (p) { if (p._src) p._src.classList.remove("pop-src"); p.remove(); }
+}
+function edShowPop(el) {
+  edClosePop();
+  const e = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const lines = el.innerText.split("\n").map((x) => x.trim()).filter(Boolean);
+  const cat = el.querySelector(".cat");
+  if (cat && lines[0] && lines[0].startsWith(cat.textContent) && lines[0] !== cat.textContent) lines[0] = `${cat.textContent} ${lines[0].slice(cat.textContent.length)}`;
+  const tip = (el.dataset.tip || "").split("\n").filter((x) => x && !lines.includes(x.trim()));
+  const iss = (el.dataset.iss || "").split("\n").filter(Boolean);
+  const p = document.createElement("div");
+  p.id = "ed-pop";
+  p.className = "ed-pop";
+  p.innerHTML = `<button class="ed-pop-x" aria-label="Sluiten">×</button>
+    <div><b>${e(lines[0] || "")}</b></div>${lines.slice(1).map((x) => `<div>${e(x)}</div>`).join("")}
+    ${tip.length ? `<div class="hint">${tip.map(e).join("<br>")}</div>` : ""}
+    ${iss.length ? `<ul class="ed-pop-iss">${iss.map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}`;
+  document.body.appendChild(p);
+  const r = el.getBoundingClientRect();
+  const w = Math.min(300, window.innerWidth - 16);
+  p.style.width = `${w}px`;
+  p.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - w - 8))}px`;
+  const below = r.bottom + 6, h = p.offsetHeight;
+  p.style.top = `${below + h < window.innerHeight - 8 ? below : Math.max(8, r.top - h - 6)}px`;
+  p.querySelector(".ed-pop-x").onclick = edClosePop;
+  el.classList.add("pop-src");
+  p._src = el;
+}
+if (typeof document !== "undefined") {
+  document.addEventListener("pointerdown", (e) => { const p = document.getElementById("ed-pop"); if (p && !p.contains(e.target) && !(p._src && p._src.contains(e.target))) edClosePop(); });
+  window.addEventListener("scroll", edClosePop, true);
 }
 
 if (typeof module !== "undefined") module.exports = { checkPlan, playerDemand, PlanEditor };

@@ -170,3 +170,17 @@ li.drag.moved { border-color: #7b4fc9; background: #f6f1fe; }
 tr.ov-row.computing td { background: #eef4fc !important; }
 .ov-st.queued { color: #777; font-style: italic; }
 .pg.sticky { position: sticky; top: 60px; z-index: 4; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+/* Bewerken aan/uit (mobiel: slepen alleen na lang indrukken) */
+.ed-toggle { font-weight: 600; }
+.ed-toggle.on { background: #2e6b4f; color: #fff; border-color: #2e6b4f; }
+body:not(.ed-on) .blk:not(.res), body:not(.ed-on) li.drag { cursor: pointer; }
+body.ed-touch .blk, body.ed-touch li.drag { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+body.ed-dragging, body.ed-dragging * { -webkit-user-select: none; user-select: none; }
+.blk.lift-src, li.drag.lift-src { opacity: .35; }
+.ghost.lifted { transform: scale(1.06); box-shadow: 0 10px 24px rgba(0,0,0,.35); outline: 2px solid #2e6b4f; }
+.ed-pop { position: fixed; z-index: 1100; background: #fff; border: 1px solid #c9d3cc; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 10px 28px 10px 12px; font-size: 13px; line-height: 1.35; }
+.ed-pop .hint { margin-top: 4px; }
+.ed-pop-x { position: absolute; top: 4px; right: 6px; border: 0; background: none; font-size: 20px; line-height: 1; cursor: pointer; color: #555; }
+.ed-pop-iss { margin: 6px 0 0; padding-left: 16px; color: #b71c1c; }
+.blk.pop-src { box-shadow: 0 0 0 3px #2e6b4f; z-index: 2; }
