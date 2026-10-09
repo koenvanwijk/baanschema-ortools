@@ -1,0 +1,7 @@
+# gcloud builds submit --project baanschema --config server/baanschemaatje/cloudbuild.yaml .
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "server/baanschemaatje/Dockerfile", "-t", "${_IMAGE}", "."]
+images: ["${_IMAGE}"]
+substitutions:
+  _IMAGE: europe-west1-docker.pkg.dev/baanschema/baanschemaatje/server:latest
