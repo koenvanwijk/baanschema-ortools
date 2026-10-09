@@ -15,11 +15,15 @@
   <div class="controls">
     <label>Club <select id="club"></select></label>
     <label>Speeldag <select id="date"></select></label>
+    <label title="Maximale rekentijd per solverpoging">Rekentijd <select id="live-tl">
+      <option value="10">10s</option><option value="20" selected>20s</option><option value="30">30s</option></select></label>
+    <button id="live-btn" class="live-btn">Live berekenen</button>
   </div>
 </header>
 
 <main>
   <p class="note" id="note">Laden…</p>
+  <p id="live-status" class="live-status"></p>
 
   <section id="summary" class="cards"></section>
 
@@ -61,7 +65,7 @@
 
 <footer>
   Plannen zijn vooraf berekend met de generieke OR-Tools-planner (<code>python -m baanschemaatje build-web</code>).
-  Live (her)plannen vraagt later een backend. Dit staat los van de live Mierlo-pagina.
+  Met "Live berekenen" rekent de Baanschemaatje-server (Google Cloud Run) de gekozen speeldag opnieuw; lukt dat niet, dan blijft het vooraf berekende plan staan. Dit staat los van de live Mierlo-pagina.
 </footer>
 <script src="app.js"></script>
 </body>

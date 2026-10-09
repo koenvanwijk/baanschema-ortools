@@ -67,3 +67,13 @@ tr.best td { background: #e6f1ea; font-weight: 600; }
 tr.ref td { color: var(--muted); }
 .yes { color: var(--ok); font-weight: 700; } .no { color: var(--hard); font-weight: 700; }
 .reco { background: #e6f1ea; border: 1px solid #b9d9c5; border-radius: 8px; padding: 8px 12px; margin: 0 0 8px; font-size: 14px; }
+
+/* Live berekenen */
+.live-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #2b6cb0; background: #2b6cb0; color: #fff; font-weight: 600; cursor: pointer; align-self: center; }
+.live-btn:disabled { opacity: .6; cursor: wait; }
+.live-status { margin: 4px 0; font-size: .92em; }
+.live-status:empty { display: none; }
+.live-status.busy { color: #2b6cb0; }
+.live-status.ok { color: #2f855a; }
+.live-status.warn { color: #b7791f; }
+.live-status.err { color: #c53030; }

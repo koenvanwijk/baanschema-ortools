@@ -1,6 +1,13 @@
 "use strict";
 // Baanschemaatje web-GUI: leest vooraf berekende plannen uit ./data/.
 // Geen build-stap, geen externe bibliotheken; alle paden zijn relatief.
+// Optioneel: "Live berekenen" rekent de speeldag opnieuw via de live-backend
+// (server/baanschemaatje, Cloud Run). Is die onbereikbaar, dan blijven de
+// vooraf berekende plannen gewoon staan.
+
+// Live-backend. Overschrijfbaar met ?api=<url> (bv. ?api=http://localhost:8080).
+const LIVE_API_DEFAULT = "https://baanschemaatje-356953092000.europe-west1.run.app";
+const LIVE_API = (new URLSearchParams(location.search).get("api") || LIVE_API_DEFAULT).replace(/\/+$/, "");
 
 const CAT = {
   rood: { label: "Rood", short: "ROOD" },
@@ -104,6 +111,7 @@ async function render() {
     return;
   }
   CURRENT = { c, d, plan };
+  setLive("");
   showPlan(plan, null);
   renderSolutions(c, d);
 }
@@ -123,7 +131,11 @@ function showPlan(plan, scenario) {
   renderUnscheduled(plan);
   renderFindings(plan);
   const vw = $("viewing");
-  if (scenario) {
+  if (scenario && scenario.live) {
+    vw.hidden = false;
+    vw.innerHTML = `Je bekijkt een <b>live berekend</b> plan (${esc(scenario.title)}) — geen gepubliceerd schema.<button id="back">Terug naar vooraf berekend</button>`;
+    $("back").onclick = () => { showPlan(CURRENT.plan, null); renderSolutions(CURRENT.c, CURRENT.d); };
+  } else if (scenario) {
     vw.hidden = false;
     vw.innerHTML = `Je bekijkt oplossing <b>#${scenario.rank}: ${esc(scenario.title)}</b> — geen gepubliceerd schema.<button id="back">Terug naar voorstel</button>`;
     $("back").onclick = () => showPlan(CURRENT.plan, null);
@@ -141,7 +153,10 @@ async function renderSolutions(c, d) {
   try { data = await getJSON(`data/${d.solutions_file}`); } catch (e) {
     $("solutions").innerHTML = `<p class="note">Kon oplossingen niet laden: ${esc(e.message)}</p>`; return;
   }
-  const sols = data.solutions;
+  renderSolutionList(data.solutions);
+}
+
+function renderSolutionList(sols, live = false) {
   const best = sols.find((s) => s.fits && s.knltb_ok);
   const kindNL = { rekentijd: "rekentijd", clubafspraak: "clubafspraak", productdefault: "productdefault",
     dagindeling: "dagindeling", inhaaldag: "inhaaldag", combinatie: "combinatie", "niet-knltb": "mag niet (KNLTB)" };
@@ -156,7 +171,7 @@ async function renderSolutions(c, d) {
       <td>${s.knltb_ok ? '<span class="yes">ja</span>' : '<span class="no">nee</span>'}</td>
       <td class="num">${s.validator_hard ?? "–"}</td>
       <td><button data-i="${i}">Bekijk</button></td></tr>`).join("");
-  $("solutions").innerHTML = reco + `<div class="tablewrap"><table>
+  $("solutions").innerHTML = (live ? `<p class="note">Live doorgerekend op de server.</p>` : "") + reco + `<div class="tablewrap"><table>
     <tr><th>#</th><th>Versoepeling</th><th>Soort</th><th>Past alles</th><th>Ingepland</th><th>Niet</th><th>KNLTB-conform</th><th>HARD (ops-validator)</th><th></th></tr>${rows}</table></div>
     <p class="hint">"HARD (ops-validator)" toetst aan de operationele SPEC.md inclusief de huidige clubafspraken; een versoepelde clubafspraak telt daar dus als HARD, ook als het KNLTB-conform is.</p>`;
   for (const b of $("solutions").querySelectorAll("button[data-i]")) {
@@ -283,6 +298,74 @@ function renderProfile(c) {
     <p class="hint">Clubafspraken mogen strenger zijn dan het KNLTB-reglement, niet ruimer. KNLTB = Competitiereglement (vastgesteld 11-11-2025), Bijlage 3.</p>`;
 }
 
+// ---------------------------------------------------------------- live
+
+function setLive(msg, cls = "") {
+  const el = $("live-status");
+  el.className = `live-status ${cls}`;
+  el.textContent = msg;
+}
+
+async function livePost(path, body) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 590000);
+  try {
+    const res = await fetch(`${LIVE_API}${path}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body), signal: ctl.signal,
+    });
+    if (!res.ok) {
+      let detail = `HTTP ${res.status}`;
+      try { detail += `: ${(await res.json()).detail}`; } catch (_) { /* geen JSON */ }
+      throw new Error(detail);
+    }
+    return await res.json();
+  } finally { clearTimeout(t); }
+}
+
+async function livePlan() {
+  if (!CURRENT) return;
+  const { c, d } = CURRENT;
+  const tl = +$("live-tl").value;
+  const btn = $("live-btn");
+  btn.disabled = true;
+  setLive(`Bezig met live rekenen (${c.name}, ${d.date}, max ${tl}s per poging; eerste aanroep kan ~10s extra kosten)…`, "busy");
+  const t0 = performance.now();
+  try {
+    const plan = await livePost("/plan", { club: c.id, date: d.date, time_limit_s: tl });
+    if (CURRENT.d.date !== d.date || CURRENT.c.id !== c.id) return; // gebruiker is doorgeklikt
+    const s = plan.summary;
+    if (!s.solved) {
+      setLive(`Live: geen oplossing gevonden binnen ${tl}s per poging (solver: ${plan.status}). Probeer een langere rekentijd. Het vooraf berekende plan blijft getoond.`, "warn");
+      return;
+    }
+    showPlan(plan, { live: true, title: `${s.scheduled} ingepland, ${s.unscheduled} niet, ${plan.stats.solve_time_s}s rekentijd`,
+      scheduled: s.scheduled, unscheduled: s.unscheduled, solve_time_s: s.solve_time_s, moved_wedstrijden: 0 });
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    setLive(`Live berekend in ${secs}s${plan.cached ? " (uit cache)" : ""}: ${s.scheduled} ingepland, ${s.unscheduled} niet ingepland.`, s.unscheduled ? "warn" : "ok");
+    const sec = $("solutions-sec");
+    if (s.unscheduled) {
+      sec.hidden = false;
+      $("solutions").innerHTML = `<p class="note">Live plan past niet volledig. <button id="live-sol">Oplossingen live zoeken</button> (kan 3–5 minuten duren; korte rekentijd per scenario, dus indicatief)</p>`;
+      $("live-sol").onclick = () => liveScenarios(c, d, tl);
+    }
+  } catch (e) {
+    setLive(`Live server niet bereikbaar of fout (${e.name === "AbortError" ? "time-out" : e.message}). Het vooraf berekende plan blijft getoond.`, "err");
+  } finally { btn.disabled = false; }
+}
+
+async function liveScenarios(c, d, tl) {
+  $("solutions").innerHTML = `<p class="note">Oplossingen worden live doorgerekend…</p>`;
+  try {
+    const data = await livePost("/scenarios", { club: c.id, date: d.date, time_limit_s: tl });
+    if (CURRENT.d.date !== d.date || CURRENT.c.id !== c.id) return;
+    if (!data.solutions.length && data.base_solved) { $("solutions").innerHTML = `<p class="empty">Deze dag past al volledig.</p>`; return; }
+    renderSolutionList(data.solutions, true);
+  } catch (e) {
+    $("solutions").innerHTML = `<p class="note">Live oplossingen mislukt (${esc(e.message)}).</p>`;
+  }
+}
+
 async function init() {
   try {
     INDEX = await getJSON("data/index.json");
@@ -296,6 +379,8 @@ async function init() {
   fillDates(hd);
   $("club").onchange = () => { fillDates($("date").value); render(); };
   $("date").onchange = render;
+  $("live-btn").onclick = livePlan;
+  $("live-btn").title = `Rekent deze speeldag opnieuw op ${LIVE_API}`;
   render();
 }
 init();
