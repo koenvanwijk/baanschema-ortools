@@ -114,6 +114,13 @@ async function render() {
 let CURRENT = null;
 let SHOWN = null; // plan dat nu in beeld is (voorstel, scenario of live) — voor Printen
 
+// Slepen + directe controle (editor.js). Niets wordt opgeslagen.
+const EDITOR = new PlanEditor({
+  bar: () => $("edit-bar"),
+  club: () => CURRENT.c,
+  render: (plan) => { renderGrid(CURRENT.c, plan); renderUnscheduled(plan); if (SHOWN) SHOWN.plan = plan; },
+});
+
 function printDay() {
   if (!CURRENT || !SHOWN) return;
   const { c, d } = CURRENT;
@@ -132,8 +139,8 @@ function showPlan(plan, scenario) {
     : d;
   SHOWN = { plan, scenario };
   renderSummary(c, dd, plan);
-  renderGrid(c, plan);
-  renderUnscheduled(plan);
+  EDITOR.load(plan); // werkkopie: grid + niet-ingepland + directe controle
+  SHOWN.plan = EDITOR.plan; // Printen = bewerkte stand
   renderFindings(plan);
   const vw = $("viewing");
   if (scenario && scenario.live) {
@@ -177,8 +184,8 @@ function renderSolutionList(sols, live = false) {
       <td class="num">${s.validator_hard ?? "–"}</td>
       <td><button data-i="${i}">Bekijk</button></td></tr>`).join("");
   $("solutions").innerHTML = (live ? `<p class="note">Live doorgerekend op de server.</p>` : "") + reco + `<div class="tablewrap"><table>
-    <tr><th>#</th><th>Versoepeling</th><th>Soort</th><th>Past alles</th><th>Ingepland</th><th>Niet</th><th>KNLTB-conform</th><th>HARD (ops-validator)</th><th></th></tr>${rows}</table></div>
-    <p class="hint">"HARD (ops-validator)" toetst aan de operationele SPEC.md inclusief de huidige clubafspraken; een versoepelde clubafspraak telt daar dus als HARD, ook als het KNLTB-conform is.</p>`;
+    <tr><th>#</th><th>Versoepeling</th><th>Soort</th><th>Past alles</th><th>Ingepland</th><th>Niet</th><th>KNLTB-conform</th><th title="Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn.">Overtredingen</th><th></th></tr>${rows}</table></div>
+    <p class="hint">"Overtredingen" = regels die niet gebroken mogen worden (moet 0 zijn), getoetst aan de huidige clubafspraken; een versoepelde clubafspraak telt daar dus als overtreding, ook als het KNLTB-conform is.</p>`;
   for (const b of $("solutions").querySelectorAll("button[data-i]")) {
     b.onclick = () => { const s = sols[+b.dataset.i]; showPlan(s.plan, s); $("viewing").scrollIntoView({ behavior: "smooth" }); };
   }
@@ -186,12 +193,12 @@ function renderSolutionList(sols, live = false) {
 
 function renderSummary(c, d, plan) {
   const v = plan.validator || {};
-  const card = (k, val, cls = "") => `<div class="card"><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
+  const card = (k, val, cls = "", tip = "") => `<div class="card"${tip ? ` title="${esc(tip)}"` : ""}><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
   $("summary").innerHTML = [
     card("Ingepland", d.scheduled, "good"),
     card("Niet ingepland", d.unscheduled, d.unscheduled ? "bad" : "good"),
-    card("Validator HARD", v.hard ?? "–", v.hard ? "bad" : "good"),
-    card("Validator MODEL", v.model ?? "–", v.model ? "warn" : ""),
+    card("Overtredingen", v.hard ?? "–", v.hard ? "bad" : "good", "Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn."),
+    card("Niet-gehaalde voorkeuren", v.model ?? "–", v.model ? "warn" : "", "Niet-gehaalde voorkeuren: mag, maar kan mooier."),
     card("Dagstart", plan.day_start),
     card("Wedstrijden", d.fixtures),
     card("Rekentijd", `${d.solve_time_s}s`),
@@ -201,7 +208,8 @@ function renderSummary(c, d, plan) {
 
 function renderGrid(c, plan) {
   const placed = plan.rows.filter((r) => r.start !== "NIET_GELUKT" && r.court);
-  const startMin = Math.min(toMin(c.day.fallback_start || c.day.start), ...placed.map((r) => toMin(r.start)));
+  // Bereik ruim genoeg om naar 08:30 (KNLTB-vroegste) te kunnen slepen.
+  const startMin = Math.min(510, toMin(c.day.fallback_start || c.day.start), ...placed.map((r) => toMin(r.start)));
   const endMin = Math.max(toMin(c.day.end), ...placed.map((r) => toMin(r.end)));
   const nSlots = (endMin - startMin) / 15;
   const g = $("grid");
@@ -214,10 +222,11 @@ function renderGrid(c, plan) {
     const hour = m % 60 === 45;
     const lbl = m % 30 === 0 ? toHHMM(m) : "";
     html.push(`<div class="time${m % 60 === 0 ? " hour" : ""}" style="grid-row:${i + 2};grid-column:1">${lbl}</div>`);
-    for (let k = 1; k <= c.courts; k++) html.push(`<div class="cell${hour ? " hour" : ""}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
+    for (let k = 1; k <= c.courts; k++) html.push(`<div class="cell${hour ? " hour" : ""}" data-court="${k}" data-min="${m}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
   }
   const teams = new Map();
   const COL = teamColors(plan.rows);
+  const IDX = new Map(plan.rows.map((r, i) => [r, i]));
   for (const r of placed) {
     const r0 = (toMin(r.start) - startMin) / 15 + 2;
     const r1 = (toMin(r.end) - startMin) / 15 + 2;
@@ -230,7 +239,7 @@ function renderGrid(c, plan) {
       ? (rc ? `background:repeating-linear-gradient(45deg, ${rc.bg}, ${rc.bg} 6px, #fff 6px, #fff 12px)` : "")
       : `background:${col.bg};color:${col.fg}`;
     if (!isRes) teams.set(r.team_id, r);
-    html.push(`<div class="blk${isRes ? " res" : ""}" title="${esc(tip)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${bg}">
+    html.push(`<div class="blk${isRes ? " res" : ""}" data-ri="${IDX.get(r)}" title="${esc(tip)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${bg}">
       <span class="cat">${esc(rowLabel(r))}</span><b>${esc(r.part || (isRes ? cat.label : ""))}</b>
       <div>${esc(isRes ? "baanreservering" : shortTeam(r))}</div>
       <div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
@@ -244,9 +253,9 @@ function renderGrid(c, plan) {
 }
 
 function renderUnscheduled(plan) {
-  const un = plan.rows.filter((r) => r.start === "NIET_GELUKT");
+  const un = plan.rows.map((r, i) => [r, i]).filter(([r]) => r.start === "NIET_GELUKT");
   $("unscheduled").innerHTML = un.length
-    ? `<ul class="plain">${un.map((r) => `<li><b>${esc(r.part)}</b> · ${esc(rowLabel(r))} ${esc(shortTeam(r))}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
+    ? `<p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag" data-ri="${i}"><b>${esc(r.part)}</b> · ${esc(rowLabel(r))} ${esc(shortTeam(r))}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
     : `<p class="empty">Alle partijen zijn ingepland.</p>`;
 }
 
@@ -255,18 +264,18 @@ function renderFindings(plan) {
   if (!v.available) { $("findings").innerHTML = `<p class="note">Geen validatorrapport.</p>`; return; }
   const f = v.findings || [];
   if (!f.length) { $("findings").innerHTML = `<p class="empty">Geen bevindingen.</p>`; return; }
-  const item = (x) => `<li><span class="sev ${esc(x.severity)}">${esc(x.severity)}</span><b>${esc(x.rule)}</b> · ${esc(x.subject || "")}<br>${esc(x.message)}</li>`;
+  const item = (x) => `<li><span class="sev ${esc(x.severity)}">${x.severity === "HARD" ? "overtreding" : "voorkeur"}</span><b>${esc(x.rule)}</b> · ${esc(x.subject || "")}<br>${esc(x.message)}</li>`;
   const hard = f.filter((x) => x.severity === "HARD");
   const model = f.filter((x) => x.severity !== "HARD");
   $("findings").innerHTML =
-    (hard.length ? `<ul class="plain">${hard.map(item).join("")}</ul>` : `<p class="empty">Geen HARD-overtredingen.</p>`) +
-    (model.length ? `<details><summary>${model.length} MODEL-bevinding(en) tonen</summary><ul class="plain">${model.map(item).join("")}</ul></details>` : "");
+    (hard.length ? `<ul class="plain">${hard.map(item).join("")}</ul>` : `<p class="empty">Geen overtredingen.</p>`) +
+    (model.length ? `<details><summary>${model.length} niet-gehaalde voorkeur(en) tonen</summary><ul class="plain">${model.map(item).join("")}</ul></details>` : "");
 }
 
 function renderDays(c) {
   const sel = $("date").value;
   $("days").innerHTML =
-    `<tr><th>Speeldag</th><th>Wedstrijden</th><th>Ingepland</th><th>Niet</th><th>Dagstart</th><th>HARD</th><th>MODEL</th><th>Rekentijd</th><th>Oplossing</th></tr>` +
+    `<tr><th>Speeldag</th><th>Wedstrijden</th><th>Ingepland</th><th>Niet</th><th>Dagstart</th><th title="Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn.">Overtredingen</th><th title="Niet-gehaalde voorkeuren: mag, maar kan mooier.">Voorkeuren niet gehaald</th><th>Rekentijd</th><th>Oplossing</th></tr>` +
     c.dates.map((d) => `<tr class="click${d.date === sel ? " sel" : ""}" data-date="${esc(d.date)}">
       <td>${esc(d.date)}</td><td class="num">${d.fixtures}</td><td class="num">${d.scheduled}</td>
       <td class="num" style="${d.unscheduled ? "color:var(--hard);font-weight:600" : ""}">${d.unscheduled}</td>
@@ -291,7 +300,7 @@ function renderProfile(c) {
       : r.source === "product" ? `<span class="tag product">productdefault</span>` : `<span class="tag knltb">KNLTB</span>`;
     const core = r.club_override ? `${esc(params({ ...r, params: r.core_params }))}${r.core_hard ? "" : " (zacht)"}` : "";
     return `<tr><td>${esc(RULE_NL[r.name] || r.name)}</td><td><b>${esc(params(r))}</b></td><td>${r.hard ? "hard" : "zacht"}</td>
-      <td>${tag}</td><td>${core}</td><td class="hint">${esc(r.source === "product" ? "Baanschemaatje" : r.source)}</td></tr>`;
+      <td>${tag}</td><td>${core}</td><td class="hint">${r.source === "product" ? "Baanschemaatje" : sourceLink(r.source)}</td></tr>`;
   }).join("");
   $("profile").innerHTML = `
     <div class="cards">
@@ -306,7 +315,7 @@ function renderProfile(c) {
     <div class="tablewrap"><table>
       <tr><th>Regel</th><th>Waarde</th><th>Hard/zacht</th><th>Soort</th><th>KNLTB/core-default</th><th>Bron</th></tr>${rows}
     </table></div>
-    <p class="hint">Clubafspraken mogen strenger zijn dan het KNLTB-reglement, niet ruimer. KNLTB = Competitiereglement (vastgesteld 11-11-2025), Bijlage 3.</p>`;
+    <p class="hint">Clubafspraken mogen strenger zijn dan het KNLTB-reglement, niet ruimer. KNLTB = <a href="${KNLTB_CR.url}#page=${KNLTB_CR.pages["Bijlage 3"]}" target="_blank" rel="noopener">Competitiereglement (vastgesteld 11-11-2025), Bijlage 3</a>.</p>`;
 }
 
 // ---------------------------------------------------------------- live

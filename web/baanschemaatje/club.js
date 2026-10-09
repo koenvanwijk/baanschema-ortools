@@ -134,7 +134,7 @@ function renderRules(rules) {
         <td>${paramInputs(r)}</td>
         <td><input type="checkbox" data-rule="${esc(r.name)}" data-k="hard" ${r.hard ? "checked" : ""}></td>
         <td>${tag}</td><td>${esc(paramText(r.core_params))}${r.core_hard ? "" : " (zacht)"}</td>
-        <td class="hint">${esc(r.source === "product" ? "productstandaard" : r.source)}</td></tr>`;
+        <td class="hint">${r.source === "product" ? "productstandaard" : sourceLink(r.source)}</td></tr>`;
     }).join("");
   for (const el of $("rules").querySelectorAll("input")) el.addEventListener("input", markLooser);
   markLooser();
@@ -257,7 +257,7 @@ function renderDates() {
     DATES.map((d, i) => {
       const p = PLANS.get(d.date);
       const resTxt = !p ? "" : p.error ? `<td class="res-bad">${esc(p.error)}</td>`
-        : `<td class="${p.summary.unscheduled ? "res-bad" : "res-ok"}">${p.summary.solved ? `${p.summary.scheduled} ingepland, ${p.summary.unscheduled} niet` : "geen oplossing binnen rekentijd"}${p.summary.hard != null ? ` · validator HARD ${p.summary.hard}` : ""}</td>`;
+        : `<td class="${p.summary.unscheduled ? "res-bad" : "res-ok"}">${p.summary.solved ? `${p.summary.scheduled} ingepland, ${p.summary.unscheduled} niet` : "geen oplossing binnen rekentijd"}${p.summary.hard != null ? ` · overtredingen ${p.summary.hard}` : ""}</td>`;
       return `<tr><td>${esc(d.date)}</td><td>${esc(d.weekday)}</td><td class="num">${d.fixtures}</td><td class="num">${d.partijen}</td>
         <td class="wed">${d.wedstrijden.map((w) => `<b>${esc(w.label)}</b> ${esc(w.home)} – ${esc(w.away)}`).join("<br>")}</td>
         ${resTxt || "<td></td>"}
@@ -294,13 +294,26 @@ function showPlan(date) {
   $("plan-sec").hidden = false;
   $("plan-title").textContent = `Baanschema ${s.name} — ${date}`;
   const v = plan.validator || {};
-  const card = (k, val, cls = "") => `<div class="card"><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
+  const card = (k, val, cls = "", tip = "") => `<div class="card"${tip ? ` title="${esc(tip)}"` : ""}><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
   $("summary").innerHTML = [card("Ingepland", plan.summary.scheduled, "good"),
     card("Niet ingepland", plan.summary.unscheduled, plan.summary.unscheduled ? "bad" : "good"),
-    card("Validator HARD", v.hard ?? "–", v.hard ? "bad" : "good"), card("Dagstart", plan.day_start),
+    card("Overtredingen", v.hard ?? "–", v.hard ? "bad" : "good", "Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn."),
+    card("Niet-gehaalde voorkeuren", v.model ?? "–", v.model ? "warn" : "", "Niet-gehaalde voorkeuren: mag, maar kan mooier."), card("Dagstart", plan.day_start),
     card("Rekentijd", `${plan.stats.solve_time_s}s`), card("Solver", plan.status)].join("");
+  SHOWN_DATE = date;
+  EDITOR.load(plan); // werkkopie: slepen + directe controle, niets opgeslagen
+  $("print-btn").onclick = () => printPlan(EDITOR.plan, { clubName: s.name, date, dayStart: s.day.fallback_start || s.day.start, dayEnd: s.day.end,
+    note: EDITOR.edited ? "live berekend, handmatig aangepast (niet opgeslagen)" : "live berekend" });
+  $("plan-sec").scrollIntoView({ behavior: "smooth" });
+}
+
+let SHOWN_DATE = null;
+const EDITOR = new PlanEditor({ bar: () => $("edit-bar"), club: () => CLUB.summary, render: renderPlanGrid });
+
+function renderPlanGrid(plan) {
+  const s = CLUB.summary;
   const placed = plan.rows.filter((r) => r.start !== "NIET_GELUKT" && r.court);
-  const startMin = Math.min(toMin(s.day.fallback_start || s.day.start), ...placed.map((r) => toMin(r.start)));
+  const startMin = Math.min(510, toMin(s.day.fallback_start || s.day.start), ...placed.map((r) => toMin(r.start)));
   const endMin = Math.max(toMin(s.day.end), ...placed.map((r) => toMin(r.end)));
   const n = (endMin - startMin) / 15;
   const g = $("grid");
@@ -311,10 +324,11 @@ function showPlan(date) {
   for (let i = 0; i < n; i++) {
     const m = startMin + i * 15;
     html.push(`<div class="time${m % 60 === 0 ? " hour" : ""}" style="grid-row:${i + 2};grid-column:1">${m % 30 === 0 ? toHHMM(m) : ""}</div>`);
-    for (let k = 1; k <= plan.courts; k++) html.push(`<div class="cell${m % 60 === 45 ? " hour" : ""}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
+    for (let k = 1; k <= plan.courts; k++) html.push(`<div class="cell${m % 60 === 45 ? " hour" : ""}" data-court="${k}" data-min="${m}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
   }
   const COL = teamColors(plan.rows);
   const teams = new Map();
+  const IDX = new Map(plan.rows.map((r, i) => [r, i]));
   for (const r of placed) {
     const r0 = (toMin(r.start) - startMin) / 15 + 2, r1 = (toMin(r.end) - startMin) / 15 + 2;
     const isRes = r.kind === "W";
@@ -323,16 +337,14 @@ function showPlan(date) {
     const rc = COL.get(`__res_${r.category}`);
     const style = isRes ? (rc ? `background:repeating-linear-gradient(45deg, ${rc.bg}, ${rc.bg} 6px, #fff 6px, #fff 12px)` : "")
       : `background:${c.bg};color:${c.fg}`;
-    html.push(`<div class="blk${isRes ? " res" : ""}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${style}" title="${esc(r.team)}">
+    html.push(`<div class="blk${isRes ? " res" : ""}" data-ri="${IDX.get(r)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${style}" title="${esc(r.team)}">
       <span class="cat">${esc(r.label || r.category)}</span><b>${esc(r.part || "reservering")}</b><div>${esc(isRes ? "baanreservering" : r.home_team || "")}</div><div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
   }
   g.innerHTML = html.join("");
   $("legend").innerHTML = [...teams.values()].sort((a, b) => (a.category || "").localeCompare(b.category || ""))
     .map((r) => `<span style="background:${COL.get(r.team_id).bg};color:${COL.get(r.team_id).fg}" title="${esc(r.team)}">${esc(r.label || "")} ${esc(r.home_team || "")}</span>`).join("");
-  const un = plan.rows.filter((r) => r.start === "NIET_GELUKT");
-  $("unscheduled").innerHTML = un.length ? `<h3>Niet ingepland</h3><ul class="plain">${un.map((r) => `<li><b>${esc(r.part)}</b> · ${esc(r.label || "")} ${esc(r.home_team || "")} – ${esc(r.away_team || "")}</li>`).join("")}</ul>` : "";
-  $("print-btn").onclick = () => printPlan(plan, { clubName: s.name, date, dayStart: s.day.fallback_start || s.day.start, dayEnd: s.day.end, note: "live berekend" });
-  $("plan-sec").scrollIntoView({ behavior: "smooth" });
+  const un = plan.rows.map((r, i) => [r, i]).filter(([r]) => r.start === "NIET_GELUKT");
+  $("unscheduled").innerHTML = un.length ? `<h3>Niet ingepland</h3><p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag" data-ri="${i}"><b>${esc(r.part)}</b> · ${esc(r.label || "")} ${esc(r.home_team || "")} – ${esc(r.away_team || "")}</li>`).join("")}</ul>` : "";
 }
 
 // ---------------------------------------------------------------- init

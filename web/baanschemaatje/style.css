@@ -78,3 +78,21 @@ tr.ref td { color: var(--muted); }
 .live-status.warn { color: #b7791f; }
 .live-status.err { color: #c53030; }
 .blk.res b, .blk.res div { background: rgba(255,255,255,.85); color: #111; border-radius: 3px; padding: 0 2px; }
+
+/* Slepen + directe controle */
+.blk:not(.res), li.drag { cursor: grab; }
+.blk.viol { outline: 3px solid #e53935; outline-offset: -2px; }
+li.drag { border: 1px dashed #b9c2b6; border-radius: 6px; padding: 4px 6px; margin: 3px 0; background: #fff; }
+li.drag.viol { border-color: #e53935; }
+.ghost { box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+.edit-bar { margin: 6px 0; }
+.ed-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ed-tools .btn2, .edit-bar .btn2 { padding: 4px 10px; border-radius: 6px; border: 1px solid #2b6cb0; background: #fff; color: #2b6cb0; font-weight: 600; cursor: pointer; }
+.edit-bar .btn2:disabled { opacity: .5; cursor: not-allowed; }
+.ed-banner { margin-top: 6px; background: #fff3cd; border: 1px solid #f0c36d; color: #7a5300; font-weight: 700; padding: 6px 10px; border-radius: 6px; }
+.ed-issues { margin-top: 6px; padding: 4px 10px; border-radius: 6px; font-size: 13px; }
+.ed-issues ul { margin: 2px 0 2px 18px; padding: 0; }
+.ed-issues.conflict, .ed-issues.KNLTB { background: #fdecea; border: 1px solid #f3c2bd; }
+.ed-issues.clubafspraak { background: #fff7e0; border: 1px solid #f0d58a; }
+.ed-issues.Baanschemaatje { background: #eef3fb; border: 1px solid #c9d8f0; }
+.ed-ok { margin-top: 6px; color: #2f855a; font-weight: 600; }
