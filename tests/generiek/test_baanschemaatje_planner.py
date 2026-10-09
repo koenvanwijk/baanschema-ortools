@@ -175,8 +175,9 @@ def test_knltb_bijlage_3_begintijden(plans, club, date):
         assert s % 30 == 0, (team, s)
         assert 8 * 60 + 30 <= s <= 16 * 60 + 30, (team, s)
         low = team.lower()
-        if "junioren" in low or "13 t/m 17" in low:
-            assert s <= 15 * 60, (team, s)
+        if "junioren" in low or "groen" in low:
+            # KNLTB: uiterlijk 15:00; Mierlo-clubafspraak: uiterlijk 13:00.
+            assert s <= (13 * 60 if club == "mierlo" else 15 * 60), (team, s)
         if "gemengd" in low and "2de-2he-dd-hd-2gd" in low:
             assert s <= 14 * 60, (team, s)
     for r in _placed(res.rows):

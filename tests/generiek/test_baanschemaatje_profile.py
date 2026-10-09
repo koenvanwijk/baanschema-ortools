@@ -127,6 +127,21 @@ def test_core_rules_follow_knltb_bijlage_3():
     assert p.rule("start_window_8p").params == {"from": 8 * 60 + 30, "to": 16 * 60 + 30}
 
 
+def test_junior_categories_are_groen_and_11_14():
+    from baanschemaatje.categories import JUNIOR_CATEGORIES
+
+    assert JUNIOR_CATEGORIES == {Category.GROEN, Category.JUNIOREN_11_14}
+    assert Category.JEUGD_13_17 not in JUNIOR_CATEGORIES
+
+
+def test_mierlo_junioren_latest_start_is_stricter_club_agreement(root):
+    core = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}})
+    mierlo = load_profile(root / "clubs" / "mierlo.yaml")
+    assert core.rule("junioren_latest_start").params["time"] == 15 * 60
+    assert mierlo.rule("junioren_latest_start").params["time"] == 13 * 60
+    assert mierlo.rule("junioren_latest_start").hard
+
+
 def test_min_reservation_vs_expected_duration():
     from baanschemaatje.categories import MIN_RESERVATION
 
@@ -137,6 +152,9 @@ def test_min_reservation_vs_expected_duration():
     assert p.expected_duration(Category.SENIOREN, 60) == 60
     assert p.duration_for(Category.SENIOREN, 60) == 90
     assert p.duration_for(Category.JUNIOREN_11_14, 45) == 45
+    assert MIN_RESERVATION[Category.GROEN] is None
+    assert p.duration_for(Category.GROEN) == 45
+    assert p.duration_for(Category.JEUGD_13_17) == 90
     with pytest.raises(ProfileError, match="minimumreservering"):
         profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}, "durations": {"senioren": 60}})
 

@@ -43,6 +43,11 @@ rules:
   mixed_8p_not_before:
     time: "10:00"
     hard: true
+  # Clubafspraak: junioren (Groen + 11-14) beginnen uiterlijk 13:00.
+  # KNLTB staat uiterlijk 15:00 toe (CR Bijlage 3, 1.1.a).
+  junioren_latest_start:
+    time: "13:00"
+    hard: true
   # Clubafspraak: jeugd start uiterlijk 17:30 (KNLTB: laatste partij 19:30).
   youth_last_start:
     time: "17:30"

@@ -91,8 +91,8 @@ de eerste partij van een team.
 |---|---|---|
 | `match_start_grid` | begintijd op hele/halve uren — hard | CR B3 1.1 |
 | `match_start_window` | begintijd 08:30–16:30 — hard | CR B3 1.1 |
-| `junioren_start_window` | junioren begintijd 08:30–12:00 — zacht | CR B3 1.1.a |
-| `junioren_latest_start` | junioren uiterlijk 15:00 — hard | CR B3 1.1.a |
+| `junioren_start_window` | junioren (Groen + 11–14) begintijd 08:30–12:00 — zacht | CR B3 1.1.a |
+| `junioren_latest_start` | junioren uiterlijk 15:00 — hard (Mierlo: 13:00) | CR B3 1.1.a |
 | `junioren_mixed_8p_latest_start` | gemengd 8p junioren uiterlijk 13:00 — hard | CR B3 1.1.a |
 | `mixed_8p_latest_start` | gemengd 8p uiterlijk 14:00 — hard | CR B3 1.1.b |
 | `travel_not_before` | ≥ 80 km reisafstand: niet vóór 10:00 — hard (als de input reisafstand heeft) | CR B3 1.2 |

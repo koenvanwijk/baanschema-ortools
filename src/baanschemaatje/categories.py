@@ -35,7 +35,8 @@ DEFAULT_DURATIONS: dict[Category, int] = {
 #: Minimale baanreservering per partij volgens KNLTB Competitiereglement
 #: (vastgesteld 11-11-2025), Bijlage 3, 2.1.a: "voor elke partij minimaal
 #: anderhalf uur ... Voor de Junioren 11 t/m 14 jaar ... minimaal drie
-#: kwartier". Dit is een ondergrens voor de *reservering*, niet de verwachte
+#: kwartier". Groen heeft geen expliciete minimumreservering; daar geldt de
+#: verwachte duur van 45 min. Dit is een ondergrens voor de *reservering*, niet de verwachte
 #: speelduur (DEFAULT_DURATIONS). Tenniskids (Rood/Oranje/Groen) vallen hier
 #: niet expliciet onder; daarvoor geldt de verwachte duur (te verifiëren).
 MIN_RESERVATION: dict[Category, int | None] = {
@@ -50,9 +51,9 @@ MIN_RESERVATION: dict[Category, int | None] = {
 }
 
 #: "Juniorencompetities" in de zin van CR Bijlage 3, 1.1.a (begintijd
-#: 08:30-12:00). Interpretatie: Junioren 11-14 en Jeugd 13-17; Tenniskids
-#: (Groen) niet — te verifiëren.
-JUNIOR_CATEGORIES = frozenset({Category.JUNIOREN_11_14, Category.JEUGD_13_17})
+#: 08:30-12:00): Groen en Junioren 11 t/m 14 (besluit Oscar, 2026-10-09).
+#: Jongens/Meisjes 13 t/m 17 zijn géén junioren in deze zin.
+JUNIOR_CATEGORIES = frozenset({Category.GROEN, Category.JUNIOREN_11_14})
 
 #: Rood/Oranje spelen in blokken op vaste banen vanaf dagstart (geen losse partijen).
 BLOCK_CATEGORIES = frozenset({Category.ROOD, Category.ORANJE})
