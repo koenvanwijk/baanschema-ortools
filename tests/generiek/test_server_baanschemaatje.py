@@ -3,6 +3,7 @@
 Wordt overgeslagen als fastapi/httpx niet geïnstalleerd zijn (CI van main).
 """
 
+import json
 import importlib.util
 import sys
 
@@ -182,3 +183,82 @@ def test_apply_moves_ignores_whitespace_differences(client):
     _, _, _, season, _ = mod._resolve(mod.PlanRequest(club="mierlo", date="25-10-2026",
                                                       moves=[{"schema": sloppy, "home": w["home"], "from": "27-09-2026", "to": "25-10-2026"}]))
     assert len(season.day("25-10-2026")) == 1
+
+
+# ---------------------------------------------------------------- opslaan (zonder solver)
+
+def _stored_club(client, name):
+    prof = {"club": {"name": name, "knltb_name": "MIERLO"}, "courts": {"count": 10}}
+    r = client.post("/clubs", json={"profile": prof})
+    assert r.status_code == 201, r.text
+    return r.json()["id"]
+
+
+def test_schedule_save_load_delete(client, root):
+    cid = _stored_club(client, "TV Opslaan")
+    plan = json.loads((root / "web/baanschemaatje/data/mierlo/27-09-2026.json").read_text())
+    assert client.get(f"/clubs/{cid}/schedule/27-09-2026").status_code == 404
+    assert client.get(f"/clubs/{cid}/schedules").json()["schedules"] == {}
+    body = {"plan": plan, "source": "handmatig aangepast", "check": {"hard": 0, "model": 3, "scheduled": 66}, "sig": "[]"}
+    r = client.put(f"/clubs/{cid}/schedule/27-09-2026", json=body)
+    assert r.status_code == 200, r.text
+    meta = r.json()
+    assert meta["source"] == "handmatig aangepast" and meta["saved_at"] and "plan" not in meta
+    g = client.get(f"/clubs/{cid}/schedule/27-09-2026").json()
+    assert g["plan"]["rows"] == plan["rows"] and g["check"]["model"] == 3 and g["date"] == "27-09-2026"
+    all_ = client.get(f"/clubs/{cid}/schedules").json()["schedules"]
+    assert list(all_) == ["27-09-2026"]
+    assert client.delete(f"/clubs/{cid}/schedule/27-09-2026").json() == {"ok": True, "deleted": True}
+    assert client.get(f"/clubs/{cid}/schedule/27-09-2026").status_code == 404
+    assert client.delete(f"/clubs/{cid}/schedule/27-09-2026").json()["deleted"] is False
+
+
+def test_schedule_validation_and_limits(client, monkeypatch):
+    cid = _stored_club(client, "TV Grenzen")
+    ok = {"plan": {"rows": []}, "source": "berekend"}
+    assert client.put(f"/clubs/{cid}/schedule/2026-09-27", json=ok).status_code == 422
+    assert client.put(f"/clubs/{cid}/schedule/31-02-2026", json=ok).status_code == 422
+    assert client.put(f"/clubs/{cid}/schedule/27-09-2026", json={**ok, "source": "zomaar"}).status_code == 422
+    assert client.put(f"/clubs/{cid}/schedule/27-09-2026", json={"plan": {"rows": "x"}}).status_code == 422
+    assert client.put(f"/clubs/{cid}/schedule/27-09-2026", content=b"{kapot", headers={"Content-Type": "application/json"}).status_code == 422
+    mod = sys.modules["bs_server_app"]
+    monkeypatch.setattr(mod, "MAX_SCHEDULE_ROWS", 2)
+    assert client.put(f"/clubs/{cid}/schedule/27-09-2026", json={"plan": {"rows": [{}, {}, {}]}}).status_code == 413
+    monkeypatch.setattr(mod, "MAX_SCHEDULE_BYTES", 100)
+    big = {"plan": {"rows": [{"team": "x" * 200}]}}
+    assert client.put(f"/clubs/{cid}/schedule/27-09-2026", json=big).status_code == 413
+    # ingebouwd voorbeeldprofiel: alleen-lezen; onbekende club: 404
+    assert client.put("/clubs/voorbeeld-6-banen/schedule/27-09-2026", json=ok).status_code == 403
+    assert client.get("/clubs/voorbeeld-6-banen/schedules").json()["schedules"] == {}
+    assert client.get("/clubs/bestaat-niet/schedules").status_code == 404
+
+
+def test_moves_save_load(client):
+    cid = _stored_club(client, "TV Verzet")
+    assert client.get(f"/clubs/{cid}/moves").json()["moves"] == []
+    mv = {"schema": "Gemengd Zondag – 1e klasse – Afdeling 3", "home": "MIERLO 1", "from": "27-09-2026", "to": "18-10-2026",
+          "key": "Gemengd · MIERLO 1", "label": "GEM 1e"}
+    r = client.put(f"/clubs/{cid}/moves", json={"moves": [mv]})
+    assert r.status_code == 200 and r.json()["count"] == 1
+    g = client.get(f"/clubs/{cid}/moves").json()
+    assert g["moves"] == [mv] and g["saved_at"]  # extra velden (voor de web-GUI) blijven bewaard
+    assert client.put(f"/clubs/{cid}/moves", json={"moves": [{"schema": "x"}]}).status_code == 422
+    assert client.put(f"/clubs/{cid}/moves", json={"moves": [{**mv, "to": "18/10/2026"}]}).status_code == 422
+    assert client.put(f"/clubs/{cid}/moves", json=[mv]).status_code == 422
+    assert client.put("/clubs/voorbeeld-6-banen/moves", json={"moves": []}).status_code == 403
+
+
+def test_save_routes_use_auth_hook(client, monkeypatch):
+    from fastapi import HTTPException
+
+    cid = _stored_club(client, "TV Auth Opslaan")
+    mod = sys.modules["bs_server_app"]
+
+    def deny(club_id, request=None):
+        raise HTTPException(401, "login vereist")
+
+    monkeypatch.setattr(mod, "authorize_write", deny)
+    assert client.put(f"/clubs/{cid}/schedule/27-09-2026", json={"plan": {"rows": []}}).status_code == 401
+    assert client.delete(f"/clubs/{cid}/schedule/27-09-2026").status_code == 401
+    assert client.put(f"/clubs/{cid}/moves", json={"moves": []}).status_code == 401
+    assert client.get(f"/clubs/{cid}/moves").status_code == 200

@@ -94,6 +94,8 @@ function ovRender(el, days, opts = {}) {
     <span class="ov-pill green">${counts.green} in orde</span>
     ${counts.grey ? `<span class="ov-pill grey">${counts.grey} nog niet berekend</span>` : ""}
     ${counts.changed ? `<span class="ov-pill changed">${counts.changed} aangepast, nog niet berekend</span>` : ""}
+    ${days.some((d) => d.saveCls === "saved") ? `<span class="ov-pill saved">${days.filter((d) => d.saveCls === "saved").length} opgeslagen</span>` : ""}
+    ${days.some((d) => d.saveCls === "unsaved") ? `<span class="ov-pill unsaved">${days.filter((d) => d.saveCls === "unsaved").length} niet opgeslagen</span>` : ""}
     ${busiest ? `<span title="${ovEsc(OV_BEZETTING_TIP)}">Drukste dag: <b>${ovEsc(busiest.date)}</b> (${busiest.stats.pct}% bezet)</span>` : ""}
   </div>`;
   const rows = days.map((d, i) => {
@@ -117,7 +119,7 @@ function ovRender(el, days, opts = {}) {
       <td class="num${s && s.model ? " warn" : ""}">${s ? n(s.model) : "–"}</td>
       <td>${s && s.first ? `${s.first}–${s.last}` : "–"}</td>
       <td class="ov-bez">${bar}</td>
-      <td class="ov-st ${computing.has(d.date) ? "computing" : queued.has(d.date) ? "queued" : stt.cls}">${computing.has(d.date) ? `<span class="spin"></span>berekenen…` : queued.has(d.date) ? "in wachtrij" : ovEsc(stt.txt)}</td>
+      <td class="ov-st ${computing.has(d.date) ? "computing" : queued.has(d.date) ? "queued" : stt.cls}">${computing.has(d.date) ? `<span class="spin"></span>berekenen…` : queued.has(d.date) ? "in wachtrij" : ovEsc(stt.txt)}${d.saveInfo ? `<div class="ov-save ${d.saveCls || ""}">${ovEsc(d.saveInfo)}</div>` : ""}</td>
       <td>${open ? `<a href="#" class="ov-open" data-date="${ovEsc(d.date)}">Open dag →</a> ` : ""}${btn}${mvBtn}</td></tr>`;
   }).join("");
   el.innerHTML = head + `<div class="tablewrap"><table class="ov">

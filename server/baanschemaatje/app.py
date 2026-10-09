@@ -13,6 +13,9 @@ Endpoints
   PUT  /clubs/{id}/profile           profiel opslaan
   POST /clubs/{id}/season            KNLTB-export uploaden
   GET  /clubs/{id}/season            speeldagen + wedstrijden
+  GET  /clubs/{id}/schedules         alle opgeslagen dagschema's (voor het seizoensoverzicht)
+  GET/PUT/DELETE /clubs/{id}/schedule/{datum}   opgeslagen baanschema van één dag
+  GET/PUT /clubs/{id}/moves          opgeslagen verzettingen (wedstrijd van dag X naar Y)
   GET  /dates?club=<id>              speeldagen met aantal wedstrijden
   POST /plan                         één speeldag plannen  → plan-JSON zoals web/baanschemaatje/data/<club>/<datum>.json
                                      optioneel "moves": [{schema, home, from, to}] = verzette wedstrijden (bv. naar een inhaaldag)
@@ -80,6 +83,9 @@ DEFAULT_TIME_LIMIT = float(os.environ.get("BS_DEFAULT_TIME_LIMIT", "15"))
 SCENARIO_BUDGET = float(os.environ.get("BS_SCENARIO_BUDGET", "240"))
 WORKERS = int(os.environ.get("BS_WORKERS", "4"))
 MAX_CLUBS = int(os.environ.get("BS_MAX_CLUBS", "100"))
+MAX_SCHEDULE_BYTES = int(os.environ.get("BS_MAX_SCHEDULE_BYTES", str(1024 * 1024)))
+MAX_SCHEDULE_ROWS = int(os.environ.get("BS_MAX_SCHEDULE_ROWS", "1500"))
+MAX_MOVES = int(os.environ.get("BS_MAX_MOVES", "500"))
 MAX_UPLOAD = int(os.environ.get("BS_MAX_UPLOAD_BYTES", str(5 * 1024 * 1024)))
 STORE = make_store()
 
@@ -98,7 +104,7 @@ app.add_middleware(
     allow_origins=ORIGINS,
     # localhost / 127.0.0.1 op elke poort (lokaal testen van de web-GUI).
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
-    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
     max_age=3600,
 )
@@ -268,6 +274,131 @@ def _apply_moves(spath: Path, moves: list[Move]) -> tuple[Path, list[dict[str, A
     if not p.exists():
         p.write_bytes(b)
     return p, applied
+
+
+# ---------------------------------------------------------------- opgeslagen schema's + verzettingen
+
+_DATE_RE = re.compile(r"^\d{2}-\d{2}-\d{4}$")
+SOURCES = ("berekend", "handmatig aangepast")
+
+
+def _check_date(date: str) -> str:
+    if not _DATE_RE.match(date):
+        raise HTTPException(422, "datum moet dd-mm-jjjj zijn")
+    try:
+        datetime.strptime(date, "%d-%m-%Y")
+    except ValueError as exc:
+        raise HTTPException(422, f"ongeldige datum {date}") from exc
+    return date
+
+
+async def _json_body(request: Request, limit: int) -> Any:
+    raw = await request.body()
+    if len(raw) > limit:
+        raise HTTPException(413, f"te groot ({len(raw)} bytes, max {limit})")
+    try:
+        return json.loads(raw or b"null")
+    except ValueError as exc:
+        raise HTTPException(422, "geen geldige JSON") from exc
+
+
+def _sched_key(club_id: str, date: str) -> str:
+    return f"clubs/{club_id}/schedules/{date}.json"
+
+
+def _known_club(club_id: str) -> None:
+    if club_id not in _builtin_files() and _meta(club_id) is None:
+        raise HTTPException(404, f"onbekende club '{club_id}'")
+
+
+class SaveSchedule(BaseModel):
+    """Baanschema van één dag zoals de gebruiker het heeft (berekend en/of handmatig versleept)."""
+    plan: dict[str, Any] = Field(..., description="plan-JSON; minstens 'rows' (lijst planregels)")
+    source: str = Field("berekend", description="'berekend' of 'handmatig aangepast'")
+    check: dict[str, Any] = Field(default_factory=dict, description="samenvatting directe controle (aantallen per soort)")
+    sig: str | None = Field(None, description="verzettingen die deze dag raken op het moment van opslaan (client)")
+
+
+def _validate_schedule(body: Any) -> SaveSchedule:
+    try:
+        sch = SaveSchedule.model_validate(body)
+    except Exception as exc:  # pydantic ValidationError
+        raise HTTPException(422, f"ongeldig schema: {exc}") from exc
+    rows = sch.plan.get("rows")
+    if not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows):
+        raise HTTPException(422, "plan.rows moet een lijst planregels zijn")
+    if len(rows) > MAX_SCHEDULE_ROWS:
+        raise HTTPException(413, f"te veel planregels ({len(rows)}, max {MAX_SCHEDULE_ROWS})")
+    if sch.source not in SOURCES:
+        raise HTTPException(422, f"source moet een van {SOURCES} zijn")
+    return sch
+
+
+@app.get("/clubs/{club_id}/schedules")
+def list_schedules(club_id: str) -> dict[str, Any]:
+    _known_club(club_id)
+    out: dict[str, Any] = {}
+    for key in STORE.list(f"clubs/{club_id}/schedules/"):
+        if key.endswith(".json"):
+            j = _get_json(key)
+            if j:
+                out[j.get("date") or Path(key).stem] = j
+    return {"club": club_id, "schedules": out}
+
+
+@app.get("/clubs/{club_id}/schedule/{date}")
+def get_schedule(club_id: str, date: str) -> dict[str, Any]:
+    _known_club(club_id)
+    j = _get_json(_sched_key(club_id, _check_date(date)))
+    if j is None:
+        raise HTTPException(404, f"geen opgeslagen baanschema voor {date}")
+    return j
+
+
+@app.put("/clubs/{club_id}/schedule/{date}")
+async def put_schedule(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    _check_date(date)
+    _writable(club_id, request)
+    sch = _validate_schedule(await _json_body(request, MAX_SCHEDULE_BYTES))
+    doc = {"club": club_id, "date": date, "saved_at": _now(), "source": sch.source,
+           "check": sch.check, "sig": sch.sig, "plan": sch.plan}
+    STORE.put(_sched_key(club_id, date), json.dumps(doc, ensure_ascii=False).encode(), "application/json")
+    return {k: v for k, v in doc.items() if k != "plan"}
+
+
+@app.delete("/clubs/{club_id}/schedule/{date}")
+def delete_schedule(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    _check_date(date)
+    _writable(club_id, request)
+    return {"ok": True, "deleted": STORE.delete(_sched_key(club_id, date))}
+
+
+@app.get("/clubs/{club_id}/moves")
+def get_moves(club_id: str) -> dict[str, Any]:
+    _known_club(club_id)
+    j = _get_json(f"clubs/{club_id}/moves.json")
+    return j or {"club": club_id, "moves": [], "saved_at": None}
+
+
+@app.put("/clubs/{club_id}/moves")
+async def put_moves(club_id: str, request: Request) -> dict[str, Any]:
+    _writable(club_id, request)
+    body = await _json_body(request, MAX_SCHEDULE_BYTES)
+    moves = body.get("moves") if isinstance(body, dict) else None
+    if not isinstance(moves, list):
+        raise HTTPException(422, "verwacht {\"moves\": [...]}")
+    if len(moves) > MAX_MOVES:
+        raise HTTPException(413, f"te veel verzettingen ({len(moves)}, max {MAX_MOVES})")
+    for m in moves:
+        try:
+            mv = Move.model_validate(m)
+        except Exception as exc:
+            raise HTTPException(422, f"ongeldige verzetting: {exc}") from exc
+        _check_date(mv.from_)
+        _check_date(mv.to)
+    doc = {"club": club_id, "saved_at": _now(), "moves": moves}
+    STORE.put(f"clubs/{club_id}/moves.json", json.dumps(doc, ensure_ascii=False).encode(), "application/json")
+    return {"club": club_id, "saved_at": doc["saved_at"], "count": len(moves)}
 
 
 class PlanRequest(BaseModel):

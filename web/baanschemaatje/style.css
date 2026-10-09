@@ -184,3 +184,14 @@ body.ed-dragging, body.ed-dragging * { -webkit-user-select: none; user-select: n
 .ed-pop-x { position: absolute; top: 4px; right: 6px; border: 0; background: none; font-size: 20px; line-height: 1; cursor: pointer; color: #555; }
 .ed-pop-iss { margin: 6px 0 0; padding-left: 16px; color: #b71c1c; }
 .blk.pop-src { box-shadow: 0 0 0 3px #2e6b4f; z-index: 2; }
+
+/* Opslaan */
+.ed-banner.saved { background: #e6f4ea; border-color: #9fd3ad; color: #1b5e20; }
+.ed-save { font-weight: 700; }
+.ov-save { font-size: 11px; margin-top: 2px; color: #2e6b4f; }
+.ov-save.unsaved { color: #8a5a00; font-weight: 600; }
+.ov-pill.saved { background: #e6f4ea; color: #1b5e20; }
+.ov-pill.unsaved { background: #fff3cd; color: #8a5a00; }
+.mv-save { margin-top: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.mv-save .ok { color: #1b5e20; }
+.mv-save .dirty { color: #8a5a00; font-weight: 600; }

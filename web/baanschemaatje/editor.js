@@ -226,6 +226,11 @@ class PlanEditor {
 
   undo() { if (this.history.length) { this.plan.rows = JSON.parse(this.history.pop()); this.refresh(); } }
   reset() { this.plan = JSON.parse(JSON.stringify(this.orig)); this.history = []; this.refresh(); }
+  // Na opslaan: huidige stand wordt het nieuwe "origineel".
+  markSaved() { this.orig = JSON.parse(JSON.stringify(this.plan)); this.history = []; }
+  // Opslag-status (alleen als opts.save bestaat): {unsaved, savedAt, source, canDelete}
+  get saveState() { return this.opts.save ? this.opts.save.state() : null; }
+  get dirty() { const st = this.saveState; return this.edited || !!(st && st.unsaved); }
 
   refresh() {
     this.opts.render(this.plan);
@@ -251,16 +256,33 @@ class PlanEditor {
     const e = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const groups = ["conflict", "Spelersconflict", "Volgorde", "KNLTB", "clubafspraak", "Baanschemaatje"].map((lv) => [lv, res.issues.filter((x) => x.level === lv)]).filter(([, l]) => l.length);
     const label = { conflict: "Baanconflict", Spelersconflict: "Spelersconflict", Volgorde: "Volgorde", KNLTB: "KNLTB-reglement", clubafspraak: "Clubafspraak", Baanschemaatje: "Baanschemaatje-standaard" };
+    const sv = this.saveState;
+    const hhmm = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+    const nEd = `${this.history.length} wijziging${this.history.length === 1 ? "" : "en"}`;
+    let banner = "";
+    if (sv) {
+      if (this.dirty) banner = `<div class="ed-banner">Aangepast, niet opgeslagen${this.edited ? ` (${nEd})` : sv.unsavedWhy ? ` (${e(sv.unsavedWhy)})` : ""}. Druk op Opslaan om dit baanschema te bewaren.</div>`;
+      else if (sv.savedAt) banner = `<div class="ed-banner saved">Opgeslagen om ${hhmm(sv.savedAt)}${sv.savedDay ? ` op ${e(sv.savedDay)}` : ""}${sv.source ? ` · ${e(sv.source)}` : ""}</div>`;
+    } else if (this.edited) {
+      banner = `<div class="ed-banner">Aangepast, niet opgeslagen (${nEd}). De directe controle hieronder geldt voor deze aangepaste stand.${this.opts.saveHint ? ` ${e(this.opts.saveHint)}` : ""}</div>`;
+    }
     bar.innerHTML = `<div class="ed-tools">
         <button class="btn2 ed-toggle${edOn() ? " on" : ""}" id="ed-toggle" aria-pressed="${edOn()}" title="Slepen van partijen aan- of uitzetten">Bewerken ${edOn() ? "aan" : "uit"}</button>
         <span class="hint">${edOn()
           ? (ED_TOUCH ? "Houd een partij even vast (tot hij oplicht) en sleep hem naar een andere baan of tijd (per kwartier). Gewoon vegen scrolt." : "Sleep een partij naar een andere baan of tijd (per kwartier). Niet-ingeplande partijen kun je op het grid slepen.")
           : `Bewerken staat uit: ${ED_TOUCH ? "vegen scrolt, tik" : "klik"} op een partij voor details. Zet Bewerken aan om partijen te verslepen.`}</span>
+        ${sv ? `<button class="btn ed-save" id="ed-save" ${this.dirty && !sv.busy ? "" : "disabled"}>${sv.busy ? "Opslaan…" : "Opslaan"}</button>` : ""}
         <button class="btn2" id="ed-undo" ${this.history.length ? "" : "disabled"}>Ongedaan maken</button>
-        <button class="btn2" id="ed-reset" ${this.edited ? "" : "disabled"}>Terug naar origineel</button></div>
-      ${this.edited ? `<div class="ed-banner">Aangepast, niet opgeslagen (${this.history.length} wijziging${this.history.length === 1 ? "" : "en"}). De directe controle hieronder geldt voor deze aangepaste stand.</div>` : ""}
+        <button class="btn2" id="ed-reset" ${this.edited ? "" : "disabled"}>Terug naar origineel</button>
+        ${sv && sv.canDelete ? `<button class="btn2 ed-del" id="ed-del" title="Verwijder het opgeslagen baanschema van deze dag; daarna zie je weer de berekende/niet-berekende stand">Opgeslagen versie verwijderen</button>` : ""}</div>
+      ${banner}
       ${groups.length ? groups.map(([lv, l]) => `<div class="ed-issues ${lv}"><b>${label[lv]} (${l.length})</b><ul>${l.slice(0, 12).map((x) => `<li>${e(x.msg)}</li>`).join("")}${l.length > 12 ? `<li>… en ${l.length - 12} meer</li>` : ""}</ul></div>`).join("")
         : (this.edited ? `<div class="ed-ok">Geen overtredingen gevonden door de directe controle.</div>` : "")}`;
+    if (sv) {
+      bar.querySelector("#ed-save").onclick = () => this.opts.save.onSave(res);
+      const del = bar.querySelector("#ed-del");
+      if (del) del.onclick = () => this.opts.save.onDelete();
+    }
     bar.querySelector("#ed-toggle").onclick = () => { edSet(!edOn()); edClosePop(); this.renderBar(res); this.enableDrag(); };
     bar.querySelector("#ed-undo").onclick = () => this.undo();
     bar.querySelector("#ed-reset").onclick = () => this.reset();
@@ -405,4 +427,15 @@ if (typeof document !== "undefined") {
   window.addEventListener("scroll", edClosePop, true);
 }
 
-if (typeof module !== "undefined") module.exports = { checkPlan, playerDemand, PlanEditor };
+// Samenvatting van de directe controle om mee op te slaan (status in het seizoensoverzicht).
+const ED_HARD = ["conflict", "Spelersconflict", "Volgorde", "KNLTB"];
+function checkSummary(rows, res) {
+  const issues = {};
+  for (const x of res.issues) issues[x.level] = (issues[x.level] || 0) + 1;
+  const partijen = rows.filter((r) => r.kind !== "W");
+  const scheduled = partijen.filter((r) => _placed(r)).length;
+  const hard = ED_HARD.reduce((n, lv) => n + (issues[lv] || 0), 0);
+  return { scheduled, unscheduled: partijen.length - scheduled, hard, model: res.issues.length - hard, issues, by: "directe controle" };
+}
+
+if (typeof module !== "undefined") module.exports = { checkPlan, checkSummary, playerDemand, PlanEditor };

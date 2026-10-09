@@ -131,15 +131,20 @@ function mvTargets(w, at, seasonDays, kalender) {
 function mvCompName(cat) { return { rog: "Rood/Oranje/Groen", junioren: "junioren 11–14 / 13–17", regulier: "reguliere competitie" }[mvComp(cat)]; }
 
 // Balk met "Aangepast, niet opgeslagen" + undo/reset.
-function mvBarHtml(state, saveNote) {
-  if (!state.count && !state.hist.length) return "";
+// saved (optioneel, clubpagina): {dirty, savedAt, busy} → knop "Verzettingen opslaan" / "opgeslagen om HH:MM".
+function mvBarHtml(state, saveNote, saved) {
+  if (!state.count && !(saved && saved.dirty) && (saved || !state.hist.length)) return "";
   const groups = new Map();
   for (const x of state.list) { const k = `${x.from} → ${x.to}`; groups.set(k, (groups.get(k) || 0) + 1); }
-  return `<div class="ed-banner mv-bar">Verzet, niet opgeslagen: ${state.count} wedstrijd${state.count === 1 ? "" : "en"}
+  const hhmm = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+  const head = saved && !saved.dirty ? `Verzet: ${state.count} wedstrijd${state.count === 1 ? "" : "en"}${saved.savedAt ? ` · opgeslagen om ${hhmm(saved.savedAt)}` : ""}`
+    : `Verzet, niet opgeslagen: ${state.count} wedstrijd${state.count === 1 ? "" : "en"}`;
+  return `<div class="ed-banner mv-bar${saved && !saved.dirty ? " saved" : ""}">${head}
     ${[...groups].map(([k, n]) => `<span class="mv-tag">${n}× ${k}</span>`).join(" ")}
+    ${saved ? `<button class="btn mv-save-btn" ${saved.dirty && !saved.busy ? "" : "disabled"}>${saved.busy ? "Opslaan…" : "Verzettingen opslaan"}</button>` : ""}
     <button class="btn2 mv-undo" ${state.hist.length ? "" : "disabled"}>Ongedaan maken</button>
     <button class="btn2 mv-reset" ${state.count ? "" : "disabled"}>Alle verzettingen terugdraaien</button>
-    <div class="hint">${saveNote || "Opslaan komt later; verzettingen gelden alleen in dit tabblad."}</div></div>`;
+    ${saveNote !== "" ? `<div class="hint">${saveNote || "Opslaan komt later; verzettingen gelden alleen in dit tabblad."}</div>` : ""}</div>`;
 }
 
 // ---------------------------------------------------------------- DOM: teamchip-menu (markeren / verzetten)

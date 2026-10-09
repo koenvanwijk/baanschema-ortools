@@ -105,7 +105,7 @@ function renderMoveBars() {
   for (const id of ["mv-bar-ov", "mv-bar-day"]) {
     const el = $(id);
     if (!el) continue;
-    el.innerHTML = mvBarHtml(mv());
+    el.innerHTML = mvBarHtml(mv(), "Deze voorbeeldpagina bewaart niets: verzettingen gelden alleen in dit tabblad. Opslaan doe je op de clubpagina.");
     const u = el.querySelector(".mv-undo"), r = el.querySelector(".mv-reset");
     if (u) u.onclick = () => { mv().undo(); rerender(); };
     if (r) r.onclick = () => { mv().reset(); rerender(); };
@@ -227,6 +227,7 @@ let SHOWN = null; // plan dat nu in beeld is (voorstel, scenario of live) — vo
 // Slepen + directe controle (editor.js). Niets wordt opgeslagen.
 const EDITOR = new PlanEditor({
   bar: () => $("edit-bar"),
+  saveHint: "Deze voorbeeldpagina bewaart niets; opslaan doe je op de clubpagina.",
   club: () => CURRENT.c,
   render: (plan) => { renderGrid(CURRENT.c, plan); renderUnscheduled(plan); if (SHOWN) SHOWN.plan = plan; bindLegend(plan); },
 });

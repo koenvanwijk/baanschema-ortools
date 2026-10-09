@@ -6,6 +6,8 @@ Indeling per club::
     clubs/<id>/meta.json      id, tijden, gehashte bewerk-sleutel, seizoen-info
     clubs/<id>/profile.json   clubprofiel (zelfde schema als clubs/*.yaml)
     clubs/<id>/season.tsv     genormaliseerd seizoen (uit de KNLTB-export)
+    clubs/<id>/schedules/<dd-mm-YYYY>.json   opgeslagen baanschema van een dag
+    clubs/<id>/moves.json     opgeslagen verzettingen (seizoensniveau)
 """
 
 from __future__ import annotations
@@ -29,6 +31,21 @@ class LocalStore:
         tmp = p.with_suffix(p.suffix + ".tmp")
         tmp.write_bytes(data)
         tmp.replace(p)
+
+    def delete(self, key: str) -> bool:
+        p = self.root / key
+        if p.is_file():
+            p.unlink()
+            return True
+        return False
+
+    def list(self, prefix: str) -> list[str]:
+        base = self.root / prefix
+        d = base if prefix.endswith("/") else base.parent
+        if not d.is_dir():
+            return []
+        out = [str(p.relative_to(self.root)).replace("\\", "/") for p in d.rglob("*") if p.is_file() and not p.name.endswith(".tmp")]
+        return sorted(k for k in out if k.startswith(prefix))
 
     def list_clubs(self) -> list[str]:
         d = self.root / "clubs"
@@ -55,6 +72,18 @@ class GCSStore:
 
     def put(self, key: str, data: bytes, content_type: str = "application/octet-stream") -> None:
         self.bucket.blob(key).upload_from_string(data, content_type=content_type)
+
+    def delete(self, key: str) -> bool:
+        from google.api_core.exceptions import NotFound
+
+        try:
+            self.bucket.blob(key).delete()
+            return True
+        except NotFound:
+            return False
+
+    def list(self, prefix: str) -> list[str]:
+        return sorted(b.name for b in self.bucket.list_blobs(prefix=prefix))
 
     def list_clubs(self) -> list[str]:
         ids = set()
