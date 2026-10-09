@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baanschemaatje — testomgeving</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>Baanschemaatje</h1>
+    <span class="sub">generiek baanschema-voorstel · testomgeving</span>
+  </div>
+  <div class="controls">
+    <label>Club <select id="club"></select></label>
+    <label>Speeldag <select id="date"></select></label>
+  </div>
+</header>
+
+<main>
+  <p class="note" id="note">Laden…</p>
+
+  <section id="summary" class="cards"></section>
+
+  <section>
+    <h2>Baanschema</h2>
+    <div class="legend" id="legend"></div>
+    <div class="gridwrap"><div id="grid" class="grid"></div></div>
+  </section>
+
+  <div class="two">
+    <section>
+      <h2>Niet ingepland</h2>
+      <div id="unscheduled"></div>
+    </section>
+    <section>
+      <h2>Validator</h2>
+      <p class="hint">Bestaande validator (<code>scripts/validate_schedule.py</code>), getoetst aan de operationele SPEC.md van het eerste clubprofiel (Mierlo). Voor andere clubs kan die strenger zijn dan KNLTB (bv. junioren uiterlijk 13:00). HARD = regelovertreding, MODEL = extra modeleis die niet in de spec staat.</p>
+      <div id="findings"></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Alle speeldagen</h2>
+    <div class="tablewrap"><table id="days"></table></div>
+  </section>
+
+  <section>
+    <h2>Clubprofiel</h2>
+    <div id="profile"></div>
+  </section>
+</main>
+
+<footer>
+  Plannen zijn vooraf berekend met de generieke OR-Tools-planner (<code>python -m baanschemaatje build-web</code>).
+  Live (her)plannen vraagt later een backend. Dit staat los van de live Mierlo-pagina.
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

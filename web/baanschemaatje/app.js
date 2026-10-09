@@ -1,0 +1,242 @@
+"use strict";
+// Baanschemaatje web-GUI: leest vooraf berekende plannen uit ./data/.
+// Geen build-stap, geen externe bibliotheken; alle paden zijn relatief.
+
+const CAT = {
+  rood: { label: "Rood", short: "ROOD" },
+  oranje: { label: "Oranje", short: "ORA" },
+  groen: { label: "Groen", short: "GRO" },
+  junioren_11_14: { label: "Junioren 11–14", short: "JU11-14" },
+  jeugd_13_17: { label: "Jongens/Meisjes 13–17", short: "J/M13-17" },
+  gemengd: { label: "Gemengd", short: "GEM" },
+  senioren: { label: "Senioren", short: "SEN" },
+  overig: { label: "Overig", short: "OV" },
+};
+const RULE_NL = {
+  match_start_grid: "Begintijd op hele/halve uren",
+  match_start_window: "Begintijd wedstrijd",
+  junioren_start_window: "Junioren (Groen + 11–14): begintijd",
+  junioren_latest_start: "Junioren: begintijd uiterlijk",
+  junioren_mixed_8p_latest_start: "Gemengd 8p junioren: begintijd uiterlijk",
+  mixed_8p_latest_start: "Gemengd 8p: begintijd uiterlijk",
+  travel_not_before: "Reisafstand ≥ X km: niet vóór",
+  min_reservation: "Minimale reservering per partij",
+  start_window_8p: "8-partijenteams: begintijd",
+  mixed_8p_not_before: "Gemengd 8p: niet vóór",
+  youth_last_start: "Jeugd: laatste start uiterlijk",
+  first_start_deadline: "Eerste partij elk team uiterlijk",
+  max_wait_minutes: "Max wachttijd tussen partijen",
+  max_blocks_per_team: "Max speelblokken per team",
+  waterfall_8p: "8p: strikte S → D → GD",
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toMin = (hhmm) => parseInt(hhmm.slice(0, 2), 10) * 60 + parseInt(hhmm.slice(3, 5), 10);
+const toHHMM = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+
+let INDEX = null;
+const cache = new Map();
+
+function hue(str) {
+  let h = 0;
+  for (const ch of str) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h % 360;
+}
+function teamColor(id) { return `hsl(${hue(id)}, 65%, 80%)`; }
+
+function shortTeam(row) {
+  const s = row.team || "";
+  const m = s.match(/(\d+e klasse|Hoofdklasse|Groen \d+|Rood \d+|Oranje \d+)/i);
+  const cls = m ? m[1].replace(" klasse", "") : "";
+  const home = (row.home_team || "").trim();
+  return [cls, home].filter(Boolean).join(" · ") || s;
+}
+
+function params(r) {
+  const p = r.params || {};
+  if (r.name === "min_reservation") return "90 min (Junioren 11–14: 45 min)";
+  if (r.name === "match_start_grid") return `elke ${p.value} min`;
+  if (r.name === "travel_not_before") return `${p.value} km → ${p.time}`;
+  if ("from" in p) return `${p.from} – ${p.to}`;
+  if ("time" in p) return p.time;
+  if ("value" in p) return r.name === "max_wait_minutes" ? `${p.value} min` : String(p.value);
+  return "aan";
+}
+
+async function getJSON(path) {
+  if (cache.has(path)) return cache.get(path);
+  const res = await fetch(path, { cache: "no-cache" });
+  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+  const data = await res.json();
+  cache.set(path, data);
+  return data;
+}
+
+function club() { return INDEX.clubs.find((c) => c.id === $("club").value); }
+
+function fillDates(keep) {
+  const c = club();
+  $("date").innerHTML = c.dates.map((d) =>
+    `<option value="${esc(d.date)}">${esc(d.date)} — ${d.scheduled} ingepland${d.unscheduled ? `, ${d.unscheduled} niet` : ""}</option>`).join("");
+  if (keep && c.dates.some((d) => d.date === keep)) $("date").value = keep;
+}
+
+function updateHash() {
+  history.replaceState(null, "", `#${encodeURIComponent($("club").value)}/${encodeURIComponent($("date").value)}`);
+}
+
+async function render() {
+  const c = club();
+  const d = c.dates.find((x) => x.date === $("date").value);
+  updateHash();
+  renderDays(c);
+  renderProfile(c);
+  $("note").textContent = `${c.name} · ${c.courts} banen · seizoen ${INDEX.season_file} · berekend ${new Date(INDEX.generated_at).toLocaleString("nl-NL")} (tijdslimiet ${INDEX.time_limit_s}s per poging)`;
+  let plan;
+  try {
+    plan = await getJSON(`data/${d.file}`);
+  } catch (e) {
+    $("grid").innerHTML = `<p class="note">Kon plan niet laden: ${esc(e.message)}</p>`;
+    return;
+  }
+  renderSummary(c, d, plan);
+  renderGrid(c, plan);
+  renderUnscheduled(plan);
+  renderFindings(plan);
+}
+
+function renderSummary(c, d, plan) {
+  const v = plan.validator || {};
+  const card = (k, val, cls = "") => `<div class="card"><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
+  $("summary").innerHTML = [
+    card("Ingepland", d.scheduled, "good"),
+    card("Niet ingepland", d.unscheduled, d.unscheduled ? "bad" : "good"),
+    card("Validator HARD", v.hard ?? "–", v.hard ? "bad" : "good"),
+    card("Validator MODEL", v.model ?? "–", v.model ? "warn" : ""),
+    card("Dagstart", plan.day_start),
+    card("Wedstrijden", d.fixtures),
+    card("Rekentijd", `${d.solve_time_s}s`),
+    card("Solver", plan.status),
+  ].join("");
+}
+
+function renderGrid(c, plan) {
+  const placed = plan.rows.filter((r) => r.start !== "NIET_GELUKT" && r.court);
+  const startMin = Math.min(toMin(c.day.fallback_start || c.day.start), ...placed.map((r) => toMin(r.start)));
+  const endMin = Math.max(toMin(c.day.end), ...placed.map((r) => toMin(r.end)));
+  const nSlots = (endMin - startMin) / 15;
+  const g = $("grid");
+  g.style.gridTemplateColumns = `56px repeat(${c.courts}, minmax(112px, 1fr))`;
+  g.style.gridTemplateRows = `auto repeat(${nSlots}, var(--row))`;
+  const html = [`<div class="hdr corner" style="grid-row:1;grid-column:1">tijd</div>`];
+  for (let k = 1; k <= c.courts; k++) html.push(`<div class="hdr" style="grid-row:1;grid-column:${k + 1}">Baan ${k}</div>`);
+  for (let i = 0; i < nSlots; i++) {
+    const m = startMin + i * 15;
+    const hour = m % 60 === 45;
+    const lbl = m % 30 === 0 ? toHHMM(m) : "";
+    html.push(`<div class="time${m % 60 === 0 ? " hour" : ""}" style="grid-row:${i + 2};grid-column:1">${lbl}</div>`);
+    for (let k = 1; k <= c.courts; k++) html.push(`<div class="cell${hour ? " hour" : ""}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
+  }
+  const teams = new Map();
+  for (const r of placed) {
+    const r0 = (toMin(r.start) - startMin) / 15 + 2;
+    const r1 = (toMin(r.end) - startMin) / 15 + 2;
+    const cat = CAT[r.category] || CAT.overig;
+    const isRes = r.kind === "W";
+    const tip = `${r.team}\n${r.home_team || ""}${r.away_team ? " – " + r.away_team : ""}\n${r.part || "reservering"} · ${r.start}–${r.end} · baan ${r.court}`;
+    const bg = isRes ? "" : `background:${teamColor(r.team_id)}`;
+    if (!isRes) teams.set(r.team_id, r);
+    html.push(`<div class="blk${isRes ? " res" : ""}" title="${esc(tip)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${bg}">
+      <span class="cat">${esc(cat.short)}</span><b>${esc(r.part || (isRes ? cat.label : ""))}</b>
+      <div>${esc(isRes ? "baanreservering" : shortTeam(r))}</div>
+      <div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
+  }
+  g.innerHTML = html.join("");
+  $("legend").innerHTML = [...teams.values()]
+    .sort((a, b) => a.team.localeCompare(b.team))
+    .map((r) => `<span style="background:${teamColor(r.team_id)}" title="${esc(r.team)}">${esc((CAT[r.category] || CAT.overig).short)} ${esc(shortTeam(r))}</span>`)
+    .join("");
+}
+
+function renderUnscheduled(plan) {
+  const un = plan.rows.filter((r) => r.start === "NIET_GELUKT");
+  $("unscheduled").innerHTML = un.length
+    ? `<ul class="plain">${un.map((r) => `<li><b>${esc(r.part)}</b> · ${esc((CAT[r.category] || CAT.overig).short)} ${esc(shortTeam(r))}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
+    : `<p class="empty">Alle partijen zijn ingepland.</p>`;
+}
+
+function renderFindings(plan) {
+  const v = plan.validator || {};
+  if (!v.available) { $("findings").innerHTML = `<p class="note">Geen validatorrapport.</p>`; return; }
+  const f = v.findings || [];
+  if (!f.length) { $("findings").innerHTML = `<p class="empty">Geen bevindingen.</p>`; return; }
+  const item = (x) => `<li><span class="sev ${esc(x.severity)}">${esc(x.severity)}</span><b>${esc(x.rule)}</b> · ${esc(x.subject || "")}<br>${esc(x.message)}</li>`;
+  const hard = f.filter((x) => x.severity === "HARD");
+  const model = f.filter((x) => x.severity !== "HARD");
+  $("findings").innerHTML =
+    (hard.length ? `<ul class="plain">${hard.map(item).join("")}</ul>` : `<p class="empty">Geen HARD-overtredingen.</p>`) +
+    (model.length ? `<details><summary>${model.length} MODEL-bevinding(en) tonen</summary><ul class="plain">${model.map(item).join("")}</ul></details>` : "");
+}
+
+function renderDays(c) {
+  const sel = $("date").value;
+  $("days").innerHTML =
+    `<tr><th>Speeldag</th><th>Wedstrijden</th><th>Ingepland</th><th>Niet</th><th>Dagstart</th><th>HARD</th><th>MODEL</th><th>Rekentijd</th></tr>` +
+    c.dates.map((d) => `<tr class="click${d.date === sel ? " sel" : ""}" data-date="${esc(d.date)}">
+      <td>${esc(d.date)}</td><td class="num">${d.fixtures}</td><td class="num">${d.scheduled}</td>
+      <td class="num" style="${d.unscheduled ? "color:var(--hard);font-weight:600" : ""}">${d.unscheduled}</td>
+      <td>${esc(d.day_start)}</td>
+      <td class="num" style="${d.hard ? "color:var(--hard);font-weight:600" : ""}">${d.hard ?? "–"}</td>
+      <td class="num">${d.model ?? "–"}</td><td class="num">${d.solve_time_s}s</td></tr>`).join("");
+  for (const tr of $("days").querySelectorAll("tr.click")) {
+    tr.onclick = () => { $("date").value = tr.dataset.date; render(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  }
+}
+
+function renderProfile(c) {
+  const res = Object.entries(c.reservations || {});
+  const resTxt = res.length
+    ? res.map(([k, v]) => `${esc(CAT[k]?.label || k)}: baan ${v.courts.join(", ")}${v.courts_if_rood ? ` (als Rood ook speelt: ${v.courts_if_rood.join(", ")})` : ""}`).join("<br>")
+    : "geen vaste reserveringen (solver kiest banen)";
+  const durs = Object.entries(c.durations).filter(([k]) => k !== "overig")
+    .map(([k, v]) => `${esc(CAT[k]?.label || k)} ${v}`).join(" · ");
+  const rows = c.rules.map((r) => {
+    const tag = r.club_override ? `<span class="tag club">clubafspraak</span>`
+      : r.source === "product" ? `<span class="tag product">productdefault</span>` : `<span class="tag knltb">KNLTB</span>`;
+    const core = r.club_override ? `${esc(params({ ...r, params: r.core_params }))}${r.core_hard ? "" : " (zacht)"}` : "";
+    return `<tr><td>${esc(RULE_NL[r.name] || r.name)}</td><td><b>${esc(params(r))}</b></td><td>${r.hard ? "hard" : "zacht"}</td>
+      <td>${tag}</td><td>${core}</td><td class="hint">${esc(r.source === "product" ? "Baanschemaatje" : r.source)}</td></tr>`;
+  }).join("");
+  $("profile").innerHTML = `
+    <div class="cards">
+      <div class="card"><div class="k">Club</div><div class="v">${esc(c.name)}</div></div>
+      <div class="card"><div class="k">Banen</div><div class="v">${c.courts}</div></div>
+      <div class="card"><div class="k">Dagstart</div><div class="v">${esc(c.day.start)}${c.day.fallback_start ? ` <small>(terugval ${esc(c.day.fallback_start)})</small>` : ""}</div></div>
+      <div class="card"><div class="k">Laatste start / einde</div><div class="v">${esc(c.day.last_start)} / ${esc(c.day.end)}</div></div>
+    </div>
+    <p><b>Baanreserveringen:</b> ${resTxt}<br>
+    <b>Baantoewijzing:</b> max ${c.max_courts_per_team} banen per team${c.court_pairs ? `; vaste baanparen ${c.court_pairs.map((p) => p.join("+")).join(", ")}` : ""}${c.preferred_courts_8p.length ? `; 8p-teams bij voorkeur op baan ${c.preferred_courts_8p.join(", ")}` : ""}<br>
+    <b>Verwachte speelduur (min, KNLTB-default):</b> ${durs}</p>
+    <div class="tablewrap"><table>
+      <tr><th>Regel</th><th>Waarde</th><th>Hard/zacht</th><th>Soort</th><th>KNLTB/core-default</th><th>Bron</th></tr>${rows}
+    </table></div>
+    <p class="hint">Clubafspraken mogen strenger zijn dan het KNLTB-reglement, niet ruimer. KNLTB = Competitiereglement (vastgesteld 11-11-2025), Bijlage 3.</p>`;
+}
+
+async function init() {
+  try {
+    INDEX = await getJSON("data/index.json");
+  } catch (e) {
+    $("note").textContent = `Kon data/index.json niet laden (${e.message}). Draai: python -m baanschemaatje build-web`;
+    return;
+  }
+  $("club").innerHTML = INDEX.clubs.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} (${c.courts} banen)</option>`).join("");
+  const [hc, hd] = decodeURIComponent(location.hash.slice(1)).split("/");
+  if (hc && INDEX.clubs.some((c) => c.id === hc)) $("club").value = hc;
+  fillDates(hd);
+  $("club").onchange = () => { fillDates($("date").value); render(); };
+  $("date").onchange = render;
+  render();
+}
+init();
