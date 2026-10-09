@@ -79,7 +79,7 @@ def test_both_clubs_produce_valid_plan(plans, profiles, club, date):
         if r["kind"] != "W":
             assert _m(r["start"]) <= prof.last_start
     _assert_no_court_overlap(res.rows)
-    _assert_team_concurrency(res.rows)
+    _assert_team_concurrency(res.rows, limit=prof.max_courts_per_team)
 
 
 def test_small_day_fully_scheduled(plans):
@@ -111,15 +111,17 @@ def test_mierlo_oranje_reservation_on_courts_1_to_3(plans):
             assert _m(r["end"]) <= start or _m(r["start"]) >= end
 
 
-def test_mierlo_teams_stay_on_one_court_pair(plans, profiles):
-    pairs = profiles["mierlo"].court_pairs
+def test_mierlo_teams_use_at_most_three_courts(plans, profiles):
+    # Besluit Oscar 09-10-2026: max 3 banen per team, geen vaste baanparen.
+    assert profiles["mierlo"].court_pairs is None
+    assert profiles["mierlo"].max_courts_per_team == 3
     for date in ("06-09-2026", "11-10-2026"):
         used = defaultdict(set)
         for r in _placed(plans[("mierlo", date)].rows):
             if r["kind"] != "W":
                 used[r["team_id"]].add(r["court"])
         for team, cs in used.items():
-            assert any(cs <= set(p) for p in pairs), (team, cs)
+            assert len(cs) <= 3, (team, cs)
 
 
 def test_mierlo_8p_team_respects_start_window(plans):

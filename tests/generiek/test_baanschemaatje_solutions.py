@@ -44,7 +44,11 @@ def test_propose_solutions_ranks_a_fitting_option_first():
     base = plan_day(prof, fx, "01-01-2030", time_limit_s=3)
     assert base.unscheduled > 0
     sols = propose_solutions(prof, fx, "01-01-2030", base.rows, time_limit_s=3, combos=False)
-    assert sols[0]["fits"] and sols[0]["knltb_ok"]
-    assert sols[0]["kind"] == "inhaaldag"
+    # Een wedstrijd naar een inhaaldag is nooit een automatisch voorstel.
+    assert not any(s["kind"] == "inhaaldag" or "inhaaldag" in s["id"] for s in sols)
+    assert all(s["moved_wedstrijden"] == 0 for s in sols)
     ref = [s for s in sols if s["kind"] == "niet-knltb"]
     assert ref and not ref[0]["knltb_ok"]
+    # Ranking: passend + KNLTB-conform altijd boven de rest.
+    keys = [(not s["fits"], not s["knltb_ok"]) for s in sols]
+    assert keys == sorted(keys)

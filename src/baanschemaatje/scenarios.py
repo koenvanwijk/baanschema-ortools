@@ -1,8 +1,7 @@
 """Oplossingen voorstellen als een speeldag niet past.
 
 Draait what-if-scenario's met de generieke planner: steeds één versoepeling
-(een clubafspraak, een productdefault, een andere dagstart, een wedstrijd naar
-een inhaaldag, ...) en rangschikt de uitkomsten. Een voorstel dat het KNLTB-
+(een clubafspraak, een productdefault, een andere dagstart, ...) en rangschikt de uitkomsten. Een voorstel dat het KNLTB-
 reglement zou overtreden, wordt alleen als referentiepunt getoond.
 
 Scenario's worden generiek afgeleid uit clubprofiel + speeldag; er staan geen
@@ -18,7 +17,7 @@ from typing import Any, Callable
 
 from baanschemaatje.categories import JUNIOR_CATEGORIES, YOUTH_CATEGORIES, Category
 from baanschemaatje.knltb import knltb_findings
-from baanschemaatje.planner import UNSCHEDULED, plan_day
+from baanschemaatje.planner import plan_day
 from baanschemaatje.profile import ClubProfile, Rule, min_to_hhmm
 from baanschemaatje.season import Fixture
 
@@ -36,7 +35,7 @@ KNLTB_EARLIEST = 8 * 60 + 30
 class Scenario:
     id: str
     title: str
-    kind: str  # rekentijd | clubafspraak | productdefault | dagindeling | inhaaldag | niet-knltb
+    kind: str  # rekentijd | clubafspraak | productdefault | dagindeling | niet-knltb
     knltb_ok: bool
     cost: int
     transform: Transform
@@ -113,19 +112,8 @@ def candidate_scenarios(profile: ClubProfile, day: list[Fixture], base_rows: lis
         sc.append(Scenario("blokken_3", f"Max {mb.params['value'] + 1} speelblokken per team", "productdefault", True, 1,
                            lambda p, f: (_with_rule(p, "max_blocks_per_team", value=mb.params["value"] + 1), f)))
 
-    # Wedstrijd naar een inhaaldag: de teams met de meeste niet-ingeplande partijen.
-    ng: dict[str, int] = {}
-    for r in base_rows:
-        if r.get("start") == UNSCHEDULED:
-            ng[r["team_id"]] = ng.get(r["team_id"], 0) + 1
-    for tid, _ in sorted(ng.items(), key=lambda kv: -kv[1])[:2]:
-        fx = next((f for f in day if f.team_key == tid), None)
-        if fx is None:
-            continue
-        sc.append(Scenario(f"inhaaldag_{fx.label}_{fx.home_team}".replace(" ", "_"),
-                           f"Wedstrijd {fx.label} {fx.home_team} – {fx.away_team} naar een inhaaldag",
-                           "inhaaldag", True, 5,
-                           (lambda k: lambda p, f: (p, [x for x in f if x.team_key != k]))(tid)))
+    # Een wedstrijd naar een inhaaldag verplaatsen is bewust GEEN automatische
+    # oplossing (besluit Oscar 09-10-2026): dat is nooit acceptabel als voorstel.
 
     if profile.last_start <= KNLTB_LAST_START:
         sc.append(Scenario("laat_2030", "Laatste start 20:30 (mag NIET volgens KNLTB, alleen ter referentie)",
@@ -159,7 +147,7 @@ def _run(s: Scenario, profile: ClubProfile, day: list[Fixture], date: str, tl: f
 
 
 def _rank_key(r: dict[str, Any]):
-    return (not r["fits"], not r["knltb_ok"], r["moved_wedstrijden"] > 0, r["cost"], r["unscheduled"])
+    return (not r["fits"], not r["knltb_ok"], r["cost"], r["unscheduled"])
 
 
 def propose_solutions(
@@ -182,8 +170,8 @@ def propose_solutions(
         results.append(r)
 
     # Geen enkele KNLTB-conforme losse versoepeling past? Probeer combinaties
-    # van de beste clubafspraak-/productversoepelingen (zonder inhaaldag).
-    if combos and not any(r["fits"] and r["knltb_ok"] and r["kind"] != "inhaaldag" for r in results):
+    # van de beste clubafspraak-/productversoepelingen.
+    if combos and not any(r["fits"] and r["knltb_ok"] for r in results):
         pool = [s for s in scen if s.kind in ("clubafspraak", "productdefault", "dagindeling")]
         best = sorted(pool, key=lambda s: next(r["unscheduled"] for r in results if r["id"] == s.id))[:3]
         for a, b in itertools.combinations(best, 2):

@@ -24,9 +24,10 @@ reservations:
     courts_if_rood: [2, 3, 4]
 
 court_assignment:
-  max_courts_per_team: 2
-  # Huidige praktijk: een team speelt op één vast baanpaar.
-  pairs: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]]
+  # Besluit Oscar 09-10-2026: een team mag 3 banen tegelijk gebruiken, zonder
+  # vaste baanparen (was: max 2 banen op een vast paar 1+2, 3+4, ...).
+  # KNLTB CR Bijlage 3 vraagt minimaal 2 banen per team; 3 mag.
+  max_courts_per_team: 3
   preferred_courts_8p: [1, 2, 3, 4]
 
 # Regels: zonder overrides gelden de SPEC-core-defaults (KNLTB Competitie-

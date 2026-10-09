@@ -8,9 +8,6 @@ er is geen backend nodig. Plannen zijn dus vooraf berekend.
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -20,7 +17,6 @@ from baanschemaatje.profile import CORE_RULE_DEFAULTS, RULE_SOURCES, ClubProfile
 from baanschemaatje.season import load_season_tsv
 
 ROOT = Path(__file__).resolve().parents[2]
-VALIDATOR = ROOT / "scripts" / "validate_schedule.py"  # alleen aangeroepen, nooit gewijzigd
 
 
 def _fmt_params(params: dict[str, Any]) -> dict[str, Any]:
@@ -68,25 +64,10 @@ def profile_summary(prof: ClubProfile, club_id: str) -> dict[str, Any]:
     }
 
 
-def _validate(plan: dict[str, Any], season: Path) -> dict[str, Any]:
-    with tempfile.TemporaryDirectory() as td:
-        src = Path(td) / "plan.json"
-        rep = Path(td) / "rapport.json"
-        src.write_text(json.dumps(plan, ensure_ascii=False), encoding="utf-8")
-        subprocess.run(
-            [sys.executable, str(VALIDATOR), str(src), "--season", str(season), "--quiet", "--json", str(rep)],
-            cwd=ROOT, capture_output=True, text=True,
-        )
-        if not rep.exists():
-            return {"available": False, "hard": None, "model": None, "findings": []}
-        data = json.loads(rep.read_text(encoding="utf-8"))
-    f = data.get("findings", [])
-    return {
-        "available": True,
-        "hard": sum(1 for x in f if x.get("severity") == "HARD"),
-        "model": sum(1 for x in f if x.get("severity") == "MODEL"),
-        "findings": f,
-    }
+def _validate(plan: dict[str, Any], season: Path, profile: ClubProfile | None = None) -> dict[str, Any]:
+    from baanschemaatje.validation import validate_plan
+
+    return validate_plan(plan, season, profile)
 
 
 def build_web(
@@ -119,7 +100,7 @@ def build_web(
         for date in dates or s.dates():
             res = plan_day(prof, s.fixtures, date, time_limit_s=time_limit_s)
             plan = res.to_dict()
-            plan["validator"] = _validate({"status": plan["status"], "date": date, "rows": plan["rows"]}, season)
+            plan["validator"] = _validate({"status": plan["status"], "date": date, "rows": plan["rows"]}, season, prof)
             (club_dir / f"{date}.json").write_text(json.dumps(plan, indent=1, ensure_ascii=False), encoding="utf-8")
             sol_file, best = None, None
             if solutions and res.unscheduled:
@@ -129,7 +110,7 @@ def build_web(
                 sols = propose_solutions(prof, s.fixtures, date, plan["rows"], time_limit_s=time_limit_s, log=log)
                 for sol in sols:
                     sol["plan"]["validator"] = _validate(
-                        {"status": sol["plan"]["status"], "date": date, "rows": sol["plan"]["rows"]}, season)
+                        {"status": sol["plan"]["status"], "date": date, "rows": sol["plan"]["rows"]}, season, prof)
                     sol["validator_hard"] = sol["plan"]["validator"]["hard"]
                 sol_file = f"{club_id}/{date}.solutions.json"
                 (out_dir / sol_file).write_text(json.dumps({"date": date, "club": club_id, "solutions": sols},
