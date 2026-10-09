@@ -46,6 +46,7 @@ Rood/Oranje/Groen/jeugd 11–14 horen **niet** hier (zie SPEC-core). De KNLTB-re
 |---|---|---|
 | 8-partijenteams: begintijd tussen **10:00 en 11:00, HARD** (reistijd van ver) | gemengd 8p uiterlijk 14:00 **[CR B3 1.1.b]**; begintijd 08:30–16:30 **[CR B3 1.1]** | `rules.start_window_8p` |
 | Gemengd 8p niet vóór 10:00, HARD | geen ondergrens behalve 08:30 (en 10:00 bij ≥ 80 km reisafstand **[CR B3 1.2]**) | `rules.mixed_8p_not_before` |
+| Junioren (Groen + 11–14): begintijd uiterlijk **13:00**, HARD | uiterlijk 15:00 **[CR B3 1.1.a]** | `rules.junioren_latest_start` |
 | Jeugd: laatste partij start uiterlijk 17:30 | laatste partij uiterlijk 19:30 **[CR B3 2.1.c]** | `rules.youth_last_start` |
 | Team speelt op één vast baanpaar (1+2, 3+4, …) | twee banen per team **[CR B3 2.1.b]** | `court_assignment.pairs` |
 

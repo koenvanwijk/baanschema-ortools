@@ -52,7 +52,7 @@ Regels gemarkeerd met **[CR B3 x.y]** komen uit het KNLTB Competitiereglement Te
 |---|---|
 | Elke partij (senioren, gemengd, jeugd 13–17, …) | **1,5 uur** (“minimaal anderhalf uur”) |
 | Junioren 11 t/m 14 jaar | **45 min** (“minimaal drie kwartier”) |
-| Tenniskids (Rood/Oranje/Groen) | niet expliciet in Bijlage 3 — verwachte duur gebruiken; *te verifiëren* |
+| Groen / Rood / Oranje | niet expliciet in Bijlage 3 — verwachte duur (Groen 45 min) |
 
 De planner reserveert per partij `max(verwachte duur, minimale reservering)`. Een clubprofiel mag de verwachte duur niet onder de minimale reservering zetten.
 
@@ -85,7 +85,7 @@ De planner reserveert per partij `max(verwachte duur, minimale reservering)`. Ee
 | Eerste partij overige teams | ≤ 15:00 | zacht | product |
 | 8-partijenteams: smaller startvenster | geen (= KNLTB-grenzen) | — | club mag strenger (bv. 10:00–11:00) |
 
-Interpretatie (te verifiëren): “juniorencompetities” = Junioren 11–14 en Jeugd 13–17; Tenniskids (Rood/Oranje/Groen) vallen daar niet onder.
+**Juniorencompetities** (CR B3 1.1.a) = **Groen** en **Junioren 11 t/m 14** (besluit 2026-10-09). Jongens/Meisjes 13 t/m 17 zijn géén junioren in deze zin; voor hen gelden de algemene begintijden. Minimale reservering 45 min geldt voor Junioren 11–14 (CR B3 2.1.a); Groen heeft verwachte speelduur 45 min.
 
 ---
 
@@ -166,4 +166,5 @@ Huidige code volgt vooral **B**. Eerdere clubdocumentatie neigt naar **A**.
 | 2026-10-05 | KNLTB: Rood/Oranje/Groen/jeugd 11–14 in core; Groen + jeugd 11–14 = 45 min |
 | 2026-10-05 | Houding: product volledig generiek; eerste clubprofiel is referentie, geen uitzondering |
 | 2026-10-09 | Productnaam Baanschemaatje; implementatie start in `src/baanschemaatje/` |
+| 2026-10-09 | Juniorencompetities = Groen + Junioren 11–14 (niet J/M 13–17) |
 | 2026-10-09 | KNLTB CR Bijlage 3 (11-11-2025) als core-defaults met bronvermelding: begintijden, minimale reservering vs verwachte duur, twee banen/speelronden, 19:30, herplan-voorrang |

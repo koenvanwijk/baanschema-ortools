@@ -151,6 +151,7 @@ Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en ac
 ### Spoor KNLTB
 
 18. Spike: KNLTB-koppeling — mogelijkheden, auth, datamodel (geen implementatie)
+26. Feature: reisafstand per tegenstander invullen (80 km-regel)
 
 ### Spoor KNLTB-regelhulp (AI) — parallel, niet blocker
 
