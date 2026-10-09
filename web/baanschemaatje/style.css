@@ -92,7 +92,7 @@ li.drag.viol { border-color: #e53935; }
 .ed-banner { margin-top: 6px; background: #fff3cd; border: 1px solid #f0c36d; color: #7a5300; font-weight: 700; padding: 6px 10px; border-radius: 6px; }
 .ed-issues { margin-top: 6px; padding: 4px 10px; border-radius: 6px; font-size: 13px; }
 .ed-issues ul { margin: 2px 0 2px 18px; padding: 0; }
-.ed-issues.conflict, .ed-issues.KNLTB { background: #fdecea; border: 1px solid #f3c2bd; }
+.ed-issues.conflict, .ed-issues.KNLTB, .ed-issues.Spelersconflict, .ed-issues.Volgorde { background: #fdecea; border: 1px solid #f3c2bd; }
 .ed-issues.clubafspraak { background: #fff7e0; border: 1px solid #f0d58a; }
 .ed-issues.Baanschemaatje { background: #eef3fb; border: 1px solid #c9d8f0; }
 .ed-ok { margin-top: 6px; color: #2f855a; font-weight: 600; }
