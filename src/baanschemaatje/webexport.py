@@ -136,3 +136,66 @@ def build_web(
         index["clubs"].append(summary)
     (out_dir / "index.json").write_text(json.dumps(index, indent=1, ensure_ascii=False), encoding="utf-8")
     return index
+
+
+def rebuild_index(clubs: list[Path], season: Path, out_dir: Path, log=print) -> dict[str, Any]:
+    """index.json opnieuw opbouwen uit bestaande plan-/oplossingsbestanden, ZONDER te plannen.
+
+    Valideert de bestaande plannen opnieuw (goedkoop) met de huidige
+    validator-wrapper en het huidige clubprofiel, en verwijdert voorstellen die
+    niet meer zijn toegestaan (wedstrijd naar een inhaaldag). Dagen zonder
+    planbestand worden overgeslagen; plannen gebeurt alleen expliciet.
+    """
+    index: dict[str, Any] = {
+        "generator": "baanschemaatje",
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "season_file": season.name,
+        "time_limit_s": None,
+        "clubs": [],
+    }
+    old = {}
+    if (out_dir / "index.json").exists():
+        old = json.loads((out_dir / "index.json").read_text(encoding="utf-8"))
+        index["time_limit_s"] = old.get("time_limit_s")
+    for club_path in clubs:
+        club_id = club_path.stem
+        prof = load_profile(club_path)
+        s = load_season_tsv(season, prof.knltb_name)
+        summary = profile_summary(prof, club_id)
+        summary["dates"] = []
+        for date in s.dates():
+            f = out_dir / club_id / f"{date}.json"
+            if not f.exists():
+                log(f"{club_id} {date}: geen planbestand, overgeslagen")
+                continue
+            plan = json.loads(f.read_text(encoding="utf-8"))
+            plan["validator"] = _validate({"status": plan["status"], "date": date, "rows": plan["rows"]}, season, prof)
+            f.write_text(json.dumps(plan, indent=1, ensure_ascii=False), encoding="utf-8")
+            st = plan["stats"]
+            sol_rel, best = None, None
+            sf = out_dir / club_id / f"{date}.solutions.json"
+            if st["unscheduled"] and sf.exists():
+                data = json.loads(sf.read_text(encoding="utf-8"))
+                sols = [x for x in data["solutions"] if x.get("kind") != "inhaaldag" and "inhaaldag" not in x.get("id", "")]
+                for i, x in enumerate(sols, 1):
+                    x["rank"] = i
+                    x["plan"]["validator"] = _validate(
+                        {"status": x["plan"]["status"], "date": date, "rows": x["plan"]["rows"]}, season, prof)
+                    x["validator_hard"] = x["plan"]["validator"]["hard"]
+                data["solutions"] = sols
+                sf.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
+                sol_rel = f"{club_id}/{date}.solutions.json"
+                ok = [x for x in sols if x["fits"] and x["knltb_ok"]]
+                best = ok[0]["title"] if ok else None
+            elif sf.exists():
+                sf.unlink()  # dag past nu; oud oplossingsbestand is achterhaald
+            summary["dates"].append({
+                "solutions_file": sol_rel, "best_solution": best, "date": date, "file": f"{club_id}/{date}.json",
+                "status": plan["status"], "day_start": plan["day_start"], "fixtures": len(s.day(date)),
+                "scheduled": st["scheduled"], "unscheduled": st["unscheduled"], "solve_time_s": st["solve_time_s"],
+                "hard": plan["validator"]["hard"], "model": plan["validator"]["model"],
+            })
+            log(f"{club_id} {date}: {st['scheduled']} ingepland, {st['unscheduled']} niet, HARD={plan['validator']['hard']}")
+        index["clubs"].append(summary)
+    (out_dir / "index.json").write_text(json.dumps(index, indent=1, ensure_ascii=False), encoding="utf-8")
+    return index

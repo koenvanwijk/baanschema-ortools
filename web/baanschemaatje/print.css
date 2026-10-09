@@ -1,4 +1,4 @@
-/* Printbaar dagoverzicht: precies één A4 staand. */
+/* Printbaar dagoverzicht: precies één A4 staand, kleurenprint (zelfde teamkleuren als op het scherm). */
 #print-area { display: none; }
 @page { size: A4 portrait; margin: 7mm; }
 @media print {
@@ -15,11 +15,11 @@
   .p-line { border-top: 0.1mm dotted #bbb; z-index: 0; }
   .p-line.hr { border-top: 0.15mm solid #888; }
   .p-col { border-left: 0.15mm solid #999; z-index: 0; }
-  .p-blk { z-index: 1; margin: 0.25mm 0.35mm; border: 0.25mm solid #000; border-radius: 0.8mm; padding: 0.3mm 0.6mm; overflow: hidden;
+  .p-blk { z-index: 1; margin: 0.25mm 0.35mm; border: 0.2mm solid rgba(0,0,0,.35); border-radius: 0.8mm; padding: 0.3mm 0.6mm; overflow: hidden;
     font-size: 5.6pt; line-height: 1.12; }
   .p-blk .l1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .p-blk .l2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .p-lab { font-weight: 700; background: #fff; color: #000; border: 0.15mm solid #000; border-radius: 0.6mm; padding: 0 0.5mm; }
+  .p-lab { font-weight: 700; background: rgba(255,255,255,.85); color: #000; border-radius: 0.6mm; padding: 0 0.5mm; }
   .p-legend { margin-top: 1.2mm; display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 2mm; row-gap: 0.4mm; font-size: 5.8pt; }
   .p-legend span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .p-legend i { display: inline-block; width: 2.6mm; height: 2.6mm; border: 0.2mm solid #000; vertical-align: -0.5mm; margin-right: 0.8mm; }

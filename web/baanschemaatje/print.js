@@ -1,6 +1,6 @@
 "use strict";
 // Printbaar dagoverzicht op precies één A4 (staand): baangrid (banen × tijd),
-// teamkleuren + tekstlabel in elk blok (werkt ook zwart-wit), compacte legenda
+// dezelfde teamkleuren als op het scherm (kleurenprint) + label in elk blok, compacte legenda
 // en de niet-ingeplande partijen. Gedeeld door index.html en club.html.
 // Vereist colors.js (teamColors).
 

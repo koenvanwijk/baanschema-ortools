@@ -4,7 +4,7 @@ Commando's:
   check  --club FILE                       clubprofiel valideren
   dates  --season FILE [--club FILE]       speeldagen in het seizoen tonen
   plan   --club FILE --season FILE --date dd-mm-YYYY [--out FILE]
-  build-web [--club FILE ...] [--season FILE] [--out DIR]   web-GUI-data
+  build-web [--club FILE ...] [--season FILE] [--out DIR] [--solutions] [--index-only]   web-GUI-data
 
 Output gaat standaard naar ``out/baanschemaatje/`` (gitignored), nooit naar
 ``docs/`` — de live site blijft onaangeroerd.
@@ -53,7 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     w.add_argument("--out", type=Path, default=Path("web/baanschemaatje/data"))
     w.add_argument("--time-limit", type=float, default=20.0)
     w.add_argument("--date", action="append", help="alleen deze speeldag(en)")
-    w.add_argument("--no-solutions", action="store_true", help="geen oplossingen zoeken voor dagen die niet passen")
+    w.add_argument("--solutions", action="store_true",
+                   help="ook oplossingen (scenario's) zoeken voor dagen die niet passen — duurt lang; standaard uit")
+    w.add_argument("--no-solutions", action="store_true", help=argparse.SUPPRESS)  # compat: is nu de standaard
+    w.add_argument("--index-only", action="store_true",
+                   help="niet plannen: index.json opnieuw opbouwen en bestaande plannen opnieuw valideren")
 
     a = ap.parse_args(argv)
     try:
@@ -72,7 +76,13 @@ def main(argv: list[str] | None = None) -> int:
             from baanschemaatje.webexport import build_web
 
             clubs = a.club or sorted(Path("clubs").glob("*.yaml"))
-            build_web(clubs, a.season, a.out, time_limit_s=a.time_limit, dates=a.date, solutions=not a.no_solutions)
+            if a.index_only:
+                from baanschemaatje.webexport import rebuild_index
+
+                rebuild_index(clubs, a.season, a.out)
+            else:
+                build_web(clubs, a.season, a.out, time_limit_s=a.time_limit, dates=a.date,
+                          solutions=a.solutions and not a.no_solutions)
             print(f"Klaar: {a.out}/index.json")
             return 0
         prof = load_profile(a.club)
