@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Baanschemaatje — testomgeving</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="print.css">
 </head>
 <body>
 <header>
   <div class="brand">
     <h1>Baanschemaatje</h1>
-    <span class="sub">generiek baanschema-voorstel · testomgeving</span>
+    <span class="sub">generiek baanschema-voorstel · testomgeving · <a href="club.html" style="color:inherit">Clubpagina →</a></span>
   </div>
   <div class="controls">
     <label>Club <select id="club"></select></label>
@@ -18,6 +19,7 @@
     <label title="Maximale rekentijd per solverpoging">Rekentijd <select id="live-tl">
       <option value="10">10s</option><option value="20" selected>20s</option><option value="30">30s</option></select></label>
     <button id="live-btn" class="live-btn">Live berekenen</button>
+    <button id="print-btn" class="live-btn" title="Dagoverzicht op één A4 printen">Printen</button>
   </div>
 </header>
 
@@ -67,6 +69,8 @@
   Plannen zijn vooraf berekend met de generieke OR-Tools-planner (<code>python -m baanschemaatje build-web</code>).
   Met "Live berekenen" rekent de Baanschemaatje-server (Google Cloud Run) de gekozen speeldag opnieuw; lukt dat niet, dan blijft het vooraf berekende plan staan. Dit staat los van de live Mierlo-pagina.
 </footer>
+<script src="colors.js"></script>
+<script src="print.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

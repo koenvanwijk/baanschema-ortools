@@ -45,12 +45,7 @@ const toHHMM = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m
 let INDEX = null;
 const cache = new Map();
 
-function hue(str) {
-  let h = 0;
-  for (const ch of str) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return h % 360;
-}
-function teamColor(id) { return `hsl(${hue(id)}, 65%, 80%)`; }
+// Teamkleuren: zie colors.js (teamColors).
 
 // Label per rij: uit de export (J13-17 / M13-17 / ...), anders uit de categorie.
 function rowLabel(r) { return r.label || (CAT[r.category] || CAT.overig).short; }
@@ -117,6 +112,15 @@ async function render() {
 }
 
 let CURRENT = null;
+let SHOWN = null; // plan dat nu in beeld is (voorstel, scenario of live) — voor Printen
+
+function printDay() {
+  if (!CURRENT || !SHOWN) return;
+  const { c, d } = CURRENT;
+  const sc = SHOWN.scenario;
+  const note = sc ? (sc.live ? "live berekend" : `oplossing: ${sc.title}`) : "";
+  printPlan(SHOWN.plan, { clubName: c.name, date: d.date, dayStart: c.day.fallback_start || c.day.start, dayEnd: c.day.end, note });
+}
 
 // Toon een plan (het voorstel of een oplossingsscenario) in kaarten, grid en lijsten.
 function showPlan(plan, scenario) {
@@ -126,6 +130,7 @@ function showPlan(plan, scenario) {
     ? { ...d, scheduled: scenario.scheduled, unscheduled: scenario.unscheduled, solve_time_s: scenario.solve_time_s,
         fixtures: d.fixtures - (scenario.moved_wedstrijden || 0) }
     : d;
+  SHOWN = { plan, scenario };
   renderSummary(c, dd, plan);
   renderGrid(c, plan);
   renderUnscheduled(plan);
@@ -212,13 +217,18 @@ function renderGrid(c, plan) {
     for (let k = 1; k <= c.courts; k++) html.push(`<div class="cell${hour ? " hour" : ""}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
   }
   const teams = new Map();
+  const COL = teamColors(plan.rows);
   for (const r of placed) {
     const r0 = (toMin(r.start) - startMin) / 15 + 2;
     const r1 = (toMin(r.end) - startMin) / 15 + 2;
     const cat = CAT[r.category] || CAT.overig;
     const isRes = r.kind === "W";
     const tip = `${r.team}\n${r.home_team || ""}${r.away_team ? " – " + r.away_team : ""}\n${r.part || "reservering"} · ${r.start}–${r.end} · baan ${r.court}`;
-    const bg = isRes ? "" : `background:${teamColor(r.team_id)}`;
+    const col = COL.get(r.team_id) || { bg: "#ddd", fg: "#111" };
+    const rc = COL.get(`__res_${r.category}`);
+    const bg = isRes
+      ? (rc ? `background:repeating-linear-gradient(45deg, ${rc.bg}, ${rc.bg} 6px, #fff 6px, #fff 12px)` : "")
+      : `background:${col.bg};color:${col.fg}`;
     if (!isRes) teams.set(r.team_id, r);
     html.push(`<div class="blk${isRes ? " res" : ""}" title="${esc(tip)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${bg}">
       <span class="cat">${esc(rowLabel(r))}</span><b>${esc(r.part || (isRes ? cat.label : ""))}</b>
@@ -228,7 +238,8 @@ function renderGrid(c, plan) {
   g.innerHTML = html.join("");
   $("legend").innerHTML = [...teams.values()]
     .sort((a, b) => a.team.localeCompare(b.team))
-    .map((r) => `<span style="background:${teamColor(r.team_id)}" title="${esc(r.team)}">${esc(rowLabel(r))} ${esc(shortTeam(r))}</span>`)
+    .sort((a, b) => (a.category || "").localeCompare(b.category || ""))
+    .map((r) => `<span style="background:${COL.get(r.team_id).bg};color:${COL.get(r.team_id).fg}" title="${esc(r.team)}">${esc(rowLabel(r))} ${esc(shortTeam(r))}</span>`)
     .join("");
 }
 
@@ -380,6 +391,7 @@ async function init() {
   $("club").onchange = () => { fillDates($("date").value); render(); };
   $("date").onchange = render;
   $("live-btn").onclick = livePlan;
+  $("print-btn").onclick = printDay;
   $("live-btn").title = `Rekent deze speeldag opnieuw op ${LIVE_API}`;
   render();
 }

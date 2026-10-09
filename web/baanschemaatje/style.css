@@ -32,7 +32,7 @@ code { font-size: 12px; background: #eceee9; padding: 1px 4px; border-radius: 4p
 .grid .cell.hour { border-bottom: 1px solid #e3e6e1; }
 .blk { margin: 1px 2px; border-radius: 6px; padding: 2px 5px; font-size: 11px; line-height: 1.2; overflow: hidden; color: #10140f; border: 1px solid rgba(0,0,0,.12); z-index: 1; cursor: default; }
 .blk b { font-size: 12px; }
-.blk .cat { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 4px; border-radius: 4px; background: rgba(255,255,255,.65); margin-right: 3px; }
+.blk .cat { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 4px; border-radius: 4px; background: rgba(255,255,255,.85); color: #111; margin-right: 3px; }
 .blk .t { opacity: .75; }
 .blk.res { background: repeating-linear-gradient(45deg, #f4d9c6, #f4d9c6 6px, #f9e9dd 6px, #f9e9dd 12px); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
@@ -77,3 +77,4 @@ tr.ref td { color: var(--muted); }
 .live-status.ok { color: #2f855a; }
 .live-status.warn { color: #b7791f; }
 .live-status.err { color: #c53030; }
+.blk.res b, .blk.res div { background: rgba(255,255,255,.85); color: #111; border-radius: 3px; padding: 0 2px; }

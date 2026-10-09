@@ -1,0 +1,18 @@
+.form { display: flex; flex-direction: column; gap: 10px; max-width: 900px; }
+.form.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.form label { display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-weight: 600; }
+.form label.inline { display: inline-flex; flex-direction: row; align-items: center; gap: 4px; margin-right: 10px; font-weight: 400; }
+.form input, .form select, #rules input { padding: 5px 7px; border: 1px solid #c9d1c7; border-radius: 6px; font: inherit; font-weight: 400; }
+.form small { font-weight: 400; color: #667; }
+#rules input[type=time] { width: 92px; }
+#rules input[type=number] { width: 70px; }
+#rules tr.looser td { background: #fdecea; }
+.btn2 { padding: 6px 12px; border-radius: 6px; border: 1px solid #2b6cb0; background: #fff; color: #2b6cb0; font-weight: 600; cursor: pointer; }
+.btn2:disabled, .live-btn:disabled { opacity: .55; cursor: not-allowed; }
+.banner { background: #fff7e0; border: 1px solid #f0d58a; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin: 8px 0; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: #e3ecfa; color: #24519a; margin-left: 6px; vertical-align: middle; }
+.badge.demo { background: #fde2f0; color: #9c1c5b; }
+.badge.ro { background: #eee; color: #555; }
+.wed { font-size: 12px; color: #445; }
+td.res-ok { color: #2f855a; font-weight: 600; }
+td.res-bad { color: #c53030; font-weight: 600; }
