@@ -162,3 +162,20 @@ def test_min_reservation_vs_expected_duration():
 def test_day_start_must_be_on_half_hour():
     with pytest.raises(ProfileError, match="heel/half uur"):
         profile_from_dict({"club": {"name": "X"}, "courts": {"count": 4}, "day": {"start": "09:15"}})
+
+
+@pytest.mark.parametrize(
+    "schema,label",
+    [
+        ("Jongens 13 t/m 17 jaar Zondag – 2e klasse", "J13-17"),
+        ("Meisjes 13 t/m 17 jaar Zondag – Hoofdklasse", "M13-17"),
+        ("Junioren 11 t/m 14 jaar Zondag – 2e klasse", "JU11-14"),
+        ("Groen Zondag – Groen 1", "GRO"),
+        ("Gemengd Zondag – 1e klasse (2DE-2HE-DD-HD-2GD)", "GEM"),
+        ("Heren Zondag – 4e klasse", "HEREN"),
+    ],
+)
+def test_short_labels_split_13_17_by_gender(schema, label):
+    from baanschemaatje.categories import short_label
+
+    assert short_label(schema) == label

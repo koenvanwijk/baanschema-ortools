@@ -76,6 +76,38 @@ DEFAULT_PRIORITY: dict[Category, int] = {
 }
 
 
+#: Korte labels voor UI/export. Jeugd 13-17 wordt gesplitst op geslacht.
+SHORT_LABELS: dict[Category, str] = {
+    Category.ROOD: "ROOD",
+    Category.ORANJE: "ORA",
+    Category.GROEN: "GRO",
+    Category.JUNIOREN_11_14: "JU11-14",
+    Category.JEUGD_13_17: "J/M13-17",
+    Category.GEMENGD: "GEM",
+    Category.SENIOREN: "SEN",
+    Category.OVERIG: "OV",
+}
+
+
+def short_label(schema: str, category: Category | None = None) -> str:
+    """Kort label voor een teamschema, bv. ``J13-17`` (jongens) of ``M13-17``
+    (meisjes). Het geslacht staat in de KNLTB-export alleen in de
+    schema-omschrijving ("Jongens 13 t/m 17 ..." / "Meisjes 13 t/m 17 ...")."""
+    cat = category or classify(schema)
+    s = (schema or "").lower()
+    if cat == Category.JEUGD_13_17:
+        if "jongens" in s:
+            return "J13-17"
+        if "meisjes" in s:
+            return "M13-17"
+    if cat == Category.SENIOREN:
+        if "heren" in s:
+            return "HEREN"
+        if "dames" in s:
+            return "DAMES"
+    return SHORT_LABELS[cat]
+
+
 def classify(schema: str) -> Category:
     """Bepaal de KNLTB-categorie uit de schema-omschrijving van de export."""
     s = (schema or "").lower()

@@ -73,9 +73,15 @@ def plan_day(
     time_limit_s: float = 20.0,
     random_seed: int = 42,
     workers: int = 8,
+    fit_check: bool = True,
 ) -> PlanResult:
     """Plan één speeldag. Probeert ``day.start``; valt terug op
-    ``day.fallback_start`` als er partijen onplanbaar blijven (SPEC-core §2)."""
+    ``day.fallback_start`` als er partijen onplanbaar blijven (SPEC-core §2).
+
+    ``fit_check``: blijven er partijen over, dan zoekt een tweede ronde puur
+    naar een oplossing waarin álles past (feasibility) en verfijnt die daarna
+    met de zachte doelen. Het gewogen model vindt zo'n oplossing op krappe
+    dagen niet altijd binnen de tijdslimiet."""
     day = [f for f in fixtures if f.date == date]
     t0 = time.perf_counter()
     attempts = []
@@ -86,7 +92,16 @@ def plan_day(
     for ds in starts:
         status, rows = _solve(profile, day, date, ds, time_limit_s, random_seed, workers)
         ng = sum(1 for r in rows if r["start"] == UNSCHEDULED)
-        attempts.append({"day_start": min_to_hhmm(ds), "status": status, "unscheduled": ng})
+        attempts.append({"day_start": min_to_hhmm(ds), "mode": "optimize", "status": status, "unscheduled": ng})
+        if fit_check and ng and status in ("OPTIMAL", "FEASIBLE"):
+            fst, frows = _solve(profile, day, date, ds, time_limit_s, random_seed, workers, mode="feasibility")
+            attempts.append({"day_start": min_to_hhmm(ds), "mode": "feasibility", "status": fst,
+                             "unscheduled": 0 if frows else None})
+            if frows:
+                hint = {(r["team_id"], r["part"]): (_hm(r["start"]), r["court"]) for r in frows if r["kind"] != "W"}
+                ost, orows = _solve(profile, day, date, ds, time_limit_s, random_seed, workers, mode="fit", hint=hint)
+                attempts.append({"day_start": min_to_hhmm(ds), "mode": "fit", "status": ost, "unscheduled": 0 if orows else None})
+                status, rows, ng = (ost, orows, 0) if orows else (fst, frows, 0)
         ok = status in ("OPTIMAL", "FEASIBLE")
         if ok and (best is None or ng < sum(1 for r in best[1] if r["start"] == UNSCHEDULED)):
             best = (status, rows, ds)
@@ -97,6 +112,10 @@ def plan_day(
         return PlanResult(profile.name, date, profile.courts, attempts[-1]["status"], min_to_hhmm(starts[-1]), [], elapsed, attempts)
     status, rows, ds = best
     return PlanResult(profile.name, date, profile.courts, status, min_to_hhmm(ds), rows, elapsed, attempts)
+
+
+def _hm(hhmm: str) -> int:
+    return int(hhmm[:2]) * 60 + int(hhmm[3:5])
 
 
 def _block_courts(profile: ClubProfile, f: Fixture, cats_today: set[Category]) -> tuple[int, ...] | None:
@@ -152,7 +171,12 @@ def _solve(
     time_limit_s: float,
     random_seed: int,
     workers: int,
+    mode: str = "optimize",
+    hint: dict[tuple[str, str], tuple[int, int]] | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
+    """mode: "optimize" (max ingepland + zachte doelen), "feasibility" (alles
+    verplicht, geen doel) of "fit" (alles verplicht + zachte doelen).
+    hint: (team_key, partlabel) -> (start, baan) als startoplossing."""
     R = profile.rules
     end = profile.day_end
     slots = list(range(day_start, end, GRID))  # begintijden van kwartierslots
@@ -457,6 +481,27 @@ def _solve(
     # zachte voorkeuren zijn kleiner. (Een echte twee-fasen-lexico is
     # geprobeerd: fase 1 met alléén het aantal partijen zocht trager, omdat de
     # zachte termen de zoektocht juist sturen. Zie README, "Nog niet geport".)
+    if hint:
+        for i, p in enumerate(parts):
+            h_ = hint.get((p["f"].team_key, p["label"]))
+            for s in allowed[i]:
+                for c in courts:
+                    model.add_hint(x[(i, s, c)], 1 if h_ == (s, c) else 0)
+    if mode == "fit":
+        model.add(sum(y) == len(y))
+    if mode == "feasibility":
+        # Past alles? Alle partijen verplicht, geen zachte doelen: CP-SAT zoekt
+        # puur een haalbare oplossing of bewijst dat die niet bestaat.
+        model.add(sum(y) == len(y))
+        solver = cp_model.CpSolver()
+        solver.parameters.max_time_in_seconds = time_limit_s
+        solver.parameters.num_search_workers = workers
+        solver.parameters.random_seed = random_seed
+        st = solver.solve(model)
+        status = solver.status_name(st)
+        if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+            return status, []
+        return status, _rows(solver, blocks, parts, allowed, courts, x)
     model.maximize(
         1_000_000_000 * sum(y)
         + sum(obj_bonus)
@@ -472,6 +517,10 @@ def _solve(
     if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return status, []
 
+    return status, _rows(solver, blocks, parts, allowed, courts, x)
+
+
+def _rows(solver, blocks, parts, allowed, courts, x) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for f, bs, be, assign in blocks:
         for c, v in sorted(assign.items()):
@@ -487,7 +536,7 @@ def _solve(
         if not placed:
             rows.append(_row(p["f"], p["label"], p["kind"], UNSCHEDULED, "", None))
     rows.sort(key=lambda r: (r["start"], r["court"] or 99, r["team"], r["part"]))
-    return status, rows
+    return rows
 
 
 def _row(f: Fixture, part: str, kind: str, start: str, end: str, court: int | None) -> dict[str, Any]:
@@ -499,6 +548,7 @@ def _row(f: Fixture, part: str, kind: str, start: str, end: str, court: int | No
         "home_team": f.home_team,
         "away_team": f.away_team,
         "category": f.category.value,
+        "label": f.label,
         "part": part,
         "kind": kind,
         "start": start,

@@ -53,6 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     w.add_argument("--out", type=Path, default=Path("web/baanschemaatje/data"))
     w.add_argument("--time-limit", type=float, default=20.0)
     w.add_argument("--date", action="append", help="alleen deze speeldag(en)")
+    w.add_argument("--no-solutions", action="store_true", help="geen oplossingen zoeken voor dagen die niet passen")
 
     a = ap.parse_args(argv)
     try:
@@ -71,7 +72,7 @@ def main(argv: list[str] | None = None) -> int:
             from baanschemaatje.webexport import build_web
 
             clubs = a.club or sorted(Path("clubs").glob("*.yaml"))
-            build_web(clubs, a.season, a.out, time_limit_s=a.time_limit, dates=a.date)
+            build_web(clubs, a.season, a.out, time_limit_s=a.time_limit, dates=a.date, solutions=not a.no_solutions)
             print(f"Klaar: {a.out}/index.json")
             return 0
         prof = load_profile(a.club)

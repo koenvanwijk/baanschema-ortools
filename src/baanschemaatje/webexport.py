@@ -96,6 +96,7 @@ def build_web(
     time_limit_s: float = 20.0,
     dates: list[str] | None = None,
     log=print,
+    solutions: bool = True,
 ) -> dict[str, Any]:
     from baanschemaatje.planner import plan_day
 
@@ -120,7 +121,24 @@ def build_web(
             plan = res.to_dict()
             plan["validator"] = _validate({"status": plan["status"], "date": date, "rows": plan["rows"]}, season)
             (club_dir / f"{date}.json").write_text(json.dumps(plan, indent=1, ensure_ascii=False), encoding="utf-8")
+            sol_file, best = None, None
+            if solutions and res.unscheduled:
+                from baanschemaatje.scenarios import propose_solutions
+
+                log(f"{prof.name} {date}: {res.unscheduled} niet ingepland → oplossingen zoeken")
+                sols = propose_solutions(prof, s.fixtures, date, plan["rows"], time_limit_s=time_limit_s, log=log)
+                for sol in sols:
+                    sol["plan"]["validator"] = _validate(
+                        {"status": sol["plan"]["status"], "date": date, "rows": sol["plan"]["rows"]}, season)
+                    sol["validator_hard"] = sol["plan"]["validator"]["hard"]
+                sol_file = f"{club_id}/{date}.solutions.json"
+                (out_dir / sol_file).write_text(json.dumps({"date": date, "club": club_id, "solutions": sols},
+                                                           indent=1, ensure_ascii=False), encoding="utf-8")
+                ok = [x for x in sols if x["fits"] and x["knltb_ok"]]
+                best = ok[0]["title"] if ok else None
             summary["dates"].append({
+                "solutions_file": sol_file,
+                "best_solution": best,
                 "date": date,
                 "file": f"{club_id}/{date}.json",
                 "status": plan["status"],

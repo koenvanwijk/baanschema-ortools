@@ -47,6 +47,13 @@ class Fixture:
         return self.category in BLOCK_CATEGORIES
 
     @property
+    def label(self) -> str:
+        """Kort label, bv. J13-17 / M13-17 / JU11-14 / GEM."""
+        from baanschemaatje.categories import short_label
+
+        return short_label(self.schema, self.category)
+
+    @property
     def is_mixed(self) -> bool:
         return "gemengd" in self.schema.lower()
 
