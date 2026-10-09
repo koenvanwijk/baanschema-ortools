@@ -59,3 +59,11 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tag.knltb { background: #dff0e5; color: #1f5135; }
 .tag.product { background: #eceee9; color: #444; }
 footer { color: var(--muted); font-size: 12px; padding: 16px; text-align: center; }
+
+.viewing { background: #fff4d6; border: 1px solid #f0d58a; border-radius: 8px; padding: 6px 10px; margin: 0 0 8px; font-size: 13px; }
+.viewing button, .sol button { font: inherit; font-size: 12px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
+.viewing button { margin-left: 8px; }
+tr.best td { background: #e6f1ea; font-weight: 600; }
+tr.ref td { color: var(--muted); }
+.yes { color: var(--ok); font-weight: 700; } .no { color: var(--hard); font-weight: 700; }
+.reco { background: #e6f1ea; border: 1px solid #b9d9c5; border-radius: 8px; padding: 8px 12px; margin: 0 0 8px; font-size: 14px; }

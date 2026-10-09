@@ -7,7 +7,7 @@ const CAT = {
   oranje: { label: "Oranje", short: "ORA" },
   groen: { label: "Groen", short: "GRO" },
   junioren_11_14: { label: "Junioren 11–14", short: "JU11-14" },
-  jeugd_13_17: { label: "Jongens/Meisjes 13–17", short: "J/M13-17" },
+  jeugd_13_17: { label: "Jeugd 13–17", short: "13-17" },
   gemengd: { label: "Gemengd", short: "GEM" },
   senioren: { label: "Senioren", short: "SEN" },
   overig: { label: "Overig", short: "OV" },
@@ -44,6 +44,9 @@ function hue(str) {
   return h % 360;
 }
 function teamColor(id) { return `hsl(${hue(id)}, 65%, 80%)`; }
+
+// Label per rij: uit de export (J13-17 / M13-17 / ...), anders uit de categorie.
+function rowLabel(r) { return r.label || (CAT[r.category] || CAT.overig).short; }
 
 function shortTeam(row) {
   const s = row.team || "";
@@ -100,10 +103,65 @@ async function render() {
     $("grid").innerHTML = `<p class="note">Kon plan niet laden: ${esc(e.message)}</p>`;
     return;
   }
-  renderSummary(c, d, plan);
+  CURRENT = { c, d, plan };
+  showPlan(plan, null);
+  renderSolutions(c, d);
+}
+
+let CURRENT = null;
+
+// Toon een plan (het voorstel of een oplossingsscenario) in kaarten, grid en lijsten.
+function showPlan(plan, scenario) {
+  const { c, d } = CURRENT;
+  const v = plan.validator || {};
+  const dd = scenario
+    ? { ...d, scheduled: scenario.scheduled, unscheduled: scenario.unscheduled, solve_time_s: scenario.solve_time_s,
+        fixtures: d.fixtures - (scenario.moved_wedstrijden || 0) }
+    : d;
+  renderSummary(c, dd, plan);
   renderGrid(c, plan);
   renderUnscheduled(plan);
   renderFindings(plan);
+  const vw = $("viewing");
+  if (scenario) {
+    vw.hidden = false;
+    vw.innerHTML = `Je bekijkt oplossing <b>#${scenario.rank}: ${esc(scenario.title)}</b> — geen gepubliceerd schema.<button id="back">Terug naar voorstel</button>`;
+    $("back").onclick = () => showPlan(CURRENT.plan, null);
+  } else {
+    vw.hidden = true;
+  }
+}
+
+async function renderSolutions(c, d) {
+  const sec = $("solutions-sec");
+  if (!d.solutions_file) { sec.hidden = true; return; }
+  sec.hidden = false;
+  $("solutions").innerHTML = `<p class="note">Oplossingen laden…</p>`;
+  let data;
+  try { data = await getJSON(`data/${d.solutions_file}`); } catch (e) {
+    $("solutions").innerHTML = `<p class="note">Kon oplossingen niet laden: ${esc(e.message)}</p>`; return;
+  }
+  const sols = data.solutions;
+  const best = sols.find((s) => s.fits && s.knltb_ok);
+  const kindNL = { rekentijd: "rekentijd", clubafspraak: "clubafspraak", productdefault: "productdefault",
+    dagindeling: "dagindeling", inhaaldag: "inhaaldag", combinatie: "combinatie", "niet-knltb": "mag niet (KNLTB)" };
+  const reco = best
+    ? `<div class="reco">Aanbevolen: <b>${esc(best.title)}</b> — alle ${best.scheduled} partijen passen, KNLTB-conform${best.moved_wedstrijden ? `, ${best.moved_wedstrijden} wedstrijd verplaatst` : ""}.</div>`
+    : `<div class="reco" style="background:#fdecea;border-color:#f3c2bd">Geen enkele doorgerekende KNLTB-conforme versoepeling laat alles passen binnen de rekentijd. Overweeg een wedstrijd naar een inhaaldag of meer banen.</div>`;
+  const rows = sols.map((s, i) => `<tr class="sol${s === best ? " best" : ""}${s.kind === "niet-knltb" ? " ref" : ""}">
+      <td class="num">${s.rank}</td><td style="white-space:normal;min-width:220px">${esc(s.title)}</td>
+      <td><span class="tag ${s.kind === "clubafspraak" ? "club" : s.kind === "niet-knltb" ? "" : "product"}">${esc(kindNL[s.kind] || s.kind)}</span></td>
+      <td>${s.fits ? '<span class="yes">ja</span>' : '<span class="no">nee</span>'}</td>
+      <td class="num">${s.scheduled}</td><td class="num">${s.unscheduled}</td>
+      <td>${s.knltb_ok ? '<span class="yes">ja</span>' : '<span class="no">nee</span>'}</td>
+      <td class="num">${s.validator_hard ?? "–"}</td>
+      <td><button data-i="${i}">Bekijk</button></td></tr>`).join("");
+  $("solutions").innerHTML = reco + `<div class="tablewrap"><table>
+    <tr><th>#</th><th>Versoepeling</th><th>Soort</th><th>Past alles</th><th>Ingepland</th><th>Niet</th><th>KNLTB-conform</th><th>HARD (ops-validator)</th><th></th></tr>${rows}</table></div>
+    <p class="hint">"HARD (ops-validator)" toetst aan de operationele SPEC.md inclusief de huidige clubafspraken; een versoepelde clubafspraak telt daar dus als HARD, ook als het KNLTB-conform is.</p>`;
+  for (const b of $("solutions").querySelectorAll("button[data-i]")) {
+    b.onclick = () => { const s = sols[+b.dataset.i]; showPlan(s.plan, s); $("viewing").scrollIntoView({ behavior: "smooth" }); };
+  }
 }
 
 function renderSummary(c, d, plan) {
@@ -148,21 +206,21 @@ function renderGrid(c, plan) {
     const bg = isRes ? "" : `background:${teamColor(r.team_id)}`;
     if (!isRes) teams.set(r.team_id, r);
     html.push(`<div class="blk${isRes ? " res" : ""}" title="${esc(tip)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${bg}">
-      <span class="cat">${esc(cat.short)}</span><b>${esc(r.part || (isRes ? cat.label : ""))}</b>
+      <span class="cat">${esc(rowLabel(r))}</span><b>${esc(r.part || (isRes ? cat.label : ""))}</b>
       <div>${esc(isRes ? "baanreservering" : shortTeam(r))}</div>
       <div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
   }
   g.innerHTML = html.join("");
   $("legend").innerHTML = [...teams.values()]
     .sort((a, b) => a.team.localeCompare(b.team))
-    .map((r) => `<span style="background:${teamColor(r.team_id)}" title="${esc(r.team)}">${esc((CAT[r.category] || CAT.overig).short)} ${esc(shortTeam(r))}</span>`)
+    .map((r) => `<span style="background:${teamColor(r.team_id)}" title="${esc(r.team)}">${esc(rowLabel(r))} ${esc(shortTeam(r))}</span>`)
     .join("");
 }
 
 function renderUnscheduled(plan) {
   const un = plan.rows.filter((r) => r.start === "NIET_GELUKT");
   $("unscheduled").innerHTML = un.length
-    ? `<ul class="plain">${un.map((r) => `<li><b>${esc(r.part)}</b> · ${esc((CAT[r.category] || CAT.overig).short)} ${esc(shortTeam(r))}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
+    ? `<ul class="plain">${un.map((r) => `<li><b>${esc(r.part)}</b> · ${esc(rowLabel(r))} ${esc(shortTeam(r))}<br><span class="hint">${esc(r.team)}</span></li>`).join("")}</ul>`
     : `<p class="empty">Alle partijen zijn ingepland.</p>`;
 }
 
@@ -182,13 +240,14 @@ function renderFindings(plan) {
 function renderDays(c) {
   const sel = $("date").value;
   $("days").innerHTML =
-    `<tr><th>Speeldag</th><th>Wedstrijden</th><th>Ingepland</th><th>Niet</th><th>Dagstart</th><th>HARD</th><th>MODEL</th><th>Rekentijd</th></tr>` +
+    `<tr><th>Speeldag</th><th>Wedstrijden</th><th>Ingepland</th><th>Niet</th><th>Dagstart</th><th>HARD</th><th>MODEL</th><th>Rekentijd</th><th>Oplossing</th></tr>` +
     c.dates.map((d) => `<tr class="click${d.date === sel ? " sel" : ""}" data-date="${esc(d.date)}">
       <td>${esc(d.date)}</td><td class="num">${d.fixtures}</td><td class="num">${d.scheduled}</td>
       <td class="num" style="${d.unscheduled ? "color:var(--hard);font-weight:600" : ""}">${d.unscheduled}</td>
       <td>${esc(d.day_start)}</td>
       <td class="num" style="${d.hard ? "color:var(--hard);font-weight:600" : ""}">${d.hard ?? "–"}</td>
-      <td class="num">${d.model ?? "–"}</td><td class="num">${d.solve_time_s}s</td></tr>`).join("");
+      <td class="num">${d.model ?? "–"}</td><td class="num">${d.solve_time_s}s</td>
+      <td style="white-space:normal">${d.unscheduled ? esc(d.best_solution || (d.solutions_file ? "geen passende gevonden" : "–")) : ""}</td></tr>`).join("");
   for (const tr of $("days").querySelectorAll("tr.click")) {
     tr.onclick = () => { $("date").value = tr.dataset.date; render(); window.scrollTo({ top: 0, behavior: "smooth" }); };
   }
