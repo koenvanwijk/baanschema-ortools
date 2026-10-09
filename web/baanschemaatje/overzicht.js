@@ -76,9 +76,11 @@ function ovStatus(day) {
 }
 
 // days: [{date, weekday, kind: "speeldag"|"inhaaldag", note, wedstrijden, partijen, stats|null, busyLabel}]
-// opts: {onOpen(date), onCompute(date)|null, recompute: bool (ook knop bij al berekende dagen), computing: Set}
+// opts: {onOpen(date), onCompute(date)|null, recompute: bool (ook knop bij al berekende dagen), computing: Set, queued: Set, busy: bool}
 function ovRender(el, days, opts = {}) {
   const computing = opts.computing || new Set();
+  const queued = opts.queued || new Set();
+  const busy = !!opts.busy || computing.size > 0;
   const n = (x) => (x == null ? "–" : x);
   const st = days.map(ovStatus);
   const counts = { red: 0, orange: 0, green: 0, grey: 0, changed: 0 };
@@ -103,9 +105,9 @@ function ovRender(el, days, opts = {}) {
       : d.wedstrijden ? `<span class="hint">–</span>` : "";
     const mvBtn = d.wedstrijden && opts.onMove ? ` <button class="btn2 ov-calc ov-move" data-date="${ovEsc(d.date)}" title="Wedstrijden van deze dag naar een andere dag verzetten">Verzetten…</button>` : "";
     const btn = d.wedstrijden && opts.onCompute && (!s || d.changed || opts.recompute)
-      ? `<button class="btn2 ov-calc" data-date="${ovEsc(d.date)}" title="Deze dag nu (opnieuw) berekenen op de server"${computing.has(d.date) ? " disabled" : ""}>${computing.has(d.date) ? "Bezig…" : s ? "Opnieuw" : "Nu berekenen"}</button>` : "";
+      ? `<button class="btn2 ov-calc" data-date="${ovEsc(d.date)}" title="Deze dag nu (opnieuw) berekenen op de server"${busy ? " disabled" : ""}>${computing.has(d.date) ? "Bezig…" : s ? "Opnieuw" : "Nu berekenen"}</button>` : "";
     const kind = d.kind === "inhaaldag" ? `<span class="ov-kind inh">inhaaldag</span>` : `<span class="ov-kind">speeldag</span>`;
-    return `<tr class="ov-row ${stt.cls}${d.kind === "inhaaldag" ? " inh" : ""}${open ? " click" : ""}${extreme ? " extreme" : ""}" data-date="${ovEsc(d.date)}">
+    return `<tr class="ov-row ${stt.cls}${computing.has(d.date) ? " computing" : ""}${d.kind === "inhaaldag" ? " inh" : ""}${open ? " click" : ""}${extreme ? " extreme" : ""}" data-date="${ovEsc(d.date)}">
       <td class="ov-date"><span class="ov-dot ${stt.cls}"></span><b>${ovEsc(d.date)}</b> <span class="hint">${ovEsc(d.weekday)}</span></td>
       <td>${kind}${d.note ? `<div class="hint ov-note">${ovEsc(d.note)}</div>` : ""}${(d.movedOut || []).map((m) => `<div class="ov-note mv-tag">verzet: ${m.n} wedstrijd${m.n === 1 ? "" : "en"} naar ${ovEsc(m.to)}</div>`).join("")}${(d.movedIn || []).map((m) => `<div class="ov-note mv-tag in">+${m.n} verzet van ${ovEsc(m.from)}</div>`).join("")}</td>
       <td class="num">${d.wedstrijden || "–"}</td><td class="num">${n(d.partijen)}</td>
@@ -115,7 +117,7 @@ function ovRender(el, days, opts = {}) {
       <td class="num${s && s.model ? " warn" : ""}">${s ? n(s.model) : "–"}</td>
       <td>${s && s.first ? `${s.first}–${s.last}` : "–"}</td>
       <td class="ov-bez">${bar}</td>
-      <td class="ov-st ${stt.cls}">${ovEsc(stt.txt)}</td>
+      <td class="ov-st ${computing.has(d.date) ? "computing" : queued.has(d.date) ? "queued" : stt.cls}">${computing.has(d.date) ? `<span class="spin"></span>berekenen…` : queued.has(d.date) ? "in wachtrij" : ovEsc(stt.txt)}</td>
       <td>${open ? `<a href="#" class="ov-open" data-date="${ovEsc(d.date)}">Open dag →</a> ` : ""}${btn}${mvBtn}</td></tr>`;
   }).join("");
   el.innerHTML = head + `<div class="tablewrap"><table class="ov">

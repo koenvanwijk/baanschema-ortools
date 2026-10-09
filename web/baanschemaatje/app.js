@@ -161,6 +161,7 @@ async function renderOverview() {
       stats, moves: mv() });
   }).map((d, i) => ({ ...d, changed: res[i].changed }));
   ovRender($("overview"), days, {
+    busy: !!RUNNING,
     onOpen: openDay,
     onCompute: async (date) => { CUR_DATE = date; await render(); livePlan(); },
     onMove: async (date) => { CUR_DATE = date; await render(); $("legend").scrollIntoView({ block: "center" }); },
@@ -421,8 +422,7 @@ function setLive(msg, cls = "") {
   el.textContent = msg;
 }
 
-async function livePost(path, body) {
-  const ctl = new AbortController();
+async function livePost(path, body, ctl = new AbortController()) {
   const t = setTimeout(() => ctl.abort(), 590000);
   try {
     const res = await fetch(`${LIVE_API}${path}`, {
@@ -438,56 +438,78 @@ async function livePost(path, body) {
   } finally { clearTimeout(t); }
 }
 
+let RUNNING = null; // AbortController van de lopende berekening (één tegelijk)
+const PROG = () => (window._pg ||= new Progress($("progress")));
+const SCENARIO_BUDGET_S = 240; // server: BS_SCENARIO_BUDGET
+
+function setRunning(ctl) {
+  RUNNING = ctl;
+  $("live-btn").disabled = !!ctl;
+  const ls = $("live-sol");
+  if (ls) ls.disabled = !!ctl;
+}
+
 async function livePlan() {
-  if (!CURRENT) return;
+  if (!CURRENT || RUNNING) return;
   const { c, d } = CURRENT;
   const tl = +$("live-tl").value;
-  const btn = $("live-btn");
-  btn.disabled = true;
-  setLive(`Bezig met berekenen (${c.name}, ${d.date}, max ${tl}s per poging; eerste aanroep kan ~10s extra kosten)…`, "busy");
-  const t0 = performance.now();
+  const ctl = new AbortController();
+  setRunning(ctl);
+  setLive("");
+  PROG().start({ title: `${c.name} · ${d.date}`, kind: "plan", tl, onCancel: () => ctl.abort() });
   try {
     const sig = mv().sig(d.date);
     const body = { club: c.id, date: d.date, time_limit_s: tl };
     if (mv().count) body.moves = mv().forServer();
-    const plan = await livePost("/plan", body);
-    if (CURRENT.d.date !== d.date || CURRENT.c.id !== c.id) return; // gebruiker is doorgeklikt
+    const plan = await livePost("/plan", body, ctl);
     if (body.moves && !plan.moves_applied && mv().touches(d.date)) {
-      setLive("De server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold). Er is niets veranderd; je kunt de verzette partijen wel zelf op het baanschema slepen.", "warn");
+      PROG().finish("De server kent verzetten nog niet. Er is niets veranderd; je kunt de verzette partijen wel zelf op het baanschema slepen.", "warn");
       return;
     }
     const s = plan.summary;
     if (!s.solved) {
-      setLive(`Live: geen oplossing gevonden binnen ${tl}s per poging (solver: ${plan.status}). Probeer een langere rekentijd. Het vooraf berekende plan blijft getoond.`, "warn");
+      PROG().finish(`Geen oplossing gevonden binnen ${tl}s per poging (solver: ${plan.status}). Probeer een langere rekentijd; het getoonde plan blijft staan.`, "warn");
       return;
     }
     LIVE.set(`${c.id}/${d.date}`, { plan, sig });
+    PROG().finish(`${pgDoneText(s)}${plan.cached ? " (uit cache)" : ""}`, s.unscheduled || s.hard ? "warn" : "ok");
+    if (CURRENT.d.date !== d.date || CURRENT.c.id !== c.id) return; // gebruiker is doorgeklikt; resultaat staat in het overzicht
     showPlan(plan, { live: true, title: `${s.scheduled} ingepland, ${s.unscheduled} niet, ${plan.stats.solve_time_s}s rekentijd`,
       scheduled: s.scheduled, unscheduled: s.unscheduled, solve_time_s: s.solve_time_s, moved_wedstrijden: 0 });
-    const secs = ((performance.now() - t0) / 1000).toFixed(1);
-    setLive(`Nu berekend in ${secs}s${plan.cached ? " (uit cache)" : ""}: ${s.scheduled} ingepland, ${s.unscheduled} niet ingepland.`, s.unscheduled ? "warn" : "ok");
     const sec = $("solutions-sec");
     if (s.unscheduled) {
       sec.hidden = false;
-      $("solutions").innerHTML = `<p class="note">Live plan past niet volledig. <button id="live-sol">Oplossingen live zoeken</button> (kan 3–5 minuten duren; korte rekentijd per scenario, dus indicatief)</p>`;
+      $("solutions").innerHTML = `<p class="note">Nu berekend plan past niet volledig. <button id="live-sol">Zoek oplossingen</button> (kan 3–5 minuten duren; korte rekentijd per scenario, dus indicatief)</p>`;
       $("live-sol").onclick = () => liveScenarios(c, d, tl);
     }
   } catch (e) {
-    const hint = mv().into(d.date).length && /HTTP 404/.test(e.message) ? " De server kent verzetten waarschijnlijk nog niet (nieuwe serverversie moet nog worden uitgerold)." : "";
-    setLive(`Server niet bereikbaar of fout (${e.name === "AbortError" ? "time-out" : e.message}).${hint} Het getoonde plan blijft staan.`, "err");
-  } finally { btn.disabled = false; }
+    if (e.name === "AbortError") {
+      PROG().finish("Geannuleerd. De server rekent de lopende poging nog af (dat kost nog even rekentijd); het resultaat wordt niet getoond.", "warn");
+    } else {
+      const hint = mv().into(d.date).length && /HTTP 404/.test(e.message) ? " De server kent verzetten waarschijnlijk nog niet." : "";
+      PROG().finish(`Server niet bereikbaar of fout (${e.message}).${hint} Het getoonde plan blijft staan.`, "err");
+    }
+  } finally { setRunning(null); }
 }
 
 async function liveScenarios(c, d, tl) {
-  $("solutions").innerHTML = `<p class="note">Oplossingen worden live doorgerekend…</p>`;
+  if (RUNNING) return;
+  const ctl = new AbortController();
+  setRunning(ctl);
+  PROG().start({ title: `Zoek oplossingen · ${d.date}`, kind: "scenarios", tl, n: Math.ceil(SCENARIO_BUDGET_S / tl), onCancel: () => ctl.abort() });
+  $("solutions").innerHTML = `<p class="note">Oplossingen worden doorgerekend…</p>`;
   try {
-    const data = await livePost("/scenarios", { club: c.id, date: d.date, time_limit_s: tl });
+    const data = await livePost("/scenarios", { club: c.id, date: d.date, time_limit_s: tl }, ctl);
+    const fits = data.solutions.filter((x) => x.fits && x.knltb_ok).length;
+    PROG().finish(`Klaar: ${data.solutions.length} oplossing${data.solutions.length === 1 ? "" : "en"} doorgerekend, ${fits} past volledig (KNLTB-conform)`, fits ? "ok" : "warn");
     if (CURRENT.d.date !== d.date || CURRENT.c.id !== c.id) return;
     if (!data.solutions.length && data.base_solved) { $("solutions").innerHTML = `<p class="empty">Deze dag past al volledig.</p>`; return; }
     renderSolutionList(data.solutions, true);
   } catch (e) {
-    $("solutions").innerHTML = `<p class="note">Live oplossingen mislukt (${esc(e.message)}).</p>`;
-  }
+    const ab = e.name === "AbortError";
+    PROG().finish(ab ? "Geannuleerd. De server rekent nog even door; het resultaat wordt niet getoond." : `Oplossingen zoeken mislukt (${e.message}).`, ab ? "warn" : "err");
+    $("solutions").innerHTML = `<p class="note">${ab ? "Geannuleerd." : `Oplossingen zoeken mislukt (${esc(e.message)}).`}</p>`;
+  } finally { setRunning(null); }
 }
 
 async function init() {

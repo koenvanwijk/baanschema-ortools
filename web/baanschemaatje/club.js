@@ -300,38 +300,80 @@ function renderDates() {
     return day;
   });
   ovRender($("overview"), days, { onOpen: (date) => showPlan(date), onCompute: (date) => planDay(date, true), recompute: true,
-    computing: COMPUTING, openAlways: true, onMove: (date) => showPlan(date) });
+    computing: COMPUTING, queued: QUEUED, busy: !!RUN, openAlways: true, onMove: (date) => showPlan(date) });
 }
 
-async function planDay(date, show) {
-  status(`${date} berekenen…`, "busy");
-  COMPUTING.add(date); renderDates();
+const QUEUED = new Set();
+let RUN = null; // {ctl, cancelled} van de lopende berekening
+const PROG = () => (window._pg ||= new Progress($("progress")));
+
+function setBusy(b) {
+  $("plan-all").disabled = b;
+  if ($("calc-day")) $("calc-day").disabled = b;
+}
+
+// Eén dag berekenen. prefix = "Dag 2 van 6 · " bij "Alle dagen". Geeft true als gelukt.
+async function planDay(date, show, prefix = "") {
+  if (RUN && !prefix) return false;
+  const own = !prefix;
+  if (own) RUN = { ctl: null, cancelled: false };
+  RUN.ctl = new AbortController();
+  const tl = +$("tl").value;
+  status("");
+  COMPUTING.add(date); QUEUED.delete(date); setBusy(true); renderDates();
+  PROG().start({ title: `${prefix}${date}`, kind: "plan", tl, onCancel: () => { RUN.cancelled = true; RUN.ctl.abort(); } });
+  let ok = false;
   try {
     const sig = cmv().sig(date);
-    const body = { club: CLUB.id, date, time_limit_s: +$("tl").value };
+    const body = { club: CLUB.id, date, time_limit_s: tl };
     if (cmv().count) body.moves = cmv().forServer();
-    const p = await api("/plan", jsonOpts("POST", body));
+    const p = await api("/plan", { ...jsonOpts("POST", body), signal: RUN.ctl.signal });
     if (body.moves && !p.moves_applied && cmv().touches(date)) {
       throw new Error("de server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold); sleep de verzette partijen zelf op het baanschema");
     }
     p.sig = sig;
     PLANS.set(date, p);
-    status(`${date}: ${p.summary.scheduled} ingepland, ${p.summary.unscheduled} niet (${p.live.wall_time_s}s).`, p.summary.unscheduled ? "warn" : "ok");
+    const sm = p.summary;
+    PROG().finish(`${prefix}${date} · ${p.summary.solved ? pgDoneText(sm) : "geen oplossing binnen de rekentijd"}`,
+      !sm.solved || sm.unscheduled || sm.hard ? "warn" : "ok");
+    ok = true;
     if (show) showPlan(date);
   } catch (e) {
-    if (cmv().into(date).length && /niet in seizoen/.test(e.message)) e.message = "de server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold)";
-    PLANS.set(date, { error: e.message });
-    status(`${date}: ${e.message}`, "err");
+    if (e.name === "AbortError") {
+      PROG().finish(`${prefix}${date} · Geannuleerd. De server rekent de lopende poging nog af (dat kost nog even rekentijd), het resultaat wordt niet getoond.`, "warn");
+    } else {
+      if (cmv().into(date).length && /niet in seizoen/.test(e.message)) e.message = "de server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold)";
+      PLANS.set(date, { error: e.message });
+      PROG().finish(`${prefix}${date} · Fout: ${e.message}`, "err");
+    }
   }
   COMPUTING.delete(date);
+  if (own) { RUN = null; setBusy(false); }
   renderDates();
+  return ok;
 }
 
 async function planAll() {
-  $("plan-all").disabled = true;
-  for (const d of DATES) await planDay(d.date, false);
-  $("plan-all").disabled = false;
-  status(`Alle ${DATES.length} speeldagen berekend.`, "ok");
+  if (RUN) return;
+  // Alle dagen met wedstrijden, ook inhaaldagen waar wedstrijden naartoe zijn verzet.
+  const todo = ovSeasonDays(DATES).map((x) => x.date).filter((d) => clubDayPlan(d).plan.rows.length);
+  RUN = { ctl: null, cancelled: false };
+  setBusy(true);
+  todo.forEach((d) => QUEUED.add(d));
+  let n = 0, okN = 0;
+  for (const d of todo) {
+    if (RUN.cancelled) break;
+    n++;
+    if (await planDay(d, false, `Dag ${n} van ${todo.length} · `)) okN++;
+  }
+  const cancelled = RUN.cancelled;
+  QUEUED.clear();
+  RUN = null;
+  setBusy(false);
+  renderDates();
+  const probs = todo.filter((d) => { const p = PLANS.get(d); return p && (p.error || p.summary.unscheduled || p.summary.hard); }).length;
+  PROG().finish(cancelled ? `Geannuleerd na ${n - 1} van ${todo.length} dagen.` : `Klaar: ${okN} van ${todo.length} dagen berekend${probs ? `, ${probs} met problemen (zie overzicht)` : ", alle in orde of alleen voorkeuren"}.`,
+    cancelled || probs ? "warn" : "ok");
 }
 
 function showPlan(date, scroll = true) {
