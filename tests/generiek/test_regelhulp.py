@@ -237,3 +237,14 @@ def test_regressie_retrieval(vraag, verwacht):
     labels = [c["label"] for c in ix.met_context([c for _, c in ix.zoek(vraag)])]
     for v in verwacht:
         assert any(lab == v or lab.startswith(v + " ") for lab in labels), (v, labels)
+
+
+def test_zie_ook_vangnet():
+    meta = {"bron": "tw", "titel": "Twee teams", "rang": 4, "versie": None}
+    ix = Index(bouw.chunk_uitleg(UITLEG_TXT, "u", meta, "tw", "Twee of meer teams"))
+    nep = lambda p, s: {"text": "**Klopt.** (KNLTB-uitleg Twee of meer teams, voorwaarde 4)", "tokens_in": 1, "tokens_uit": 1}
+    out = beantwoord("mag een speler met dispensatie invallen in een derde team", ix, llm=nep)
+    assert "Zie ook" in out["antwoord"] and "voorwaarde 1" in out["antwoord"] and "competitieleider" in out["antwoord"]
+    assert len(out["bronnen"]) >= 2
+    nep2 = lambda p, s: {"text": "**Klopt.** (KNLTB-uitleg Twee of meer teams, voorwaarde 4)\nLet op:\n- x", "tokens_in": 1, "tokens_uit": 1}
+    assert "Zie ook" not in beantwoord("mag een speler met dispensatie invallen in een derde team", ix, llm=nep2)["antwoord"]

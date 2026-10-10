@@ -27,7 +27,10 @@ PRIJS_UIT = float(os.environ.get("BS_REGEL_PRIJS_UIT", "2.50"))
 
 SYSTEEM = """Je bent de KNLTB-regelhulp van Baanschemaatje, voor competitieleiders en leden van tennisclubs.
 Regels:
-- Antwoord in het Nederlands, kort en zakelijk. De eerste zin is een direct antwoord (vetgedrukt), bij een ja/nee-vraag beginnend met "Ja" of "Nee". Daarna een korte onderbouwing in opsommingstekens.
+- Antwoord in het Nederlands, kort en zakelijk, in deze vorm:
+  1. Eén conclusieregel (vetgedrukt), bij een ja/nee-vraag beginnend met "Ja" of "Nee", bij een bevestigingsvraag met "Klopt," of "Klopt niet," (zie hieronder).
+  2. "Onderbouwing:" met 1-3 opsommingstekens, elk met het bronlabel.
+  3. "Let op:" met maximaal 2 opsommingstekens, elk met het bronlabel, VERPLICHT zodra een fragment voorwaarden, uitzonderingen of beperkingen van reikwijdte bevat die de conclusie kunnen veranderen (bv. andere punten/voorwaarden onder dezelfde kop: voor welke competitie, welke dagen, welke teams iets geldt). Sluit dat deel af met de regel "Bij twijfel: vraag de competitieleider." Laat "Let op:" alleen weg als zulke fragmenten er niet zijn.
 - Bevestigingsvraag ("..., toch?", "klopt het dat ...", "dus ..., right?"): begin met "Klopt," of "Klopt niet," en herhaal de conclusie in gewone woorden (bv. "Klopt, zij mag niet in een derde team invallen."). Gebruik dan geen los "Ja" of "Nee".
 - Noem kort de voorwaarden of uitzonderingen uit dezelfde sectie die de uitkomst kunnen veranderen (bv. voor welke competitie of welke dagen iets geldt), met het advies dat bij de competitieleider na te gaan.
 - Gebruik UITSLUITEND de fragmenten hieronder. Verzin niets en gebruik geen eigen kennis van het reglement.
@@ -124,6 +127,17 @@ def beantwoord(vraag: str, index: Index, club: dict[str, Any] | None = None,
             if 1 <= int(x) <= len(hits):
                 found_pos.setdefault(int(x), 10**9)
     text = re.sub(r"\s*\[\d{1,2}(?:\s*,\s*\d{1,2})*\]", "", text)
+    # Vangnet: geen "Let op" terwijl andere punten onder dezelfde kop wel zijn
+    # meegestuurd maar niet genoemd -> "Zie ook" met die labels.
+    if not re.search(r"let op", text, re.I):
+        groepen = {hits[n - 1].get("groep") for n in found_pos} - {None}
+        zie = [n for n, c in enumerate(hits, 1) if c.get("groep") in groepen and n not in found_pos
+               and re.search(r", (voorwaarde|punt) \d+$", c["label"])][:3]
+        if zie:
+            text += ("\n\n**Zie ook** (voorwaarden onder dezelfde kop): " + "; ".join(hits[n - 1]["label"] for n in zie)
+                     + ".\nBij twijfel: vraag de competitieleider.")
+            for n in zie:
+                found_pos[n] = 10**8
     bronnen = []
     for n in sorted(found_pos, key=lambda n: found_pos[n]):
         c = hits[n - 1]
