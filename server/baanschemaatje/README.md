@@ -101,3 +101,25 @@ tijdslimiet maar 22 van 62 partijen; met 8 vCPU alle 62 (0 HARD).
 Omgevingsvariabelen: `BS_STORE` (gs://bucket of lokale map), `BS_MAX_CLUBS` (100), `BS_MAX_UPLOAD_BYTES` (5 MB), `BS_SEASON`, `BS_CLUBS_DIR`, `BS_MAX_TIME_LIMIT` (30),
 `BS_DEFAULT_TIME_LIMIT` (15), `BS_SCENARIO_BUDGET` (240), `BS_WORKERS` (4),
 `BS_CORS_ORIGINS` (raw.githack.com, koenvanwijk.github.io, localhost).
+
+## KNLTB-regelhulp
+
+| Methode | Pad | Wat |
+|---|---|---|
+| POST | `/regelhulp` | `{"vraag": "...", "club": "mierlo"?}` → `{antwoord (markdown), bronnen: [{n, label, url, quote, bron, versie}], gezocht, model, tokens, kosten_usd, disclaimer}` |
+
+- **Regelbank**: `python -m baanschemaatje.regels.bouw --bronnen /workspace/knltb-bronnen --out regelbank.json`,
+  daarna `gcloud storage cp regelbank.json gs://baanschemaatje-clubs/regelbank/regelbank.json`.
+  CR per artikel/lid + bijlagen, Wedstrijdbulletin per kop, FAQ per vraag, uitleg-pdf's per pagina;
+  elk fragment met label, URL (`#page=N`), versie en sha256. De volledige teksten staan
+  **niet** in de repo of in `web/` (auteursrecht KNLTB); de server laadt ze privé uit de bucket
+  (lokaal: `BS_REGELBANK=pad/regelbank.json`). Na een nieuwe regelbank: nieuwe revisie of herstart.
+- **Zoeken**: BM25 met Nederlandse normalisatie en synoniemen (`regels/zoek.py`), geen embeddings;
+  3 plekken gereserveerd voor CR- en 2 voor bulletin-treffers, top-10 fragmenten.
+- **Antwoorden**: Vertex AI `gemini-2.5-flash` (`BS_REGEL_MODEL`) via de serviceaccount
+  (`roles/aiplatform.user`), thinking-budget 512, max ~900 uitvoertokens. Alleen uit de fragmenten,
+  met labels + [n]-verwijzingen; clubafspraken apart. Kosten ≈ $0,003 per vraag.
+- **Limieten** (per instance): vraag max 600 tekens, 20 vragen/uur per IP, 300/dag.
+- **Updatecheck**: `python -m baanschemaatje.regels.updatecheck --regelbank regelbank.json [--sha]`
+  (sitemap-lastmod, `?ts=` in de PDF-links, optioneel sha256). Nog niet ingepland; voorstel:
+  Cloud Scheduler → Cloud Run Job wekelijks, nov–mrt dagelijks; bij exitcode 1 regelbank opnieuw bouwen.

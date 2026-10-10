@@ -481,6 +481,7 @@ def health() -> dict[str, Any]:
         "season_present": SEASON_FILE.exists(),
         "clubs": _all_ids(),
         "store": STORE.describe().split(":")[0],
+        "regelhulp": True,
         "max_time_limit_s": MAX_TIME_LIMIT,
     }
 
@@ -684,4 +685,91 @@ def scenarios(req: PlanRequest, combos: bool = Query(False, description="ook com
         "cached": False,
     }
     _store_cache(key, out)
+    return out
+
+
+# --------------------------------------------------------------------------
+# KNLTB-regelhulp: POST /regelhulp {vraag, club?} -> {antwoord, bronnen}
+# De regelbank (volledige teksten) staat privé in de opslag
+# (regelbank/regelbank.json) of lokaal via BS_REGELBANK; nooit in web/.
+# --------------------------------------------------------------------------
+from baanschemaatje.regels.antwoord import beantwoord  # noqa: E402
+from baanschemaatje.regels.zoek import Index  # noqa: E402
+
+REGELBANK_PATH = os.environ.get("BS_REGELBANK")
+REGEL_MAX_VRAAG = int(os.environ.get("BS_REGEL_MAX_VRAAG", "600"))
+REGEL_PER_IP_UUR = int(os.environ.get("BS_REGEL_PER_IP_UUR", "20"))
+REGEL_PER_DAG = int(os.environ.get("BS_REGEL_PER_DAG", "300"))
+_REGEL: dict[str, Any] = {}
+_REGEL_LOCK = threading.Lock()
+_REGEL_HITS: dict[str, list[float]] = {}
+_REGEL_DAG: dict[str, int] = {}
+_REGEL_LLM = None  # tests kunnen hier een nep-LLM zetten
+
+
+class RegelVraag(BaseModel):
+    vraag: str = Field(min_length=3)
+    club: str | None = None
+
+
+def _regelindex() -> Index:
+    with _REGEL_LOCK:
+        if "index" not in _REGEL:
+            raw = Path(REGELBANK_PATH).read_bytes() if REGELBANK_PATH else STORE.get("regelbank/regelbank.json")
+            if not raw:
+                raise HTTPException(503, "regelbank niet beschikbaar")
+            rb = json.loads(raw)
+            _REGEL["index"] = Index(rb["chunks"])
+            _REGEL["gebouwd"] = rb.get("gebouwd")
+        return _REGEL["index"]
+
+
+def _regel_rate(ip: str) -> None:
+    """Eenvoudige limiet per instance: per IP per uur en totaal per dag."""
+    now = time.time()
+    dag = datetime.now(timezone.utc).date().isoformat()
+    with _REGEL_LOCK:
+        if _REGEL_DAG.get(dag, 0) >= REGEL_PER_DAG:
+            raise HTTPException(429, "daglimiet regelhulp bereikt, probeer het morgen opnieuw")
+        hits = [t for t in _REGEL_HITS.get(ip, []) if now - t < 3600]
+        if len(hits) >= REGEL_PER_IP_UUR:
+            raise HTTPException(429, "te veel vragen; probeer het over een uur opnieuw")
+        _REGEL_HITS[ip] = hits + [now]
+        n = _REGEL_DAG.get(dag, 0) + 1
+        _REGEL_DAG.clear()
+        _REGEL_DAG[dag] = n
+
+
+def _club_context(club_id: str | None) -> dict[str, Any] | None:
+    if not club_id:
+        return None
+    try:
+        raw = _club_raw(club_id)
+        summ = profile_summary(_profile(raw, club_id), club_id)
+    except Exception:  # noqa: BLE001 - club is optioneel
+        return None
+    return {
+        "naam": summ.get("name"),
+        "banen": summ.get("courts"),
+        "dag": summ.get("day"),
+        "clubafspraken": [{"regel": r["name"], "params": r["params"], "hard": r["hard"]}
+                          for r in summ.get("rules", []) if r.get("club_override")],
+    }
+
+
+@app.post("/regelhulp")
+def regelhulp(req: RegelVraag, request: Request) -> dict[str, Any]:
+    vraag = req.vraag.strip()
+    if len(vraag) > REGEL_MAX_VRAAG:
+        raise HTTPException(413, f"vraag te lang (max {REGEL_MAX_VRAAG} tekens)")
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    index = _regelindex()
+    _regel_rate(ip)
+    kw = {"llm": _REGEL_LLM} if _REGEL_LLM else {}
+    try:
+        out = beantwoord(vraag, index, _club_context(req.club), **kw)
+    except RuntimeError as e:
+        raise HTTPException(502, f"taalmodel niet bereikbaar: {e}") from e
+    out["regelbank"] = _REGEL.get("gebouwd")
+    out["disclaimer"] = "Advies op basis van de KNLTB-regels; bij twijfel beslist de competitieleider of de KNLTB."
     return out

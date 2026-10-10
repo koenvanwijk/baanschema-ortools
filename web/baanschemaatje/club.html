@@ -12,7 +12,7 @@
 <header>
   <div class="brand">
     <h1>Baanschemaatje</h1>
-    <span class="sub">clubpagina · instellingen, KNLTB-export, seizoensoverzicht · <a href="index.html" style="color:inherit">← vooraf berekende schema's</a></span>
+    <span class="sub">clubpagina · instellingen, KNLTB-export, seizoensoverzicht · <a href="index.html" style="color:inherit">← vooraf berekende schema's</a> · <a href="#regelhulp" style="color:inherit">KNLTB-regelhulp</a></span>
   </div>
   <div class="controls">
     <label>Club <select id="club"></select></label>
@@ -33,6 +33,18 @@
       <button id="plan-all" class="btn2">Alle dagen nu berekenen</button></p>
     <div id="mv-bar-ov"></div>
     <div id="overview"></div>
+  </section>
+
+  <section id="regelhulp">
+    <h2>KNLTB-regelhulp</h2>
+    <p class="hint">Stel een vraag over de KNLTB-competitieregels (inhalen, invallen, verzetten, opstelling…). Het antwoord komt uit het Competitiereglement, het Wedstrijdbulletin 2026, de veelgestelde vragen en de KNLTB-uitleg, met links naar de bron.</p>
+    <form id="rh-form" class="rh-form">
+      <textarea maxlength="600" rows="3" placeholder="Bv. Onze wedstrijd is afgebroken door regen. Wanneer moeten we die uitspelen?"></textarea>
+      <div><button type="submit" class="live-btn">Vraag stellen</button>
+        <label class="inline hint"><input id="rh-club" type="checkbox" checked> clubafspraken van de gekozen club meenemen</label></div>
+    </form>
+    <div id="rh-out" class="rh-out"></div>
+    <p class="hint"><strong>Advies, geen bindende uitspraak:</strong> bij twijfel beslist de competitieleider of de KNLTB. Controleer de bron.</p>
   </section>
 
   <section id="plan-sec" hidden>
@@ -123,5 +135,6 @@
 <script src="print.js"></script>
 <script src="editor.js"></script>
 <script src="club.js"></script>
+<script src="regelhulp.js"></script>
 </body>
 </html>
