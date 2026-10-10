@@ -24,8 +24,9 @@ function renderWeekdays(wds) {
   const cell = (wd, k, type, v) => {
     const isD = (wds[wd] && (wds[wd].defaults || []).includes(k));
     const inp = type === "checkbox" ? `<input type="checkbox" data-wd="${wd}" data-k="${k}" ${v ? "checked" : ""}>`
-      : `<input type="${type}" ${type === "time" ? 'step="900"' : `min="1" max="${CLUB.summary.courts}"`} data-wd="${wd}" data-k="${k}" value="${esc(v ?? "")}">`;
-    return `<td>${inp}${isD ? ' <span class="dflt" title="Standaardwaarde, nog niet door de club bevestigd">standaard</span>' : ""}</td>`;
+      : `<input type="${type}" ${type === "time" ? 'step="900"' : `min="1" max="${CLUB.summary.courts}"`} data-wd="${wd}" data-k="${k}" value="${esc(type === "time" && v ? toHHMM(toMin(v) % 1440) : v ?? "")}">`;
+    const next = type === "time" && v && toMin(v) >= 1440 ? ' <span class="hint">volgende dag</span>' : "";
+    return `<td>${inp}${next}${isD ? ' <span class="dflt" title="Standaardwaarde, nog niet door de club bevestigd">standaard</span>' : ' <span class="hint" title="Door de club ingesteld">✓ bevestigd</span>'}</td>`;
   };
   $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Dagstart</th><th>Laatste start</th><th>Alles klaar om</th><th>Banen</th><th>Verlichting</th><th>Regels</th></tr>` +
     show.map((wd) => {
@@ -47,7 +48,8 @@ function readWeekdays() {
   for (const el of $("weekdays").querySelectorAll("input")) {
     const wd = el.dataset.wd, k = el.dataset.k;
     const v = el.type === "checkbox" ? el.checked : el.type === "number" ? (el.value ? parseInt(el.value, 10) : null) : el.value;
-    const cur = (eff[wd] || {})[k];
+    let cur = (eff[wd] || {})[k];
+    if (el.type === "time" && cur) cur = toHHMM(toMin(cur) % 1440);
     const wasSet = raw[wd] && k in raw[wd];
     if (wasSet || (v !== cur && v !== null && v !== "")) { raw[wd] = raw[wd] || {}; raw[wd][k] = v; }
   }

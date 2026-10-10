@@ -30,7 +30,8 @@ def hhmm_to_min(v: Any, where: str = "") -> int:
         hi, mi = int(h), int(m)
     except ValueError as exc:
         raise ProfileError(f"{where}: verwacht tijd als 'HH:MM', kreeg {v!r}") from exc
-    if not (0 <= hi < 24 and 0 <= mi < 60):
+    # Uren 24-47 = na middernacht (bv. "25:00" = 01:00 de volgende dag).
+    if not (0 <= hi < 48 and 0 <= mi < 60):
         raise ProfileError(f"{where}: ongeldige tijd {v!r}")
     return hi * 60 + mi
 
@@ -178,6 +179,9 @@ class ClubProfile:
             base["fallback_start"] = None
         out = dict(base)
         out.update(cfg)
+        # Einde ná middernacht: "01:00" bij start 19:00 betekent 01:00 de volgende dag (25:00).
+        if out["end"] <= out["start"]:
+            out["end"] += 24 * 60
         out["defaults"] = sorted(k for k in ("start", "last_start", "end", "courts", "lighting") if k not in cfg)
         return out
 
@@ -457,6 +461,14 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
             else:
                 errors.append(f"weekdays.{wd}.{k}: onbekende instelling (start, last_start, end, fallback_start, courts, lighting, note)")
         weekday_cfg[wd] = c
+    for wd, c in weekday_cfg.items():
+        st = c.get("start", hhmm_to_min(EVENING_DEFAULT["start"]) if wd not in BIJLAGE3_DAYS else (day_start or 0))
+        ls = c.get("last_start", hhmm_to_min(EVENING_DEFAULT["last_start"]) if wd not in BIJLAGE3_DAYS else (last_start or 0))
+        en = c.get("end", hhmm_to_min(EVENING_DEFAULT["end"]) if wd not in BIJLAGE3_DAYS else (day_end or 0))
+        if en <= st:
+            en += 24 * 60
+        if not st < ls <= en:
+            errors.append(f"weekdays.{wd}: verwacht start < last_start <= end (einde mag na middernacht, bv. 01:00)")
 
     if errors:
         raise ProfileError(f"Ongeldig clubprofiel {source}:\n  - " + "\n  - ".join(errors))

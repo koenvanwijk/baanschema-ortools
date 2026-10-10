@@ -41,7 +41,7 @@ function buildPrintView(plan, opt) {
   for (let k = 1; k <= courts; k++) h.push(`<div class="p-hdr" style="grid-row:1;grid-column:${k + 1}">Baan ${k}</div>`);
   for (let i = 0; i < slots; i++) {
     const m = start + i * 15;
-    if (m % 30 === 0) h.push(`<div class="p-time${m % 60 === 0 ? " hr" : ""}" style="grid-row:${i + 2}/${i + 4};grid-column:1">${_pHHMM(m)}</div>`);
+    if (m % 30 === 0) h.push(`<div class="p-time${m % 60 === 0 ? " hr" : ""}" style="grid-row:${i + 2}/${i + 4};grid-column:1">${_pHHMM(m % 1440)}</div>`);
     if (m % 30 === 0) h.push(`<div class="p-line${m % 60 === 0 ? " hr" : ""}" style="grid-row:${i + 2};grid-column:2/${courts + 2}"></div>`);
   }
   for (let k = 1; k <= courts; k++) h.push(`<div class="p-col" style="grid-row:2/${slots + 2};grid-column:${k + 1}"></div>`);

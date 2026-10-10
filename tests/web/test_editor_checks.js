@@ -202,3 +202,9 @@ test("vrijdagavond: start na laatste start en vóór 19:00 worden gemeld", () =>
   const early = checkPlan([ev("D1", "18:00", "19:30", 1)], evening);
   assert.ok(rules(early).some((r) => r.endsWith("evening_start_window")));
 });
+
+test("vrijdag einde na middernacht (25:00): 22:00 einde is in orde, 01:30 niet", () => {
+  const late = { ...evening, day: { ...evening.day, end: "25:00" } };
+  assert.ok(!rules(checkPlan([ev("D1", "20:30", "22:00", 1)], late)).includes("clubafspraak:eindtijd"));
+  assert.ok(rules(checkPlan([ev("D1", "24:00", "25:30", 1)], late)).includes("clubafspraak:eindtijd"));
+});

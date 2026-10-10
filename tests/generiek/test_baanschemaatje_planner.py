@@ -251,3 +251,19 @@ def test_weekday_profile_defaults_and_overrides():
         profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8}, "weekdays": {"vrydag": {}}})
     with pytest.raises(ProfileError):
         profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8}, "weekdays": {"vrijdag": {"courts": 9}}})
+
+
+def test_friday_end_after_midnight():
+    from baanschemaatje.profile import profile_from_dict
+    from baanschemaatje.webexport import profile_summary
+
+    p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8}, "weekdays": {"vrijdag": {"end": "01:00"}}})
+    f = p.for_day("vrijdag", {"avond"})
+    assert (f.day_end, f.last_start) == (25 * 60, 20 * 60 + 30)
+    w = profile_summary(p, "x")["weekdays"]["vrijdag"]
+    assert w["end"] == "25:00" and w["end_display"] == "01:00 (volgende dag)" and "end" not in w["defaults"]
+    assert "last_start" in w["defaults"]
+    fx = [Fixture("16-10-2026", "Dames Dubbel 35+ Vrijdag Avond", Category.SENIOREN, 4, 90, 0, 4, 0, "CLUB 1", "G",
+                  dagdeel="avond")]
+    res = plan_day(p, fx, "16-10-2026", time_limit_s=5)
+    assert res.unscheduled == 0

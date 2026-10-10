@@ -356,7 +356,7 @@ function showPlan(date, scroll = true, force = false) {
   const playedHtml = played.length ? `<div class="played"><h3>Gespeeld (vast)</h3><p class="hint">Uitslag uit de KNLTB-export. Deze wedstrijden worden niet opnieuw gepland of verzet.</p><ul class="plain">${played.map((w) =>
     `<li class="played-item${inComp(ovWeekday(date), w) ? "" : " dim"}">🔒 <b>${esc(w.label)} ${esc(w.home)}</b> – ${esc(w.away)} · ${esc(w.export_start || "")} · uitslag <b>${esc(w.result)}</b></li>`).join("")}</ul></div>` : "";
   const allPlayed = dd && played.length === dd.wedstrijden.length && !cmv().into(date).length;
-  const winNote = s.bijlage3 ? "" : `<p class="hint">Dagvenster ${esc(s.weekday)}: ${esc(s.day.start)}–${esc(s.day.end)}, laatste start ${esc(s.day.last_start)}, ${s.courts} banen${s.lighting ? " (met verlichting)" : ", <b>geen verlichting ingesteld</b>"}. KNLTB Bijlage 3 (variabele begintijden) geldt alleen op za/zo.</p>`;
+  const winNote = s.bijlage3 ? "" : `<p class="hint">Dagvenster ${esc(s.weekday)}: ${esc(s.day.start)}–${esc(clockHHMM(s.day.end))}, laatste start ${esc(s.day.last_start)}, ${s.courts} banen${s.lighting ? " (met verlichting)" : ", <b>geen verlichting ingesteld</b>"}. KNLTB Bijlage 3 (variabele begintijden) geldt alleen op za/zo.</p>`;
   $("plan-state").innerHTML = winNote + playedHtml + (allPlayed ? "" : changed ? `<div class="banner">Aangepast: ${[cmv().into(date).length ? `${cmv().into(date).length} wedstrijd(en) hierheen verzet` : "", cmv().outOf(date).length ? `${cmv().outOf(date).length} wedstrijd(en) naar een andere dag verzet` : ""].filter(Boolean).join(", ")}, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
     : !computed ? `<div class="banner">Nog niet berekend: alle partijen staan bij "Niet ingepland". <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>` : "");
   if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
@@ -421,7 +421,7 @@ function renderPlanGrid(plan) {
   for (let k = 1; k <= plan.courts; k++) html.push(`<div class="hdr" style="grid-row:1;grid-column:${k + 1}">Baan ${k}</div>`);
   for (let i = 0; i < n; i++) {
     const m = startMin + i * 15;
-    html.push(`<div class="time${m % 60 === 0 ? " hour" : ""}" style="grid-row:${i + 2};grid-column:1">${m % 30 === 0 ? toHHMM(m) : ""}</div>`);
+    html.push(`<div class="time${m % 60 === 0 ? " hour" : ""}" style="grid-row:${i + 2};grid-column:1">${m % 30 === 0 ? toHHMM(m % 1440) : ""}</div>`);
     for (let k = 1; k <= plan.courts; k++) html.push(`<div class="cell${m % 60 === 45 ? " hour" : ""}" data-court="${k}" data-min="${m}" style="grid-row:${i + 2};grid-column:${k + 1}"></div>`);
   }
   const COL = teamColors(plan.rows);

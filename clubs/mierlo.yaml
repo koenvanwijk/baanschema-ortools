@@ -60,6 +60,11 @@ rules:
     time: "15:00"
     hard: false
 
+# Besluit Oscar 10-10-2026: op vrijdag sluit het park om 01:00 (volgende dag).
+weekdays:
+  vrijdag:
+    end: "01:00"
+
 # Dagvensters per weekdag (do/vr-avondcompetities). Niet ingevuld = Baanschemaatje-
 # standaard: start 19:00, laatste start 20:30, alles klaar 23:00, alle 10 banen,
 # verlichting aan. Nog door Oscar te bevestigen (verlichting/aantal banen 's avonds,

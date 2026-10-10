@@ -198,7 +198,7 @@ function checkPlan(rows, club) {
     if (!_placed(r) || r.kind === "W") return;
     if (b3 && _m(r.start) > ED_KNLTB_LAST_START) add("KNLTB", "laatste-start", `${name(r)} ${r.part}: start ${r.start}, KNLTB uiterlijk 19:30`, [i]);
     else if (_m(r.start) > lastClub) add("clubafspraak", "laatste-start", `${name(r)} ${r.part}: start ${r.start}, club uiterlijk ${club.day.last_start}`, [i]);
-    if (end !== null && _m(r.end) > end) add("clubafspraak", "eindtijd", `${name(r)} ${r.part}: eindigt ${r.end}, na ${club.day.end}`, [i]);
+    if (end !== null && _m(r.end) > end) add("clubafspraak", "eindtijd", `${name(r)} ${r.part}: eindigt ${r.end}, na ${_m(club.day.end) >= 1440 ? `${_hm(_m(club.day.end) - 1440)} (volgende dag)` : club.day.end}`, [i]);
   });
 
   const byRow = new Map();
