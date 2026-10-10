@@ -12,7 +12,7 @@ import re
 from typing import Any, Callable
 
 from .bronnen import RANG_NAAM
-from .zoek import Index
+from .zoek import Index, strip_namen, tokens
 
 MODEL = os.environ.get("BS_REGEL_MODEL", "gemini-2.5-flash")
 PROJECT = os.environ.get("BS_GCP_PROJECT", "baanschema")
@@ -98,6 +98,12 @@ def vertex_generate(prompt: str, systeem: str) -> dict[str, Any]:
             "finish": cand.get("finishReason")}
 
 
+def _itemtekst(c: dict[str, Any]) -> str:
+    """Tekst van een uitlegpunt zonder de kopcontext-regel."""
+    t = c["text"].split("\n", 1)
+    return t[1] if len(t) > 1 else t[0]
+
+
 def _quote(text: str, n: int = 280) -> str:
     t = re.sub(r"\s+", " ", text).strip()
     return t if len(t) <= n else t[:n].rsplit(" ", 1)[0] + " …"
@@ -131,11 +137,24 @@ def beantwoord(vraag: str, index: Index, club: dict[str, Any] | None = None,
     # meegestuurd maar niet genoemd -> "Zie ook" met die labels.
     if not re.search(r"let op", text, re.I):
         groepen = {hits[n - 1].get("groep") for n in found_pos} - {None}
-        zie = [n for n, c in enumerate(hits, 1) if c.get("groep") in groepen and n not in found_pos
-               and re.search(r", (voorwaarde|punt) \d+$", c["label"])][:3]
+        qt = set(tokens(strip_namen(vraag)))
+        kand = [n for n, c in enumerate(hits, 1) if c.get("groep") in groepen and n not in found_pos
+                and re.search(r", (voorwaarde|punt) \d+$", c["label"])]
+        # Meest relevante eerst: punten die de reikwijdte beperken of een uitzondering
+        # maken ("geldt uitsluitend/alleen", "mits", "tenzij"), daarna overlap met de
+        # vraag (idf-gewogen, per woord), dan volgorde in de bron.
+        def relevantie(n: int) -> float:
+            t = _itemtekst(hits[n - 1])
+            words = set(tokens(t))
+            scope = len(re.findall(r"\b(uitsluitend|alleen|geldt|gelden|mits|tenzij|behalve|uitzondering|niet van toepassing)\b", t.lower()))
+            ov = sum(index.idf.get(w, 0) for w in qt & words) / (1 + len(words)) ** 0.5
+            return 1.5 * min(scope, 2) + ov
+        kand.sort(key=lambda n: (-relevantie(n), n))
+        zie = kand[:3]
         if zie:
-            text += ("\n\n**Zie ook** (voorwaarden onder dezelfde kop): " + "; ".join(hits[n - 1]["label"] for n in zie)
-                     + ".\nBij twijfel: vraag de competitieleider.")
+            regels = [f"- {hits[n - 1]['label']}: “{_quote(_itemtekst(hits[n - 1]), 200)}”" for n in zie]
+            text += ("\n\n**Zie ook** (voorwaarden onder dezelfde kop):\n" + "\n".join(regels)
+                     + "\n\nBij twijfel: vraag de competitieleider.")
             for n in zie:
                 found_pos[n] = 10**8
     bronnen = []

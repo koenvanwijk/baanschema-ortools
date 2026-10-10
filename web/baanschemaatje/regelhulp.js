@@ -63,6 +63,57 @@
       <blockquote>${esc(b.quote)}</blockquote></li>`).join("")}</ol>`;
   }
 
+  // Platte tekst voor WhatsApp/e-mail: vraag, antwoord, bronnen als "label: URL", disclaimer.
+  function plainText(vraag, j) {
+    const md = String(j.antwoord || "")
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/^\s*[*•]\s+/gm, "- ")
+      .replace(/(^|[^*])\*(?!\s)(.+?)\*/g, "$1$2")
+      .replace(/\n{3,}/g, "\n\n").trim();
+    const src = (j.bronnen || []).map((b) => `- ${b.label}: ${b.url}`).join("\n");
+    return [`Vraag: ${vraag}`, "", md, "", src ? `Bronnen:\n${src}` : "", "",
+      j.disclaimer || "Advies op basis van de KNLTB-regels; bij twijfel beslist de competitieleider of de KNLTB.",
+      "(KNLTB-regelhulp, Baanschemaatje)"].filter((x, i, a) => !(x === "" && a[i - 1] === "")).join("\n").trim();
+  }
+
+  async function copyText(t) {
+    try { await navigator.clipboard.writeText(t); return true; } catch (e) { /* fallback */ }
+    const ta = document.createElement("textarea");
+    ta.value = t; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  function permalink(q) {
+    return `${location.origin}${location.pathname}${location.search}#regelhulp?q=${encodeURIComponent(q)}`;
+  }
+
+  function feedback(el, msg) {
+    el.textContent = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ""; }, 2500);
+  }
+
+  function wireShare(out, vraag, j) {
+    const fb = out.querySelector(".rh-fb");
+    const text = plainText(vraag, j);
+    out.querySelector(".rh-copy").addEventListener("click", async () => {
+      feedback(fb, (await copyText(text)) ? "Gekopieerd" : "Kopiëren lukte niet");
+    });
+    out.querySelector(".rh-share").addEventListener("click", async () => {
+      if (navigator.share) {
+        try { await navigator.share({ title: "KNLTB-regelhulp", text }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      feedback(fb, (await copyText(text)) ? "Gekopieerd" : "Kopiëren lukte niet");
+    });
+    out.querySelector(".rh-link").addEventListener("click", async () => {
+      feedback(fb, (await copyText(permalink(vraag))) ? "Link gekopieerd" : "Kopiëren lukte niet");
+    });
+  }
+
   async function ask(form) {
     const q = form.querySelector("textarea").value.trim();
     const out = document.getElementById("rh-out");
@@ -80,7 +131,12 @@
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.detail || `HTTP ${r.status}`);
       out.innerHTML = `<div class="rh-answer">${renderMd(j.antwoord, j.bronnen)}</div>${renderBronnen(j.bronnen)}
-        <p class="hint rh-disc">${esc(j.disclaimer || "")}${j.regelbank ? ` Regelbank van ${esc(String(j.regelbank).slice(0, 10))}.` : ""}</p>`;
+        <p class="hint rh-disc">${esc(j.disclaimer || "")}${j.regelbank ? ` Regelbank van ${esc(String(j.regelbank).slice(0, 10))}.` : ""}</p>
+        <p class="rh-share-bar"><button type="button" class="btn2 rh-copy">Kopieer antwoord</button>
+          <button type="button" class="btn2 rh-share">Delen</button>
+          <button type="button" class="btn2 rh-link" title="Link die de vraag invult (zonder automatisch te versturen)">Link naar vraag</button>
+          <span class="rh-fb hint" role="status" aria-live="polite"></span></p>`;
+      wireShare(out, q, j);
     } catch (e) {
       out.innerHTML = `<p class="err">Geen antwoord: ${esc(e.message)}</p>`;
     } finally {
@@ -92,9 +148,15 @@
     const form = document.getElementById("rh-form");
     if (!form) return;
     form.addEventListener("submit", (ev) => { ev.preventDefault(); ask(form); });
+    // Permalink #regelhulp?q=... vult de vraag in, maar verstuurt NIET automatisch.
+    const m = location.hash.match(/^#regelhulp\?q=(.*)$/);
+    if (m) {
+      try { form.querySelector("textarea").value = decodeURIComponent(m[1]).slice(0, 600); } catch (e) { /* ongeldige link */ }
+      document.getElementById("regelhulp")?.scrollIntoView();
+    }
     form.querySelector("textarea").addEventListener("keydown", (ev) => {
       if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); ask(form); }
     });
   });
-  if (typeof module !== "undefined") module.exports = { renderMd };
+  if (typeof module !== "undefined") module.exports = { renderMd, plainText };
 })();

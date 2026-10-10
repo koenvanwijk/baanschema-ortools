@@ -55,7 +55,8 @@ async function loadClubs(select) {
   $("club").innerHTML = CLUBS.map((c) =>
     `<option value="${esc(c.id)}">${esc(c.name)}${c.demo ? " — demo" : ""}${c.stored ? "" : " (alleen lezen)"}</option>`).join("");
   const want = select || decodeURIComponent(location.hash.slice(1)) || (CLUBS.find((c) => c.id === "mierlo") || CLUBS[0]).id;
-  if (CLUBS.some((c) => c.id === want)) $("club").value = want;
+  const dflt = (CLUBS.find((c) => c.id === "mierlo") || CLUBS[0]).id;
+  $("club").value = CLUBS.some((c) => c.id === want) ? want : dflt;  // bv. #regelhulp?q=… is geen club
   await loadClub();
 }
 

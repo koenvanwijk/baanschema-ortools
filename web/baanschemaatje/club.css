@@ -26,3 +26,5 @@ td.res-bad { color: #c53030; font-weight: 600; }
 .rh-bronnen blockquote { margin: 2px 0 0; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 8px; }
 .rh-ref { font-size: 12px; text-decoration: none; }
 .err { color: #c53030; }
+.rh-share-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rh-fb { color: #276749; font-weight: 600; }

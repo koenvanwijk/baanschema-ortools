@@ -244,7 +244,7 @@ def test_zie_ook_vangnet():
     ix = Index(bouw.chunk_uitleg(UITLEG_TXT, "u", meta, "tw", "Twee of meer teams"))
     nep = lambda p, s: {"text": "**Klopt.** (KNLTB-uitleg Twee of meer teams, voorwaarde 4)", "tokens_in": 1, "tokens_uit": 1}
     out = beantwoord("mag een speler met dispensatie invallen in een derde team", ix, llm=nep)
-    assert "Zie ook" in out["antwoord"] and "voorwaarde 1" in out["antwoord"] and "competitieleider" in out["antwoord"]
+    assert "Zie ook" in out["antwoord"] and "voorwaarde 1: “1. Dispensatie geldt uitsluitend" in out["antwoord"] and "competitieleider" in out["antwoord"]
     assert len(out["bronnen"]) >= 2
     nep2 = lambda p, s: {"text": "**Klopt.** (KNLTB-uitleg Twee of meer teams, voorwaarde 4)\nLet op:\n- x", "tokens_in": 1, "tokens_uit": 1}
     assert "Zie ook" not in beantwoord("mag een speler met dispensatie invallen in een derde team", ix, llm=nep2)["antwoord"]
