@@ -172,7 +172,7 @@ def chunk_bulletin(txt: str, url: str, meta: dict[str, Any], label_prefix: str) 
         text = _clean(lines[i + 1:end])
         for k, part in enumerate(_split_long(text)):
             cid = "wb-" + re.sub(r"[^a-z0-9]+", "-", h.lower()).strip("-") + (f"-{k + 1}" if k else "")
-            chunks.append(_mk(cid, f"{label_prefix}, '{h}'", h, f"{h}\n{part}", url, pages[i], meta))
+            chunks.append(_mk(cid, f"{label_prefix}, '{h}'" + (f" (deel {k + 1})" if k else ""), h, f"{h}\n{part}", url, pages[i], meta))
     return chunks
 
 
@@ -184,6 +184,68 @@ def chunk_pages(txt: str, url: str, meta: dict[str, Any], stem: str, label_prefi
             continue
         for k, part in enumerate(_split_long(text)):
             chunks.append(_mk(f"{stem}-p{p}" + (f"-{k + 1}" if k else ""), f"{label_prefix}, p. {p}", f"pagina {p}", part, url, p, meta))
+    return chunks
+
+
+def _is_heading(raw: str, prev_blank: bool) -> bool:
+    s = raw.replace("\f", "").rstrip()
+    t = s.strip()
+    if not prev_blank or not t or s[:1] in (" ", "\t") or len(t) > 60:
+        return False
+    if re.match(r"^(\d{1,2}\.|[•o*-])\s", t) or t[-1] in ".,;:" or not t[0].isupper():
+        return False
+    return True
+
+
+def chunk_uitleg(txt: str, url: str, meta: dict[str, Any], stem: str, naam: str) -> list[dict[str, Any]]:
+    """Uitleg-pdf per kop en per genummerd/opsommingspunt; kopcontext ervoor."""
+    lines = txt.split("\n")
+    pages = _pages(txt)
+    secties: list[dict[str, Any]] = []  # {kop, page, intro:[...], items:[(nr, page, [...])]}
+    cur = {"kop": "", "page": 1, "intro": [], "items": []}
+    prev_blank = True
+    item = None
+    for i, raw in enumerate(lines):
+        t = re.sub(r"\s+", " ", raw.replace("\f", "")).strip()
+        if not t:
+            prev_blank, item = True, None
+            continue
+        if re.fullmatch(r"\d{1,3}", t):
+            continue
+        if i > 0 and _is_heading(raw, prev_blank):
+            secties.append(cur)
+            cur = {"kop": t, "page": pages[i], "intro": [], "items": []}
+            item, prev_blank = None, False
+            continue
+        m = re.match(r"^(\d{1,2})\.\s+(.*)$", t) or re.match(r"^[•]\s+(.*)$", t)
+        if m:
+            nr = m.group(1) if m.lastindex == 2 else str(len(cur["items"]) + 1)
+            item = [nr, pages[i], [m.group(m.lastindex)]]
+            cur["items"].append(item)
+        elif item is not None and raw[:1] in (" ", "\t"):
+            item[2].append(t)
+        else:
+            item = None
+            cur["intro"].append(t)
+        prev_blank = False
+    secties.append(cur)
+    titel = secties[0]["intro"][0] if secties and secties[0]["intro"] else meta["titel"]
+    chunks: list[dict[str, Any]] = []
+    for n, sec in enumerate(secties):
+        kop = sec["kop"]
+        ctx = f"{meta['titel']}" + (f" — {kop}" if kop else "")
+        base = f"KNLTB-uitleg {naam}"
+        soort = "voorwaarde" if "voorwaarde" in kop.lower() else "punt"
+        if sec["intro"]:
+            text = "\n".join(sec["intro"])
+            for k, part in enumerate(_split_long(text)):
+                lab = base + (f", '{kop}'" if kop else ", inleiding") + (f" (deel {k + 1})" if k else "")
+                chunks.append(_mk(f"{stem}-s{n}" + (f"-{k + 1}" if k else ""), lab, ctx, f"{ctx}\n{part}", url, sec["page"], meta,
+                                  groep=f"{stem}-s{n}"))
+        for nr, pg, ll in sec["items"]:
+            lab = base + (f", '{kop}'" if kop and soort == "punt" else "") + f", {soort} {nr}"
+            chunks.append(_mk(f"{stem}-s{n}-{soort[0]}{nr}", lab, ctx, f"{ctx}\n{nr}. " + " ".join(ll), url, pg, meta,
+                              groep=f"{stem}-s{n}"))
     return chunks
 
 
@@ -214,8 +276,8 @@ def _strip_html(s: str) -> str:
     return re.sub(r"\s*\n\s*", "\n", s).strip()
 
 
-def _mk(cid, label, titel_sectie, text, url, page, meta) -> dict[str, Any]:
-    return {
+def _mk(cid, label, titel_sectie, text, url, page, meta, groep=None) -> dict[str, Any]:
+    d = {
         "id": cid,
         "label": label,
         "sectie": titel_sectie,
@@ -227,6 +289,9 @@ def _mk(cid, label, titel_sectie, text, url, page, meta) -> dict[str, Any]:
         "versie": meta.get("versie"),
         "sha256": _sha(text),
     }
+    if groep:
+        d["groep"] = groep
+    return d
 
 
 def bouw(bronnen: Path) -> dict[str, Any]:
@@ -251,6 +316,8 @@ def bouw(bronnen: Path) -> dict[str, Any]:
         meta = {"bron": stem, "titel": titel, "rang": rang, "versie": versie}
         if soort == "cr":
             cs = chunk_cr(txt, url, meta)
+        elif soort == "uitleg":
+            cs = chunk_uitleg(txt, url, meta, stem, prefix)
         elif soort == "bulletin":
             cs = chunk_bulletin(txt, url, meta, prefix)
         else:
@@ -268,6 +335,12 @@ def bouw(bronnen: Path) -> dict[str, Any]:
         chunks += cs
         docs.append({"bron": "faq", "titel": meta["titel"], "rang": 3, "url": FAQ_URL, "versie": lm, "lastmod": lm,
                      "sha256": _sha(" ".join(c["text"] for c in cs)), "chunks": len(cs)})
+    seen_l: dict[str, int] = {}
+    for c in chunks:
+        n = seen_l.get(c["label"], 0) + 1
+        seen_l[c["label"]] = n
+        if n > 1:
+            c["label"] += f" ({n})"
     ids = [c["id"] for c in chunks]
     dup = {i for i in ids if ids.count(i) > 1}
     for c in chunks:  # ids uniek maken

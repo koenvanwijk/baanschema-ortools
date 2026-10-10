@@ -17,7 +17,7 @@ from .zoek import Index
 MODEL = os.environ.get("BS_REGEL_MODEL", "gemini-2.5-flash")
 PROJECT = os.environ.get("BS_GCP_PROJECT", "baanschema")
 LOCATION = os.environ.get("BS_REGEL_LOCATION", "europe-west1")
-TOP_K = int(os.environ.get("BS_REGEL_TOPK", "10"))
+TOP_K = int(os.environ.get("BS_REGEL_TOPK", "14"))
 MAX_CHUNK_CHARS = 1600
 MAX_OUTPUT_TOKENS = int(os.environ.get("BS_REGEL_MAX_TOKENS", "900"))
 THINKING_BUDGET = int(os.environ.get("BS_REGEL_THINKING", "512"))
@@ -27,16 +27,16 @@ PRIJS_UIT = float(os.environ.get("BS_REGEL_PRIJS_UIT", "2.50"))
 
 SYSTEEM = """Je bent de KNLTB-regelhulp van Baanschemaatje, voor competitieleiders en leden van tennisclubs.
 Regels:
-- Antwoord in het Nederlands, kort en zakelijk. Begin met een antwoord van 1-2 zinnen (vetgedrukt), daarna een korte onderbouwing in opsommingstekens.
-- Gebruik UITSLUITEND de genummerde fragmenten hieronder. Verzin niets en gebruik geen eigen kennis van het reglement.
-- Noem bij elke bewering het label uit het fragment én het nummer, bv. "volgens CR art. 49 lid 1 [1]". Eén nummer per haakje: [1] [3], niet [1, 3].
-- Verwijs alleen naar fragmenten die de bewering echt dragen. Noem geen fragmenten die niet relevant zijn.
-- Lees de vraag precies (wie speelt in welk team, welke richting) en trek geen conclusies die niet letterlijk volgen.
-- Rangorde bij tegenspraak: Competitiereglement (CR) > Wedstrijdbulletin > Veelgestelde vragen > uitleg-pdf's. Zeg het als bronnen elkaar tegenspreken.
-- Staat het antwoord niet (volledig) in de fragmenten, zeg dat dan duidelijk ("Dit staat niet in de KNLTB-regels die ik heb.") en verwijs naar de competitieleider of KNLTB. Gok niet en som dan geen fragmenten op.
+- Antwoord in het Nederlands, kort en zakelijk. De eerste zin is een direct antwoord (vetgedrukt), bij een ja/nee-vraag beginnend met "Ja" of "Nee". Daarna een korte onderbouwing in opsommingstekens.
+- Gebruik UITSLUITEND de fragmenten hieronder. Verzin niets en gebruik geen eigen kennis van het reglement.
+- Alle fragmenten zijn officiële KNLTB-bronnen. Een specifieke KNLTB-uitleg (bv. "KNLTB-uitleg Twee of meer teams") of FAQ die de vraag direct beantwoordt, MOET je gebruiken, ook als het Competitiereglement er niets over zegt.
+- De rangorde Competitiereglement (CR) > Wedstrijdbulletin > Veelgestelde vragen > KNLTB-uitleg geldt alleen als bronnen elkaar tegenspreken; meld dat dan.
+- Verwijs naar bronnen met hun label, letterlijk zoals tussen «» bij het fragment staat, bv. (CR art. 49 lid 1) of (KNLTB-uitleg Twee of meer teams, voorwaarde 4). Gebruik geen [n]-nummers. Noem bij de belangrijkste bron de versie/releasedatum, bv. "(release 17-09-2026)".
+- Verwijs alleen naar fragmenten die de bewering echt dragen.
+- Lees de vraag precies (wie, welk team, welke richting) en trek geen conclusies die niet uit de tekst volgen.
+- Zeg alleen "Dit staat niet in de KNLTB-regels die ik heb." als GEEN enkel fragment de vraag beantwoordt; som dan geen fragmenten op en verwijs naar de competitieleider of KNLTB.
 - Clubafspraken (uit het clubprofiel) zijn GEEN KNLTB-regels: noem ze apart onder "Clubafspraak" en alleen als ze relevant zijn.
-- Sluit af met een regel "Zelf nagaan:" als er iets onzeker is (bv. welke competitie, datum in MijnKNLTB).
-- Dit is advies; bij twijfel beslist de competitieleider of de KNLTB.
+- Sluit zo nodig af met "Zelf nagaan:" voor wat onzeker is (bv. welke competitie, gegevens in MijnKNLTB).
 - Maximaal ongeveer 250 woorden. Markdown is toegestaan (vet, lijsten), geen tabellen, geen koppen."""
 
 
@@ -46,11 +46,23 @@ def bouw_prompt(vraag: str, hits: list[dict[str, Any]], club: dict[str, Any] | N
         txt = c["text"]
         if len(txt) > MAX_CHUNK_CHARS:
             txt = txt[:MAX_CHUNK_CHARS] + " […]"
-        parts.append(f"[{n}] {c['label']} — {RANG_NAAM.get(c.get('rang', 4), '')}, {c['bron_titel']} ({c.get('versie') or 'versie onbekend'})\n{txt}")
+        parts.append(f"Fragment {n}: «{c['label']}» — {RANG_NAAM.get(c.get('rang', 4), '')}, {c['bron_titel']}, "
+                     f"versie/release {_datum(c.get('versie'))}\n{txt}")
     clubtxt = ""
     if club:
         clubtxt = "\n\nClubprofiel (clubafspraken, geen KNLTB-regels):\n" + json.dumps(club, ensure_ascii=False)[:1500]
     return f"Fragmenten:\n\n" + "\n\n".join(parts) + clubtxt + f"\n\nVraag: {vraag}"
+
+
+def _datum(v: str | None) -> str:
+    if not v:
+        return "onbekend"
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", v)
+    return f"{m.group(3)}-{m.group(2)}-{m.group(1)}" if m else v
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"[\s'‘’\"“”«»]+", " ", s.lower()).strip()
 
 
 def vertex_generate(prompt: str, systeem: str) -> dict[str, Any]:
@@ -88,23 +100,35 @@ def _quote(text: str, n: int = 280) -> str:
 
 def beantwoord(vraag: str, index: Index, club: dict[str, Any] | None = None,
                llm: Callable[[str, str], dict[str, Any]] = vertex_generate, k: int = TOP_K) -> dict[str, Any]:
-    hits = [c for _, c in index.zoek(vraag, k=k)]
+    hits = index.met_context([c for _, c in index.zoek(vraag, k=k)])
     if not hits:
         return {"antwoord": "**Dit staat niet in de KNLTB-regels die ik heb.** Vraag het na bij je competitieleider of de KNLTB.",
                 "bronnen": [], "model": None, "kosten_usd": 0.0}
     res = llm(bouw_prompt(vraag, hits, club), SYSTEEM)
     text = res["text"] or "Er kwam geen antwoord. Probeer het opnieuw."
-    nums = [n for grp in re.findall(r"\[(\d{1,2}(?:\s*,\s*\d{1,2})*)\]", text) for n in re.split(r"\s*,\s*", grp)]
-    cited = sorted({int(n) for n in nums if 1 <= int(n) <= len(hits)})
-    # "[4, 5]" -> "[4] [5]" zodat de web-GUI elk nummer kan linken
-    text = re.sub(r"\[(\d{1,2}(?:\s*,\s*\d{1,2})+)\]", lambda m: " ".join(f"[{x}]" for x in re.split(r"\s*,\s*", m.group(1))), text)
+    # Bronnen = labels die letterlijk in het antwoord staan (langste eerst, zodat
+    # "lid 1" niet ook "lid 10" matcht), plus eventuele [n]-verwijzingen.
+    nt = _norm(text)
+    found: dict[int, int] = {}
+    for n, c in sorted(enumerate(hits, 1), key=lambda x: -len(x[1]["label"])):
+        lab = _norm(c["label"])
+        for m in re.finditer(re.escape(lab) + r"(?![0-9])", nt):
+            if not any(m.start() >= s0 and m.end() <= e0 for s0, e0 in found.values()):
+                found.setdefault(n, (m.start(), m.end()))
+                break
+    found_pos = {n: se[0] for n, se in found.items()}
+    for grp in re.findall(r"\[(\d{1,2}(?:\s*,\s*\d{1,2})*)\]", text):
+        for x in re.split(r"\s*,\s*", grp):
+            if 1 <= int(x) <= len(hits):
+                found_pos.setdefault(int(x), 10**9)
+    text = re.sub(r"\s*\[\d{1,2}(?:\s*,\s*\d{1,2})*\]", "", text)
     bronnen = []
-    for n in cited:
+    for n in sorted(found_pos, key=lambda n: found_pos[n]):
         c = hits[n - 1]
-        bronnen.append({"n": n, "label": c["label"], "url": c["url"], "quote": _quote(c["text"]),
+        bronnen.append({"n": len(bronnen) + 1, "label": c["label"], "url": c["url"], "quote": _quote(c["text"]),
                         "bron": c["bron_titel"], "versie": c.get("versie")})
     kosten = (res.get("tokens_in", 0) * PRIJS_IN + res.get("tokens_uit", 0) * PRIJS_UIT) / 1e6
     return {"antwoord": text, "bronnen": bronnen,
-            "gezocht": [{"n": i + 1, "label": c["label"], "url": c["url"]} for i, c in enumerate(hits)],
+            "gezocht": [{"label": c["label"], "url": c["url"]} for c in hits],
             "model": MODEL, "tokens": {"in": res.get("tokens_in"), "uit": res.get("tokens_uit")},
             "kosten_usd": round(kosten, 5)}

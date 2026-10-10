@@ -115,7 +115,7 @@ Omgevingsvariabelen: `BS_STORE` (gs://bucket of lokale map), `BS_MAX_CLUBS` (100
   **niet** in de repo of in `web/` (auteursrecht KNLTB); de server laadt ze privé uit de bucket
   (lokaal: `BS_REGELBANK=pad/regelbank.json`). Na een nieuwe regelbank: nieuwe revisie of herstart.
 - **Zoeken**: BM25 met Nederlandse normalisatie en synoniemen (`regels/zoek.py`), geen embeddings;
-  3 plekken gereserveerd voor CR- en 2 voor bulletin-treffers, top-10 fragmenten.
+  uitleg-pdf's per kop en per genummerd punt; namen uit de vraag weg; deelvragen apart gezocht (RRF); plekken per brontype (CR 2, bulletin 2, FAQ 1, uitleg 2); top-14 + overige punten van dezelfde kop. Regressieset: `BS_REGELBANK_TEST=regelbank.json pytest tests/generiek/test_regelhulp.py`.
 - **Antwoorden**: Vertex AI `gemini-2.5-flash` (`BS_REGEL_MODEL`) via de serviceaccount
   (`roles/aiplatform.user`), thinking-budget 512, max ~900 uitvoertokens. Alleen uit de fragmenten,
   met labels + [n]-verwijzingen; clubafspraken apart. Kosten ≈ $0,003 per vraag.

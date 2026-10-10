@@ -84,12 +84,13 @@ def test_beantwoord_met_nep_llm():
 
     def nep(prompt, systeem):
         seen["prompt"], seen["sys"] = prompt, systeem
-        return {"text": "**Ja, uiterlijk op de inhaaldag** (CR art. 49 lid 1) [1]. Zie ook [9].", "tokens_in": 3000, "tokens_uit": 400}
+        return {"text": "**Ja, uiterlijk op de inhaaldag** (CR art. 49 lid 1). Zie ook [9].", "tokens_in": 3000, "tokens_uit": 400}
 
     out = beantwoord("afgebroken inhaaldag", Index(_chunks()), club={"naam": "TV X"}, llm=nep)
     assert [b["label"] for b in out["bronnen"]] == ["CR art. 49 lid 1"]  # [9] bestaat niet -> genegeerd
     assert out["bronnen"][0]["url"].endswith("#page=20")
-    assert "Clubprofiel" in seen["prompt"] and "UITSLUITEND" in seen["sys"]
+    assert "Clubprofiel" in seen["prompt"] and "UITSLUITEND" in seen["sys"] and "«CR art. 49 lid 1»" in seen["prompt"]
+    assert "[9]" not in out["antwoord"]
     assert 0 < out["kosten_usd"] < 0.01
 
 
@@ -157,11 +158,82 @@ def test_endpoint_regelhulp(client):
 def test_beantwoord_groepsverwijzing():
     nep = lambda p, s: {"text": "Ja [1, 2].", "tokens_in": 1, "tokens_uit": 1}
     out = beantwoord("afgebroken inhaaldag afwezig walk-over", Index(_chunks()), llm=nep)
-    assert len(out["bronnen"]) == 2 and "[1] [2]" in out["antwoord"]
+    assert len(out["bronnen"]) == 2 and "[" not in out["antwoord"]
 
 
 def test_zoek_reserveert_cr_en_bulletin():
     extra = [dict(_chunks()[2], id=f"inv-{i}", bron=f"inv{i}") for i in range(10)]
-    r = Index(_chunks() + extra).zoek("invallen ballen inhaaldag", k=4)
+    r = Index(_chunks() + extra).zoek("invallen nieuwe ballen afgebroken inhaaldag", k=4)
     rangen = {c["rang"] for _, c in r}
     assert 1 in rangen and 2 in rangen
+
+
+UITLEG_TXT = """Competitie spelen in twee of meer teams
+Inleidende tekst over meerdere teams.
+
+Welke voorwaarden gelden er voor spelers met dispensatie?
+1. Dispensatie geldt uitsluitend voor de competitie waarvoor deze wordt aangevraagd.
+2. Dispensatie geldt alleen voor twee competitiesoorten op verschillende
+   dag(del)en.
+4. Spelers met dispensatie mogen niet invallen in een andere (derde) team/competitiesoort.
+
+Invallen?
+Het kan voorkomen dat een speler eenmalig in een ander team uitkomt.
+"""
+
+
+def test_chunk_uitleg_per_kop_en_voorwaarde():
+    meta = {"bron": "tw", "titel": "Competitie spelen in twee of meer teams", "rang": 4, "versie": "2026-09-17"}
+    cs = bouw.chunk_uitleg(UITLEG_TXT, "https://x/tw.pdf", meta, "tw", "Twee of meer teams")
+    labels = [c["label"] for c in cs]
+    assert "KNLTB-uitleg Twee of meer teams, voorwaarde 4" in labels
+    assert "KNLTB-uitleg Twee of meer teams, 'Invallen?'" in labels
+    v2 = next(c for c in cs if c["label"].endswith("voorwaarde 2"))
+    assert "dag(del)en" in v2["text"] and "Welke voorwaarden" in v2["text"]  # kopcontext + vervolgregel
+    v4 = next(c for c in cs if c["label"].endswith("voorwaarde 4"))
+    assert v4["groep"] == v2["groep"]
+
+
+def test_namen_en_synoniemen():
+    from baanschemaatje.regels.zoek import strip_namen
+
+    q = strip_namen("Ik overweeg om Janneke Brouwers te vragen. Mag Piet van der Berg invallen?")
+    assert "Janneke" not in q and "Berg" not in q
+    assert set(tokens("label 2x spelen")) & set(tokens("dispensatie"))
+    assert set(tokens("in een derde team")) & set(tokens("invallen"))
+    assert "§regen" not in tokens("wij zoeken weer een dame")
+
+
+def test_met_context_voegt_groep_toe():
+    meta = {"bron": "tw", "titel": "Twee teams", "rang": 4, "versie": None}
+    cs = bouw.chunk_uitleg(UITLEG_TXT, "u", meta, "tw", "Twee of meer teams")
+    ix = Index(cs)
+    hit = [c for _, c in ix.zoek("mag een speler met dispensatie invallen in een derde team", k=1)]
+    assert hit[0]["label"].endswith("voorwaarde 4")
+    assert {c["label"][-12:] for c in ix.met_context(hit)} >= {"voorwaarde 1", "voorwaarde 2", "voorwaarde 4"}
+
+
+# --- Regressieset op de echte regelbank (geen LLM). De regelbank staat niet in de
+# repo (auteursrecht); zet BS_REGELBANK_TEST=pad/regelbank.json om dit te draaien.
+import os  # noqa: E402
+
+_RB = os.environ.get("BS_REGELBANK_TEST", "/workspace/regelbank.json")
+REGRESSIE = [
+    ("wij zoeken weer een dame om in te vallen. Ik overweeg om Janneke Brouwers te vragen, maar zij heeft al dispensatie "
+     "om in 2 teams te spelen (met label \u201c2x spelen\u201d). Dat betekent dat zij niet meer in een ander team mag spelen, toch?",
+     ["KNLTB-uitleg Twee of meer teams, voorwaarde 4"]),
+    ("Afgebroken partijen in kampioenswedstrijd; moeten we op eerstvolgende inhaaldag inhalen, en kunnen zij claimen als we niet kunnen?",
+     ["CR art. 49 lid 1", "CR art. 35", "Wedstrijdbulletin 2026, 'Uitstel van teamwedstrijden'"]),
+    ("Mag een speler uit ons eerste team invallen in ons tweede team, en hoe vaak mag dat?", ["CR art. 29"]),
+    ("Mag een speler uit een sterker team invallen in een zwakker team?", ["CR art. 29"]),
+    ("Wat gebeurt er als een team niet komt opdagen?", ["CR art. 35", "Wedstrijdbulletin 2026, 'Team afwezig'"]),
+]
+
+
+@pytest.mark.skipif(not os.path.isfile(_RB), reason="echte regelbank niet aanwezig")
+@pytest.mark.parametrize("vraag,verwacht", REGRESSIE)
+def test_regressie_retrieval(vraag, verwacht):
+    ix = Index(json.load(open(_RB))["chunks"])
+    labels = [c["label"] for c in ix.met_context([c for _, c in ix.zoek(vraag)])]
+    for v in verwacht:
+        assert any(lab == v or lab.startswith(v + " ") for lab in labels), (v, labels)
