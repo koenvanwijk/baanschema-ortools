@@ -62,7 +62,28 @@ def profile_summary(prof: ClubProfile, club_id: str) -> dict[str, Any]:
         "durations": {k.value: prof.expected_duration(k) for k in DEFAULT_DURATIONS},
         "min_reservation": {k.value: v for k, v in MIN_RESERVATION.items()},
         "rules": rules,
+        "weekday": prof.weekday,
+        "bijlage3": prof.bijlage3,
+        "lighting": prof.lighting,
+        "weekdays": _weekday_summary(prof),
     }
+
+
+def _weekday_summary(prof: ClubProfile) -> dict[str, Any]:
+    """Dagvenster per weekdag (effectief: club-instelling of default)."""
+    from baanschemaatje.profile import BIJLAGE3_DAYS, WEEKDAYS
+
+    out = {}
+    for wd in WEEKDAYS:
+        ws = prof.weekday_settings(wd)
+        out[wd] = {
+            "start": min_to_hhmm(ws["start"]), "last_start": min_to_hhmm(ws["last_start"]),
+            "end": min_to_hhmm(ws["end"]),
+            "fallback_start": min_to_hhmm(ws["fallback_start"]) if ws.get("fallback_start") is not None else None,
+            "courts": ws.get("courts") or prof.courts, "lighting": bool(ws.get("lighting", True)),
+            "bijlage3": wd in BIJLAGE3_DAYS, "defaults": ws["defaults"], "note": ws.get("note"),
+        }
+    return out
 
 
 def _validate(plan: dict[str, Any], season: Path, profile: ClubProfile | None = None) -> dict[str, Any]:

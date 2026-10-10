@@ -13,11 +13,16 @@ Ondersteunde invoer (automatisch herkend aan de kopregel):
 Regels bij de ruwe export:
 
 * alleen **thuiswedstrijden**: Team 1 begint met ``club.knltb_name``;
-* alleen de gekozen speeldagen (default zondag); avond-/ochtendcompetities
-  (``Avond``/``Ochtend`` in het schema) worden overgeslagen — de planner is
-  voor dagcompetities;
-* formaat (partijen, duur, S/D/GD) uit het schema afgeleid (KNLTB-standaard
-  zondagcompetities); een onbekend schema wordt gemeld en NIET geïmporteerd;
+* alle weekdagen (default; optioneel te beperken); per wedstrijd worden de
+  weekdag, het dagdeel (``dag``/``avond``/``ochtend``/``middag``, uit het
+  schema) en de begintijd uit ``Datum`` meegenomen;
+* formaat (partijen, duur, S/D/GD) uit het schema afgeleid (KNLTB-aanbod
+  najaar 2026: zondag-, zaterdag- en dubbelcompetities op donderdag/vrijdag
+  4DD/4HD/DD-HD-2GD); een onbekend schema wordt gemeld en NIET geïmporteerd;
+* **gespeelde wedstrijden** (er staat een uitslag, of de status zegt
+  gespeeld/afgerond) krijgen ``Status = gespeeld`` en houden hun echte datum en
+  uitslag; die worden nooit (her)gepland. Een wedstrijd in het verleden zonder
+  uitslag krijgt ``Status = verlopen`` (wel planbaar, wordt gemeld);
 * aanvoerdersnamen (persoonsgegevens) worden nooit overgenomen.
 
 Rood en Oranje staan niet in de ruwe competitie-export; die kunnen als
@@ -33,7 +38,10 @@ from datetime import date, datetime
 from typing import Any
 
 WEEKDAYS_NL = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"]
-COLUMNS = ["Datum", "Weekdag", "Schema", "Wedstrijden", "Wedstrijdduur", "Singles", "Doubles", "Mix", "Team 1", "Team 2"]
+COLUMNS = ["Datum", "Weekdag", "Dagdeel", "Begintijd", "Schema", "Wedstrijden", "Wedstrijdduur", "Singles", "Doubles",
+           "Mix", "Team 1", "Team 2", "Uitslag", "Status"]
+ALL_WEEKDAYS = frozenset(WEEKDAYS_NL)
+PLAYED_STATUS_WORDS = ("gespeeld", "afgerond", "uitslag", "definitief", "walk-over", "walkover", "w.o.")
 NORMALIZED_KEYS = {"Wedstrijden", "Wedstrijdduur"}
 MAX_ROWS = 20000
 
@@ -61,11 +69,48 @@ def derive_format(schema: str) -> tuple[int, int, int, int, int] | None:
     if s.startswith("heren zondag") or s.startswith("dames zondag") \
             or s.startswith("heren zaterdag") or s.startswith("dames zaterdag"):
         return (6, 90, 4, 2, 0)
+    # Dubbelcompetities (KNLTB-aanbod najaar 2026, senioren landelijk/regionaal):
+    # Gemengd Dubbel = DD-HD-2GD, Dames/Heren Dubbel = 4DD/4HD; 4 partijen.
+    if s.startswith("gemengd dubbel"):
+        return (4, 90, 0, 2, 2)
+    if s.startswith("dames dubbel") or s.startswith("heren dubbel"):
+        return (4, 90, 0, 4, 0)
+    # Gemengd 17+ zaterdag = DE-HE-GD-DD-HD (aanbod najaar landelijk).
+    if s.startswith("gemengd 17+ zaterdag") or s.startswith("gemengd 35+ zaterdag"):
+        return (5, 90, 2, 2, 1)
     if s.startswith("rood"):
         return (1, 60, 0, 1, 0)
     if s.startswith("oranje"):
         return (3, 120, 0, 1, 0)
     return None
+
+
+def dagdeel(schema: str) -> str:
+    """'avond' / 'ochtend' / 'middag' (uit de schemanaam) of 'dag'."""
+    s = (schema or "").lower()
+    for k in ("avond", "ochtend", "middag"):
+        if k in s:
+            return k
+    return "dag"
+
+
+def _parse_time(v: Any) -> str:
+    """Begintijd uit de Datum-kolom ('' als 00:00 of onbekend)."""
+    if isinstance(v, datetime):
+        t = v.strftime("%H:%M")
+    else:
+        parts = str(v or "").replace("T", " ").split()
+        t = parts[1][:5] if len(parts) > 1 else ""
+    return "" if t in ("", "00:00") else t
+
+
+def is_played(uitslag: str, status: str) -> bool:
+    """Gespeeld = er staat een uitslag, of de status zegt dat er gespeeld is.
+    'Resource group not found' en lege statussen tellen niet."""
+    if (uitslag or "").strip():
+        return True
+    st = (status or "").lower()
+    return any(w in st for w in PLAYED_STATUS_WORDS)
 
 
 def _parse_date(v: Any) -> date | None:
@@ -120,9 +165,13 @@ def parse_export(
     filename: str,
     home_name: str,
     weekdays: set[str] | None = None,
+    today: date | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Geeft (genormaliseerde rijen, rapport)."""
-    weekdays = {w.lower() for w in (weekdays or {"zondag"})}
+    """Geeft (genormaliseerde rijen, rapport). ``today`` (Europe/Amsterdam)
+    bepaalt wat 'in het verleden' is; default vandaag."""
+    weekdays = {w.lower() for w in (weekdays or ALL_WEEKDAYS)}
+    if today is None:
+        today = _today_ams()
     rows = _read_table(data, filename)
     if not rows:
         raise ImportError_("leeg bestand")
@@ -151,6 +200,12 @@ def parse_export(
         "home_weekdays": Counter(),
         "statuses": Counter(),
         "invalid_dates": 0,
+        "per_weekday": Counter(),
+        "per_competition": Counter(),
+        "played": 0,
+        "played_partial": [],
+        "expired_no_result": [],
+        "open": 0,
     }
     for r in rows[1:]:
         if not any(c not in (None, "") for c in r):
@@ -175,10 +230,6 @@ def parse_export(
         if wd not in weekdays:
             rep["skipped"][f"{wd} (niet gekozen)"] += 1
             continue
-        low = schema.lower()
-        if "avond" in low or "ochtend" in low:
-            rep["skipped"]["avond-/ochtendcompetitie"] += 1
-            continue
         if normalized:
             fmt = (_int(g(r, "Wedstrijden")), _int(g(r, "Wedstrijdduur")), _int(g(r, "Singles")),
                    _int(g(r, "Doubles")), _int(g(r, "Mix")))
@@ -191,18 +242,58 @@ def parse_export(
             rep["skipped"]["onbekend formaat"] += 1
             continue
         m, dur, si, do, mi = fmt
+        dd = str(g(r, "Dagdeel") or "").strip() or dagdeel(schema)
+        tijd = str(g(r, "Begintijd") or "").strip() if normalized else _parse_time(g(r, "Datum"))
+        uitslag = str(g(r, "Uitslag") or "").strip()
+        st_in = str(g(r, "Status") or "").strip().lower() if normalized else ""
+        if st_in in ("gespeeld", "open", "verlopen"):
+            played = st_in == "gespeeld"
+        else:
+            played = is_played(uitslag, status)
+        if played:
+            st = "gespeeld"
+            rep["played"] += 1
+            try:
+                a, b = (int(x) for x in uitslag.replace(" ", "").split("-"))
+                if a + b < m:
+                    rep["played_partial"].append(f"{d.strftime('%d-%m-%Y')} {team1} – {team2} ({uitslag}, {m} partijen)")
+            except ValueError:
+                pass
+        elif d < today:
+            st = "verlopen"
+            rep["expired_no_result"].append(f"{d.strftime('%d-%m-%Y')} {team1} – {team2}")
+        else:
+            st = "open"
+            rep["open"] += 1
+        comp = _competition(schema)
+        rep["per_weekday"][wd] += 1
+        rep["per_competition"][f"{wd} · {comp}"] += 1
         out.append({
-            "Datum": d.strftime("%d-%m-%Y"), "Weekdag": wd, "Schema": schema,
+            "Datum": d.strftime("%d-%m-%Y"), "Weekdag": wd, "Dagdeel": dd, "Begintijd": tijd, "Schema": schema,
             "Wedstrijden": m, "Wedstrijdduur": dur, "Singles": si, "Doubles": do, "Mix": mi,
-            "Team 1": team1, "Team 2": team2, "_k": (d, schema, team1),
+            "Team 1": team1, "Team 2": team2, "Uitslag": uitslag, "Status": st, "_k": (d, schema, team1),
         })
     out.sort(key=lambda x: x["_k"])
     for x in out:
         del x["_k"]
     rep["imported"] = len(out)
-    for k in ("skipped", "unknown_schemas", "weekdays_in_file", "home_weekdays", "statuses"):
+    for k in ("skipped", "unknown_schemas", "weekdays_in_file", "home_weekdays", "statuses", "per_weekday",
+              "per_competition"):
         rep[k] = dict(rep[k])
     return out, rep
+
+
+def _competition(schema: str) -> str:
+    """Competitienaam zonder klasse/afdeling, bv. 'Gemengd Dubbel 17+ Vrijdag Avond'."""
+    return " ".join(schema.split("–")[0].split())
+
+
+def _today_ams() -> date:
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("Europe/Amsterdam")).date()
+    except Exception:  # noqa: BLE001
+        return date.today()
 
 
 def to_tsv(rows: list[dict[str, Any]]) -> str:

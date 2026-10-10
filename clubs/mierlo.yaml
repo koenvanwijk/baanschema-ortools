@@ -59,3 +59,15 @@ rules:
   first_start_deadline:
     time: "15:00"
     hard: false
+
+# Dagvensters per weekdag (do/vr-avondcompetities). Niet ingevuld = Baanschemaatje-
+# standaard: start 19:00, laatste start 20:30, alles klaar 23:00, alle 10 banen,
+# verlichting aan. Nog door Oscar te bevestigen (verlichting/aantal banen 's avonds,
+# sluitingstijd park). Voorbeeld:
+# weekdays:
+#   vrijdag:
+#     start: "19:00"
+#     last_start: "20:30"
+#     end: "23:00"
+#     courts: 10
+#     lighting: true

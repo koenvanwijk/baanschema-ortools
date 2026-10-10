@@ -51,9 +51,68 @@ def adjust_findings(findings: list[dict[str, Any]], profile: ClubProfile | None 
     return out
 
 
+#: Bevindingen van de zondag-validator die op ma-vr (geen Bijlage 3) niet gelden;
+#: daar toetsen we zelf aan het dagvenster van het clubprofiel.
+_SUNDAY_ONLY = ("LAATSTE-START", "EERSTE-START", "EERSTE-START-GROEN", "EERSTE-START-VOORKEUR",
+                "VENSTER-GEM", "VENSTER-JEUGD", "VENSTER-JEUGD-LAAT")
+
+
+def _weekday_findings(plan: dict[str, Any], prof: ClubProfile) -> list[dict[str, Any]]:
+    from baanschemaatje.profile import min_to_hhmm
+
+    out = []
+    date = plan.get("date")
+    for r in plan.get("rows") or []:
+        st, en = str(r.get("start") or ""), str(r.get("end") or "")
+        if len(st) < 5 or not st[:2].isdigit() or r.get("kind") == "W":
+            continue
+        s = int(st[:2]) * 60 + int(st[3:5])
+        subj = f"{r.get('label', '')} {r.get('home_team', '')}".strip()
+        if s > prof.last_start:
+            out.append({"rule": "LAATSTE-START", "severity": "HARD", "date": date, "subject": subj,
+                        "message": f"{r.get('part')} start {st}, na de laatste start {min_to_hhmm(prof.last_start)} "
+                                   f"van de {prof.weekday} (clubprofiel)"})
+        if s < prof.day_start:
+            out.append({"rule": "DAGVENSTER", "severity": "HARD", "date": date, "subject": subj,
+                        "message": f"{r.get('part')} start {st}, vóór de dagstart {min_to_hhmm(prof.day_start)}"})
+        if len(en) >= 5 and en[:2].isdigit() and int(en[:2]) * 60 + int(en[3:5]) > prof.day_end:
+            out.append({"rule": "EINDTIJD", "severity": "HARD", "date": date, "subject": subj,
+                        "message": f"{r.get('part')} eindigt {en}, na {min_to_hhmm(prof.day_end)}"})
+    return out
+
+
+def _unplayed_season(season: Path, td: str) -> Path:
+    """Kopie van het seizoen zonder gespeelde wedstrijden (die worden niet gepland)."""
+    import csv
+
+    with Path(season).open(encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh, delimiter="\t"))
+    if not rows or "Status" not in rows[0] or not any(r.get("Status") == "gespeeld" for r in rows):
+        return Path(season)
+    out = Path(td) / "season-open.tsv"
+    with out.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]), delimiter="\t", lineterminator="\n")
+        w.writeheader()
+        w.writerows(r for r in rows if r.get("Status") != "gespeeld")
+    return out
+
+
 def validate_plan(plan: dict[str, Any], season: Path, profile: ClubProfile | None = None) -> dict[str, Any]:
-    """``plan`` = {"status", "date", "rows"}; geeft {available, hard, model, findings}."""
+    """``plan`` = {"status", "date", "rows"}; geeft {available, hard, model, findings}.
+
+    Gespeelde wedstrijden tellen niet mee. Op ma-vr (geen Bijlage 3) gelden de
+    zondagvensters niet maar het dagvenster van het profiel voor die weekdag."""
+    if profile is not None and profile.weekday is None and plan.get("date"):
+        from baanschemaatje.profile import WEEKDAYS
+        from datetime import datetime as _dt
+
+        dd = {str(r.get("dagdeel") or "") for r in plan.get("rows") or []}
+        if not dd - {""}:
+            dd = {("ochtend" if "ochtend" in str(r.get("team", "")).lower() else
+                   "middag" if "middag" in str(r.get("team", "")).lower() else "dag") for r in plan.get("rows") or []}
+        profile = profile.for_day(WEEKDAYS[_dt.strptime(plan["date"], "%d-%m-%Y").weekday()], dd)
     with tempfile.TemporaryDirectory() as td:
+        season = _unplayed_season(season, td)
         src = Path(td) / "plan.json"
         rep = Path(td) / "rapport.json"
         src.write_text(json.dumps(plan, ensure_ascii=False), encoding="utf-8")
@@ -65,6 +124,8 @@ def validate_plan(plan: dict[str, Any], season: Path, profile: ClubProfile | Non
             return {"available": False, "hard": None, "model": None, "findings": []}
         data = json.loads(rep.read_text(encoding="utf-8"))
     f = adjust_findings(data.get("findings", []), profile)
+    if profile is not None and not profile.bijlage3:
+        f = [x for x in f if x.get("rule") not in _SUNDAY_ONLY] + _weekday_findings(plan, profile)
     return {
         "available": True,
         "hard": sum(1 for x in f if x.get("severity") == "HARD"),

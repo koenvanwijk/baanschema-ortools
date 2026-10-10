@@ -18,6 +18,8 @@ from pathlib import Path
 
 from baanschemaatje.categories import BLOCK_CATEGORIES, Category, classify
 
+WEEKDAYS_NL = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"]
+
 
 @dataclass(frozen=True)
 class Fixture:
@@ -35,6 +37,23 @@ class Fixture:
     away_team: str
     #: Reisafstand van het uitspelende team in km (CR Bijlage 3, 1.2); None = onbekend.
     travel_km: int | None = None
+    #: Dagdeel uit het schema: "dag" (za/zo, Bijlage 3), "avond", "ochtend", "middag".
+    dagdeel: str = "dag"
+    #: Begintijd volgens de KNLTB-export ("" = onbekend/00:00).
+    export_start: str = ""
+    #: Uitslag uit de export ("" = nog niet gespeeld).
+    result: str = ""
+    #: "open" | "gespeeld" | "verlopen" (verleden zonder uitslag).
+    status: str = "open"
+
+    @property
+    def played(self) -> bool:
+        """Gespeelde wedstrijd: vastgezet, wordt nooit (her)gepland of verzet."""
+        return self.status == "gespeeld"
+
+    @property
+    def weekday(self) -> str:
+        return WEEKDAYS_NL[datetime.strptime(self.date, "%d-%m-%Y").weekday()]
 
     @property
     def team_key(self) -> str:
@@ -74,6 +93,10 @@ class Season:
     def day(self, date: str) -> list[Fixture]:
         return [f for f in self.fixtures if f.date == date]
 
+    def plannable(self) -> list[Fixture]:
+        """Alles wat nog (her)gepland mag worden: niet gespeeld."""
+        return [f for f in self.fixtures if not f.played]
+
     def by_date(self) -> dict[str, list[Fixture]]:
         out: dict[str, list[Fixture]] = defaultdict(list)
         for f in self.fixtures:
@@ -84,6 +107,14 @@ class Season:
 def _int(v: str | None) -> int:
     v = (v or "").strip()
     return int(v) if v else 0
+
+
+def _dagdeel(schema: str) -> str:
+    s = schema.lower()
+    for k in ("avond", "ochtend", "middag"):
+        if k in s:
+            return k
+    return "dag"
 
 
 def load_season_tsv(path: str | Path, home_name: str = "") -> Season:
@@ -124,6 +155,10 @@ def load_season_tsv(path: str | Path, home_name: str = "") -> Season:
                     away_team=away,
                     # Optionele kolom; de huidige export heeft hem niet.
                     travel_km=_int(row.get("Reisafstand")) if (row.get("Reisafstand") or "").strip() else None,
+                    dagdeel=(row.get("Dagdeel") or "").strip() or _dagdeel(schema),
+                    export_start=(row.get("Begintijd") or "").strip(),
+                    result=(row.get("Uitslag") or "").strip(),
+                    status=(row.get("Status") or "").strip() or "open",
                 )
             )
     return Season(fixtures=fixtures, source=str(p))

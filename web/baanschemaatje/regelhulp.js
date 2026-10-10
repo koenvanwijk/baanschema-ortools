@@ -1,5 +1,5 @@
 "use strict";
-// KNLTB-regelhulp: vraag -> POST /regelhulp -> antwoord met klikbare bronnen.
+// Regelmaatje (KNLTB-regelhulp): vraag -> POST /regelhulp -> antwoord met klikbare bronnen.
 // Alleen op verzenden; niets automatisch.
 (function () {
   const API_RH = (new URLSearchParams(location.search).get("api") || "https://baanschemaatje-356953092000.europe-west1.run.app").replace(/\/+$/, "");
@@ -73,7 +73,7 @@
     const src = (j.bronnen || []).map((b) => `- ${b.label}: ${b.url}`).join("\n");
     return [`Vraag: ${vraag}`, "", md, "", src ? `Bronnen:\n${src}` : "", "",
       j.disclaimer || "Advies op basis van de KNLTB-regels; bij twijfel beslist de competitieleider of de KNLTB.",
-      "(KNLTB-regelhulp, Baanschemaatje)"].filter((x, i, a) => !(x === "" && a[i - 1] === "")).join("\n").trim();
+      "(Regelmaatje, Baanschemaatje)"].filter((x, i, a) => !(x === "" && a[i - 1] === "")).join("\n").trim();
   }
 
   async function copyText(t) {
@@ -105,7 +105,7 @@
     });
     out.querySelector(".rh-share").addEventListener("click", async () => {
       if (navigator.share) {
-        try { await navigator.share({ title: "KNLTB-regelhulp", text }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+        try { await navigator.share({ title: "Regelmaatje", text }); return; } catch (e) { if (e && e.name === "AbortError") return; }
       }
       feedback(fb, (await copyText(text)) ? "Gekopieerd" : "Kopiëren lukte niet");
     });

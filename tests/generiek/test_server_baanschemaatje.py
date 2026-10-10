@@ -123,7 +123,7 @@ def test_club_lifecycle(client, root):
     assert client.get(f"/clubs/{cid}").json()["summary"]["courts"] == 7
     # ruwe KNLTB-export uploaden
     data = (root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes()
-    r = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"})
+    r = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx", "days": "zondag"})
     assert r.status_code == 200, r.text
     j = r.json()
     assert j["report"]["imported"] == 52 and j["report"]["format"] == "ruwe KNLTB-export"
@@ -194,7 +194,10 @@ def _stored_club(client, name):
     return r.json()["id"]
 
 
-def test_schedule_save_load_delete(client, root):
+def test_schedule_save_load_delete(client, root, monkeypatch):
+    from datetime import date as _date
+    # Vóór de speeldag: overschrijven/verwijderen mag (na de dag blijft een opgeslagen schema staan).
+    monkeypatch.setattr(sys.modules["bs_server_app"], "_today_ams", lambda: _date(2026, 9, 1))
     cid = _stored_club(client, "TV Opslaan")
     plan = json.loads((root / "web/baanschemaatje/data/mierlo/27-09-2026.json").read_text())
     assert client.get(f"/clubs/{cid}/schedule/27-09-2026").status_code == 404
@@ -262,3 +265,43 @@ def test_save_routes_use_auth_hook(client, monkeypatch):
     assert client.delete(f"/clubs/{cid}/schedule/27-09-2026").status_code == 401
     assert client.put(f"/clubs/{cid}/moves", json={"moves": []}).status_code == 401
     assert client.get(f"/clubs/{cid}/moves").status_code == 200
+
+
+def test_upload_all_weekdays_played_locked_and_reprocess(client, root, monkeypatch):
+    """Upload Oscar 10-10-2026: do/vr/za/zo; gespeelde wedstrijden vast; reprocess; geen solver."""
+    from datetime import date as _date
+
+    mod = sys.modules["bs_server_app"]
+    monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
+    prof = {"club": {"name": "TV Avond", "knltb_name": "MIERLO"}, "courts": {"count": 10},
+            "weekdays": {"vrijdag": {"courts": 6}}}
+    cid = client.post("/clubs", json={"profile": prof}).json()["id"]
+    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
+    rep = j["report"]
+    assert rep["imported"] == 112 and rep["per_weekday"]["vrijdag"] == 40 and rep["per_weekday"]["donderdag"] == 12
+    fri = [d for d in j["dates"] if d["weekday"] == "vrijdag"]
+    assert fri and all(d["window"]["start"] == "19:00" and not d["window"]["bijlage3"] and d["window"]["courts"] == 6 for d in fri)
+    thu = next(d for d in j["dates"] if d["weekday"] == "donderdag" and "ochtend" in d["dagdelen"])
+    assert thu["window"]["start"] == "09:00"
+    sun = next(d for d in j["dates"] if d["weekday"] == "zondag")
+    assert sun["window"]["bijlage3"] and sun["window"]["start"] == "09:00"
+    # Volledig gespeelde dag: /plan rekent niet, geeft GESPEELD + de vaste wedstrijden.
+    p = client.post("/plan", json={"club": cid, "date": fri[0]["date"], "time_limit_s": 1}).json()
+    assert p["status"] == "GESPEELD" and p["played"] and p["rows"] == []
+    # Gespeelde wedstrijd verzetten mag niet.
+    w = next(x for x in fri[0]["wedstrijden"] if x["status"] == "gespeeld")
+    r = client.post("/plan", json={"club": cid, "date": "16-10-2026", "time_limit_s": 1,
+                                   "moves": [{"schema": w["schema"], "home": w["home"], "from": fri[0]["date"], "to": "16-10-2026"}]})
+    assert r.status_code == 409
+    # Opgeslagen schema van een dag in het verleden blijft staan.
+    ok = {"plan": {"rows": []}, "source": "berekend"}
+    assert client.put(f"/clubs/{cid}/schedule/{fri[0]['date']}", json=ok).status_code == 200
+    assert client.put(f"/clubs/{cid}/schedule/{fri[0]['date']}", json=ok).status_code == 409
+    assert client.delete(f"/clubs/{cid}/schedule/{fri[0]['date']}").status_code == 409
+    # Opnieuw verwerken met de bewaarde upload.
+    r2 = client.post(f"/clubs/{cid}/season/reprocess").json()
+    assert r2["report"]["imported"] == 112
+    summ = client.get(f"/clubs/{cid}").json()["summary"]
+    assert summ["weekdays"]["vrijdag"]["courts"] == 6 and "courts" not in summ["weekdays"]["vrijdag"]["defaults"]
+    assert summ["weekdays"]["vrijdag"]["start"] == "19:00" and "start" in summ["weekdays"]["vrijdag"]["defaults"]

@@ -95,7 +95,7 @@ Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is gee
 
 **Spike KNLTB-koppeling:** mogelijkheden, auth, datamodel. Pas daarna “liefst koppeling” i.p.v. alleen export.
 
-### Spoor KNLTB-regelhulp (AI) — parallel, niet blocker voor fase 1
+### Spoor Regelmaatje (KNLTB-regelhulp, AI) — parallel, niet blocker voor fase 1
 
 Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en actueel houdt (de regels wijzigen vaak), en vragen beantwoordt over o.a. invallers, uitval, verplaatsen en opgave.
 
@@ -154,11 +154,11 @@ Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en ac
 18. Spike: KNLTB-koppeling — mogelijkheden, auth, datamodel (geen implementatie)
 26. Feature: reisafstand per tegenstander invullen (80 km-regel)
 
-### Spoor KNLTB-regelhulp (AI) — parallel, niet blocker
+### Spoor Regelmaatje (KNLTB-regelhulp, AI) — parallel, niet blocker
 
 22. Spike: bronnen KNLTB-reglementen + updatefrequentie
 23. Feature: regelbank met versies en bronverwijzingen
-24. Feature: AI-regelhulp met citaten (invallers, uitval, verplaatsen)
+24. Feature: Regelmaatje: AI-regelhulp met citaten (invallers, uitval, verplaatsen)
 25. Feature: automatische check op nieuwe reglementversies
 
 ### P2 engineering (na MVP of parallel)

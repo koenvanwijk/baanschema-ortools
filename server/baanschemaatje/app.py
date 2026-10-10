@@ -11,7 +11,8 @@ Endpoints
   POST /clubs                        nieuwe club → eenmalig de bewerk-sleutel
   GET  /clubs/{id}                   profiel (ruw + samenvatting), seizoen-info
   PUT  /clubs/{id}/profile           profiel opslaan
-  POST /clubs/{id}/season            KNLTB-export uploaden
+  POST /clubs/{id}/season            KNLTB-export uploaden (alle weekdagen; ruwe upload wordt bewaard)
+  POST /clubs/{id}/season/reprocess  laatst geüploade export opnieuw verwerken (nieuwe importregels)
   GET  /clubs/{id}/season            speeldagen + wedstrijden
   GET  /clubs/{id}/schedules         alle opgeslagen dagschema's (voor het seizoensoverzicht)
   GET/PUT/DELETE /clubs/{id}/schedule/{datum}   opgeslagen baanschema van één dag
@@ -253,6 +254,7 @@ def _apply_moves(spath: Path, moves: list[Move]) -> tuple[Path, list[dict[str, A
         i_d, i_s, i_1, i_2 = (hdr.index(k) for k in ("Datum", "Schema", "Team 1", "Team 2"))
     except ValueError as exc:
         raise HTTPException(422, f"seizoensbestand mist kolom: {exc}") from exc
+    i_st = hdr.index("Status") if "Status" in hdr else None
     applied = []
     for m in moves:
         hit = 0
@@ -261,6 +263,8 @@ def _apply_moves(spath: Path, moves: list[Move]) -> tuple[Path, list[dict[str, A
                 continue
             if (r[i_d].strip() == m.from_ and " ".join(r[i_s].split()) == " ".join(m.schema_.split())
                     and m.home.strip().upper() in (r[i_1].strip().upper(), r[i_2].strip().upper())):
+                if i_st is not None and len(r) > i_st and r[i_st].strip() == "gespeeld":
+                    raise HTTPException(409, f"verzetting: '{m.schema_}' van {m.home} op {m.from_} is al gespeeld")
                 r[i_d] = m.to
                 hit += 1
         if not hit:
@@ -334,6 +338,22 @@ def _validate_schedule(body: Any) -> SaveSchedule:
     return sch
 
 
+def _today_ams():
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo("Europe/Amsterdam")).date()
+
+
+def _guard_past(club_id: str, date: str, request: Request) -> None:
+    """Opgeslagen schema van een dag in het verleden blijft staan (gespeeld = waarheid).
+    Alleen als er nog niets is opgeslagen mag het, of met ?force=1."""
+    if datetime.strptime(date, "%d-%m-%Y").date() >= _today_ams():
+        return
+    if request.query_params.get("force") in ("1", "true"):
+        return
+    if STORE.get(_sched_key(club_id, date)) is not None:
+        raise HTTPException(409, f"{date} ligt in het verleden; het opgeslagen schema blijft staan (gespeeld)")
+
+
 @app.get("/clubs/{club_id}/schedules")
 def list_schedules(club_id: str) -> dict[str, Any]:
     _known_club(club_id)
@@ -360,6 +380,7 @@ async def put_schedule(club_id: str, date: str, request: Request) -> dict[str, A
     _check_date(date)
     _writable(club_id, request)
     sch = _validate_schedule(await _json_body(request, MAX_SCHEDULE_BYTES))
+    _guard_past(club_id, date, request)
     doc = {"club": club_id, "date": date, "saved_at": _now(), "source": sch.source,
            "check": sch.check, "sig": sch.sig, "plan": sch.plan}
     STORE.put(_sched_key(club_id, date), json.dumps(doc, ensure_ascii=False).encode(), "application/json")
@@ -370,6 +391,7 @@ async def put_schedule(club_id: str, date: str, request: Request) -> dict[str, A
 def delete_schedule(club_id: str, date: str, request: Request) -> dict[str, Any]:
     _check_date(date)
     _writable(club_id, request)
+    _guard_past(club_id, date, request)
     return {"ok": True, "deleted": STORE.delete(_sched_key(club_id, date))}
 
 
@@ -456,14 +478,32 @@ def _store_cache(key: str, val: dict[str, Any]) -> None:
         _CACHE.popitem(last=False)
 
 
-def _season_view(season: Season) -> list[dict[str, Any]]:
+def _day_window(prof: ClubProfile | None, date: str, fx: list) -> dict[str, Any] | None:
+    if prof is None:
+        return None
+    dp = prof.for_date(date, fx)
+    from baanschemaatje.profile import min_to_hhmm
+    return {"start": min_to_hhmm(dp.day_start), "last_start": min_to_hhmm(dp.last_start),
+            "end": min_to_hhmm(dp.day_end), "courts": dp.courts, "bijlage3": dp.bijlage3, "lighting": dp.lighting}
+
+
+def _season_view(season: Season, prof: ClubProfile | None = None) -> list[dict[str, Any]]:
     out = []
     for d, fx in season.by_date().items():
+        played = [f for f in fx if f.played]
         out.append({"date": d, "weekday": WEEKDAYS_NL[datetime.strptime(d, "%d-%m-%Y").weekday()], "fixtures": len(fx),
                     "partijen": sum(f.matches for f in fx),
+                    "open_fixtures": len(fx) - len(played),
+                    "open_partijen": sum(f.matches for f in fx if not f.played),
+                    "played": len(played),
+                    "dagdelen": sorted({f.dagdeel for f in fx}),
+                    "competitions": sorted({" ".join(f.schema.split("–")[0].split()) for f in fx}),
+                    "window": _day_window(prof, d, fx),
                     "wedstrijden": [{"label": f.label, "schema": f.schema, "category": f.category.value,
                                      "matches": f.matches, "singles": f.singles, "doubles": f.doubles, "mix": f.mix,
-                                     "home": f.home_team, "away": f.away_team} for f in fx]})
+                                     "home": f.home_team, "away": f.away_team, "dagdeel": f.dagdeel,
+                                     "export_start": f.export_start, "result": f.result, "status": f.status}
+                                    for f in fx]})
     out.sort(key=lambda x: datetime.strptime(x["date"], "%d-%m-%Y"))
     return out
 
@@ -549,15 +589,32 @@ def put_profile(club_id: str, raw: dict[str, Any], request: Request) -> dict[str
 
 @app.post("/clubs/{club_id}/season")
 async def upload_season(club_id: str, request: Request, filename: str = Query("export.xlsx"),
-                        days: str = Query("zondag", description="speeldagen, komma-gescheiden")) -> dict[str, Any]:
+                        days: str = Query("", description="speeldagen, komma-gescheiden (leeg = alle weekdagen)")) -> dict[str, Any]:
     meta = _writable(club_id, request)
     data = await request.body()
     if not data:
         raise HTTPException(400, "leeg bestand")
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, f"bestand te groot (max {MAX_UPLOAD // 1024 // 1024} MB)")
+    return _import_season(club_id, meta, data, filename, days, _now())
+
+
+@app.post("/clubs/{club_id}/season/reprocess")
+def reprocess_season(club_id: str, request: Request,
+                     days: str = Query("", description="leeg = alle weekdagen")) -> dict[str, Any]:
+    """Verwerk de laatst geüploade (ruwe) export opnieuw, bv. na nieuwe importregels."""
+    meta = _writable(club_id, request)
+    data = STORE.get(f"clubs/{club_id}/upload/latest")
+    if data is None:
+        raise HTTPException(404, "geen bewaarde upload; upload de KNLTB-export opnieuw")
+    s = meta.get("season") or {}
+    return _import_season(club_id, meta, data, s.get("filename") or "export.xlsx", days, s.get("uploaded_at") or _now())
+
+
+def _import_season(club_id: str, meta: dict[str, Any], data: bytes, filename: str, days: str,
+                   uploaded_at: str) -> dict[str, Any]:
     prof = _profile(_club_raw(club_id), club_id)
-    wd = {d.strip().lower() for d in days.split(",") if d.strip()}
+    wd = {d.strip().lower() for d in days.split(",") if d.strip()} or set(WEEKDAYS_NL)
     try:
         rows, rep = parse_export(data, filename, prof.knltb_name, wd)
     except ImportError_ as exc:
@@ -566,12 +623,13 @@ async def upload_season(club_id: str, request: Request, filename: str = Query("e
         raise HTTPException(422, {"message": f"geen thuiswedstrijden van '{prof.knltb_name}' gevonden op {', '.join(sorted(wd))}",
                                   "report": rep})
     tsv = to_tsv(rows).encode()
+    STORE.put(f"clubs/{club_id}/upload/latest", data, "application/octet-stream")
     STORE.put(f"clubs/{club_id}/season.tsv", tsv, "text/tab-separated-values")
-    rep["days"] = sorted(wd)
-    meta["season"] = {"filename": filename[:120], "uploaded_at": _now(), "report": rep}
+    rep["days"] = [d for d in WEEKDAYS_NL if d in wd]
+    meta["season"] = {"filename": filename[:120], "uploaded_at": uploaded_at, "processed_at": _now(), "report": rep}
     _put_meta(club_id, meta)
     season = _season(prof.knltb_name, _season_path(club_id))
-    return {"ok": True, "report": rep, "dates": _season_view(season)}
+    return {"ok": True, "report": rep, "dates": _season_view(season, prof)}
 
 
 @app.get("/clubs/{club_id}/season")
@@ -581,7 +639,7 @@ def get_season(club_id: str) -> dict[str, Any]:
     meta = _meta(club_id)
     return {"club": club_id, "own_season": spath != SEASON_FILE,
             "season": (meta or {}).get("season") if spath != SEASON_FILE else {"filename": SEASON_FILE.name},
-            "dates": _season_view(_season(prof.knltb_name, spath))}
+            "dates": _season_view(_season(prof.knltb_name, spath), prof)}
 
 
 @app.get("/dates")
@@ -600,6 +658,15 @@ def plan(req: PlanRequest) -> dict[str, Any]:
     from baanschemaatje.planner import plan_day
 
     club_id, prof, raw, season, spath = _resolve(req)
+    day_fx = season.day(req.date)
+    if day_fx and all(f.played for f in day_fx):
+        return {"status": "GESPEELD", "date": req.date, "rows": [], "day_start": None, "courts": prof.courts,
+                "stats": {"scheduled": 0, "unscheduled": 0, "solve_time_s": 0}, "attempts": [],
+                "summary": {"solved": False, "date": req.date, "status": "GESPEELD", "fixtures": len(day_fx),
+                            "played": len(day_fx), "scheduled": 0, "unscheduled": 0},
+                "message": "Alle wedstrijden van deze dag zijn gespeeld; er wordt niets gepland.",
+                "profile": profile_summary(prof.for_date(req.date, day_fx), club_id),
+                "moves_applied": req._moves_applied, "played": _played_view(day_fx), "cached": False}
     tl = _time_limit(req)
     key = _key("plan", raw, req, tl, spath)
     if (hit := _cached(key)) is not None:
@@ -620,6 +687,7 @@ def plan(req: PlanRequest) -> dict[str, Any]:
         "status": out["status"],
         "day_start": out["day_start"],
         "fixtures": len(season.day(req.date)),
+        "played": sum(1 for f in season.day(req.date) if f.played),
         "scheduled": res.scheduled,
         "unscheduled": res.unscheduled,
         "solve_time_s": out["stats"]["solve_time_s"],
@@ -628,13 +696,21 @@ def plan(req: PlanRequest) -> dict[str, Any]:
         "solutions_file": None,
         "best_solution": None,
     }
-    out["profile"] = profile_summary(prof, club_id)
+    out["profile"] = profile_summary(prof.for_date(req.date, season.day(req.date)), club_id)
     out["live"] = {"time_limit_s": tl, "wall_time_s": round(time.perf_counter() - t0, 2), "workers": WORKERS,
                    "season_file": spath.name}
     out["moves_applied"] = req._moves_applied
+    out["played"] = _played_view(season.day(req.date))
     out["cached"] = False
     _store_cache(key, out)
     return out
+
+
+def _played_view(fx: list) -> list[dict[str, Any]]:
+    """Gespeelde wedstrijden van een dag (vast, alleen-lezen)."""
+    return [{"label": f.label, "schema": f.schema, "home": f.home_team, "away": f.away_team,
+             "export_start": f.export_start, "result": f.result, "matches": f.matches, "status": f.status}
+            for f in fx if f.played]
 
 
 @app.post("/scenarios")

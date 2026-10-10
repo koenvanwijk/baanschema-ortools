@@ -82,7 +82,10 @@ def plan_day(
     naar een oplossing waarin álles past (feasibility) en verfijnt die daarna
     met de zachte doelen. Het gewogen model vindt zo'n oplossing op krappe
     dagen niet altijd binnen de tijdslimiet."""
-    day = [f for f in fixtures if f.date == date]
+    # Gespeelde wedstrijden zijn de waarheid: nooit (her)plannen.
+    day = [f for f in fixtures if f.date == date and not getattr(f, "played", False)]
+    if profile.weekday is None:
+        profile = profile.for_date(date, day)
     t0 = time.perf_counter()
     attempts = []
     best: tuple[str, list[dict], int] | None = None
@@ -131,9 +134,19 @@ def _lb(r) -> int:
     return r.params.get("from", r.params.get("time"))
 
 
+def _dagdeel_rule(R, f: Fixture):
+    """Begintijdvenster voor avond-/ochtend-/middagcompetities (KNLTB standaard begintijden)."""
+    key = {"avond": "evening_start_window", "ochtend": "morning_start_window",
+           "middag": "afternoon_start_window"}.get(getattr(f, "dagdeel", "dag"))
+    return R.get(key) if key else None
+
+
 def _lower_bound_rules(R, f: Fixture) -> list:
     """Regels 'niet vóór X' — gelden voor élke partij van het team."""
-    out = [R["match_start_window"]]  # CR B3 1.1: niet vroeger dan 08:30
+    out = [R["match_start_window"]]  # CR B3 1.1: niet vroeger dan 08:30 (ma-vr: dagvenster)
+    dw = _dagdeel_rule(R, f)
+    if dw is not None:
+        out.append(dw)
     if f.is_8p:
         out.append(R["start_window_8p"])
     if f.is_8p and f.is_mixed:
@@ -149,6 +162,9 @@ def _lower_bound_rules(R, f: Fixture) -> list:
 def _upper_bound_rules(R, f: Fixture) -> list:
     """Regels 'begintijd uiterlijk X' — gelden voor de eerste partij."""
     out = [(R["match_start_window"], R["match_start_window"].params["to"])]  # CR B3 1.1
+    dw = _dagdeel_rule(R, f)
+    if dw is not None:
+        out.append((dw, dw.params["to"]))
     out.append((R["first_start_deadline"], R["first_start_deadline"].params["time"]))
     junior = f.category in JUNIOR_CATEGORIES
     if f.is_8p:
@@ -559,4 +575,5 @@ def _row(f: Fixture, part: str, kind: str, start: str, end: str, court: int | No
         "start": start,
         "end": end,
         "court": court,
+        "dagdeel": getattr(f, "dagdeel", "dag"),
     }

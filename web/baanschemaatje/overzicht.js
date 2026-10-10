@@ -19,9 +19,17 @@ const OV_BEZETTING_TIP = "Baanbezetting = totale gereserveerde baantijd van alle
 
 // Alle dagen van het seizoen voor deze club: dagen met thuiswedstrijden + KNLTB-speel- en inhaaldagen
 // op dezelfde weekdag(en). matchDates: [{date: "dd-mm-jjjj", ...}].
+// KNLTB-competitie(s) per weekdag: op zondag alle (R/O/G, junioren, regulier); op andere dagen
+// regulier, plus junioren/R/O/G alleen als die op die weekdag wedstrijden hebben.
 function ovSeasonDays(matchDates) {
   const weekdays = new Set(matchDates.map((d) => ovWeekday(d.date)));
   if (!weekdays.size) weekdays.add("zondag");
+  const comps = new Map([...weekdays].map((wd) => [wd, new Set(wd === "zondag" ? ["rog", "junioren", "regulier"] : ["regulier"])]));
+  for (const d of matchDates) for (const w of d.wedstrijden || []) {
+    const set = comps.get(ovWeekday(d.date));
+    if (["groen", "rood", "oranje"].includes(w.category)) set.add("rog");
+    if (["junioren_11_14", "jeugd_13_17"].includes(w.category)) set.add("junioren");
+  }
   const days = new Map();
   const get = (date) => {
     if (!days.has(date)) days.set(date, { date, weekday: ovWeekday(date), match: null, speel: [], inhaal: [] });
@@ -34,7 +42,7 @@ function ovSeasonDays(matchDates) {
     if (keys.length && !keys.some((k) => k >= lo && k <= hi)) continue; // ander seizoen
     for (const c of s.competities) {
       for (const [wd, x] of Object.entries(c.dagen)) {
-        if (!weekdays.has(wd)) continue;
+        if (!weekdays.has(wd) || !comps.get(wd).has(c.id)) continue;
         for (const dt of x.speeldagen) get(dt).speel.push(c.kort || c.naam);
         for (const dt of x.inhaaldagen) get(dt).inhaal.push(c.kort || c.naam);
       }
@@ -66,6 +74,7 @@ function ovPlanStats(plan, club) {
 }
 
 function ovStatus(day) {
+  if (day.allPlayed) return { cls: "played", txt: "gespeeld (vast)" };
   if (day.changed && day.wedstrijden) return { cls: "changed", txt: "aangepast, nog niet berekend" };
   if (!day.wedstrijden) return { cls: "neutral", txt: day.kind === "inhaaldag" ? "inhaaldag, geen wedstrijden" : "geen thuiswedstrijden" };
   const s = day.stats;
@@ -83,7 +92,7 @@ function ovRender(el, days, opts = {}) {
   const busy = !!opts.busy || computing.size > 0;
   const n = (x) => (x == null ? "–" : x);
   const st = days.map(ovStatus);
-  const counts = { red: 0, orange: 0, green: 0, grey: 0, changed: 0 };
+  const counts = { red: 0, orange: 0, green: 0, grey: 0, changed: 0, played: 0 };
   st.forEach((s) => { if (s.cls in counts) counts[s.cls]++; });
   const busiest = days.filter((d) => d.stats).sort((a, b) => b.stats.pct - a.stats.pct)[0];
   const nSpeel = days.filter((d) => d.kind === "speeldag").length, nInh = days.length - nSpeel;
@@ -93,6 +102,7 @@ function ovRender(el, days, opts = {}) {
     <span class="ov-pill orange">${counts.orange} alleen voorkeuren</span>
     <span class="ov-pill green">${counts.green} in orde</span>
     ${counts.grey ? `<span class="ov-pill grey">${counts.grey} nog niet berekend</span>` : ""}
+    ${counts.played ? `<span class="ov-pill played">${counts.played} gespeeld</span>` : ""}
     ${counts.changed ? `<span class="ov-pill changed">${counts.changed} aangepast, nog niet berekend</span>` : ""}
     ${days.some((d) => d.saveCls === "saved") ? `<span class="ov-pill saved">${days.filter((d) => d.saveCls === "saved").length} opgeslagen</span>` : ""}
     ${days.some((d) => d.saveCls === "unsaved") ? `<span class="ov-pill unsaved">${days.filter((d) => d.saveCls === "unsaved").length} niet opgeslagen</span>` : ""}
@@ -100,13 +110,13 @@ function ovRender(el, days, opts = {}) {
   </div>`;
   const rows = days.map((d, i) => {
     const s = d.stats, stt = st[i];
-    const open = d.wedstrijden && (s || d.changed || opts.openAlways) && opts.onOpen;
+    const open = (d.wedstrijden || d.allPlayed) && (s || d.changed || opts.openAlways) && opts.onOpen;
     const extreme = s && s.pct >= OV_BUSY;
     const bar = s ? `<div class="ov-bar${extreme ? " extreme" : s.pct >= 70 ? " busy" : ""}" title="${ovEsc(`${s.pct}% · ${Math.round(s.busy / 60)} van ${Math.round(s.capacity / 60)} baanuren (${s.courts} banen × ${s.window})\n\n${OV_BEZETTING_TIP}`)}">
         <span style="width:${Math.min(100, s.pct)}%"></span><b>${s.pct}%</b></div>${extreme ? `<span class="ov-hot">extreem druk</span>` : ""}`
       : d.wedstrijden ? `<span class="hint">–</span>` : "";
-    const mvBtn = d.wedstrijden && opts.onMove ? ` <button class="btn2 ov-calc ov-move" data-date="${ovEsc(d.date)}" title="Wedstrijden van deze dag naar een andere dag verzetten">Verzetten…</button>` : "";
-    const btn = d.wedstrijden && opts.onCompute && (!s || d.changed || opts.recompute)
+    const mvBtn = d.wedstrijden && !d.allPlayed && opts.onMove ? ` <button class="btn2 ov-calc ov-move" data-date="${ovEsc(d.date)}" title="Wedstrijden van deze dag naar een andere dag verzetten">Verzetten…</button>` : "";
+    const btn = d.wedstrijden && !d.allPlayed && opts.onCompute && (!s || d.changed || opts.recompute)
       ? `<button class="btn2 ov-calc" data-date="${ovEsc(d.date)}" title="Deze dag nu (opnieuw) berekenen op de server"${busy ? " disabled" : ""}>${computing.has(d.date) ? "Bezig…" : s ? "Opnieuw" : "Nu berekenen"}</button>` : "";
     const kind = d.kind === "inhaaldag" ? `<span class="ov-kind inh">inhaaldag</span>` : `<span class="ov-kind">speeldag</span>`;
     return `<tr class="ov-row ${stt.cls}${computing.has(d.date) ? " computing" : ""}${d.kind === "inhaaldag" ? " inh" : ""}${open ? " click" : ""}${extreme ? " extreme" : ""}" data-date="${ovEsc(d.date)}">

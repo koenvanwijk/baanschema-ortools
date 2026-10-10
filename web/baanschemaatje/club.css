@@ -16,7 +16,7 @@
 .wed { font-size: 12px; color: #445; }
 td.res-ok { color: #2f855a; font-weight: 600; }
 td.res-bad { color: #c53030; font-weight: 600; }
-/* KNLTB-regelhulp */
+/* Regelmaatje (KNLTB-regelhulp) */
 .rh-form textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; }
 .rh-form > div { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
 .rh-out .rh-answer { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px 14px; margin-top: 10px; }

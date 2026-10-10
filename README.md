@@ -9,6 +9,19 @@ Planningsproject voor Oscar om wedstrijden over banen en tijdsloten te plannen m
 - **Zachte constraints** (liefst, maar niet verplicht)
   - geen twee wedstrijden direct achter elkaar voor dezelfde speler
 
+## Baanschemaatje (generiek) — clubpagina, instellingen, Regelmaatje
+
+* `web/baanschemaatje/club.html`: seizoensoverzicht + dagweergave per club, met
+  competitiekeuze (Zondag (najaar), Zaterdag, Donderdagavond, Vrijdagavond, Alle;
+  onthouden in de URL als `#<club>&comp=vrijdag-avond`) en **Regelmaatje**, de
+  KNLTB-regelhulp (AI, met bronnen).
+* `web/baanschemaatje/club-instellingen.html`: clubprofiel, dagvensters per weekdag
+  (do/vr-avond: standaard 19:00, laatste start 20:30, klaar 23:00), reserveringen,
+  clubafspraken en de KNLTB-import.
+* Import: alle weekdagen (zo, za, do/vr-avond, ochtend). Wedstrijden met een uitslag
+  zijn **gespeeld**: vast, met echte datum en uitslag, nooit opnieuw gepland.
+  KNLTB Bijlage 3 (variabele begintijden, laatste start 19:30) geldt alleen op za/zo.
+
 ## Stack
 
 - Python 3.11+

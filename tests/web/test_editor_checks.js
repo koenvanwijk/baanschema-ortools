@@ -179,3 +179,26 @@ test("aangrenzend: 1-2-3 en 6-7 mag, 1+3 niet; uit in profiel of bij vaste baanp
   assert.ok(!adj(t([1, 3]), { ...club, adjacent_courts: false }));
   assert.ok(!adj(t([1, 3]), { ...club, court_pairs: [[1, 3]] }));
 });
+
+// Vrijdagavond: dagvenster 19:00-23:00, laatste start 20:30, geen Bijlage 3 (geen "KNLTB uiterlijk 19:30").
+const evening = {
+  ...club, bijlage3: false, weekday: "vrijdag", day: { start: "19:00", last_start: "20:30", end: "23:00" },
+  rules: club.rules.map((r) => (r.name === "match_start_window" ? { ...r, params: { from: "19:00", to: "20:30" }, core_params: { from: "19:00", to: "20:30" } }
+    : r.name === "first_start_deadline" ? { ...r, hard: false, params: { time: "20:30" } } : r))
+    .concat([{ name: "evening_start_window", source: "KNLTB begintijden", hard: true, params: { from: "19:00", to: "20:00" }, core_params: { from: "19:00", to: "20:00" } }]),
+};
+const ev = (part, start, end, court) => row("GD 17+ MIERLO 3", part, start, end, court,
+  { team: "Gemengd Dubbel 17+ Vrijdag Avond – 1e klasse", dagdeel: "avond", kind: part.startsWith("GD") ? "M" : "D", category: "gemengd" });
+
+test("vrijdagavond: 2 rondes 19:00 en 20:30 is in orde", () => {
+  const res = checkPlan([ev("D1", "19:00", "20:30", 1), ev("D2", "19:00", "20:30", 2), ev("GD1", "20:30", "22:00", 1), ev("GD2", "20:30", "22:00", 2)], evening);
+  assert.deepStrictEqual(res.issues.filter((i) => i.level === "KNLTB" || i.level === "conflict"), []);
+  assert.ok(!rules(res).includes("KNLTB:laatste-start"));
+});
+
+test("vrijdagavond: start na laatste start en vóór 19:00 worden gemeld", () => {
+  const late = checkPlan([ev("D1", "21:00", "22:30", 1)], evening);
+  assert.ok(rules(late).includes("clubafspraak:laatste-start"));
+  const early = checkPlan([ev("D1", "18:00", "19:30", 1)], evening);
+  assert.ok(rules(early).some((r) => r.endsWith("evening_start_window")));
+});

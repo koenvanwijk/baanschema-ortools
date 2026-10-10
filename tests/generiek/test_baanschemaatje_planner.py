@@ -132,7 +132,7 @@ def test_mierlo_8p_team_respects_start_window(plans):
 
 
 def _fx(schema, cat, matches, dur, s=0, d=0, home="CLUB 1"):
-    return Fixture("01-01-2030", schema, cat, matches, dur, s, d, 0, home, "GAST 1")
+    return Fixture("06-01-2030", schema, cat, matches, dur, s, d, 0, home, "GAST 1")
 
 
 def test_mierlo_rood_and_oranje_same_day(profiles):
@@ -141,7 +141,7 @@ def test_mierlo_rood_and_oranje_same_day(profiles):
         _fx("Oranje 1", Category.ORANJE, 3, 120),
         _fx("Groen Zondag – Groen 1", Category.GROEN, 6, 45, s=4, d=2),
     ]
-    res = plan_day(profiles["mierlo"], fixtures, "01-01-2030", time_limit_s=5)
+    res = plan_day(profiles["mierlo"], fixtures, "06-01-2030", time_limit_s=5)
     w = [r for r in res.rows if r["kind"] == "W"]
     assert sorted(r["court"] for r in w if r["team"] == "Rood 1") == [1]
     assert sorted(r["court"] for r in w if r["team"] == "Oranje 1") == [2, 3, 4]
@@ -154,7 +154,7 @@ def test_profile_court_count_is_respected_for_tiny_club(profiles):
 
     tiny = profile_from_dict({"club": {"name": "Mini"}, "courts": {"count": 2}})
     fixtures = [_fx("Groen Zondag – Groen 1", Category.GROEN, 6, 45, s=4, d=2)]
-    res = plan_day(tiny, fixtures, "01-01-2030", time_limit_s=5)
+    res = plan_day(tiny, fixtures, "06-01-2030", time_limit_s=5)
     assert res.unscheduled == 0
     assert {r["court"] for r in res.rows} <= {1, 2}
 
@@ -191,7 +191,7 @@ def test_travel_80km_not_before_10(profiles):
 
     fx = _fx("Heren Zondag – 4e klasse", Category.SENIOREN, 4, 90, s=2, d=2)
     far = dataclasses.replace(fx, travel_km=95)
-    res = plan_day(profiles["voorbeeld"], [far], "01-01-2030", time_limit_s=5)
+    res = plan_day(profiles["voorbeeld"], [far], "06-01-2030", time_limit_s=5)
     assert res.unscheduled == 0
     assert min(_first_starts(res.rows).values()) >= 10 * 60
 
@@ -213,3 +213,41 @@ def test_adjacent_courts_hard(profiles, season, club, date):
     assert res.status in ("OPTIMAL", "FEASIBLE")
     _assert_adjacent_courts(res.rows)
     _assert_no_court_overlap(res.rows)
+
+
+def test_friday_evening_doubles_fit_in_two_rounds(profiles):
+    """Vrijdagavond 4 dubbels (DD-HD-2GD): 19:00-22:00, geen Bijlage 3, gespeelde wedstrijd wordt niet gepland."""
+    def ev(schema, home, status="open"):
+        return Fixture("16-10-2026", schema, Category.GEMENGD if "Gemengd" in schema else Category.SENIOREN,
+                       4, 90, 0, 2 if "Gemengd" in schema else 4, 2 if "Gemengd" in schema else 0, home, "GAST 1",
+                       dagdeel="avond", status=status, result="3 - 1" if status == "gespeeld" else "")
+    fx = [ev("Gemengd Dubbel 17+ Vrijdag Avond – 1e klasse", "CLUB 1"),
+          ev("Dames Dubbel 35+ Vrijdag Avond – 3e klasse", "CLUB 2"),
+          ev("Heren Dubbel 17+ Vrijdag Avond – 3e klasse", "CLUB 3", status="gespeeld")]
+    res = plan_day(profiles["mierlo"], fx, "16-10-2026", time_limit_s=5)
+    assert res.unscheduled == 0
+    rows = _placed(res.rows)
+    assert {r["home_team"] for r in rows} == {"CLUB 1", "CLUB 2"}
+    assert all(19 * 60 <= _m(r["start"]) <= 20 * 60 + 30 for r in rows)
+    for team in ("CLUB 1", "CLUB 2"):
+        assert min(_m(r["start"]) for r in rows if r["home_team"] == team) <= 20 * 60
+    _assert_no_court_overlap(res.rows)
+
+
+def test_weekday_profile_defaults_and_overrides():
+    from baanschemaatje.profile import ProfileError, profile_from_dict
+    import pytest
+
+    p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8},
+                           "weekdays": {"vrijdag": {"courts": 6, "end": "22:30"}}})
+    f = p.for_day("vrijdag", {"avond"})
+    assert (f.day_start, f.last_start, f.day_end, f.courts, f.bijlage3) == (19 * 60, 20 * 60 + 30, 22 * 60 + 30, 6, False)
+    assert not f.rules["first_start_deadline"].hard
+    t = p.for_day("donderdag", {"avond", "ochtend"})
+    assert t.day_start == 9 * 60 and t.courts == 8
+    z = p.for_day("zondag")
+    assert z.bijlage3 and z.day_start == p.day_start
+    with pytest.raises(ProfileError):
+        profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8}, "weekdays": {"vrydag": {}}})
+    with pytest.raises(ProfileError):
+        profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8}, "weekdays": {"vrijdag": {"courts": 9}}})

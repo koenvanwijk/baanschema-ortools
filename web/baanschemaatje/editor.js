@@ -14,7 +14,7 @@ const _num = (part) => { const m = String(part || "").match(/(\d+)$/); return m 
 
 // Spelersbehoefte van één partij als [heren, dames, totaal]; spiegelt
 // baanschema.rules.player_demand (gebruikt door src/baanschemaatje/planner.py).
-function playerDemand(schema, part, kind) {
+function playerDemand(schema, part, kind) {  // eslint-disable-line no-unused-vars
   const s = String(schema || "").toLowerCase();
   if (!s.includes("gemengd zondag")) return kind === "S" ? [0, 0, 1] : kind === "D" || kind === "M" ? [0, 0, 2] : [0, 0, 0];
   const label = String(part || "");
@@ -162,6 +162,15 @@ function checkPlan(rows, club) {
       (p) => `${nm}: begintijd ${_hm(first)} niet op heel/half uur`, firstIdx);
     rule("match_start_window", (p) => first >= _m(p.from) && first <= _m(p.to),
       (p) => `${nm}: begintijd ${_hm(first)} buiten ${p.from}–${p.to}`, firstIdx);
+    // Avond-/ochtend-/middagcompetities: KNLTB-begintijdvenster (ook do/vr).
+    const dd = rows[idx[0]].dagdeel || (/avond/i.test(rows[idx[0]].team || "") ? "avond" : /ochtend/i.test(rows[idx[0]].team || "") ? "ochtend" : /middag/i.test(rows[idx[0]].team || "") ? "middag" : "dag");
+    const dkey = { avond: "evening_start_window", ochtend: "morning_start_window", middag: "afternoon_start_window" }[dd];
+    if (dkey) {
+      rule(dkey, (p) => first >= _m(p.from) && first <= _m(p.to),
+        (p) => `${nm}: ${dd}competitie begint ${_hm(first)}, KNLTB-begintijd ${p.from === p.to ? p.from : `${p.from}–${p.to}`}`, firstIdx);
+      const lb = rules[dkey];
+      if (lb && lb.hard) { const early = pl.filter((i) => _m(rows[i].start) < _m(lb.params.from)); if (early.length) add("KNLTB", dkey, `${nm}: partij vóór ${lb.params.from} (${dd}competitie)`, early); }
+    }
     if (is8p) {
       rule("start_window_8p", (p) => first >= _m(p.from) && first <= _m(p.to),
         (p) => `${nm} (8 partijen): begintijd ${_hm(first)} buiten ${p.from}–${p.to}`, firstIdx);
@@ -180,12 +189,14 @@ function checkPlan(rows, club) {
     }
   }
 
-  // Laatste start / eindtijd van de dag.
+  // Laatste start / eindtijd van de dag. KNLTB "uiterlijk 19:30" (CR Bijlage 3, 2.1.c) geldt alleen op za/zo;
+  // doordeweeks (club.bijlage3 === false) toetsen we alleen aan het dagvenster van die weekdag.
+  const b3 = club.bijlage3 !== false;
   const lastClub = club.day && club.day.last_start ? _m(club.day.last_start) : ED_KNLTB_LAST_START;
   const end = club.day && club.day.end ? _m(club.day.end) : null;
   rows.forEach((r, i) => {
     if (!_placed(r) || r.kind === "W") return;
-    if (_m(r.start) > ED_KNLTB_LAST_START) add("KNLTB", "laatste-start", `${name(r)} ${r.part}: start ${r.start}, KNLTB uiterlijk 19:30`, [i]);
+    if (b3 && _m(r.start) > ED_KNLTB_LAST_START) add("KNLTB", "laatste-start", `${name(r)} ${r.part}: start ${r.start}, KNLTB uiterlijk 19:30`, [i]);
     else if (_m(r.start) > lastClub) add("clubafspraak", "laatste-start", `${name(r)} ${r.part}: start ${r.start}, club uiterlijk ${club.day.last_start}`, [i]);
     if (end !== null && _m(r.end) > end) add("clubafspraak", "eindtijd", `${name(r)} ${r.part}: eindigt ${r.end}, na ${club.day.end}`, [i]);
   });

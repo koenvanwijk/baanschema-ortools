@@ -6,7 +6,7 @@ from baanschemaatje.scenarios import propose_solutions
 from baanschemaatje.season import Fixture
 
 
-def _fx(schema, cat, matches, dur, s, d, home, date="01-01-2030"):
+def _fx(schema, cat, matches, dur, s, d, home, date="06-01-2030"):
     return Fixture(date, schema, cat, matches, dur, s, d, 0, home, "GAST 1")
 
 
@@ -26,7 +26,7 @@ def test_knltb_checker_flags_bijlage_3():
 def test_rows_carry_gender_label():
     prof = profile_from_dict({"club": {"name": "Mini"}, "courts": {"count": 2}})
     fx = [_fx("Meisjes 13 t/m 17 jaar Zondag – 1e klasse", Category.JEUGD_13_17, 2, 90, 2, 0, "CLUB 1")]
-    res = plan_day(prof, fx, "01-01-2030", time_limit_s=3)
+    res = plan_day(prof, fx, "06-01-2030", time_limit_s=3)
     assert {r["label"] for r in res.rows} == {"M13-17"}
 
 
@@ -41,9 +41,9 @@ def test_propose_solutions_ranks_a_fitting_option_first():
         _fx("Dames Zondag – 1e klasse", Category.SENIOREN, 1, 90, 1, 0, "CLUB 2"),
         _fx("Heren Zondag – 2e klasse", Category.SENIOREN, 1, 90, 1, 0, "CLUB 3"),
     ]
-    base = plan_day(prof, fx, "01-01-2030", time_limit_s=3)
+    base = plan_day(prof, fx, "06-01-2030", time_limit_s=3)
     assert base.unscheduled > 0
-    sols = propose_solutions(prof, fx, "01-01-2030", base.rows, time_limit_s=3, combos=False)
+    sols = propose_solutions(prof, fx, "06-01-2030", base.rows, time_limit_s=3, combos=False)
     # Een wedstrijd naar een inhaaldag is nooit een automatisch voorstel.
     assert not any(s["kind"] == "inhaaldag" or "inhaaldag" in s["id"] for s in sols)
     assert all(s["moved_wedstrijden"] == 0 for s in sols)

@@ -195,3 +195,13 @@ body.ed-dragging, body.ed-dragging * { -webkit-user-select: none; user-select: n
 .mv-save { margin-top: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; }
 .mv-save .ok { color: #1b5e20; }
 .mv-save .dirty { color: #8a5a00; font-weight: 600; }
+/* Gespeelde wedstrijden (vast) + competitiefilter */
+.ov-pill.played { background: #e6eef7; color: #2b4a6f; }
+tr.ov-row.played td:first-child { border-left-color: #5b7fa6; }
+.ov-dot.played { background: #5b7fa6; }
+.ov-st.played { color: #2b4a6f; }
+.blk.dim, .played-item.dim { opacity: .35; }
+.played { background: #f3f6fa; border: 1px solid #d5dfeb; border-radius: 8px; padding: 6px 12px; margin: 8px 0; }
+.comp-pick select { font-size: 1rem; padding: 3px 6px; }
+.wd-table input[type=time] { width: 6.5em; } .wd-table input[type=number] { width: 4em; }
+.wd-table .dflt { color: #8a6d00; font-size: .85em; }

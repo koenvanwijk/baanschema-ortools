@@ -102,7 +102,7 @@ Omgevingsvariabelen: `BS_STORE` (gs://bucket of lokale map), `BS_MAX_CLUBS` (100
 `BS_DEFAULT_TIME_LIMIT` (15), `BS_SCENARIO_BUDGET` (240), `BS_WORKERS` (4),
 `BS_CORS_ORIGINS` (raw.githack.com, koenvanwijk.github.io, localhost).
 
-## KNLTB-regelhulp
+## Regelmaatje (KNLTB-regelhulp)
 
 | Methode | Pad | Wat |
 |---|---|---|

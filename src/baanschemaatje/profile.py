@@ -79,7 +79,28 @@ CORE_RULE_DEFAULTS: dict[str, dict[str, Any]] = {
     "max_blocks_per_team": {"value": 2, "hard": True},
     # [product] Strikte S → D → GD-waterval + rondes voor 8p-teams.
     "waterfall_8p": {"hard": True},
+    # [KNLTB begintijden] Avondcompetities beginnen om 19:00 (8&9-tennis do/vr
+    # 19:00-20:00). Venster voor de begintijd van een avondwedstrijd.
+    "evening_start_window": {"from": "19:00", "to": "20:00", "hard": True},
+    # [KNLTB begintijden] Ochtendcompetities: begintijd 09:00-10:00.
+    "morning_start_window": {"from": "09:00", "to": "10:00", "hard": True},
+    # [KNLTB begintijden] Middagcompetities: 13:00.
+    "afternoon_start_window": {"from": "13:00", "to": "13:00", "hard": True},
 }
+
+#: Weekdagen waarop Bijlage 3 (variabele begintijden) geldt: alleen za/zo.
+BIJLAGE3_DAYS = frozenset({"zaterdag", "zondag"})
+WEEKDAYS = ("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
+
+#: Standaard dagvenster op ma-vr (avondcompetities). [product]-defaults,
+#: gebaseerd op de KNLTB-begintijd 19:00; 4 dubbels op 2 banen = 2 rondes van
+#: 90 min (19:00 en 20:30), klaar ~22:00. Club mag per weekdag afwijken
+#: (sectie ``weekdays``). ``courts`` = aantal banen (1..N) met verlichting die
+#: die avond beschikbaar zijn (None = alle banen).
+EVENING_DEFAULT: dict[str, Any] = {"start": "19:00", "last_start": "20:30", "end": "23:00",
+                                   "courts": None, "lighting": True}
+#: Ochtendcompetitie op een doordeweekse dag: dagstart wordt dan 09:00.
+MORNING_START = "09:00"
 
 
 #: Bron per regel (voor UI/rapportage). "product" = geen KNLTB-regel.
@@ -92,6 +113,9 @@ RULE_SOURCES: dict[str, str] = {
     "mixed_8p_latest_start": "KNLTB CR Bijlage 3, 1.1.b",
     "travel_not_before": "KNLTB CR Bijlage 3, 1.2",
     "min_reservation": "KNLTB CR Bijlage 3, 2.1.a",
+    "evening_start_window": "KNLTB Standaard begintijden competitie (avond 19:00)",
+    "morning_start_window": "KNLTB Standaard begintijden competitie (ochtend 9:00-10:00)",
+    "afternoon_start_window": "KNLTB Standaard begintijden competitie (middag 13:00)",
 }
 
 
@@ -130,6 +154,77 @@ class ClubProfile:
     rules: dict[str, Rule] = field(default_factory=dict)
     durations: dict[Category, int] = field(default_factory=dict)
     source: str = ""
+    #: Per-weekdag instellingen (minuten), alleen wat de club zelf opgaf:
+    #: {weekdag: {start, last_start, end, fallback_start, courts, lighting}}.
+    weekday_cfg: dict[str, dict[str, Any]] = field(default_factory=dict)
+    #: Voor welke weekdag dit profiel is afgeleid (None = basis/zondag).
+    weekday: str | None = None
+    lighting: bool = True
+
+    @property
+    def bijlage3(self) -> bool:
+        """Geldt CR Bijlage 3 (variabele begintijden za/zo, laatste start 19:30)?"""
+        return self.weekday is None or self.weekday in BIJLAGE3_DAYS
+
+    def weekday_settings(self, weekday: str) -> dict[str, Any]:
+        """Effectieve dagvensterinstellingen (minuten) voor een weekdag."""
+        cfg = self.weekday_cfg.get(weekday, {})
+        if weekday in BIJLAGE3_DAYS:
+            base = {"start": self.day_start, "fallback_start": self.fallback_start,
+                    "last_start": self.last_start, "end": self.day_end, "courts": None, "lighting": True}
+        else:
+            base = {k: (hhmm_to_min(v) if k in ("start", "last_start", "end") else v)
+                    for k, v in EVENING_DEFAULT.items()}
+            base["fallback_start"] = None
+        out = dict(base)
+        out.update(cfg)
+        out["defaults"] = sorted(k for k in ("start", "last_start", "end", "courts", "lighting") if k not in cfg)
+        return out
+
+    def for_day(self, weekday: str, dagdelen: set[str] | frozenset[str] = frozenset()) -> "ClubProfile":
+        """Profiel voor één speeldag: dagvenster, banen en regels van die weekdag.
+
+        Za/zo: het basisprofiel (Bijlage 3), eventueel met club-overrides.
+        Ma-vr: avondvenster (default 19:00, laatste start 20:30, einde 23:00);
+        Bijlage 3 geldt niet, dus het 08:30-16:30-venster wordt het dagvenster
+        en de 15:00-voorkeur vervalt. Speelt er die dag ook een
+        ochtendcompetitie, dan begint de dag om 09:00."""
+        import dataclasses
+
+        ws = self.weekday_settings(weekday)
+        start, last, end, fb = ws["start"], ws["last_start"], ws["end"], ws.get("fallback_start")
+        rules = dict(self.rules)
+        if weekday not in BIJLAGE3_DAYS:
+            if "ochtend" in dagdelen:
+                start = min(start, hhmm_to_min(MORNING_START))
+            if "middag" in dagdelen:
+                start = min(start, rules["afternoon_start_window"].params["from"])
+            rules["match_start_window"] = Rule("match_start_window", True, {"from": start, "to": last})
+            rules["first_start_deadline"] = Rule("first_start_deadline", False, {"time": last})
+            rules["youth_last_start"] = Rule("youth_last_start", rules["youth_last_start"].hard, {"time": last})
+        n = ws.get("courts") or self.courts
+        n = min(n, self.courts)
+        res = {}
+        for k, r in self.reservations.items():
+            if all(c <= n for c in r.courts):
+                cir = r.courts_if_rood if r.courts_if_rood and all(c <= n for c in r.courts_if_rood) else None
+                res[k] = Reservation(r.category, r.courts, cir)
+        pairs = self.court_pairs
+        if pairs:
+            pairs = tuple(p for p in pairs if max(p) <= n) or None
+        return dataclasses.replace(
+            self, day_start=start, fallback_start=fb if (fb is not None and fb < start) else None,
+            last_start=last, day_end=end, courts=n, reservations=res, court_pairs=pairs,
+            preferred_courts_8p=tuple(c for c in self.preferred_courts_8p if c <= n),
+            rules=rules, weekday=weekday, lighting=bool(ws.get("lighting", True)),
+        )
+
+    def for_date(self, date: str, fixtures: list[Any] | None = None) -> "ClubProfile":
+        from datetime import datetime as _dt
+
+        wd = WEEKDAYS[_dt.strptime(date, "%d-%m-%Y").weekday()]
+        dd = {getattr(f, "dagdeel", "dag") for f in (fixtures or []) if f.date == date}
+        return self.for_day(wd, dd)
 
     @property
     def court_list(self) -> list[int]:
@@ -174,7 +269,7 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
     if not isinstance(data, dict):
         raise ProfileError(f"{source}: clubprofiel moet een mapping zijn")
 
-    known = {"club", "courts", "day", "reservations", "court_assignment", "rules", "durations"}
+    known = {"club", "courts", "day", "reservations", "court_assignment", "rules", "durations", "weekdays"}
     for k in data:
         if k not in known:
             errors.append(f"onbekende sectie '{k}' (toegestaan: {sorted(known)})")
@@ -325,6 +420,44 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
             continue
         durations[cat] = v
 
+    weekday_cfg: dict[str, dict[str, Any]] = {}
+    wraw = data.get("weekdays") or {}
+    if not isinstance(wraw, dict):
+        errors.append("weekdays: verwacht mapping per weekdag, bv. {vrijdag: {start: '19:00'}}")
+        wraw = {}
+    for wd, cfg in wraw.items():
+        if wd not in WEEKDAYS:
+            errors.append(f"weekdays.{wd}: onbekende weekdag (gebruik {', '.join(WEEKDAYS)})")
+            continue
+        if not isinstance(cfg, dict):
+            errors.append(f"weekdays.{wd}: verwacht mapping")
+            continue
+        c: dict[str, Any] = {}
+        for k, v in cfg.items():
+            if k in ("start", "last_start", "end", "fallback_start"):
+                try:
+                    c[k] = hhmm_to_min(v, f"weekdays.{wd}.{k}")
+                except ProfileError as exc:
+                    errors.append(str(exc))
+                    continue
+                if c[k] % 15:
+                    errors.append(f"weekdays.{wd}.{k} moet op het kwartiergrid liggen")
+            elif k == "courts":
+                if v is not None and (not isinstance(v, int) or isinstance(v, bool) or not 1 <= v <= n):
+                    errors.append(f"weekdays.{wd}.courts moet 1..{n} zijn (banen 1 t/m N beschikbaar)")
+                else:
+                    c[k] = v
+            elif k == "lighting":
+                if not isinstance(v, bool):
+                    errors.append(f"weekdays.{wd}.lighting moet true of false zijn")
+                else:
+                    c[k] = v
+            elif k == "note":
+                c[k] = str(v)[:200]
+            else:
+                errors.append(f"weekdays.{wd}.{k}: onbekende instelling (start, last_start, end, fallback_start, courts, lighting, note)")
+        weekday_cfg[wd] = c
+
     if errors:
         raise ProfileError(f"Ongeldig clubprofiel {source}:\n  - " + "\n  - ".join(errors))
 
@@ -344,6 +477,7 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
         rules=rules,
         durations=durations,
         source=source,
+        weekday_cfg=weekday_cfg,
     )
 
 
