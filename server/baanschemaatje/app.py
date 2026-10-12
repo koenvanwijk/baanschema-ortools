@@ -16,6 +16,7 @@ Endpoints
   GET  /clubs/{id}/season            speeldagen + wedstrijden
   GET  /clubs/{id}/schedules         alle opgeslagen dagschema's (voor het seizoensoverzicht)
   GET/PUT/DELETE /clubs/{id}/schedule/{datum}   opgeslagen baanschema van één dag
+  GET/PUT /clubs/{id}/cancellations  wedstrijden die niet gespeeld worden ("vervallen"; sleutel schema+thuis+uit+datum)
   GET/PUT /clubs/{id}/moves          opgeslagen verzettingen (wedstrijd van dag X naar Y)
   GET  /dates?club=<id>              speeldagen met aantal wedstrijden
   POST /plan                         één speeldag plannen  → plan-JSON zoals web/baanschemaatje/data/<club>/<datum>.json
@@ -423,6 +424,97 @@ async def put_moves(club_id: str, request: Request) -> dict[str, Any]:
     return {"club": club_id, "saved_at": doc["saved_at"], "count": len(moves)}
 
 
+# ---------------------------------------------------------------- vervallen wedstrijden ("wordt niet gespeeld")
+
+def _norm(x: Any) -> str:
+    return " ".join(str(x or "").split()).upper()
+
+
+def _ckey(schema: Any, home: Any, away: Any, date: Any) -> tuple[str, str, str, str]:
+    a, b = sorted((_norm(home), _norm(away)))  # thuis kan in de export Team 1 of Team 2 zijn
+    return (_norm(schema), a, b, str(date or "").strip())
+
+
+def _cancellations(club_id: str | None) -> list[dict[str, Any]]:
+    if not club_id:
+        return []
+    j = _get_json(f"clubs/{club_id}/cancellations.json")
+    return list((j or {}).get("cancellations") or [])
+
+
+def _cancel_map(cancels: list[dict[str, Any]]) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    return {_ckey(c.get("schema"), c.get("home"), c.get("away"), c.get("date")): c for c in cancels}
+
+
+def _apply_cancellations(spath: Path, cancels: list[dict[str, Any]]) -> Path:
+    """Kopie van het seizoensbestand zonder vervallen wedstrijden: planner en validator zien ze niet.
+    Gespeelde wedstrijden (uitslag in de export) blijven altijd staan: de export wint."""
+    if not cancels:
+        return spath
+    cm = _cancel_map(cancels)
+    with spath.open("r", encoding="utf-8", newline="") as fh:
+        rows = list(csv.reader(fh, delimiter="\t"))
+    if not rows:
+        return spath
+    hdr = rows[0]
+    try:
+        i_d, i_s, i_1, i_2 = (hdr.index(k) for k in ("Datum", "Schema", "Team 1", "Team 2"))
+    except ValueError:
+        return spath
+    i_st = hdr.index("Status") if "Status" in hdr else None
+    keep = [hdr]
+    for r in rows[1:]:
+        if len(r) > max(i_d, i_s, i_1, i_2) and _ckey(r[i_s], r[i_1], r[i_2], r[i_d]) in cm \
+                and not (i_st is not None and len(r) > i_st and r[i_st].strip() == "gespeeld"):
+            continue
+        keep.append(r)
+    if len(keep) == len(rows):
+        return spath
+    buf = io.StringIO()
+    csv.writer(buf, delimiter="\t", lineterminator="\n").writerows(keep)
+    b = buf.getvalue().encode("utf-8")
+    _SEASON_DIR.mkdir(parents=True, exist_ok=True)
+    p = _SEASON_DIR / f"cancelled-{hashlib.sha256(b).hexdigest()[:16]}.tsv"
+    if not p.exists():
+        p.write_bytes(b)
+    return p
+
+
+@app.get("/clubs/{club_id}/cancellations")
+def get_cancellations(club_id: str) -> dict[str, Any]:
+    _known_club(club_id)
+    j = _get_json(f"clubs/{club_id}/cancellations.json")
+    return j or {"club": club_id, "cancellations": [], "saved_at": None}
+
+
+@app.put("/clubs/{club_id}/cancellations")
+async def put_cancellations(club_id: str, request: Request) -> dict[str, Any]:
+    _writable(club_id, request)
+    body = await _json_body(request, MAX_SCHEDULE_BYTES)
+    items = body.get("cancellations") if isinstance(body, dict) else None
+    if not isinstance(items, list):
+        raise HTTPException(422, "verwacht {\"cancellations\": [...]}")
+    if len(items) > MAX_MOVES:
+        raise HTTPException(413, f"te veel vervallen wedstrijden ({len(items)}, max {MAX_MOVES})")
+    prof = _profile(_club_raw(club_id), club_id)
+    season = _season(prof.knltb_name, _season_path(club_id))
+    played = {_ckey(f.schema, f.home_team, f.away_team, f.date) for f in season.fixtures if f.played}
+    old = _cancel_map(_cancellations(club_id))
+    out = []
+    for c in items:
+        if not isinstance(c, dict) or not all(isinstance(c.get(k), str) and c.get(k).strip() for k in ("schema", "home", "away", "date")):
+            raise HTTPException(422, "elke vervallen wedstrijd heeft schema, home, away en date")
+        _check_date(c["date"])
+        k = _ckey(c["schema"], c["home"], c["away"], c["date"])
+        if k in played and k not in old:
+            raise HTTPException(409, f"'{c['schema']}' {c['home']} – {c['away']} op {c['date']} is al gespeeld; kan niet vervallen")
+        out.append({"schema": c["schema"], "home": c["home"], "away": c["away"], "date": c["date"],
+                    "reason": str(c.get("reason") or "")[:200], "at": (old.get(k) or {}).get("at") or _now()})
+    doc = {"club": club_id, "saved_at": _now(), "cancellations": out}
+    STORE.put(f"clubs/{club_id}/cancellations.json", json.dumps(doc, ensure_ascii=False).encode(), "application/json")
+    return {"club": club_id, "saved_at": doc["saved_at"], "count": len(out), "dates": _season_view(season, prof, out)}
+
+
 class PlanRequest(BaseModel):
     club: str | dict[str, Any] = Field(..., description="club-id (opgeslagen of clubs/*.yaml) of een inline clubprofiel")
     date: str = Field(..., description="speeldag als dd-mm-YYYY")
@@ -448,7 +540,13 @@ def _resolve(req: PlanRequest) -> tuple[str, ClubProfile, dict[str, Any], Season
         raw = _deep_merge(raw, req.overrides)
         club_id = f"{club_id}+overrides"
     prof = _profile(raw, club_id)
-    spath, req._moves_applied = _apply_moves(spath, req.moves or [])
+    moves = req.moves or []
+    if isinstance(req.club, str) and (cancels := _cancellations(req.club)):
+        spath = _apply_cancellations(spath, cancels)
+        cm = _cancel_map(cancels)
+        gone = {(k[0], t, k[3]) for k in cm for t in (k[1], k[2])}
+        moves = [m for m in moves if (_norm(m.schema_), _norm(m.home), m.from_) not in gone]
+    spath, req._moves_applied = _apply_moves(spath, moves)
     season = _season(prof.knltb_name, spath)
     if req.date not in season.dates():
         raise HTTPException(404, f"datum {req.date} niet in seizoen; beschikbaar: {', '.join(season.dates())}")
@@ -487,22 +585,33 @@ def _day_window(prof: ClubProfile | None, date: str, fx: list) -> dict[str, Any]
             "end": min_to_hhmm(dp.day_end), "courts": dp.courts, "bijlage3": dp.bijlage3, "lighting": dp.lighting}
 
 
-def _season_view(season: Season, prof: ClubProfile | None = None) -> list[dict[str, Any]]:
+def _season_view(season: Season, prof: ClubProfile | None = None,
+                 cancels: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    cm = _cancel_map(cancels or [])
     out = []
     for d, fx in season.by_date().items():
+        cx = {id(f): cm.get(_ckey(f.schema, f.home_team, f.away_team, f.date)) for f in fx}
+        gone = [f for f in fx if cx[id(f)] and not f.played]
         played = [f for f in fx if f.played]
+        live = [f for f in fx if not f.played and not cx[id(f)]]
         out.append({"date": d, "weekday": WEEKDAYS_NL[datetime.strptime(d, "%d-%m-%Y").weekday()], "fixtures": len(fx),
                     "partijen": sum(f.matches for f in fx),
-                    "open_fixtures": len(fx) - len(played),
-                    "open_partijen": sum(f.matches for f in fx if not f.played),
+                    "open_fixtures": len(live),
+                    "open_partijen": sum(f.matches for f in live),
                     "played": len(played),
+                    "cancelled": len(gone),
                     "dagdelen": sorted({f.dagdeel for f in fx}),
                     "competitions": sorted({" ".join(f.schema.split("–")[0].split()) for f in fx}),
                     "window": _day_window(prof, d, fx),
                     "wedstrijden": [{"label": f.label, "schema": f.schema, "category": f.category.value,
                                      "matches": f.matches, "singles": f.singles, "doubles": f.doubles, "mix": f.mix,
                                      "home": f.home_team, "away": f.away_team, "dagdeel": f.dagdeel,
-                                     "export_start": f.export_start, "result": f.result, "status": f.status}
+                                     "export_start": f.export_start, "result": f.result,
+                                     "status": "vervallen" if cx[id(f)] and not f.played else f.status,
+                                     **({"cancel_reason": cx[id(f)].get("reason", ""), "cancelled_at": cx[id(f)].get("at")}
+                                        if cx[id(f)] and not f.played else {}),
+                                     # stond op 'wordt niet gespeeld', maar de export heeft een uitslag: export wint
+                                     **({"cancel_conflict": True} if cx[id(f)] and f.played else {})}
                                     for f in fx]})
     out.sort(key=lambda x: datetime.strptime(x["date"], "%d-%m-%Y"))
     return out
@@ -629,7 +738,7 @@ def _import_season(club_id: str, meta: dict[str, Any], data: bytes, filename: st
     meta["season"] = {"filename": filename[:120], "uploaded_at": uploaded_at, "processed_at": _now(), "report": rep}
     _put_meta(club_id, meta)
     season = _season(prof.knltb_name, _season_path(club_id))
-    return {"ok": True, "report": rep, "dates": _season_view(season, prof)}
+    return {"ok": True, "report": rep, "dates": _season_view(season, prof, _cancellations(club_id))}
 
 
 @app.get("/clubs/{club_id}/season")
@@ -639,7 +748,7 @@ def get_season(club_id: str) -> dict[str, Any]:
     meta = _meta(club_id)
     return {"club": club_id, "own_season": spath != SEASON_FILE,
             "season": (meta or {}).get("season") if spath != SEASON_FILE else {"filename": SEASON_FILE.name},
-            "dates": _season_view(_season(prof.knltb_name, spath), prof)}
+            "dates": _season_view(_season(prof.knltb_name, spath), prof, _cancellations(club_id))}
 
 
 @app.get("/dates")

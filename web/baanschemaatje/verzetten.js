@@ -176,12 +176,15 @@ function mvOpenMenu(chip, w, date, seasonDays, opts) {
       <optgroup label="Inhaaldagen ${e(mvCompName(w.category))}">${t.filter((x) => x.kind === "inhaaldag" && x.valid).map(opt).join("")}</optgroup>
       <optgroup label="Andere speeldagen">${t.filter((x) => x.kind === "speeldag").map(opt).join("")}</optgroup>
       <optgroup label="Niet geldig voor deze competitie">${t.filter((x) => !x.valid).map(opt).join("")}</optgroup></select></label>
-      <button class="live-btn" id="cm-go">Verzetten</button></div>`;
+      <button class="live-btn" id="cm-go">Verzetten</button></div>
+    ${opts.onCancel ? `<div class="cm-cancel"><label>Reden (optioneel)<input id="cm-reason" maxlength="200" placeholder="bv. tegenstander trekt team terug"></label>
+      <button class="btn2" id="cm-off">Wordt niet gespeeld</button></div>` : ""}`;
   document.body.appendChild(m);
   const r = chip.getBoundingClientRect();
   Object.assign(m.style, { left: `${Math.max(4, Math.min(r.left + scrollX, innerWidth - 340))}px`, top: `${r.bottom + scrollY + 4}px` });
   m.onclick = (ev) => ev.stopPropagation();
   m.querySelector("#cm-hl").onclick = () => { mvCloseMenu(); opts.onHighlight(); };
+  if (opts.onCancel) m.querySelector("#cm-off").onclick = () => { const why = m.querySelector("#cm-reason").value.trim(); mvCloseMenu(); opts.onCancel(why); };
   m.querySelector("#cm-go").onclick = () => { const to = m.querySelector("#cm-to").value; if (!to) return; mvCloseMenu(); opts.onMove(to); };
 }
 if (typeof document !== "undefined") document.addEventListener("click", mvCloseMenu);

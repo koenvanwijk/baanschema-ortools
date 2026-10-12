@@ -305,3 +305,51 @@ def test_upload_all_weekdays_played_locked_and_reprocess(client, root, monkeypat
     summ = client.get(f"/clubs/{cid}").json()["summary"]
     assert summ["weekdays"]["vrijdag"]["courts"] == 6 and "courts" not in summ["weekdays"]["vrijdag"]["defaults"]
     assert summ["weekdays"]["vrijdag"]["start"] == "19:00" and "start" in summ["weekdays"]["vrijdag"]["defaults"]
+
+
+def test_cancellations_wordt_niet_gespeeld(client, root, monkeypatch):
+    """Eén wedstrijd 'wordt niet gespeeld': weg uit planner-input, 'vervallen' in seizoen, overleeft herimport,
+    gespeelde wedstrijd kan niet vervallen; als de export later een uitslag heeft wint de export. Geen solver."""
+    from datetime import date as _date
+
+    mod = sys.modules["bs_server_app"]
+    monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
+    prof = {"club": {"name": "TV Vervallen", "knltb_name": "MIERLO"}, "courts": {"count": 10}}
+    cid = client.post("/clubs", json={"profile": prof}).json()["id"]
+    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
+    day = next(d for d in j["dates"] if d["open_fixtures"] >= 2)
+    w = next(x for x in day["wedstrijden"] if x["status"] != "gespeeld")
+    c = {"schema": w["schema"], "home": w["home"], "away": w["away"], "date": day["date"], "reason": "regen"}
+    assert client.get(f"/clubs/{cid}/cancellations").json()["cancellations"] == []
+    r = client.put(f"/clubs/{cid}/cancellations", json={"cancellations": [c]})
+    assert r.status_code == 200, r.text
+    d2 = next(d for d in r.json()["dates"] if d["date"] == day["date"])
+    assert d2["cancelled"] == 1 and d2["open_fixtures"] == day["open_fixtures"] - 1
+    x = next(x for x in d2["wedstrijden"] if x["schema"] == w["schema"] and x["home"] == w["home"])
+    assert x["status"] == "vervallen" and x["cancel_reason"] == "regen"
+    # Planner-input (en validator: zelfde seizoensbestand) zonder de vervallen wedstrijd.
+    _, _, _, season, _ = mod._resolve(mod.PlanRequest(club=cid, date=day["date"]))
+    left = [(f.schema, f.home_team) for f in season.day(day["date"])]
+    assert (w["schema"], w["home"]) not in left and len(left) == day["fixtures"] - 1
+    # Verzetting van een vervallen wedstrijd wordt genegeerd (geen 404).
+    req = mod.PlanRequest(club=cid, date=day["date"], moves=[{"schema": w["schema"], "home": w["home"], "from": day["date"], "to": "16-10-2026"}])
+    mod._resolve(req)
+    assert req._moves_applied == []
+    # Overleeft herimport.
+    j2 = client.post(f"/clubs/{cid}/season/reprocess").json()
+    assert next(d for d in j2["dates"] if d["date"] == day["date"])["cancelled"] == 1
+    # Gespeelde wedstrijd kan niet vervallen.
+    pd = next(d for d in j["dates"] if d["played"])
+    pw = next(x for x in pd["wedstrijden"] if x["status"] == "gespeeld")
+    bad = {"schema": pw["schema"], "home": pw["home"], "away": pw["away"], "date": pd["date"]}
+    assert client.put(f"/clubs/{cid}/cancellations", json={"cancellations": [c, bad]}).status_code == 409
+    # Bestond de markering al en heeft de export nu een uitslag: export wint, met vlag.
+    store = mod.STORE
+    store.put(f"clubs/{cid}/cancellations.json", json.dumps({"cancellations": [bad]}).encode(), "application/json")
+    v = client.get(f"/clubs/{cid}/season").json()
+    px = next(x for x in next(d for d in v["dates"] if d["date"] == pd["date"])["wedstrijden"]
+              if x["schema"] == pw["schema"] and x["home"] == pw["home"])
+    assert px["status"] == "gespeeld" and px.get("cancel_conflict") is True
+    # Ingebouwd voorbeeldprofiel: alleen-lezen.
+    assert client.put("/clubs/mierlo/cancellations", json={"cancellations": []}).status_code == 403

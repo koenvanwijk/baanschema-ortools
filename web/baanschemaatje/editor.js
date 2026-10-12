@@ -171,6 +171,10 @@ function checkPlan(rows, club) {
       const lb = rules[dkey];
       if (lb && lb.hard) { const early = pl.filter((i) => _m(rows[i].start) < _m(lb.params.from)); if (early.length) add("KNLTB", dkey, `${nm}: partij vóór ${lb.params.from} (${dd}competitie)`, early); }
     }
+    // Begintijd uit de KNLTB-export (ook na handmatig verslepen/verzetten).
+    const ex = rows[idx[0]].export_start;
+    if (ex && /^\d{1,2}:\d{2}/.test(ex) && !rows[idx[0]].moved_from)
+      if (rules.export_start && rules.export_start.hard && first !== _m(ex)) add("clubafspraak", "export_start", `${nm}: begint ${_hm(first)}, tijd uit export is ${ex}`, firstIdx);
     if (is8p) {
       rule("start_window_8p", (p) => first >= _m(p.from) && first <= _m(p.to),
         (p) => `${nm} (8 partijen): begintijd ${_hm(first)} buiten ${p.from}–${p.to}`, firstIdx);

@@ -87,6 +87,10 @@ CORE_RULE_DEFAULTS: dict[str, dict[str, Any]] = {
     "morning_start_window": {"from": "09:00", "to": "10:00", "hard": True},
     # [KNLTB begintijden] Middagcompetities: 13:00.
     "afternoon_start_window": {"from": "13:00", "to": "13:00", "hard": True},
+    # [Clubafspraak, Oscar 12-10-2026] Staat er in de KNLTB-export een begintijd
+    # bij een wedstrijd, dan start de eerste partij precies op die tijd. Standaard
+    # hard; zet op hard: false om er alleen naar te streven.
+    "export_start": {"hard": True},
 }
 
 #: Weekdagen waarop Bijlage 3 (variabele begintijden) geldt: alleen za/zo.
@@ -117,6 +121,7 @@ RULE_SOURCES: dict[str, str] = {
     "evening_start_window": "KNLTB Standaard begintijden competitie (avond 19:00)",
     "morning_start_window": "KNLTB Standaard begintijden competitie (ochtend 9:00-10:00)",
     "afternoon_start_window": "KNLTB Standaard begintijden competitie (middag 13:00)",
+    "export_start": "Begintijd uit de KNLTB-export (clubafspraak)",
 }
 
 

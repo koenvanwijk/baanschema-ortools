@@ -267,3 +267,13 @@ def test_friday_end_after_midnight():
                   dagdeel="avond")]
     res = plan_day(p, fx, "16-10-2026", time_limit_s=5)
     assert res.unscheduled == 0
+
+
+def test_export_start_is_used_as_first_start(profiles):
+    """Kleine eenheidscase (1 wedstrijd, korte limiet): begintijd uit de export = start eerste partij."""
+    f = Fixture("18-10-2026", "Heren Dubbel 17+ Zondag – 3e klasse", Category.SENIOREN, 4, 90, 0, 4, 0,
+                "CLUB 1", "GAST 1", export_start="12:00")
+    res = plan_day(profiles["mierlo"], [f], "18-10-2026", time_limit_s=3, fit_check=False)
+    rows = _placed(res.rows)
+    assert res.unscheduled == 0 and min(_m(r["start"]) for r in rows) == 12 * 60
+    assert all(r["export_start"] == "12:00" for r in rows)

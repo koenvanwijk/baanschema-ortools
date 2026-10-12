@@ -117,6 +117,20 @@ def plan_day(
     return PlanResult(profile.name, date, profile.courts, status, min_to_hhmm(ds), rows, elapsed, attempts)
 
 
+def _export_start(f: Fixture, profile: ClubProfile, slots) -> int | None:
+    """Begintijd uit de export (minuten) als die binnen het dagvenster op een slot valt, anders None."""
+    t = (getattr(f, "export_start", "") or "").strip()
+    if len(t) < 4 or ":" not in t:
+        return None
+    try:
+        m = int(t.split(":")[0]) * 60 + int(t.split(":")[1][:2])
+    except ValueError:
+        return None
+    if m not in slots or m > profile.last_start:
+        return None
+    return m
+
+
 def _hm(hhmm: str) -> int:
     return int(hhmm[:2]) * 60 + int(hhmm[3:5])
 
@@ -246,6 +260,9 @@ def _solve(
         r = R["youth_last_start"]
         if r.hard and f.category in YOUTH_CATEGORIES:
             st = [s for s in st if s <= r.params["time"]]
+        t_exp = _export_start(f, profile, slots)
+        if t_exp is not None and R["export_start"].hard:
+            st = [s for s in st if s >= t_exp]  # niets vóór de exporttijd
         allowed[i] = st
         vs = []
         for s in st:
@@ -454,6 +471,20 @@ def _solve(
         def early_terms(limit: int) -> list:
             return [start_used[(i, s)] for i in idxs for s in allowed[i] if s <= limit]
 
+        # Begintijd uit de KNLTB-export: eerste partij precies op die tijd.
+        t_exp = _export_start(f, profile, slots)
+        if t_exp is not None:
+            at = [start_used[(i, t_exp)] for i in idxs if t_exp in allowed[i]]
+            if R["export_start"].hard:
+                if at:
+                    model.add(sum(at) >= 1).only_enforce_if(any_y)
+                else:
+                    model.add(any_y == 0)
+            elif at:
+                okx = model.new_bool_var(f"exp_{h}")
+                model.add(sum(at) >= 1).only_enforce_if(okx)
+                obj_bonus.append(5_000_000 * okx)
+
         for k, (r, limit) in enumerate(_upper_bound_rules(R, f)):
             et = early_terms(limit)
             if r.hard:
@@ -576,4 +607,5 @@ def _row(f: Fixture, part: str, kind: str, start: str, end: str, court: int | No
         "end": end,
         "court": court,
         "dagdeel": getattr(f, "dagdeel", "dag"),
+        "export_start": getattr(f, "export_start", "") or "",
     }

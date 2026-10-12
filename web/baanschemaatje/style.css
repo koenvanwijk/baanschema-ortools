@@ -227,3 +227,12 @@ details.uitleg summary { cursor: pointer; color: #2f6f4f; }
 .tabs button.on { border-bottom-color: #2f6f4f; font-weight: 600; color: #2f6f4f; }
 .save-bar { position: sticky; bottom: 0; background: #f7f8f5; border-top: 1px solid #dfe5dc; padding: 8px 0; display: flex; gap: 10px; align-items: center; z-index: 5; }
 .save-state.dirty { color: #b26b00; } .save-state.saved { color: #2f6f4f; }
+
+/* vervallen wedstrijden ("wordt niet gespeeld") */
+.vervallen { margin: .6em 0; color: #777; }
+.vervallen-item s { color: #888; }
+.vervallen-item.dim { opacity: .5; }
+.vervallen .un-cancel { margin-left: .5em; }
+.cm-cancel { border-top: 1px solid #eee; margin-top: .5em; padding-top: .5em; display: flex; gap: .4em; align-items: end; flex-wrap: wrap; }
+.cm-cancel input { width: 14em; }
+.day-list li.vervallen-item { text-decoration: line-through; }

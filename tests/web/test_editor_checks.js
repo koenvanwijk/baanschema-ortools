@@ -208,3 +208,12 @@ test("vrijdag einde na middernacht (25:00): 22:00 einde is in orde, 01:30 niet",
   assert.ok(!rules(checkPlan([ev("D1", "20:30", "22:00", 1)], late)).includes("clubafspraak:eindtijd"));
   assert.ok(rules(checkPlan([ev("D1", "24:00", "25:30", 1)], late)).includes("clubafspraak:eindtijd"));
 });
+
+test("tijd uit export: afwijkende begintijd na verslepen wordt gemeld", () => {
+  const c = { ...club, rules: [...club.rules, { name: "export_start", hard: true, params: {}, core_params: {}, source: "Begintijd uit de KNLTB-export (clubafspraak)" }] };
+  const ok = checkPlan([row("A", "S1", "11:00", "12:30", 1, { export_start: "11:00" })], c);
+  assert.ok(!rules(ok).some((r) => r.endsWith(":export_start")));
+  const bad = checkPlan([row("A", "S1", "11:30", "13:00", 1, { export_start: "11:00" })], c);
+  assert.ok(rules(bad).some((r) => r.endsWith(":export_start")));
+  assert.ok(bad.issues.find((i) => i.rule === "export_start").msg.includes("tijd uit export is 11:00"));
+});

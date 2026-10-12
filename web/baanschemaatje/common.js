@@ -31,6 +31,7 @@ const RULE_NL = {
   evening_start_window: "Avondcompetitie: begintijd",
   morning_start_window: "Ochtendcompetitie: begintijd",
   afternoon_start_window: "Middagcompetitie: begintijd",
+  export_start: "Begintijd uit de KNLTB-export aanhouden",
 };
 
 let CLUBS = [];
