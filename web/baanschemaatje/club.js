@@ -39,10 +39,21 @@ async function loadSeason() {
   const s = j.season || {};
   const rep = s.report;
   $("season-line").innerHTML = j.own_season
-    ? `Seizoen: ${esc(s.filename)} (geüpload ${s.uploaded_at ? new Date(s.uploaded_at).toLocaleString("nl-NL") : "–"})${rep ? ` · ${rep.imported} thuiswedstrijden${rep.played ? `, waarvan ${rep.played} gespeeld` : ""}` : ""} · <a href="${esc($("settings-link").href)}">import en instellingen</a>`
+    ? `Seizoen ${esc(seasonName(ALL_DATES))} · KNLTB-export ${esc(s.filename)}, geüpload ${s.uploaded_at ? new Date(s.uploaded_at).toLocaleString("nl-NL", { dateStyle: "medium", timeStyle: "short" }) : "–"}${rep ? ` · ${rep.imported} thuiswedstrijden (${rep.played || 0} gespeeld, ${(rep.open || 0) + (rep.expired_no_result || []).length} te spelen)` : ""}`
     : `Nog geen eigen seizoen; het standaardseizoen wordt gebruikt. Upload de KNLTB-export via <a href="${esc($("settings-link").href)}">Instellingen</a>.`;
   renderCompPicker();
   applyComp();
+}
+
+function seasonName(dates) {
+  if (typeof KNLTB_KALENDER === "undefined" || !dates.length) return "";
+  const ks = dates.map((d) => ovKey(d.date));
+  for (const s of KNLTB_KALENDER) {
+    const all = s.competities.flatMap((c) => Object.values(c.dagen).flatMap((x) => [...x.speeldagen, ...x.inhaaldagen])).map(ovKey);
+    const lo = all.reduce((a, b) => (a < b ? a : b)), hi = all.reduce((a, b) => (a > b ? a : b));
+    if (ks.some((k) => k >= lo && k <= hi)) return s.seizoen;
+  }
+  return "";
 }
 
 // Competitie van één wedstrijd: weekdag + dagdeel (bv. "vrijdag-avond"); za/zo zonder dagdeel.
@@ -59,15 +70,25 @@ function compCounts() {
   for (const d of ALL_DATES) for (const w of d.wedstrijden) { const k = compKey(d.weekday, w.dagdeel); m.set(k, (m.get(k) || 0) + 1); }
   return [...m].sort((a, b) => COMP_ORDER.indexOf(a[0].split("-")[0]) - COMP_ORDER.indexOf(b[0].split("-")[0]) || a[0].localeCompare(b[0]));
 }
+// Chips: Alle · per weekdag (Donderdag, Vrijdag, Zaterdag, Zondag) · per dagdeel als een weekdag er meer heeft.
 function renderCompPicker() {
   const cc = compCounts();
-  if (COMP !== "alle" && !cc.some(([k]) => k === COMP)) COMP = "alle";
+  const byWd = new Map();
+  for (const [k, n] of cc) { const wd = k.split("-")[0]; byWd.set(wd, [...(byWd.get(wd) || []), [k, n]]); }
+  const keys = new Set(["alle", ...byWd.keys(), ...cc.map(([k]) => k)]);
+  if (!keys.has(COMP)) COMP = "alle";
   const total = cc.reduce((s, [, n]) => s + n, 0);
-  $("comp").innerHTML = `<option value="alle">Alle competities (${total})</option>` +
-    cc.map(([k, n]) => `<option value="${esc(k)}">${esc(compLabel(k))} (${n})</option>`).join("");
-  $("comp").value = COMP;
+  const chip = (k, label, n, sub = false) => `<button type="button" class="chip-btn${sub ? " sub" : ""}${COMP === k ? " on" : ""}" data-comp="${esc(k)}">${esc(label)} <small>${n}</small></button>`;
+  const html = [chip("alle", "Alle", total)];
+  for (const [wd, list] of byWd) {
+    html.push(chip(wd, wd[0].toUpperCase() + wd.slice(1), list.reduce((s, [, n]) => s + n, 0)));
+    if (list.length > 1) for (const [k, n] of list) html.push(chip(k, compLabel(k), n, true));
+  }
+  $("comp-chips").innerHTML = html.join("");
+  for (const b of $("comp-chips").querySelectorAll("button")) b.onclick = () => { COMP = b.dataset.comp; setHash(CLUB.id, COMP); renderCompPicker(); applyComp(); };
 }
-const inComp = (weekday, w) => COMP === "alle" || compKey(weekday, w.dagdeel) === COMP;
+const compMatch = (weekday, dagdeel) => COMP === "alle" || COMP === weekday || compKey(weekday, dagdeel) === COMP;
+const inComp = (weekday, w) => compMatch(weekday, w.dagdeel);
 // DATES = seizoen gefilterd op de gekozen competitie (dagen zonder wedstrijden in die competitie vallen weg).
 function applyComp() {
   DATES = ALL_DATES.map((d) => {
@@ -75,7 +96,7 @@ function applyComp() {
     return { ...d, wedstrijden: ws, fixtures: ws.length, partijen: ws.reduce((s, w) => s + w.matches, 0),
       played: ws.filter((w) => w.status === "gespeeld").length };
   }).filter((d) => d.wedstrijden.length);
-  $("comp-note").textContent = COMP === "alle" ? "" : `Alleen ${compLabel(COMP)}. In de dagweergave zie je de hele dag (alle banen); partijen van andere competities zijn lichter.`;
+  $("comp-note").textContent = COMP === "alle" ? "" : `Alleen ${COMP.includes("-") ? compLabel(COMP) : COMP}. In de dagweergave zijn partijen van andere competities lichter.`;
   renderDates();
   if (SHOWN_DATE && !$("plan-sec").hidden) showPlan(SHOWN_DATE, false, true);
 }
@@ -357,6 +378,9 @@ function showPlan(date, scroll = true, force = false) {
     `<li class="played-item${inComp(ovWeekday(date), w) ? "" : " dim"}">🔒 <b>${esc(w.label)} ${esc(w.home)}</b> – ${esc(w.away)} · ${esc(w.export_start || "")} · uitslag <b>${esc(w.result)}</b></li>`).join("")}</ul></div>` : "";
   const allPlayed = dd && played.length === dd.wedstrijden.length && !cmv().into(date).length;
   const winNote = s.bijlage3 ? "" : `<p class="hint">Dagvenster ${esc(s.weekday)}: ${esc(s.day.start)}–${esc(clockHHMM(s.day.end))}, laatste start ${esc(s.day.last_start)}, ${s.courts} banen${s.lighting ? " (met verlichting)" : ", <b>geen verlichting ingesteld</b>"}. KNLTB Bijlage 3 (variabele begintijden) geldt alleen op za/zo.</p>`;
+  const open = dd ? dd.wedstrijden.filter((w) => w.status !== "gespeeld") : [];
+  $("day-matches").innerHTML = open.length ? `<div class="day-list"><h3>Wedstrijden volgens de KNLTB-export</h3><ul class="plain">${open.map((w) =>
+    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b> · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.status === "verlopen" ? ' · <span class="warn">datum voorbij, geen uitslag</span>' : ""}</li>`).join("")}</ul></div>` : "";
   $("plan-state").innerHTML = winNote + playedHtml + (allPlayed ? "" : changed ? `<div class="banner">Aangepast: ${[cmv().into(date).length ? `${cmv().into(date).length} wedstrijd(en) hierheen verzet` : "", cmv().outOf(date).length ? `${cmv().outOf(date).length} wedstrijd(en) naar een andere dag verzet` : ""].filter(Boolean).join(", ")}, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
     : !computed ? `<div class="banner">Nog niet berekend: alle partijen staan bij "Niet ingepland". <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>` : "");
   if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
@@ -435,7 +459,7 @@ function renderPlanGrid(plan) {
     const rc = COL.get(`__res_${r.category}`);
     const style = isRes ? (rc ? `background:repeating-linear-gradient(45deg, ${rc.bg}, ${rc.bg} 6px, #fff 6px, #fff 12px)` : "")
       : `background:${c.bg};color:${c.fg}`;
-    const dim = !isRes && COMP !== "alle" && compKey(wdShown, r.dagdeel || (/avond/i.test(r.team) ? "avond" : /ochtend/i.test(r.team) ? "ochtend" : "dag")) !== COMP;
+    const dim = !isRes && COMP !== "alle" && !compMatch(wdShown, r.dagdeel || (/avond/i.test(r.team) ? "avond" : /ochtend/i.test(r.team) ? "ochtend" : "dag"));
     html.push(`<div class="blk${isRes ? " res" : ""}${dim ? " dim" : ""}" data-ri="${IDX.get(r)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${style}" title="${esc(r.team)}">
       <span class="cat">${esc(r.label || r.category)}</span><b>${esc(r.part || "reservering")}</b><div>${esc(isRes ? "baanreservering" : r.home_team || "")}</div><div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
   }
@@ -454,7 +478,6 @@ function renderPlanGrid(plan) {
 async function init() {
   $("club").onchange = loadClub;
   $("plan-all").onclick = planAll;
-  $("comp").onchange = () => { COMP = $("comp").value; setHash(CLUB.id, COMP); applyComp(); };
   $("back-link").onclick = (e) => { e.preventDefault(); $("plan-sec").hidden = true; $("overview-sec").scrollIntoView({ behavior: "smooth" }); };
   try { await loadClubs(); } catch (e) { status(`Server niet bereikbaar (${API}): ${e.message}`, "err"); }
 }

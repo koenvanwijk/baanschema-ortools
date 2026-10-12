@@ -8,12 +8,26 @@ const WD_ALL = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zater
 async function loadClub() {
   const id = $("club").value;
   setHash(id);
-  $("back-club").href = `club.html${location.search}#${encodeURIComponent(id)}`;
+  $("back-club").href = $("back-club2").href = `club.html${location.search}#${encodeURIComponent(id)}`;
   status("Club laden…", "busy");
   CLUB = await api(`/clubs/${encodeURIComponent(id)}`);
   fillForm();
   await loadSeason();
+  setDirty(false, CLUB.meta && CLUB.meta.updated_at ? `Opgeslagen ${new Date(CLUB.meta.updated_at).toLocaleString("nl-NL", { dateStyle: "medium", timeStyle: "short" })}` : "");
   status("");
+}
+
+let DIRTY = false;
+function setDirty(d, text) {
+  DIRTY = d;
+  const el = $("save-status");
+  el.className = `save-state hint ${d ? "dirty" : "saved"}`;
+  el.textContent = d ? "Niet-opgeslagen wijzigingen" : text || "";
+}
+function showTab(t) {
+  for (const b of $("tabs").querySelectorAll("button")) b.classList.toggle("on", b.dataset.tab === t);
+  for (const p of document.querySelectorAll("[data-pane]")) p.hidden = p.dataset.pane !== t;
+  history.replaceState(null, "", `${location.pathname}${location.search}#${encodeURIComponent($("club").value)}&tab=${t}`);
 }
 async function loadClubs(select) { await loadClubList(select); await loadClub(); }
 
@@ -28,7 +42,7 @@ function renderWeekdays(wds) {
     const next = type === "time" && v && toMin(v) >= 1440 ? ' <span class="hint">volgende dag</span>' : "";
     return `<td>${inp}${next}${isD ? ' <span class="dflt" title="Standaardwaarde, nog niet door de club bevestigd">standaard</span>' : ' <span class="hint" title="Door de club ingesteld">✓ bevestigd</span>'}</td>`;
   };
-  $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Dagstart</th><th>Laatste start</th><th>Alles klaar om</th><th>Banen</th><th>Verlichting</th><th>Regels</th></tr>` +
+  $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Dagstart</th><th>Laatste start</th><th>Park dicht</th><th>Banen</th><th>Verlichting</th><th>Regels</th></tr>` +
     show.map((wd) => {
       const w = wds[wd] || {};
       const b3 = w.bijlage3;
@@ -266,6 +280,10 @@ async function init() {
   $("new-btn").onclick = () => { $("new-sec").hidden = false; $("new-name").focus(); };
   $("new-cancel").onclick = () => { $("new-sec").hidden = true; };
   $("new-create").onclick = createClub;
-  try { await loadClubs(); } catch (e) { status(`Server niet bereikbaar (${API}): ${e.message}`, "err"); }
+  for (const b of $("tabs").querySelectorAll("button")) b.onclick = () => showTab(b.dataset.tab);
+  document.querySelector("main").addEventListener("input", (e) => { if (e.target.closest("[data-pane]") && e.target.id !== "file") setDirty(true); });
+  window.addEventListener("beforeunload", (e) => { if (DIRTY) { e.preventDefault(); e.returnValue = ""; } });
+  const t = (location.hash.match(/tab=(\w+)/) || [])[1];
+  try { await loadClubs(); if (t) showTab(t); } catch (e) { status(`Server niet bereikbaar (${API}): ${e.message}`, "err"); }
 }
 init();

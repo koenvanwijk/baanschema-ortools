@@ -203,5 +203,27 @@ tr.ov-row.played td:first-child { border-left-color: #5b7fa6; }
 .blk.dim, .played-item.dim { opacity: .35; }
 .played { background: #f3f6fa; border: 1px solid #d5dfeb; border-radius: 8px; padding: 6px 12px; margin: 8px 0; }
 .comp-pick select { font-size: 1rem; padding: 3px 6px; }
-.wd-table input[type=time] { width: 6.5em; } .wd-table input[type=number] { width: 4em; }
+.wd-table input[type=time] { width: 9em; } .wd-table input[type=number] { width: 4em; }
 .wd-table .dflt { color: #8a6d00; font-size: .85em; }
+/* Clubpagina: kop, chips, uitleg */
+.club-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; background: #fff; border: 1px solid #dfe5dc; border-radius: 10px; padding: 10px 14px; margin: 8px 0; }
+.club-head h2 { margin: 0 0 4px; }
+.club-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.club-actions .btn2, #settings-link { text-decoration: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.chip-btn { border: 1px solid #b9c8b4; background: #fff; border-radius: 999px; padding: 6px 14px; font-size: 1rem; cursor: pointer; }
+.chip-btn small { color: #667; margin-left: 2px; }
+.chip-btn.on { background: #2f6f4f; color: #fff; border-color: #2f6f4f; } .chip-btn.on small { color: #d9efe2; }
+.chip-btn.sub { font-size: .85rem; padding: 4px 10px; }
+.ov-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ov-tools { font-size: .9rem; }
+details.uitleg { margin: 4px 0 10px; font-size: .9rem; color: #444; }
+details.uitleg summary { cursor: pointer; color: #2f6f4f; }
+.day-list { background: #fff; border: 1px solid #dfe5dc; border-radius: 8px; padding: 6px 12px; margin: 8px 0; }
+.day-list li.dim { opacity: .4; } .day-list .warn { color: #b26b00; }
+/* Instellingen: tabs */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 2px solid #dfe5dc; margin: 10px 0; }
+.tabs button { border: 0; background: none; padding: 8px 14px; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tabs button.on { border-bottom-color: #2f6f4f; font-weight: 600; color: #2f6f4f; }
+.save-bar { position: sticky; bottom: 0; background: #f7f8f5; border-top: 1px solid #dfe5dc; padding: 8px 0; display: flex; gap: 10px; align-items: center; z-index: 5; }
+.save-state.dirty { color: #b26b00; } .save-state.saved { color: #2f6f4f; }

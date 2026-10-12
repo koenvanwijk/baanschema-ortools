@@ -22,7 +22,6 @@
 
 <main>
   <p id="status" class="live-status"></p>
-  <div id="open-note" class="banner">Let op: deze testomgeving heeft nog geen login. Iedereen met de link kan clubinstellingen en seizoenen wijzigen. "Login per club" staat op de ROADMAP.</div>
   <section id="new-sec" hidden>
     <h2>Nieuwe club</h2>
     <div class="form">
@@ -33,59 +32,72 @@
     </div>
   </section>
 
-  <section>
-    <h2 id="club-title">Club</h2>
-    <p class="hint">Instellingen van de club. Na opslaan wordt er niets vanzelf opnieuw berekend.</p>
-    <p id="club-kind" class="hint"></p>
+  <section class="club-head">
+    <div><h2 id="club-title">Club</h2><p id="club-kind" class="hint"></p></div>
+    <div class="club-actions"><a id="back-club2" class="btn2" href="club.html">← Clubpagina</a></div>
+  </section>
+  <details class="uitleg"><summary>Uitleg</summary><p>Na opslaan wordt er niets vanzelf opnieuw berekend; dat doe je op de clubpagina. Testomgeving zonder login: iedereen met de link kan wijzigen.</p></details>
 
-    <h3>Algemeen</h3>
+  <nav class="tabs" id="tabs">
+    <button type="button" data-tab="algemeen" class="on">Algemeen</button>
+    <button type="button" data-tab="speeldag">Per speeldag</button>
+    <button type="button" data-tab="reserveringen">Reserveringen</button>
+    <button type="button" data-tab="afspraken">Clubafspraken</button>
+    <button type="button" data-tab="import">Import</button>
+  </nav>
+
+  <section data-pane="algemeen">
     <div class="form grid2">
       <label>Clubnaam <input id="f-name"></label>
-      <label>Naam in de KNLTB-export <input id="f-knltb"></label>
+      <label>Naam in de KNLTB-export <input id="f-knltb"><small>Thuisteam in de export, zonder teamnummer.</small></label>
       <label>Aantal banen <input id="f-courts" type="number" min="1" max="40"></label>
-      <label>Dagstart <input id="f-start" type="time" step="900"></label>
-      <label>Terugval-dagstart <input id="f-fallback" type="time" step="900"><small>Leeg = geen terugval. Wordt gebruikt als niet alles past.</small></label>
-      <label>Laatste start <input id="f-last" type="time" step="900"></label>
-      <label>Alle partijen klaar om <input id="f-end" type="time" step="900"></label>
     </div>
+  </section>
 
-    <h3>Dagvensters per weekdag</h3>
-    <p class="hint">Za/zo volgen KNLTB Bijlage 3 (variabele begintijden 08:30–16:30, laatste partij uiterlijk 19:30) en de algemene dagstart hierboven. Doordeweeks (avondcompetities) geldt Bijlage 3 niet; de KNLTB-begintijd is 19:00. <span class="dflt">Geel</span> = standaardwaarde, nog niet door de club bevestigd. Banen = banen 1 t/m N die die avond beschikbaar zijn (met verlichting).</p>
+  <section data-pane="speeldag" hidden>
+    <h3>Zaterdag en zondag</h3>
+    <div class="form grid2">
+      <label>Dagstart <input id="f-start" type="time" step="900"></label>
+      <label>Terugval-dagstart <input id="f-fallback" type="time" step="900"><small>Leeg = geen terugval.</small></label>
+      <label>Laatste start <input id="f-last" type="time" step="900"><small>KNLTB: uiterlijk 19:30.</small></label>
+      <label>Park dicht (alles klaar) <input id="f-end" type="time" step="900"></label>
+    </div>
+    <h3>Per weekdag</h3>
     <div class="tablewrap"><table id="weekdays" class="wd-table"></table></div>
+    <details class="uitleg"><summary>Uitleg</summary><p>Za/zo volgen KNLTB Bijlage 3 (begintijden 08:30–16:30, laatste partij uiterlijk 19:30). Doordeweeks geldt Bijlage 3 niet; de KNLTB-begintijd voor avondcompetities is 19:00. <span class="dflt">standaard</span> = nog niet door de club bevestigd. Banen = banen 1 t/m N die die dag beschikbaar zijn. Park dicht mag na middernacht liggen (bv. 01:00).</p></details>
+  </section>
 
-    <h3>Baanreserveringen per categorie</h3>
-    <p class="hint">Vaste banen voor de KNLTB-blokcategorieën Rood en Oranje. Baannummers met komma's, bv. <code>1</code> of <code>1, 2, 3</code>. Leeg = geen vaste reservering (de planner kiest).</p>
+  <section data-pane="reserveringen" hidden>
+    <h3>Vaste banen Rood en Oranje</h3>
     <div class="form grid2">
       <label>Rood: banen <input id="f-rood" placeholder="bv. 1"></label>
       <label>Oranje: banen <input id="f-oranje" placeholder="bv. 1, 2, 3"></label>
-      <label>Oranje als Rood ook speelt: banen <input id="f-oranje-rood" placeholder="bv. 2, 3, 4"></label>
+      <label>Oranje als Rood ook speelt <input id="f-oranje-rood" placeholder="bv. 2, 3, 4"></label>
     </div>
-
     <h3>Baantoewijzing</h3>
     <div class="form grid2">
-      <label>Max banen tegelijk per team <input id="f-maxcourts" type="number" min="1" max="6"><small>KNLTB: minimaal 2 banen per team.</small></label>
-      <label>Vaste baanparen <input id="f-pairs" placeholder="bv. 1-2, 3-4, 5-6"><small>Leeg = geen vaste paren. Alleen mogelijk bij max 2 banen per team.</small></label>
-      <label>8-partijenteams bij voorkeur op banen <input id="f-pref8p" placeholder="bv. 1, 2, 3, 4"></label>
-      <label class="inline"><input id="f-adjacent" type="checkbox" checked> Aangrenzende banen<small>&nbsp;Alle banen van een team liggen naast elkaar (bv. 1-2-3 of 6-7, niet 1 en 3). Clubafspraak; standaard aan.</small></label>
+      <label>Max banen tegelijk per team <input id="f-maxcourts" type="number" min="1" max="6"><small>KNLTB: minimaal 2.</small></label>
+      <label>Vaste baanparen <input id="f-pairs" placeholder="bv. 1-2, 3-4"><small>Leeg = geen. Alleen bij max 2 banen.</small></label>
+      <label>8-partijenteams bij voorkeur op <input id="f-pref8p" placeholder="bv. 1, 2, 3, 4"></label>
+      <label class="inline"><input id="f-adjacent" type="checkbox" checked> Aangrenzende banen</label>
     </div>
+  </section>
 
-    <h3>Regels en clubafspraken</h3>
-    <p class="hint">Links de waarde voor deze club, rechts de KNLTB-/Baanschemaatje-standaard. Een clubafspraak mag strenger zijn dan het KNLTB-reglement, niet ruimer; ruimer wordt rood gemarkeerd.</p>
+  <section data-pane="afspraken" hidden>
+    <p class="hint">Per regel: waarde voor deze club en de KNLTB-/standaardwaarde. Ruimer dan het KNLTB-reglement wordt rood.</p>
     <div class="tablewrap"><table id="rules"></table></div>
-
-    <p><button id="save" class="live-btn">Instellingen opslaan</button> <span id="save-status" class="hint"></span></p>
   </section>
 
-  <section>
-    <h2>Seizoen (KNLTB-export)</h2>
-    <p class="hint">Upload de export uit KNLTB ClubApp/Toernooi.nl als <b>.xlsx</b>, of een <b>.csv/.tsv</b>. De server neemt alle thuiswedstrijden van deze club over (zondag, zaterdag, donderdag- en vrijdagavond, ochtendcompetities), met weekdag, dagdeel en begintijd. Wedstrijden met een uitslag zijn <b>gespeeld</b>: die houden hun echte datum en uitslag en worden nooit opnieuw gepland. Aanvoerdersnamen worden niet opgeslagen. Rood en Oranje staan niet in de competitie-export.</p>
-    <div class="form">
-      <label>Bestand <input id="file" type="file" accept=".xlsx,.csv,.tsv,.txt"></label>
-      <div><button id="upload" class="live-btn">Uploaden en verwerken</button> <button id="reprocess" class="btn2" title="De laatst geüploade export opnieuw verwerken met de nieuwste importregels">Laatste upload opnieuw verwerken</button></div>
-    </div>
+  <section data-pane="import" hidden>
     <div id="season-info"></div>
+    <div class="form">
+      <label>Nieuwe KNLTB-export (.xlsx/.csv) <input id="file" type="file" accept=".xlsx,.csv,.tsv,.txt"></label>
+      <div><button id="upload" class="live-btn">Uploaden en verwerken</button> <button id="reprocess" class="btn2">Laatste upload opnieuw verwerken</button></div>
+    </div>
+    <details class="uitleg"><summary>Uitleg</summary><p>Alle thuiswedstrijden worden overgenomen (alle weekdagen), met dagdeel en begintijd. Met uitslag = <b>gespeeld</b>: vaste datum en uitslag, nooit opnieuw gepland. Aanvoerdersnamen worden niet opgeslagen. Rood en Oranje staan niet in de export.</p></details>
   </section>
 
+  <div class="save-bar"><button id="save" class="live-btn">Instellingen opslaan</button> <span id="save-status" class="save-state hint"></span></div>
 </main>
 
 <footer>Baanschemaatje — generieke baanschema-planner. Na opslaan of importeren wordt er niets vanzelf berekend; dat doe je op de clubpagina.</footer>

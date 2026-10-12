@@ -12,43 +12,45 @@
 <header>
   <div class="brand">
     <h1>Baanschemaatje</h1>
-    <span class="sub">clubpagina · seizoensoverzicht en baanschema's · <a href="index.html" style="color:inherit">← vooraf berekende schema's</a> · <a href="#regelhulp" style="color:inherit">Regelmaatje</a></span>
+    <span class="sub">clubpagina · <a href="index.html" style="color:inherit">voorbeeld (vooraf berekend)</a></span>
   </div>
   <div class="controls">
     <label>Club <select id="club"></select></label>
-    <label class="comp-pick">Competitie <select id="comp"><option value="alle">Alle competities</option></select></label>
-    <a id="settings-link" class="btn2" href="club-instellingen.html">⚙ Instellingen</a>
   </div>
 </header>
 
 <main>
-  <p id="status" class="live-status"></p>
   <div id="progress" class="pg sticky" hidden></div>
-  <div id="open-note" class="banner">Let op: deze testomgeving heeft nog geen login. Iedereen met de link kan clubinstellingen en seizoenen wijzigen. "Login per club" staat op de ROADMAP.</div>
+
+  <section id="club-head" class="club-head">
+    <div>
+      <h2 id="club-title">Club</h2>
+      <p id="season-line" class="hint"></p>
+    </div>
+    <div class="club-actions">
+      <a id="settings-link" class="btn2" href="club-instellingen.html">⚙ Instellingen</a>
+      <a class="btn2" href="#regelhulp">💬 Regelmaatje</a>
+    </div>
+  </section>
+  <p id="status" class="live-status"></p>
+
+  <nav id="comp-chips" class="chips" aria-label="Competitiedag"></nav>
+  <p id="comp-note" class="hint"></p>
 
   <section id="overview-sec">
-    <h2 id="club-title">Club</h2>
-    <p id="season-line" class="hint"></p>
-    <h2>Seizoensoverzicht</h2>
-    <p id="comp-note" class="hint"></p>
-    <p class="hint">Alle speeldagen van het seizoen (zondag, zaterdag, donderdag- en vrijdagavond…), op volgorde van datum, inclusief de officiële KNLTB-inhaaldagen van die competities. Blauw = gespeeld (vast, uit de KNLTB-export). Groen = in orde, oranje = alleen niet-gehaalde voorkeuren, rood = overtredingen of partijen die niet passen, grijs = nog niet berekend.
-      Berekenen gebeurt op de Baanschemaatje-server en alleen als je op een knop drukt; een drukke dag duurt ongeveer 30–90 seconden.
-      Rekentijd per poging <select id="tl"><option value="10">10s</option><option value="20">20s</option><option value="30" selected>30s</option></select>
-      <button id="plan-all" class="btn2">Alle dagen nu berekenen</button></p>
+    <div class="ov-head">
+      <h2>Seizoensoverzicht</h2>
+      <span class="ov-tools">Rekentijd <select id="tl"><option value="10">10s</option><option value="20">20s</option><option value="30" selected>30s</option></select>
+        <button id="plan-all" class="btn2">Alle dagen nu berekenen</button></span>
+    </div>
+    <details class="uitleg"><summary>Uitleg</summary>
+      <p>Alle speeldagen op datum, met de KNLTB-inhaaldagen en elke datum waarop de KNLTB-export een thuiswedstrijd heeft.
+      Kleuren: <b>blauw</b> gespeeld (vast, uitslag uit de export) · <b>groen</b> in orde · <b>oranje</b> alleen voorkeuren niet gehaald · <b>rood</b> overtredingen of partijen die niet passen · <b>grijs</b> nog niet berekend.</p>
+      <p>Berekenen gebeurt op de server, alleen als je op een knop drukt (een drukke dag 30–90 s). Bezetting = gereserveerde baantijd ÷ (banen × dagvenster).</p>
+      <p>Testomgeving zonder login: iedereen met de link kan wijzigen ("Login per club" staat op de ROADMAP).</p>
+    </details>
     <div id="mv-bar-ov"></div>
     <div id="overview"></div>
-  </section>
-
-  <section id="regelhulp">
-    <h2>Regelmaatje</h2>
-    <p class="hint">Regelmaatje beantwoordt vragen over de KNLTB-competitieregels (inhalen, invallen, verzetten, opstelling…). Het antwoord komt uit het Competitiereglement, het Wedstrijdbulletin 2026, de veelgestelde vragen en de KNLTB-uitleg, met links naar de bron.</p>
-    <form id="rh-form" class="rh-form">
-      <textarea maxlength="600" rows="3" placeholder="Bv. Onze wedstrijd is afgebroken door regen. Wanneer moeten we die uitspelen?"></textarea>
-      <div><button type="submit" class="live-btn">Vraag stellen</button>
-        <label class="inline hint"><input id="rh-club" type="checkbox" checked> clubafspraken van de gekozen club meenemen</label></div>
-    </form>
-    <div id="rh-out" class="rh-out"></div>
-    <p class="hint"><strong>Advies, geen bindende uitspraak:</strong> bij twijfel beslist de competitieleider of de KNLTB. Controleer de bron.</p>
   </section>
 
   <section id="plan-sec" hidden>
@@ -56,13 +58,26 @@
     <h2 id="plan-title">Baanschema</h2>
     <div id="mv-bar-day"></div>
     <div id="plan-state"></div>
-    <p class="hint">Klik op een team (gekleurde knop boven het rooster) om het te markeren of naar een andere dag te verzetten, bv. een inhaaldag na regen.</p>
+    <div id="day-matches"></div>
+    <details class="uitleg"><summary>Uitleg</summary><p>Klik op een team (gekleurde knop boven het rooster) om het te markeren of naar een andere dag te verzetten, bv. een inhaaldag na regen. Gespeelde wedstrijden staan vast.</p></details>
     <p><button id="print-btn" class="btn2">Printen (1 A4)</button></p>
     <section id="summary" class="cards"></section>
     <div id="edit-bar" class="edit-bar"></div>
     <div class="legend" id="legend"></div>
     <div class="gridwrap"><div id="grid" class="grid"></div></div>
     <div id="unscheduled"></div>
+  </section>
+
+  <section id="regelhulp">
+    <h2>Regelmaatje</h2>
+    <p class="hint">Vragen over de KNLTB-competitieregels (inhalen, invallen, verzetten…), met bronnen.</p>
+    <form id="rh-form" class="rh-form">
+      <textarea maxlength="600" rows="3" placeholder="Bv. Onze wedstrijd is afgebroken door regen. Wanneer moeten we die uitspelen?"></textarea>
+      <div><button type="submit" class="live-btn">Vraag stellen</button>
+        <label class="inline hint"><input id="rh-club" type="checkbox" checked> clubafspraken van de gekozen club meenemen</label></div>
+    </form>
+    <div id="rh-out" class="rh-out"></div>
+    <p class="hint"><strong>Advies, geen bindende uitspraak:</strong> bij twijfel beslist de competitieleider of de KNLTB. Controleer de bron.</p>
   </section>
 
 </main>
