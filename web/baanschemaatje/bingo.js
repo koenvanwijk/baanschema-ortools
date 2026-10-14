@@ -59,6 +59,7 @@ function render() {
   const n = w.courts || 0;
   $("bg-title").textContent = `Bingo-avond ${BG.date}`;
   $("bg-sub").textContent = `${BG.name} · baancommissaris`;
+  $("bg-tv").href = `tv.html${location.search}#${encodeURIComponent(BG.club)}/${encodeURIComponent(BG.date)}`;
   $("bg-back").href = `club.html${location.search}#${encodeURIComponent(BG.club)}`;
   $("bg-window").textContent = w.start ? `Avond ${w.start}–${clockHHMM(w.end)} · laatste start ${w.last_start} · ${n} banen (alle met licht)` : "";
   $("bg-clock").textContent = new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
