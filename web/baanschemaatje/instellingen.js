@@ -93,6 +93,7 @@ function fillForm() {
   $("f-pairs").value = s.court_pairs ? s.court_pairs.map((x) => x.join("-")).join(", ") : "";
   $("f-pref8p").value = (s.preferred_courts_8p || []).join(", ");
   $("f-adjacent").checked = s.adjacent_courts !== false;
+  $("f-lowcourts").checked = s.prefer_low_courts !== false;
   renderRules(s.rules);
   renderWeekdays(s.weekdays || {});
   for (const el of document.querySelectorAll('[id^="f-"], #rules input, #weekdays input')) el.disabled = !CLUB.editable;
@@ -187,6 +188,7 @@ function buildProfile() {
   if ($("f-pairs").value.trim()) ca.pairs = $("f-pairs").value.split(",").map((p) => courtsList(p.replace("-", " ")));
   if ($("f-pref8p").value.trim()) ca.preferred_courts_8p = courtsList($("f-pref8p").value);
   ca.adjacent = $("f-adjacent").checked;
+  ca.prefer_low_courts = $("f-lowcourts").checked;
   raw.court_assignment = ca;
   const rules = {};
   for (const r of CLUB.summary.rules) {

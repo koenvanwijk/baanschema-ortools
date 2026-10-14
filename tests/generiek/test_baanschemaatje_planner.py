@@ -305,3 +305,11 @@ def test_export_start_off_half_hour_wins_over_grid(profiles):
     res = plan_day(profiles["mierlo"], fx, "25-10-2026", time_limit_s=3, fit_check=False)
     rows = _placed(res.rows)
     assert res.unscheduled == 0 and min(_m(r["start"]) for r in rows) == 11 * 60 + 15
+
+
+def test_low_courts_first_tiebreak(profiles):
+    """Oscar: 'Als er genoeg plek is, plan dan in vanaf de laagste banen.'"""
+    fx = [Fixture("25-10-2026", "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 34", Category.JUNIOREN_11_14, 6, 0, 4, 2, 0,
+                  "CLUB 3", "GAST 4", export_start="11:15")]
+    res = plan_day(profiles["mierlo"], fx, "25-10-2026", time_limit_s=3, fit_check=False)
+    assert sorted({r["court"] for r in _placed(res.rows)}) == [1, 2]

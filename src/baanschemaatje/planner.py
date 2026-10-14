@@ -404,6 +404,10 @@ def _solve(
                 model.add(sum(use.values()) == mx - mn + 1)
             obj_pen.append(100_000 * spread)
         obj_pen.append(150_000 * sum(use.values()))
+        # Voorkeur lage baannummers: puur tie-break. Max ~10·Σc per team blijft ruim onder de
+        # kleinste andere straf (2_000 per kwartier later beginnen), dus breekt geen andere voorkeur.
+        if profile.low_courts_first:
+            obj_pen.append(10 * sum(c * use[c] for c in courts))
 
         # 8p-teams bij voorkeur op de voorkeursbanen.
         if f.is_8p and profile.preferred_courts_8p:
