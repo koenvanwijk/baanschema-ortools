@@ -120,16 +120,6 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 **F5 — Opruimen.** Als TC wil ik geen jargon (Solver/Rekentijd/Dagstart onder "Details"), tijden na middernacht als "01:00+" (niet 19:00–25:00), en een ⋯-menu per wedstrijd.
 - AC: overzicht, dagweergave, instellingen en print consistent; ⋯ werkt op telefoon. · Status: klaar (commit 3a5ddcc) · Bron: Oscar 14-10-2026.
 
-## Backlog UX-assessment
-
-| # | Item | Story | Prioriteit | Status |
-|---|---|---|---|---|
-| 1 | Deelbare dagpagina | F1 | na 5 | nog niet gestart |
-| 2 | Vaste clublink | F2 | na 5 | nog niet gestart |
-| 3 | Dagschema als lijst op telefoon | F3 | na 5 | nog niet gestart |
-| 4 | Overal hetzelfde opslaan | F4 | na 5 | nog niet gestart |
-| 5 | Opruimen (jargon naar "Details", 01:00+ i.p.v. 25:00, ⋯-menu per wedstrijd) | F5 | **hoogste** | klaar (commit 3a5ddcc, 14-10-2026) |
-
 ## G. Bingo-schema (vrijdagavond, live)
 
 Concept: op een bingo-avond wordt **geen** baanschema berekend; een baancommissaris bepaalt live welke partij als volgende op welke baan gaat. Geen solver.
@@ -160,12 +150,28 @@ Antwoorden van Oscar (14-10-2026):
 
 1. Opruimen (F5) → 2. Bingo stap 1 (G1) → 3. Bingo stap 2 (G2).
 
-## Open punten / vragen
+## Backlog
 
-- Mierlo-vrijdag op bingo zetten, of eerst een testclub? (nu: testclub) — open vraag.
-- Zonder login: mag iedereen met de commissaris-link tikken, plus een aparte alleen-kijken tv-link? — open vraag.
-- Onbevestigd: laatste start avond (20:30), donderdag-eindtijd. Bevestigd: verlichting alle banen; vrijdag park 01:00.
-- Openbaar testbestand met teamnamen/uitslagen (`tests/generiek/data/export_mierlo_20261010.xlsx`) verwijderen/anonimiseren? — open vraag.
-- 27-09 herberekenen op verzoek — open.
-- CI op `main` rood (validate-schedules-plafonds) — bij Koen.
-- Overige ROADMAP-items: dashboard/herplannen op de dag (fase 3), login per club (issue 27) — gepland.
+Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] · [Beheer].
+
+| # | Label | Item | Story | Status |
+|---|---|---|---|---|
+| 1 | [UX] | Opruimen: jargon naar "Details", 01:00+ i.p.v. 25:00, ⋯-menu per wedstrijd — **hoogste prioriteit** | F5 | klaar (commit 3a5ddcc, 14-10-2026) |
+| 2 | [Bingo] | Stap 1: keuze gepland/bingo per speeldag, label, "Avond openen" | G1 | klaar (commit 94a32a7) |
+| 3 | [Bingo] | Stap 2: MVP commissarisscherm (aanmelden, banen, wachtrij, start/klaar, één apparaat) | G2 | volgende stap |
+| 4 | [UX] | Deelbare dagpagina (alleen-lezen + WhatsApp/kopieerlink) | F1 | nog niet gestart |
+| 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | nog niet gestart |
+| 6 | [UX] | Dagschema als lijst op telefoon | F3 | nog niet gestart |
+| 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | nog niet gestart |
+| 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | nog niet gestart |
+| 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | nog niet gestart |
+| 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | nog niet gestart |
+| 11 | [Bingo] | Vraag: Mierlo-vrijdag op bingo zetten of eerst testclub? (nu: testclub) | G1 | open vraag |
+| 12 | [Bingo] | Vraag: zonder login iedereen met commissaris-link laten tikken + aparte alleen-kijken tv-link? | G2/G4 | open vraag |
+| 13 | [Planner] | Bevestigen: laatste start avond (20:30), donderdag-eindtijd (verlichting alle banen en vrijdag park 01:00 zijn bevestigd) | B8 | open vraag |
+| 14 | [Planner] | 27-09 herberekenen op verzoek | — | open |
+| 15 | [Planner] | Reisafstand per tegenstander (80 km-regel) | B6 | uitgesteld |
+| 16 | [Planner] | Dashboard / herplannen op de wedstrijddag (ROADMAP fase 3) | — | gepland |
+| 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen verwijderen of anonimiseren? | — | open vraag |
+| 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
+| 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |
