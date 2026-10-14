@@ -513,7 +513,7 @@ function openTeamMenu(anchor, w, team, date, sd) {
 let SHOWN_DATE = null;
 let SHOWN_STATE = { saved: null, unsaved: false };
 const EDITOR = new PlanEditor({
-  bar: () => $("edit-bar"), club: () => (SHOWN_DATE ? dayClub(SHOWN_DATE) : CLUB.summary), render: renderPlanGrid,
+  bar: () => $("edit-bar"), club: () => (SHOWN_DATE ? dayClub(SHOWN_DATE) : CLUB.summary), render: (p) => { renderPlanGrid(p); renderPlanList(p); },
   save: {
     state: () => {
       if (!CLUB || !CLUB.editable) return null;
@@ -525,6 +525,35 @@ const EDITOR = new PlanEditor({
     onDelete: () => deleteSaved(),
   },
 });
+
+// Telefoon: dagschema als lijst per tijd (tijd · baan · team); standaard op smalle schermen, keuze onthouden.
+function planListGroups(rows) {
+  const by = new Map();
+  for (const r of rows || []) {
+    if (!r.court || !r.start || r.start === "NIET_GELUKT") continue;
+    if (!by.has(r.start)) by.set(r.start, []);
+    by.get(r.start).push(r);
+  }
+  return [...by.entries()].sort((a, b) => toMin(a[0]) - toMin(b[0])).map(([t, rs]) => [t, rs.sort((a, b) => a.court - b.court)]);
+}
+function viewMode() { return localStorage.getItem("bs-view") || (matchMedia("(max-width: 700px)").matches ? "list" : "grid"); }
+function applyView() {
+  const v = viewMode();
+  document.body.classList.toggle("view-list", v === "list");
+  $("view-list").classList.toggle("on", v === "list");
+  $("view-grid").classList.toggle("on", v === "grid");
+}
+function renderPlanList(plan) {
+  applyView();
+  const gs = planListGroups(plan.rows);
+  $("plan-list").innerHTML = gs.length ? gs.map(([t, rs]) => `<div class="pl-slot"><div class="pl-time">${esc(clockShort(t))}</div><ul>${rs.map((r) =>
+    `<li><span class="pl-court">Baan ${r.court}</span> <b>${esc(r.label)} ${esc(r.home_team)}</b> ${esc(r.part)} <span class="hint">– ${esc(r.away_team)} · tot ${esc(clockShort(r.end))}</span></li>`).join("")}</ul></div>`).join("")
+    : '<p class="hint">Nog geen partijen ingepland.</p>';
+}
+if (typeof document !== "undefined" && $("view-list")) {
+  $("view-list").onclick = () => { localStorage.setItem("bs-view", "list"); applyView(); };
+  $("view-grid").onclick = () => { localStorage.setItem("bs-view", "grid"); applyView(); };
+}
 
 function renderPlanGrid(plan) {
   const s = SHOWN_DATE ? dayClub(SHOWN_DATE) : CLUB.summary;

@@ -48,6 +48,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Bingo stap 3: voorstel "Volgende op baan X" = laagste vrije baan, aanwezig team met minste partijen op de baan, singles vóór dubbels, alleen als hij ≤ laatste start begint en vóór sluiting klaar is; één tik accepteren, commissaris kan anders kiezen | Oscar |
 | 2026-10-14 | Bingo stap 4: tv/beamer-scherm tv.html#club/datum, alleen-lezen (zelfde GET als commissaris, geen knoppen), ververst elke 5 s; voorstelblok staat boven de banen | Oscar |
 | 2026-10-14 | Deelbare dagpagina toont alleen het opgeslagen schema (wat de TC definitief maakte), niet een werkversie; geen schema = melding | Oscar |
+| 2026-10-14 | Telefoon: dagschema standaard als lijst per tijd (≤ 700 px), schakelaar naar rooster; keuze per apparaat onthouden; slepen alleen in rooster | Oscar |
 
 ---
 
@@ -126,7 +127,8 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 
 **F2 — Vaste clublink.** Als TC wil ik een vaste link zonder githack-tussenpagina, zonder "voorbeeld" in de kop, en index = clubkeuze, zodat duidelijk is waar ik begin. · Status: nog niet gestart.
 
-**F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen. · Status: nog niet gestart.
+**F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen.
+- AC: schakelaar Lijst/Rooster boven het dagschema; standaard Lijst op schermen ≤ 700 px, Rooster op groter; keuze onthouden op het apparaat; slepen kan alleen in het rooster (hint). · Status: klaar (14-10-2026).
 
 **F4 — Eén opslaggedrag.** Als TC wil ik dat alles op dezelfde manier wordt opgeslagen, met één statusregel en een badge "definitief schema", zodat ik weet wat geldt. · Status: nog niet gestart.
 
@@ -178,7 +180,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 3 | [Bingo] | Stap 2: MVP commissarisscherm (aanmelden, banen, wachtrij, start/klaar, één apparaat) | G2 | klaar |
 | 4 | [UX] | Deelbare dagpagina (alleen-lezen + WhatsApp/kopieerlink) | F1 | klaar (14-10-2026) |
 | 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | nog niet gestart |
-| 6 | [UX] | Dagschema als lijst op telefoon | F3 | nog niet gestart |
+| 6 | [UX] | Dagschema als lijst op telefoon | F3 | klaar (14-10-2026) |
 | 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | nog niet gestart |
 | 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | klaar (14-10-2026) |
 | 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | klaar (14-10-2026) |

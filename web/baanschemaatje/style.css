@@ -254,3 +254,17 @@ details.tech > summary { cursor: pointer; color: #666; }
 .ov-pill.bingo { background: #efe7fb; color: #6a3fb8; }
 .wd-mode label { white-space: nowrap; font-size: .9em; }
 #bingo-sec { margin-top: 1em; }
+
+/* Dagschema: lijst (telefoon) of rooster */
+.view-toggle { display: flex; gap: 4px; align-items: center; margin: 6px 0; }
+.view-toggle .btn2.on { background: #2e6b4a; color: #fff; border-color: #2e6b4a; }
+.view-hint { margin-left: 8px; display: none; }
+.plan-list { display: none; }
+body.view-list .plan-list { display: block; }
+body.view-list .gridwrap { display: none; }
+body.view-list .view-hint { display: inline; }
+.pl-slot { display: flex; gap: 10px; border-top: 1px solid #e3e3e3; padding: 6px 0; }
+.pl-time { font-weight: 700; min-width: 3.4em; font-variant-numeric: tabular-nums; }
+.pl-slot ul { list-style: none; margin: 0; padding: 0; flex: 1; }
+.pl-slot li { padding: 2px 0; }
+.pl-court { display: inline-block; min-width: 4.2em; font-weight: 600; }
