@@ -1,0 +1,13 @@
+body { font-family: system-ui, sans-serif; margin: 16px; color: #111; }
+.bp-bar { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+h1 { font-size: 20px; margin: 0; } .sub { margin: 2px 0 10px; color: #555; } h2 { font-size: 16px; margin: 8px 0; }
+table.bp { border-collapse: collapse; width: 100%; font-size: 12px; }
+table.bp th, table.bp td { border: 1px solid #888; padding: 4px 6px; text-align: left; vertical-align: top; }
+table.bp th { background: #eee; }
+tr.first td { border-top: 2px solid #333; }
+td.team { width: 26%; } th.w-lineup { width: 32%; }
+td.box-c { width: 9%; height: 22px; }
+.box { display: inline-block; width: 12px; height: 12px; border: 1px solid #333; vertical-align: middle; }
+.bp-log { font-size: 11px; columns: 2; }
+@page { size: A4; margin: 12mm; }
+@media print { .no-print { display: none; } body { margin: 0; } tr { break-inside: avoid; } }

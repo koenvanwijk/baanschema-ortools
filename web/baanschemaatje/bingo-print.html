@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bingo-avond — lijst en verslag</title>
+<link rel="stylesheet" href="bingo-print.css">
+</head>
+<body>
+<div class="no-print bp-bar">
+  <label><input type="radio" name="bp" value="lijst" checked> Bingolijst (leeg, vooraf)</label>
+  <label><input type="radio" name="bp" value="verslag"> Verslag (achteraf)</label>
+  <button onclick="window.print()">Printen</button>
+  <a id="bp-back" href="bingo.html">← Commissarisscherm</a>
+</div>
+<div id="bp-body">Laden…</div>
+<script src="common.js"></script>
+<script src="bingo-core.js"></script>
+<script src="bingo-print.js"></script>
+</body>
+</html>

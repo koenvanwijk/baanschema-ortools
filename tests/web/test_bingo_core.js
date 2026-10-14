@@ -56,3 +56,14 @@ test("voorstel: partij die na sluiting eindigt wordt niet voorgesteld", () => {
   assert.ok(B.bgSuggest(s, M, w, at(23, 0)));
   assert.strictEqual(B.bgSuggest(s, M, w, at(23, 15)), null);
 });
+
+test("verslag achteraf: gespeelde partijen op starttijd, niet-afgeronde apart", () => {
+  const { bpReport } = require("../../web/baanschemaatje/bingo-print.js");
+  let s = B.bgSetPresent(B.bgEmpty(), M[0], true, at(19, 0));
+  s = B.bgAssign(s, M, "GEM|MIERLO 1|HD", 2, "A – B", at(19, 10));
+  s = B.bgAssign(s, M, "GEM|MIERLO 1|DD", 1, "", at(19, 20));
+  s = B.bgFinish(s, M, 2, at(20, 40));
+  const r = bpReport(s, M);
+  assert.deepStrictEqual(r.played.map((x) => [x.part.label, x.court, x.min, x.lineup]), [["HD", 2, 90, "A – B"]]);
+  assert.deepStrictEqual(r.open.map((x) => [x.part.label, x.playing && x.playing[0]]), [["DD", "1"], ["D1", undefined]]);
+});

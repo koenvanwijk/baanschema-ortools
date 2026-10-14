@@ -50,6 +50,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Deelbare dagpagina toont alleen het opgeslagen schema (wat de TC definitief maakte), niet een werkversie; geen schema = melding | Oscar |
 | 2026-10-14 | Telefoon: dagschema standaard als lijst per tijd (≤ 700 px), schakelaar naar rooster; keuze per apparaat onthouden; slepen alleen in rooster | Oscar |
 | 2026-10-14 | Eén opslaggedrag: alles meteen opgeslagen (verzettingen, slepen, berekende dagen); undo blijft; verouderd opgeslagen schema (door verzettingen) wordt niet automatisch overschreven; na een fout pas opnieuw via knop Opnieuw (geen herhaallus) | Oscar |
+| 2026-10-14 | Bingo stap 5: printbare bingolijst (A4, lege vakjes) en verslag achteraf uit de opgeslagen toestand/logboek; geen uitslagen (KNLTB-app) | Oscar |
 
 ---
 
@@ -165,7 +166,8 @@ Antwoorden van Oscar (14-10-2026):
 **G4 — Tv/beamer-scherm (alleen-lezen).** Als lid/bar wil ik op een groot scherm zien wat waar speelt en wat volgt. Prioriteit boven meekijken op telefoon.
 - AC: `tv.html#<club>/<datum>` (link "📺 Tv-scherm" op het commissarisscherm); groot, liggend, donker; per baan team/partij/tegenstander/opstelling en verstreken tijd (rood bij uitloop); rij "Straks" (eerste 8 uit de wachtrij); ververst elke 5 s; geen knoppen, schrijft niets. · Status: klaar (14-10-2026).
 
-**G5 — Print/verslag van de avond.** Als TC wil ik na afloop een verslag/print van de avond. · Status: gepland.
+**G5 — Print/verslag van de avond.** Als TC wil ik na afloop een verslag/print van de avond.
+- AC: `bingo-print.html#<club>/<datum>[/verslag]` (link "🖨 Lijst/verslag" op het commissarisscherm). Bingolijst A4: per team aanwezig-vakje, per partij lege vakjes opstelling/baan/start/klaar (papieren reserve). Verslag: gespeelde partijen op starttijd met eind, duur, baan, opstelling; niet-afgeronde partijen; logboek. · Status: klaar (14-10-2026).
 
 ## Beslisvolgorde (14-10-2026)
 
@@ -186,7 +188,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | klaar (14-10-2026) |
 | 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | klaar (14-10-2026) |
 | 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | klaar (14-10-2026) |
-| 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | nog niet gestart |
+| 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | klaar (14-10-2026) |
 | 11 | [Bingo] | Mierlo-vrijdag op bingo | G1 | klaar (besluit 14-10-2026) |
 | 12 | [Bingo] | Zonder login: iedereen met de commissaris-link mag tikken (besloten); aparte alleen-kijken tv-link volgt bij stap 4 | G2/G4 | besloten |
 | 13 | [Planner] | Laatste start avond = sluiting − 1:30; donderdag eind 00:00 | B8 | klaar (besluit 14-10-2026) |
