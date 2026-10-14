@@ -236,3 +236,6 @@ details.uitleg summary { cursor: pointer; color: #2f6f4f; }
 .cm-cancel { border-top: 1px solid #eee; margin-top: .5em; padding-top: .5em; display: flex; gap: .4em; align-items: end; flex-wrap: wrap; }
 .cm-cancel input { width: 14em; }
 .day-list li.vervallen-item { text-decoration: line-through; }
+.cm-cancel { flex-direction: column; align-items: stretch; }
+.cm-cancel .cm-sub { font-weight: 600; }
+.cm-off-btns { display: flex; gap: .4em; }

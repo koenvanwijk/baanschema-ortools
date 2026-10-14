@@ -480,6 +480,9 @@ def _apply_cancellations(spath: Path, cancels: list[dict[str, Any]]) -> Path:
     return p
 
 
+CANCEL_TYPES = ("eigen", "tegenstander")  # eigen opgave / tegenstander opgave
+
+
 @app.get("/clubs/{club_id}/cancellations")
 def get_cancellations(club_id: str) -> dict[str, Any]:
     _known_club(club_id)
@@ -509,6 +512,7 @@ async def put_cancellations(club_id: str, request: Request) -> dict[str, Any]:
         if k in played and k not in old:
             raise HTTPException(409, f"'{c['schema']}' {c['home']} – {c['away']} op {c['date']} is al gespeeld; kan niet vervallen")
         out.append({"schema": c["schema"], "home": c["home"], "away": c["away"], "date": c["date"],
+                    "type": c.get("type") if c.get("type") in CANCEL_TYPES else "",
                     "reason": str(c.get("reason") or "")[:200], "at": (old.get(k) or {}).get("at") or _now()})
     doc = {"club": club_id, "saved_at": _now(), "cancellations": out}
     STORE.put(f"clubs/{club_id}/cancellations.json", json.dumps(doc, ensure_ascii=False).encode(), "application/json")
@@ -608,7 +612,7 @@ def _season_view(season: Season, prof: ClubProfile | None = None,
                                      "home": f.home_team, "away": f.away_team, "dagdeel": f.dagdeel,
                                      "export_start": f.export_start, "result": f.result,
                                      "status": "vervallen" if cx[id(f)] and not f.played else f.status,
-                                     **({"cancel_reason": cx[id(f)].get("reason", ""), "cancelled_at": cx[id(f)].get("at")}
+                                     **({"cancel_reason": cx[id(f)].get("reason", ""), "cancel_type": cx[id(f)].get("type", ""), "cancelled_at": cx[id(f)].get("at")}
                                         if cx[id(f)] and not f.played else {}),
                                      # stond op 'wordt niet gespeeld', maar de export heeft een uitslag: export wint
                                      **({"cancel_conflict": True} if cx[id(f)] and f.played else {})}

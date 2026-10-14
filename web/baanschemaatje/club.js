@@ -50,7 +50,7 @@ async function loadSeason() {
 const isOff = (w) => w.status === "gespeeld" || w.status === "vervallen";
 function cancelList() {
   return ALL_DATES.flatMap((d) => d.wedstrijden.filter((w) => w.status === "vervallen")
-    .map((w) => ({ schema: w.schema, home: w.home, away: w.away, date: d.date, reason: w.cancel_reason || "" })));
+    .map((w) => ({ schema: w.schema, home: w.home, away: w.away, date: d.date, type: w.cancel_type || "", reason: w.cancel_reason || "" })));
 }
 function cancelledOn(date) {
   const d = ALL_DATES.find((x) => x.date === date);
@@ -65,9 +65,12 @@ async function saveCancels(list, msg) {
     status(msg, "ok");
   } catch (e) { status(`Niet gelukt: ${e.message}`, "bad"); }
 }
-function cancelMatch(w, date, reason) {
-  return saveCancels([...cancelList(), { schema: w.schema || w.team, home: w.home, away: w.away, date, reason }],
-    `${w.label} ${w.home} – ${w.away} op ${date}: wordt niet gespeeld (opgeslagen).`);
+const CANCEL_NL = { eigen: "eigen opgave", tegenstander: "tegenstander opgave" };
+function cancelMatch(w, date, type, reason) {
+  // Verzette wedstrijd: vervallen op de oorspronkelijke speeldag (sleutel = export).
+  const orig = w.moved_from || date;
+  return saveCancels([...cancelList(), { schema: w.schema || w.team, home: w.home, away: w.away, date: orig, type, reason }],
+    `${w.label} ${w.home} – ${w.away} (${orig}): ${CANCEL_NL[type] || "wordt niet gespeeld"}, opgeslagen.`);
 }
 function uncancelMatch(schema, home, date) {
   return saveCancels(cancelList().filter((c) => !(c.schema === schema && c.home === home && c.date === date)),
@@ -265,7 +268,7 @@ function clubDayPlan(date) {
   // Vervallen wedstrijden: partijen weg uit het rooster (ook uit eerder berekende/opgeslagen plannen), banen vrij.
   const exp = new Map((d ? d.wedstrijden : []).filter((w) => w.export_start).map((w) => [`${w.schema}|${w.home}`, w.export_start]));
   applied.rows = applied.rows.map((r) => (r.export_start || r.moved_from || !exp.has(`${r.team}|${r.home_team}`) ? r : { ...r, export_start: exp.get(`${r.team}|${r.home_team}`) }));
-  if (off.size) applied.rows = applied.rows.filter((r) => r.moved_from || !off.has(`${r.team}|${r.home_team}`));
+  applied.rows = applied.rows.filter((r) => !(r.moved_from ? cancelledOn(r.moved_from) : off).has(`${r.team}|${r.home_team}`));
   return { plan: applied, computed: !!ok, changed, saved: null, unsaved: false, staleSaved: !!sv };
 }
 
@@ -416,7 +419,7 @@ function showPlan(date, scroll = true, force = false) {
     `<li class="played-item${inComp(ovWeekday(date), w) ? "" : " dim"}">🔒 <b>${esc(w.label)} ${esc(w.home)}</b> – ${esc(w.away)} · ${esc(w.export_start || "")} · uitslag <b>${esc(w.result)}</b></li>`).join("")}</ul></div>` : "";
   const gone = dd ? dd.wedstrijden.filter((w) => w.status === "vervallen") : [];
   const goneHtml = gone.length ? `<div class="vervallen"><h3>Vervallen (wordt niet gespeeld)</h3><ul class="plain">${gone.map((w) =>
-    `<li class="vervallen-item${inComp(ovWeekday(date), w) ? "" : " dim"}"><s>${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen</s>${w.cancel_reason ? ` · <i>${esc(w.cancel_reason)}</i>` : ""}
+    `<li class="vervallen-item${inComp(ovWeekday(date), w) ? "" : " dim"}"><s>${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen</s>${w.cancel_type ? ` · <b>${esc(CANCEL_NL[w.cancel_type] || w.cancel_type)}</b>` : ""}${w.cancel_reason ? ` · <i>${esc(w.cancel_reason)}</i>` : ""}
       ${CLUB.editable ? `<button class="btn2 un-cancel" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}">Toch spelen</button>` : ""}</li>`).join("")}</ul></div>` : "";
   const conflicts = played.filter((w) => w.cancel_conflict);
   const allPlayed = dd && played.length + gone.length === dd.wedstrijden.length && !cmv().into(date).length;
@@ -447,7 +450,9 @@ function bindLegend(plan) {
       const w = ws.get(chip.dataset.team), team = chip.dataset.team;
       mvOpenMenu(chip, w, date, sd, { highlighted: HL === team,
         onHighlight: () => { HL = HL === team ? null : team; mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL); },
-        onCancel: CLUB.editable && w && !w.moved_from ? (reason) => { if (HL === team) HL = null; cancelMatch(w, date, reason); } : null,
+        // Altijd tonen voor niet-gespeelde wedstrijden (ook berekend/verzet/niet in bewerkmodus); alleen-lezen: uitgeschakeld.
+        onCancel: w ? (type, reason) => { if (HL === team) HL = null; cancelMatch(w, date, type, reason); } : null,
+        cancelDisabled: CLUB.editable ? "" : "Alleen-lezen voorbeeldprofiel: vervallen kan hier niet worden opgeslagen.",
         onMove: (to) => {
           if (HL === team) HL = null;
           cmv().move([{ w, at: date, to }]);

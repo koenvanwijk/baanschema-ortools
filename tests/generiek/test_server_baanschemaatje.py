@@ -320,14 +320,14 @@ def test_cancellations_wordt_niet_gespeeld(client, root, monkeypatch):
     j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
     day = next(d for d in j["dates"] if d["open_fixtures"] >= 2)
     w = next(x for x in day["wedstrijden"] if x["status"] != "gespeeld")
-    c = {"schema": w["schema"], "home": w["home"], "away": w["away"], "date": day["date"], "reason": "regen"}
+    c = {"schema": w["schema"], "home": w["home"], "away": w["away"], "date": day["date"], "reason": "regen", "type": "tegenstander"}
     assert client.get(f"/clubs/{cid}/cancellations").json()["cancellations"] == []
     r = client.put(f"/clubs/{cid}/cancellations", json={"cancellations": [c]})
     assert r.status_code == 200, r.text
     d2 = next(d for d in r.json()["dates"] if d["date"] == day["date"])
     assert d2["cancelled"] == 1 and d2["open_fixtures"] == day["open_fixtures"] - 1
     x = next(x for x in d2["wedstrijden"] if x["schema"] == w["schema"] and x["home"] == w["home"])
-    assert x["status"] == "vervallen" and x["cancel_reason"] == "regen"
+    assert x["status"] == "vervallen" and x["cancel_reason"] == "regen" and x["cancel_type"] == "tegenstander"
     # Planner-input (en validator: zelfde seizoensbestand) zonder de vervallen wedstrijd.
     _, _, _, season, _ = mod._resolve(mod.PlanRequest(club=cid, date=day["date"]))
     left = [(f.schema, f.home_team) for f in season.day(day["date"])]
