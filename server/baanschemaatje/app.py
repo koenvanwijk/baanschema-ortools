@@ -1056,3 +1056,47 @@ def regelhulp(req: RegelVraag, request: Request) -> dict[str, Any]:
     out["regelbank"] = _REGEL.get("gebouwd")
     out["disclaimer"] = "Advies op basis van de KNLTB-regels; bij twijfel beslist de competitieleider of de KNLTB."
     return out
+
+
+# ---------------------------------------------------------------- vaste clublink (F2)
+# De statische web-app (web/baanschemaatje) wordt door dezelfde Cloud Run-service geserveerd onder /app,
+# met korte vaste links zonder githack-tussenpagina: /club/<id>, /dag/<id>/<datum>, /bingo/<id>/<datum>,
+# /tv/<id>/<datum>. Zelfde origin als de API, dus de standaard-API-URL in common.js klopt. Geen extra kosten
+# (zelfde service, min-instances 0). Alleen lezen van bestanden; geen nieuwe schrijfroutes.
+from fastapi.responses import RedirectResponse  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+WEB_DIR = Path(os.environ.get("BS_WEB", ROOT / "web" / "baanschemaatje"))
+
+
+def _go(page: str, *parts: str) -> RedirectResponse:
+    frag = "/".join(parts)
+    return RedirectResponse(f"/app/{page}{'#' + frag if frag else ''}", status_code=307)
+
+
+def _link_id(club_id: str) -> str:
+    if not _ID_RE.match(club_id):
+        raise HTTPException(404, "onbekende club")
+    return club_id
+
+
+@app.get("/", include_in_schema=False)
+def web_root() -> RedirectResponse:
+    return _go("club.html")
+
+
+@app.get("/club/{club_id}", include_in_schema=False)
+def web_club(club_id: str) -> RedirectResponse:
+    return _go("club.html", _link_id(club_id))
+
+
+@app.get("/{page}/{club_id}/{date}", include_in_schema=False)
+def web_day(page: str, club_id: str, date: str) -> RedirectResponse:
+    pages = {"dag": "dag.html", "bingo": "bingo.html", "tv": "tv.html", "bingolijst": "bingo-print.html"}
+    if page not in pages:
+        raise HTTPException(404, "niet gevonden")
+    return _go(pages[page], _link_id(club_id), _check_date(date))
+
+
+if WEB_DIR.is_dir():
+    app.mount("/app", StaticFiles(directory=WEB_DIR, html=True), name="web")

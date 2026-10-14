@@ -429,3 +429,19 @@ def test_bingo_includes_moved_matches(client):
     ms = client.get(f"/clubs/{cid}/bingo/16-10-2026").json()["matches"]
     assert [(m["home"], m["moved_from"]) for m in ms] == [(w["home"], "27-09-2026")] and ms[0]["parts"]
     assert all(m["home"] != w["home"] or m["schema"] != w["schema"] for m in client.get(f"/clubs/{cid}/bingo/27-09-2026").json()["matches"])
+
+
+def test_vaste_clublink_serveert_web(client):
+    """F2: dezelfde service serveert de web-app onder /app met korte vaste links (geen githack-tussenpagina)."""
+    r = client.get("/club/mierlo", follow_redirects=False)
+    assert r.status_code == 307 and r.headers["location"] == "/app/club.html#mierlo"
+    assert client.get("/dag/mierlo/25-10-2026", follow_redirects=False).headers["location"] == "/app/dag.html#mierlo/25-10-2026"
+    assert client.get("/tv/mierlo/16-10-2026", follow_redirects=False).headers["location"] == "/app/tv.html#mierlo/16-10-2026"
+    assert client.get("/", follow_redirects=False).headers["location"] == "/app/club.html"
+    assert client.get("/club/Bad..Id", follow_redirects=False).status_code == 404
+    assert client.get("/tv/mierlo/2026-10-16", follow_redirects=False).status_code == 422
+    assert client.get("/xyz/mierlo/16-10-2026", follow_redirects=False).status_code == 404
+    page = client.get("/app/club.html")
+    assert page.status_code == 200 and "club.js" in page.text
+    assert client.get("/app/../app.py").status_code == 404
+    assert client.get("/clubs/mierlo/moves").status_code == 200  # API-routes blijven voorgaan

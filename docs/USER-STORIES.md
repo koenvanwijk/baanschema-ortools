@@ -51,6 +51,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Telefoon: dagschema standaard als lijst per tijd (≤ 700 px), schakelaar naar rooster; keuze per apparaat onthouden; slepen alleen in rooster | Oscar |
 | 2026-10-14 | Eén opslaggedrag: alles meteen opgeslagen (verzettingen, slepen, berekende dagen); undo blijft; verouderd opgeslagen schema (door verzettingen) wordt niet automatisch overschreven; na een fout pas opnieuw via knop Opnieuw (geen herhaallus) | Oscar |
 | 2026-10-14 | Bingo stap 5: printbare bingolijst (A4, lege vakjes) en verslag achteraf uit de opgeslagen toestand/logboek; geen uitslagen (KNLTB-app) | Oscar |
+| 2026-10-14 | Vaste clublink via dezelfde Cloud Run-service (statische web-app onder /app, korte links /club/<id> e.d.), niet via GitHub Pages (Koens repo) | Oscar |
 
 ---
 
@@ -127,7 +128,8 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 **F1 — Deelbare alleen-lezen dagpagina.** Als captain/lid/bar wil ik een alleen-lezen link per dag (telefoonvriendelijk) en een "Kopieer link / WhatsApp"-knop, zodat ik het schema op de dag zelf kan delen.
 - AC: geen bewerkknoppen; lijst per team (aanvang, banen); printbaar. Gebouwd: `dag.html#<club>/<datum>`, telefoon-eerst, toont alleen het opgeslagen (definitieve) schema (anders "nog geen definitief schema"); Kopieer link, WhatsApp, Printen; knop "Delen" in de dagweergave. · Status: klaar (14-10-2026).
 
-**F2 — Vaste clublink.** Als TC wil ik een vaste link zonder githack-tussenpagina, zonder "voorbeeld" in de kop, en index = clubkeuze, zodat duidelijk is waar ik begin. · Status: nog niet gestart.
+**F2 — Vaste clublink.** Als TC wil ik een vaste link zonder githack-tussenpagina, zonder "voorbeeld" in de kop, en index = clubkeuze, zodat duidelijk is waar ik begin.
+- Gebouwd: de bestaande Cloud Run-service serveert ook de web-app (`/app/...`) met vaste links `/club/<id>`, `/dag/<id>/<datum>`, `/bingo/<id>/<datum>`, `/tv/<id>/<datum>`, `/bingolijst/<id>/<datum>`; `/` = clubpagina met clubkeuze. Geen tussenpagina, zelfde origin als de API, geen extra kosten (zelfde service, min 0). GitHub Pages op Koens repo blijft ongemoeid. Web-wijzigingen gaan live bij een deploy (net als de server). Open: link "voorbeeld (vooraf berekend)" in de kop. Later eventueel eigen domein (Cloud Run domain mapping of Firebase Hosting). · Status: klaar (14-10-2026).
 
 **F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen.
 - AC: schakelaar Lijst/Rooster boven het dagschema; standaard Lijst op schermen ≤ 700 px, Rooster op groter; keuze onthouden op het apparaat; slepen kan alleen in het rooster (hint). · Status: klaar (14-10-2026).
@@ -183,7 +185,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 2 | [Bingo] | Stap 1: keuze gepland/bingo per speeldag, label, "Avond openen" | G1 | klaar (commit 94a32a7) |
 | 3 | [Bingo] | Stap 2: MVP commissarisscherm (aanmelden, banen, wachtrij, start/klaar, één apparaat) | G2 | klaar |
 | 4 | [UX] | Deelbare dagpagina (alleen-lezen + WhatsApp/kopieerlink) | F1 | klaar (14-10-2026) |
-| 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | nog niet gestart |
+| 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | klaar: /club/<id> op de Cloud Run-service (14-10-2026); "voorbeeld"-link in kop nog open |
 | 6 | [UX] | Dagschema als lijst op telefoon | F3 | klaar (14-10-2026) |
 | 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | klaar (14-10-2026) |
 | 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | klaar (14-10-2026) |
