@@ -109,16 +109,26 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 ## F. UX-assessment 14-10-2026 — vervolgacties
 
 **F1 — Deelbare alleen-lezen dagpagina.** Als captain/lid/bar wil ik een alleen-lezen link per dag (telefoonvriendelijk) en een "Kopieer link / WhatsApp"-knop, zodat ik het schema op de dag zelf kan delen.
-- AC: geen bewerkknoppen; lijst per team (aanvang, banen); printbaar. · Status: gepland.
+- AC: geen bewerkknoppen; lijst per team (aanvang, banen); printbaar. · Status: nog niet gestart.
 
-**F2 — Vaste clublink.** Als TC wil ik een vaste link zonder githack-tussenpagina, zonder "voorbeeld" in de kop, en index = clubkeuze, zodat duidelijk is waar ik begin. · Status: gepland.
+**F2 — Vaste clublink.** Als TC wil ik een vaste link zonder githack-tussenpagina, zonder "voorbeeld" in de kop, en index = clubkeuze, zodat duidelijk is waar ik begin. · Status: nog niet gestart.
 
-**F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen. · Status: gepland.
+**F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen. · Status: nog niet gestart.
 
-**F4 — Eén opslaggedrag.** Als TC wil ik dat alles op dezelfde manier wordt opgeslagen, met één statusregel en een badge "definitief schema", zodat ik weet wat geldt. · Status: gepland.
+**F4 — Eén opslaggedrag.** Als TC wil ik dat alles op dezelfde manier wordt opgeslagen, met één statusregel en een badge "definitief schema", zodat ik weet wat geldt. · Status: nog niet gestart.
 
 **F5 — Opruimen.** Als TC wil ik geen jargon (Solver/Rekentijd/Dagstart onder "Details"), tijden na middernacht als "01:00+" (niet 19:00–25:00), en een ⋯-menu per wedstrijd.
-- AC: overzicht, dagweergave, instellingen en print consistent; ⋯ werkt op telefoon. · Status: gereed (commit 3a5ddcc) · Bron: Oscar 14-10-2026.
+- AC: overzicht, dagweergave, instellingen en print consistent; ⋯ werkt op telefoon. · Status: klaar (commit 3a5ddcc) · Bron: Oscar 14-10-2026.
+
+## Backlog UX-assessment
+
+| # | Item | Story | Prioriteit | Status |
+|---|---|---|---|---|
+| 1 | Deelbare dagpagina | F1 | na 5 | nog niet gestart |
+| 2 | Vaste clublink | F2 | na 5 | nog niet gestart |
+| 3 | Dagschema als lijst op telefoon | F3 | na 5 | nog niet gestart |
+| 4 | Overal hetzelfde opslaan | F4 | na 5 | nog niet gestart |
+| 5 | Opruimen (jargon naar "Details", 01:00+ i.p.v. 25:00, ⋯-menu per wedstrijd) | F5 | **hoogste** | klaar (commit 3a5ddcc, 14-10-2026) |
 
 ## G. Bingo-schema (vrijdagavond, live)
 
