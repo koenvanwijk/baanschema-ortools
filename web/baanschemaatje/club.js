@@ -314,7 +314,7 @@ function renderDates() {
       day.partijen = (day.partijen || 0) + m.wedstrijden.filter((w) => w.status === "gespeeld").reduce((t, w) => t + w.matches, 0);
       day.note = [day.note, day.allPlayed ? `gespeeld (${m.played})` : `${m.played} gespeeld, vast`].filter(Boolean).join(" · ");
     }
-    if (m && m.window && !m.window.bijlage3) day.note = [day.note, `${m.dagdelen.filter((x) => x !== "dag").join("/") || "avond"} ${m.window.start}–${m.window.end}`].filter(Boolean).join(" · ");
+    if (m && m.window && !m.window.bijlage3) day.note = [day.note, `${m.dagdelen.filter((x) => x !== "dag").join("/") || "avond"} ${m.window.start}–${clockShort(m.window.end)}`].filter(Boolean).join(" · ");
     return day;
   });
   ovRender($("overview"), days, { onOpen: (date) => showPlan(date), onCompute: (date) => planDay(date, true), recompute: true,
@@ -410,9 +410,11 @@ function showPlan(date, scroll = true, force = false) {
   const card = (k, val, cls = "", tip = "") => `<div class="card"${tip ? ` title="${esc(tip)}"` : ""}><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
   $("summary").innerHTML = [card("Ingepland", st.scheduled, "good"),
     card("Niet ingepland", st.unscheduled, st.unscheduled ? "bad" : "good"),
-    card("Overtredingen", v.hard ?? "–", v.hard ? "bad" : "good", "Overtredingen: regels die niet gebroken mogen worden. Moet 0 zijn."),
-    card("Niet-gehaalde voorkeuren", v.model ?? "–", v.model ? "warn" : "", "Niet-gehaalde voorkeuren: mag, maar kan mooier."), card("Dagstart", plan.day_start),
-    card("Rekentijd", plan.stats && typeof plan.stats.solve_time_s === "number" ? `${plan.stats.solve_time_s}s` : "–"), card("Solver", plan.status || "–")].join("");
+    card("Regels gebroken", v.hard ?? "–", v.hard ? "bad" : "good", "KNLTB- of clubregels die niet gebroken mogen worden. Moet 0 zijn."),
+    card("Kan mooier", v.model ?? "–", v.model ? "warn" : "", "Wensen die niet gehaald zijn: mag, maar kan mooier.")].join("")
+    + `<details class="tech"><summary>Details</summary><div class="cards">${[card("Eerste aanvang", plan.day_start || "–"),
+      card("Rekentijd", plan.stats && typeof plan.stats.solve_time_s === "number" ? `${plan.stats.solve_time_s}s` : "–"),
+      card("Uitkomst berekening", { OPTIMAL: "beste oplossing", FEASIBLE: "goede oplossing", INFEASIBLE: "past niet", GESPEELD: "gespeeld" }[plan.status] || plan.status || "–")].join("")}</div></details>`;
   const dd = ALL_DATES.find((x) => x.date === date);
   const played = dd ? dd.wedstrijden.filter((w) => w.status === "gespeeld") : [];
   const playedHtml = played.length ? `<div class="played"><h3>Gespeeld (vast)</h3><p class="hint">Uitslag uit de KNLTB-export. Deze wedstrijden worden niet opnieuw gepland of verzet.</p><ul class="plain">${played.map((w) =>
@@ -420,13 +422,14 @@ function showPlan(date, scroll = true, force = false) {
   const gone = dd ? dd.wedstrijden.filter((w) => w.status === "vervallen") : [];
   const goneHtml = gone.length ? `<div class="vervallen"><h3>Vervallen (wordt niet gespeeld)</h3><ul class="plain">${gone.map((w) =>
     `<li class="vervallen-item${inComp(ovWeekday(date), w) ? "" : " dim"}"><s>${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen</s>${w.cancel_type ? ` · <b>${esc(CANCEL_NL[w.cancel_type] || w.cancel_type)}</b>` : ""}${w.cancel_reason ? ` · <i>${esc(w.cancel_reason)}</i>` : ""}
+      <button type="button" class="btn2 w-menu" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" aria-label="Acties">⋯</button>
       ${CLUB.editable ? `<button class="btn2 un-cancel" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}">Toch spelen</button>` : ""}</li>`).join("")}</ul></div>` : "";
   const conflicts = played.filter((w) => w.cancel_conflict);
   const allPlayed = dd && played.length + gone.length === dd.wedstrijden.length && !cmv().into(date).length;
   const winNote = s.bijlage3 ? "" : `<p class="hint">Dagvenster ${esc(s.weekday)}: ${esc(s.day.start)}–${esc(clockHHMM(s.day.end))}, laatste start ${esc(s.day.last_start)}, ${s.courts} banen${s.lighting ? " (met verlichting)" : ", <b>geen verlichting ingesteld</b>"}. KNLTB Bijlage 3 (variabele begintijden) geldt alleen op za/zo.</p>`;
   const open = dd ? dd.wedstrijden.filter((w) => !isOff(w)) : [];
   $("day-matches").innerHTML = open.length ? `<div class="day-list"><h3>Wedstrijden volgens de KNLTB-export</h3><ul class="plain">${open.map((w) =>
-    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b>${w.export_start ? ' <span class="hint" title="Begintijd uit de KNLTB-export; de planner houdt die aan (Clubafspraken: export_start)">tijd uit export</span>' : ""} · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.status === "verlopen" ? ' · <span class="warn">datum voorbij, geen uitslag</span>' : ""}</li>`).join("")}</ul></div>` : "";
+    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b>${w.export_start ? ' <span class="hint" title="Begintijd uit de KNLTB-export; de planner houdt die aan (Clubafspraken: export_start)">tijd uit export</span>' : ""} · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.status === "verlopen" ? ' · <span class="warn">datum voorbij, geen uitslag</span>' : ""} <button type="button" class="btn2 w-menu" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" title="Acties: markeren, verzetten, opgave" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
   $("plan-state").innerHTML = winNote + (conflicts.length ? `<div class="banner warn">Let op: ${conflicts.map((w) => `${esc(w.label)} ${esc(w.home)}`).join(", ")} stond op "wordt niet gespeeld", maar de KNLTB-export heeft een uitslag. De export wint.</div>` : "") + playedHtml + goneHtml + (allPlayed ? "" : changed ? `<div class="banner">Aangepast: ${[cmv().into(date).length ? `${cmv().into(date).length} wedstrijd(en) hierheen verzet` : "", cmv().outOf(date).length ? `${cmv().outOf(date).length} wedstrijd(en) naar een andere dag verzet` : ""].filter(Boolean).join(", ")}, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
     : !computed ? `<div class="banner">Nog niet berekend: alle partijen staan bij "Niet ingepland". <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>` : "");
   if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
@@ -445,10 +448,26 @@ function bindLegend(plan) {
   const ws = new Map(mvFromRows(plan.rows).map((w) => [w.key, w]));
   const sd = ovSeasonDays(DATES);
   for (const chip of document.querySelectorAll("#legend .chip")) {
-    chip.onclick = (ev) => {
+    chip.onclick = (ev) => { ev.stopPropagation(); openTeamMenu(chip, ws.get(chip.dataset.team), chip.dataset.team, date, sd); };
+  }
+  // ⋯-knoppen in de lijst "Wedstrijden volgens de KNLTB-export" en bij vervallen wedstrijden: zelfde acties.
+  const dd = ALL_DATES.find((x) => x.date === date);
+  for (const b of document.querySelectorAll("#day-matches .w-menu, #plan-state .w-menu")) {
+    b.onclick = (ev) => {
       ev.stopPropagation();
-      const w = ws.get(chip.dataset.team), team = chip.dataset.team;
-      mvOpenMenu(chip, w, date, sd, { highlighted: HL === team,
+      const sw = dd && dd.wedstrijden.find((x) => x.schema === b.dataset.schema && x.home === b.dataset.home);
+      if (!sw) return;
+      if (sw.status === "vervallen") return mvOpenMenu(b, mvFromSeason(sw), date, sd, { cancelled: CANCEL_NL[sw.cancel_type] || "wordt niet gespeeld",
+        onUncancel: CLUB.editable ? () => uncancelMatch(sw.schema, sw.home, date) : null });
+      const key = mvKey(sw.schema, sw.home);
+      openTeamMenu(b, ws.get(key) || mvFromSeason(sw), ws.has(key) ? key : null, date, sd);
+    };
+  }
+  if (HL) mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL);
+}
+
+function openTeamMenu(anchor, w, team, date, sd) {
+      mvOpenMenu(anchor, w, date, sd, { highlighted: !!team && HL === team, noHighlight: !team,
         onHighlight: () => { HL = HL === team ? null : team; mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL); },
         // Altijd tonen voor niet-gespeelde wedstrijden (ook berekend/verzet/niet in bewerkmodus); alleen-lezen: uitgeschakeld.
         onCancel: w ? (type, reason) => { if (HL === team) HL = null; cancelMatch(w, date, type, reason); } : null,
@@ -459,9 +478,6 @@ function bindLegend(plan) {
           status(`${w.label} ${w.home} verzet naar ${to}. Niet opgeslagen; ${to} is nog niet berekend.`, "ok");
           afterMove();
         } });
-    };
-  }
-  if (HL) mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL);
 }
 
 let SHOWN_DATE = null;
@@ -511,13 +527,13 @@ function renderPlanGrid(plan) {
       : `background:${c.bg};color:${c.fg}`;
     const dim = !isRes && COMP !== "alle" && !compMatch(wdShown, r.dagdeel || (/avond/i.test(r.team) ? "avond" : /ochtend/i.test(r.team) ? "ochtend" : "dag"));
     html.push(`<div class="blk${isRes ? " res" : ""}${dim ? " dim" : ""}" data-ri="${IDX.get(r)}" style="grid-row:${r0}/${r1};grid-column:${r.court + 1};${style}" title="${esc(r.team)}">
-      <span class="cat">${esc(r.label || r.category)}</span><b>${esc(r.part || "reservering")}</b><div>${esc(isRes ? "baanreservering" : r.home_team || "")}</div><div class="t">${esc(r.start)}–${esc(r.end)}</div></div>`);
+      <span class="cat">${esc(r.label || r.category)}</span><b>${esc(r.part || "reservering")}</b><div>${esc(isRes ? "baanreservering" : r.home_team || "")}</div><div class="t">${esc(clockShort(r.start))}–${esc(clockShort(r.end))}</div></div>`);
   }
   g.innerHTML = html.join("");
   for (const r of plan.rows) if (r.kind !== "W" && !teams.has(r.team_id)) teams.set(r.team_id, r); // ook niet-ingeplande teams
   $("legend").innerHTML = [...teams.values()].sort((a, b) => (a.category || "").localeCompare(b.category || ""))
     .map((r) => { const col = COL.get(r.team_id) || { bg: "#ddd", fg: "#111" };
-      return `<span class="chip" data-team="${esc(r.team_id)}" style="background:${col.bg};color:${col.fg}" title="${esc(r.team)} — klik voor markeren / verzetten">${esc(r.label || "")} ${esc(r.home_team || "")}${r.moved_from ? " ↪" : ""}</span>`; }).join("");
+      return `<span class="chip" data-team="${esc(r.team_id)}" style="background:${col.bg};color:${col.fg}" title="${esc(r.team)} — tik voor markeren, verzetten of opgave">${esc(r.label || "")} ${esc(r.home_team || "")}${r.moved_from ? " ↪" : ""} <b class="chip-more" aria-hidden="true">⋯</b></span>`; }).join("");
   const un = plan.rows.map((r, i) => [r, i]).filter(([r]) => r.start === "NIET_GELUKT");
   $("unscheduled").innerHTML = un.length ? `<h3>Niet ingepland</h3><p class="hint">Sleep een partij op het baanschema om hem in te plannen.</p><ul class="plain">${un.map(([r, i]) => `<li class="drag${r.moved_from ? " moved" : ""}" data-ri="${i}"><b>${esc(r.part || "reservering")}</b> · ${esc(r.label || "")} ${esc(r.home_team || "")} – ${esc(r.away_team || "")}${r.moved_from ? ` <span class="mv-tag">niet ingepland (verzet van ${esc(r.moved_from)})</span>` : ""}</li>`).join("")}</ul>` : "";
   bindLegend(plan);

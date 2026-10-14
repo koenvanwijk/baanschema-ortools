@@ -42,7 +42,7 @@ function renderWeekdays(wds) {
     const next = type === "time" && v && toMin(v) >= 1440 ? ' <span class="hint">volgende dag</span>' : "";
     return `<td>${inp}${next}${isD ? ' <span class="dflt" title="Standaardwaarde, nog niet door de club bevestigd">standaard</span>' : ' <span class="hint" title="Door de club ingesteld">✓ bevestigd</span>'}</td>`;
   };
-  $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Dagstart</th><th>Laatste start</th><th>Park dicht</th><th>Banen</th><th>Verlichting</th><th>Regels</th></tr>` +
+  $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Eerste aanvang</th><th>Laatste start</th><th>Park dicht</th><th>Banen</th><th>Verlichting</th><th>Regels</th></tr>` +
     show.map((wd) => {
       const w = wds[wd] || {};
       const b3 = w.bijlage3;

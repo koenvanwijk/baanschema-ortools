@@ -10,6 +10,8 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const toMin = (hhmm) => parseInt(hhmm.slice(0, 2), 10) * 60 + parseInt(hhmm.slice(3, 5), 10);
 // Tijd ná middernacht ("25:00") tonen als "01:00".
 const clockHHMM = (hhmm) => { const m = toMin(hhmm); return m >= 1440 ? `${toHHMM(m - 1440)} (volgende dag)` : hhmm; };
+// Compact (rooster, print, overzicht): 25:00 → "01:00+".
+const clockShort = (hhmm) => { if (!hhmm || !/^\d{1,2}:\d{2}/.test(hhmm)) return hhmm; const m = toMin(hhmm); return m >= 1440 ? `${toHHMM(m - 1440)}+` : hhmm; };
 const toHHMM = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
 const RULE_NL = {

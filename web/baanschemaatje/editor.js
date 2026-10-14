@@ -282,10 +282,10 @@ class PlanEditor {
       banner = `<div class="ed-banner">Aangepast, niet opgeslagen (${nEd}). De directe controle hieronder geldt voor deze aangepaste stand.${this.opts.saveHint ? ` ${e(this.opts.saveHint)}` : ""}</div>`;
     }
     bar.innerHTML = `<div class="ed-tools">
-        <button class="btn2 ed-toggle${edOn() ? " on" : ""}" id="ed-toggle" aria-pressed="${edOn()}" title="Slepen van partijen aan- of uitzetten">Bewerken ${edOn() ? "aan" : "uit"}</button>
+        <button class="btn2 ed-toggle${edOn() ? " on" : ""}" id="ed-toggle" aria-pressed="${edOn()}" title="Partijen verslepen aan- of uitzetten">${edOn() ? "✋ Verslepen staat aan" : "Partijen verslepen"}</button>
         <span class="hint">${edOn()
           ? (ED_TOUCH ? "Houd een partij even vast (tot hij oplicht) en sleep hem naar een andere baan of tijd (per kwartier). Gewoon vegen scrolt." : "Sleep een partij naar een andere baan of tijd (per kwartier). Niet-ingeplande partijen kun je op het grid slepen.")
-          : `Bewerken staat uit: ${ED_TOUCH ? "vegen scrolt, tik" : "klik"} op een partij voor details. Zet Bewerken aan om partijen te verslepen.`}</span>
+          : `${ED_TOUCH ? "Tik" : "Klik"} op een partij voor details. Wil je iets verschuiven? Druk op "Partijen verslepen".`}</span>
         ${sv ? `<button class="btn ed-save" id="ed-save" ${this.dirty && !sv.busy ? "" : "disabled"}>${sv.busy ? "Opslaan…" : "Opslaan"}</button>` : ""}
         <button class="btn2" id="ed-undo" ${this.history.length ? "" : "disabled"}>Ongedaan maken</button>
         <button class="btn2" id="ed-reset" ${this.edited ? "" : "disabled"}>Terug naar origineel</button>

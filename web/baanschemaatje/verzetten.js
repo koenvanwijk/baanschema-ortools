@@ -158,6 +158,13 @@ function mvHighlight(grid, legend, rows, team) {
   for (const el of legend.querySelectorAll(".chip")) el.classList.toggle("on", el.dataset.team === team);
 }
 
+function mvPlaceMenu(m, anchor) {
+  const r = anchor.getBoundingClientRect();
+  const w = Math.min(340, innerWidth - 8);
+  Object.assign(m.style, { maxWidth: `${w}px`, left: `${Math.max(4, Math.min(r.left + scrollX, scrollX + innerWidth - w - 4))}px`, top: `${r.bottom + scrollY + 4}px` });
+  m.onclick = (ev) => ev.stopPropagation();
+}
+
 function mvCloseMenu() { const m = document.getElementById("chip-menu"); if (m) m.remove(); }
 
 // opts: {highlighted, onHighlight(), onMove(toDate)}
@@ -170,8 +177,16 @@ function mvOpenMenu(chip, w, date, seasonDays, opts) {
   const m = document.createElement("div");
   m.id = "chip-menu";
   m.className = "chip-menu";
+  if (opts.cancelled) {
+    m.innerHTML = `<div class="cm-title"><b>${e(w.label)} ${e(w.home)}</b> – ${e(w.away)}<div class="hint">Vervallen: ${e(opts.cancelled)}</div></div>
+      ${opts.onUncancel ? '<button class="btn2" id="cm-un">Toch spelen</button>' : '<div class="hint">Alleen-lezen voorbeeldprofiel.</div>'}`;
+    document.body.appendChild(m);
+    mvPlaceMenu(m, chip);
+    if (opts.onUncancel) m.querySelector("#cm-un").onclick = () => { mvCloseMenu(); opts.onUncancel(); };
+    return;
+  }
   m.innerHTML = `<div class="cm-title"><b>${e(w.label)} ${e(w.home)}</b> – ${e(w.away)}<div class="hint">${e(mvCompName(w.category))}${w.moved_from ? ` · verzet van ${e(w.moved_from)}` : ""}</div></div>
-    <button class="btn2" id="cm-hl">${opts.highlighted ? "Markering uit" : "Markeer in rooster"}</button>
+    ${opts.noHighlight ? "" : `<button class="btn2" id="cm-hl">${opts.highlighted ? "Markering uit" : "Markeer in rooster"}</button>`}
     <div class="cm-move"><label>Verzetten naar…<select id="cm-to"><option value="">— kies een dag —</option>
       <optgroup label="Inhaaldagen ${e(mvCompName(w.category))}">${t.filter((x) => x.kind === "inhaaldag" && x.valid).map(opt).join("")}</optgroup>
       <optgroup label="Andere speeldagen">${t.filter((x) => x.kind === "speeldag").map(opt).join("")}</optgroup>
@@ -183,10 +198,8 @@ function mvOpenMenu(chip, w, date, seasonDays, opts) {
       <button class="btn2 cm-off" data-type="tegenstander"${opts.cancelDisabled ? " disabled" : ""}>Tegenstander opgave</button></div>
       ${opts.cancelDisabled ? `<div class="hint">${e(opts.cancelDisabled)}</div>` : ""}</div>` : ""}`;
   document.body.appendChild(m);
-  const r = chip.getBoundingClientRect();
-  Object.assign(m.style, { left: `${Math.max(4, Math.min(r.left + scrollX, innerWidth - 340))}px`, top: `${r.bottom + scrollY + 4}px` });
-  m.onclick = (ev) => ev.stopPropagation();
-  m.querySelector("#cm-hl").onclick = () => { mvCloseMenu(); opts.onHighlight(); };
+  mvPlaceMenu(m, chip);
+  if (m.querySelector("#cm-hl")) m.querySelector("#cm-hl").onclick = () => { mvCloseMenu(); opts.onHighlight(); };
   for (const bt of m.querySelectorAll(".cm-off")) bt.onclick = () => { const why = m.querySelector("#cm-reason").value.trim(); mvCloseMenu(); opts.onCancel(bt.dataset.type, why); };
   m.querySelector("#cm-go").onclick = () => { const to = m.querySelector("#cm-to").value; if (!to) return; mvCloseMenu(); opts.onMove(to); };
 }

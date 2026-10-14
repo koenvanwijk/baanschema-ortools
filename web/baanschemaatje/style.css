@@ -239,3 +239,11 @@ details.uitleg summary { cursor: pointer; color: #2f6f4f; }
 .cm-cancel { flex-direction: column; align-items: stretch; }
 .cm-cancel .cm-sub { font-weight: 600; }
 .cm-off-btns { display: flex; gap: .4em; }
+
+/* Details (technisch) en ⋯-actieknoppen */
+details.tech { display: inline-block; margin-left: .5em; font-size: .9em; }
+details.tech > summary { cursor: pointer; color: #666; }
+#summary details.tech { display: block; margin: .3em 0 0; grid-column: 1 / -1; }
+.w-menu { padding: .1em .6em; min-width: 2.2em; min-height: 2em; font-weight: 700; line-height: 1; }
+.chip-more { margin-left: .25em; opacity: .8; }
+.chip-menu { box-sizing: border-box; }

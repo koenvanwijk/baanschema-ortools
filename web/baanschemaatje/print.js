@@ -8,6 +8,7 @@ function _pEsc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 const _pMin = (h) => parseInt(h.slice(0, 2), 10) * 60 + parseInt(h.slice(3, 5), 10);
+const _pClock = (t) => { const m = _pMin(t); return m >= 1440 ? `${_pHHMM(m - 1440)}+` : t; };
 const _pHHMM = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
 // A4 staand, marge 7 mm → 196 × 283 mm bruikbaar.
@@ -35,7 +36,7 @@ function buildPrintView(plan, opt) {
 
   const h = [];
   h.push(`<div class="p-title"><div><b>${_pEsc(opt.clubName)}</b> — baanschema ${_pEsc(plan.date || opt.date)}</div>` +
-    `<span>${placed.filter((r) => r.kind !== "W").length} partijen ingepland${un.length ? `, ${un.length} niet` : ""} · ${courts} banen · dagstart ${_pEsc(plan.day_start)}${opt.note ? " · " + _pEsc(opt.note) : ""}</span></div>`);
+    `<span>${placed.filter((r) => r.kind !== "W").length} partijen ingepland${un.length ? `, ${un.length} niet` : ""} · ${courts} banen · eerste aanvang ${_pEsc(plan.day_start)}${opt.note ? " · " + _pEsc(opt.note) : ""}</span></div>`);
   h.push(`<div class="p-grid" style="height:${gridH.toFixed(1)}mm;grid-template-columns:${timeW}mm repeat(${courts}, ${colW.toFixed(2)}mm);grid-template-rows:${(rowH * 1.2).toFixed(2)}mm repeat(${slots}, ${rowH.toFixed(3)}mm)">`);
   h.push(`<div class="p-hdr" style="grid-row:1;grid-column:1"></div>`);
   for (let k = 1; k <= courts; k++) h.push(`<div class="p-hdr" style="grid-row:1;grid-column:${k + 1}">Baan ${k}</div>`);
@@ -55,7 +56,7 @@ function buildPrintView(plan, opt) {
     const who = isRes ? "baanreservering" : (r.home_team || "");
     h.push(`<div class="p-blk${isRes ? " p-res" : ""}" style="grid-row:${a}/${b};grid-column:${r.court + 1};${style}">` +
       `<div class="l1"><span class="p-lab">${_pEsc(r.label || r.category || "")}</span> <b>${_pEsc(r.part || (isRes ? r.category : ""))}</b></div>` +
-      `<div class="l2">${_pEsc(who)}</div><div class="l2">${_pEsc(r.start)}–${_pEsc(r.end)}</div></div>`);
+      `<div class="l2">${_pEsc(who)}</div><div class="l2">${_pEsc(_pClock(r.start))}–${_pEsc(_pClock(r.end))}</div></div>`);
   }
   h.push(`</div>`);
   const leg = [...teams.values()].sort((x, y) => (x.category || "").localeCompare(y.category || "") || (x.home_team || "").localeCompare(y.home_team || ""));

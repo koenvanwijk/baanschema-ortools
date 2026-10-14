@@ -7,7 +7,8 @@ const OV_BUSY = 85; // bezetting (%) vanaf hier: "extreem druk"
 const OV_WEEKDAYS = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
 const ovEsc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ovMin = (hhmm) => parseInt(hhmm.slice(0, 2), 10) * 60 + parseInt(hhmm.slice(3, 5), 10);
-const ovHHMM = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+// Na middernacht (≥ 24:00) als "01:00+" (volgende dag).
+const ovHHMM = (m) => `${String(Math.floor((m % 1440) / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}${m >= 1440 ? "+" : ""}`;
 const ovDate = (dmy) => { const [d, m, y] = dmy.split("-").map(Number); return new Date(y, m - 1, d); };
 const ovKey = (dmy) => dmy.split("-").reverse().join("");
 const ovWeekday = (dmy) => OV_WEEKDAYS[ovDate(dmy).getDay()];
