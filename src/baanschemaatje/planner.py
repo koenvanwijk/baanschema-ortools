@@ -502,7 +502,10 @@ def _solve(
         # hetzelfde team is gestart (dan is het niet de begintijd).
         rg = R["match_start_grid"]
         g = rg.params["value"]
-        if g > GRID:
+        # Begintijd uit de KNLTB-export (bv. 11:15) wint van het halve-uur-raster: de KNLTB heeft
+        # die tijd zelf vastgesteld. Anders sluiten de twee harde regels elkaar uit (25-10-2026).
+        exp_off_grid = t_exp is not None and R["export_start"].hard and t_exp % g != 0
+        if g > GRID and not exp_off_grid:
             for i in idxs:
                 for s in allowed[i]:
                     if s % g == 0:

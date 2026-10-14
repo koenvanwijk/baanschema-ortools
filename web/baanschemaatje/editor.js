@@ -158,7 +158,8 @@ function checkPlan(rows, club) {
     rule("max_blocks_per_team", (p) => blocks <= p.value,
       (p) => `${nm}: ${blocks} losse speelblokken (max ${p.value})`, pl);
 
-    rule("match_start_grid", (p) => first % (p.value || 30) === 0,
+    const exFirst = rows[idx[0]].export_start;
+    rule("match_start_grid", (p) => first % (p.value || 30) === 0 || (!!exFirst && first === _m(exFirst)),
       (p) => `${nm}: begintijd ${_hm(first)} niet op heel/half uur`, firstIdx);
     rule("match_start_window", (p) => first >= _m(p.from) && first <= _m(p.to),
       (p) => `${nm}: begintijd ${_hm(first)} buiten ${p.from}–${p.to}`, firstIdx);

@@ -295,3 +295,13 @@ def test_evening_last_start_is_close_minus_margin():
     assert p.weekday_settings("zondag")["last_start"] == 19 * 60 + 30  # Bijlage 3 ongewijzigd
     with pytest.raises(ProfileError):
         profile_from_dict({"club": {"name": "X"}, "courts": {"count": 6}, "day": {"evening_close_margin": "01:20"}})
+
+
+def test_export_start_off_half_hour_wins_over_grid(profiles):
+    """25-10-2026: exporttijd 11:15 (niet op heel/half uur) + harde rasterregel sloten elkaar uit → niet ingepland.
+    De exporttijd wint (KNLTB stelde hem vast)."""
+    fx = [Fixture("25-10-2026", "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 34", Category.JUNIOREN_11_14, 6, 0, 4, 2, 0,
+                  "CLUB 3", "GAST 4", export_start="11:15")]
+    res = plan_day(profiles["mierlo"], fx, "25-10-2026", time_limit_s=3, fit_check=False)
+    rows = _placed(res.rows)
+    assert res.unscheduled == 0 and min(_m(r["start"]) for r in rows) == 11 * 60 + 15
