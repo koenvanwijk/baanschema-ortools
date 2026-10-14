@@ -353,3 +353,27 @@ def test_cancellations_wordt_niet_gespeeld(client, root, monkeypatch):
     assert px["status"] == "gespeeld" and px.get("cancel_conflict") is True
     # Ingebouwd voorbeeldprofiel: alleen-lezen.
     assert client.put("/clubs/mierlo/cancellations", json={"cancellations": []}).status_code == 403
+
+
+def test_bingo_day_mode(client, root, monkeypatch):
+    """Per speeldag 'bingo': seizoensweergave toont mode, /plan rekent niet (BINGO). Standaard gepland."""
+    from datetime import date as _date
+
+    mod = sys.modules["bs_server_app"]
+    monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
+    prof = {"club": {"name": "TV Bingo", "knltb_name": "MIERLO"}, "courts": {"count": 10},
+            "weekdays": {"vrijdag": {"mode": "bingo"}}}
+    cid = client.post("/clubs", json={"profile": prof}).json()["id"]
+    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
+    assert all(d["window"]["mode"] == "bingo" for d in j["dates"] if d["weekday"] == "vrijdag")
+    assert all(d["window"]["mode"] == "gepland" for d in j["dates"] if d["weekday"] != "vrijdag")
+    fri = next(d for d in j["dates"] if d["weekday"] == "vrijdag")
+    p = client.post("/plan", json={"club": cid, "date": fri["date"], "time_limit_s": 1}).json()
+    assert p["status"] == "BINGO" and p["rows"] == []
+    summ = client.get(f"/clubs/{cid}").json()["summary"]
+    assert summ["weekdays"]["vrijdag"]["mode"] == "bingo" and summ["weekdays"]["zondag"]["mode"] == "gepland"
+    bad = {"club": {"name": "X", "knltb_name": "X"}, "courts": {"count": 4}, "weekdays": {"vrijdag": {"mode": "loterij"}}}
+    assert client.post("/clubs", json={"profile": bad}).status_code == 422
+    # Mierlo blijft gepland (niet omgezet).
+    assert client.get("/clubs/mierlo").json()["summary"]["weekdays"]["vrijdag"]["mode"] == "gepland"

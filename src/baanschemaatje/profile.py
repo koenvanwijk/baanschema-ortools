@@ -94,6 +94,7 @@ CORE_RULE_DEFAULTS: dict[str, dict[str, Any]] = {
 }
 
 #: Weekdagen waarop Bijlage 3 (variabele begintijden) geldt: alleen za/zo.
+DAY_MODES = ("gepland", "bingo")
 BIJLAGE3_DAYS = frozenset({"zaterdag", "zondag"})
 WEEKDAYS = ("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
 
@@ -172,6 +173,10 @@ class ClubProfile:
         """Geldt CR Bijlage 3 (variabele begintijden za/zo, laatste start 19:30)?"""
         return self.weekday is None or self.weekday in BIJLAGE3_DAYS
 
+    def day_mode(self, weekday: str | None) -> str:
+        """'gepland' (standaard) of 'bingo' (live indelen, planner slaat de dag over)."""
+        return (self.weekday_cfg.get(weekday or "", {}) or {}).get("mode", "gepland")
+
     def weekday_settings(self, weekday: str) -> dict[str, Any]:
         """Effectieve dagvensterinstellingen (minuten) voor een weekdag."""
         cfg = self.weekday_cfg.get(weekday, {})
@@ -187,7 +192,8 @@ class ClubProfile:
         # Einde ná middernacht: "01:00" bij start 19:00 betekent 01:00 de volgende dag (25:00).
         if out["end"] <= out["start"]:
             out["end"] += 24 * 60
-        out["defaults"] = sorted(k for k in ("start", "last_start", "end", "courts", "lighting") if k not in cfg)
+        out.setdefault("mode", "gepland")
+        out["defaults"] = sorted(k for k in ("start", "last_start", "end", "courts", "lighting", "mode") if k not in cfg)
         return out
 
     def for_day(self, weekday: str, dagdelen: set[str] | frozenset[str] = frozenset()) -> "ClubProfile":
@@ -463,8 +469,14 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
                     c[k] = v
             elif k == "note":
                 c[k] = str(v)[:200]
+            elif k == "mode":
+                # gepland = baanschema berekenen; bingo = live indelen op de avond zelf (baancommissaris)
+                if v not in DAY_MODES:
+                    errors.append(f"weekdays.{wd}.mode moet een van {', '.join(DAY_MODES)} zijn")
+                else:
+                    c[k] = v
             else:
-                errors.append(f"weekdays.{wd}.{k}: onbekende instelling (start, last_start, end, fallback_start, courts, lighting, note)")
+                errors.append(f"weekdays.{wd}.{k}: onbekende instelling (start, last_start, end, fallback_start, courts, lighting, mode, note)")
         weekday_cfg[wd] = c
     for wd, c in weekday_cfg.items():
         st = c.get("start", hhmm_to_min(EVENING_DEFAULT["start"]) if wd not in BIJLAGE3_DAYS else (day_start or 0))

@@ -247,3 +247,10 @@ details.tech > summary { cursor: pointer; color: #666; }
 .w-menu { padding: .1em .6em; min-width: 2.2em; min-height: 2em; font-weight: 700; line-height: 1; }
 .chip-more { margin-left: .25em; opacity: .8; }
 .chip-menu { box-sizing: border-box; }
+
+/* Bingo-avond (live indelen) */
+.ov-row.bingo .ov-dot, .ov-dot.bingo { background: #7b4fc9; }
+.ov-st.bingo { color: #6a3fb8; font-weight: 600; }
+.ov-pill.bingo { background: #efe7fb; color: #6a3fb8; }
+.wd-mode label { white-space: nowrap; font-size: .9em; }
+#bingo-sec { margin-top: 1em; }

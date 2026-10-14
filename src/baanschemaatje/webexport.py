@@ -82,7 +82,7 @@ def _weekday_summary(prof: ClubProfile) -> dict[str, Any]:
             "end_display": min_to_hhmm(ws["end"] % 1440) + (" (volgende dag)" if ws["end"] >= 1440 else ""),
             "fallback_start": min_to_hhmm(ws["fallback_start"]) if ws.get("fallback_start") is not None else None,
             "courts": ws.get("courts") or prof.courts, "lighting": bool(ws.get("lighting", True)),
-            "bijlage3": wd in BIJLAGE3_DAYS, "defaults": ws["defaults"], "note": ws.get("note"),
+            "bijlage3": wd in BIJLAGE3_DAYS, "mode": ws.get("mode", "gepland"), "defaults": ws["defaults"], "note": ws.get("note"),
         }
     return out
 

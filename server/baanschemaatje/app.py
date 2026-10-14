@@ -586,7 +586,8 @@ def _day_window(prof: ClubProfile | None, date: str, fx: list) -> dict[str, Any]
     dp = prof.for_date(date, fx)
     from baanschemaatje.profile import min_to_hhmm
     return {"start": min_to_hhmm(dp.day_start), "last_start": min_to_hhmm(dp.last_start),
-            "end": min_to_hhmm(dp.day_end), "courts": dp.courts, "bijlage3": dp.bijlage3, "lighting": dp.lighting}
+            "end": min_to_hhmm(dp.day_end), "courts": dp.courts, "bijlage3": dp.bijlage3, "lighting": dp.lighting,
+            "mode": prof.day_mode(dp.weekday)}
 
 
 def _season_view(season: Season, prof: ClubProfile | None = None,
@@ -772,6 +773,15 @@ def plan(req: PlanRequest) -> dict[str, Any]:
 
     club_id, prof, raw, season, spath = _resolve(req)
     day_fx = season.day(req.date)
+    wd = WEEKDAYS_NL[datetime.strptime(req.date, "%d-%m-%Y").weekday()]
+    if prof.day_mode(wd) == "bingo":
+        return {"status": "BINGO", "date": req.date, "rows": [], "day_start": None, "courts": prof.courts,
+                "stats": {"scheduled": 0, "unscheduled": 0, "solve_time_s": 0}, "attempts": [],
+                "summary": {"solved": False, "date": req.date, "status": "BINGO", "fixtures": len(day_fx),
+                            "played": sum(1 for f in day_fx if f.played), "scheduled": 0, "unscheduled": 0},
+                "message": "Bingo-avond (live indelen): er wordt geen baanschema berekend.",
+                "profile": profile_summary(prof.for_date(req.date, day_fx), club_id),
+                "moves_applied": req._moves_applied, "played": _played_view(day_fx), "cached": False}
     if day_fx and all(f.played for f in day_fx):
         return {"status": "GESPEELD", "date": req.date, "rows": [], "day_start": None, "courts": prof.courts,
                 "stats": {"scheduled": 0, "unscheduled": 0, "solve_time_s": 0}, "attempts": [],

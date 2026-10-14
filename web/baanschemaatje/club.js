@@ -314,10 +314,11 @@ function renderDates() {
       day.partijen = (day.partijen || 0) + m.wedstrijden.filter((w) => w.status === "gespeeld").reduce((t, w) => t + w.matches, 0);
       day.note = [day.note, day.allPlayed ? `gespeeld (${m.played})` : `${m.played} gespeeld, vast`].filter(Boolean).join(" · ");
     }
+    if (m && m.window && m.window.mode === "bingo") { day.bingo = true; day.note = ["Bingo (live)", day.note].filter(Boolean).join(" · "); }
     if (m && m.window && !m.window.bijlage3) day.note = [day.note, `${m.dagdelen.filter((x) => x !== "dag").join("/") || "avond"} ${m.window.start}–${clockShort(m.window.end)}`].filter(Boolean).join(" · ");
     return day;
   });
-  ovRender($("overview"), days, { onOpen: (date) => showPlan(date), onCompute: (date) => planDay(date, true), recompute: true,
+  ovRender($("overview"), days, { onOpen: (date) => (isBingo(date) ? showBingo(date) : showPlan(date)), onBingo: (date) => showBingo(date), onCompute: (date) => planDay(date, true), recompute: true,
     computing: COMPUTING, queued: QUEUED, busy: !!RUN, openAlways: true, onMove: (date) => showPlan(date) });
 }
 
@@ -374,7 +375,8 @@ async function planDay(date, show, prefix = "") {
 async function planAll() {
   if (RUN) return;
   // Alle dagen met wedstrijden, ook inhaaldagen waar wedstrijden naartoe zijn verzet.
-  const todo = ovSeasonDays(DATES).map((x) => x.date).filter((d) => clubDayPlan(d).plan.rows.length);
+  // Bingo-avonden worden live ingedeeld: niet berekenen.
+  const todo = ovSeasonDays(DATES).map((x) => x.date).filter((d) => !isBingo(d) && clubDayPlan(d).plan.rows.length);
   RUN = { ctl: null, cancelled: false };
   setBusy(true);
   todo.forEach((d) => QUEUED.add(d));
@@ -394,6 +396,26 @@ async function planAll() {
     cancelled || probs ? "warn" : "ok");
 }
 
+// ---------------------------------------------------------------- bingo-avond (live indelen)
+function isBingo(date) {
+  const d = ALL_DATES.find((x) => x.date === date);
+  return !!(d && d.window && d.window.mode === "bingo");
+}
+function showBingo(date) {
+  const d = ALL_DATES.find((x) => x.date === date);
+  $("plan-sec").hidden = true;
+  const sec = $("bingo-sec");
+  sec.hidden = false;
+  const ws = d ? d.wedstrijden : [];
+  const st = (w) => (w.status === "gespeeld" ? ` · 🔒 uitslag ${esc(w.result)}` : w.status === "vervallen" ? " · vervallen" : "");
+  $("bingo-body").innerHTML = `<h2>Bingo-avond — ${esc(ovWeekday(date))} ${esc(date)}</h2>
+    <div class="banner">Binnenkort: baancommissaris-scherm. Hier deel je straks op de avond zelf de banen live in. Er wordt voor deze avond geen baanschema berekend.</div>
+    ${d && d.window ? `<p class="hint">Avond ${esc(d.window.start)}–${esc(clockHHMM(d.window.end))} · ${d.window.courts} banen</p>` : ""}
+    <h3>Wedstrijden volgens de KNLTB-export</h3>
+    <ul class="plain">${ws.map((w) => `<li class="${w.status === "vervallen" ? "vervallen-item" : ""}"><b>${esc(w.export_start || "–")}</b> · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${st(w)}</li>`).join("") || "<li>Geen wedstrijden.</li>"}</ul>`;
+  sec.scrollIntoView({ behavior: "smooth" });
+}
+
 let SHOWN_SRC = null; // "berekend" | "handmatig aangepast" | null (nog niet berekend)
 function showPlan(date, scroll = true, force = false) {
   if (!force && SHOWN_DATE && SHOWN_DATE !== date && !$("plan-sec").hidden && EDITOR.plan && EDITOR.edited
@@ -404,6 +426,7 @@ function showPlan(date, scroll = true, force = false) {
   const s = dayClub(date);
   if (SHOWN_DATE !== date) HL = null;
   $("plan-sec").hidden = false;
+  $("bingo-sec").hidden = true;
   $("plan-title").textContent = `Baanschema ${s.name} — ${ovWeekday(date)} ${date}`;
   const v = plan.validator || {};
   const st = ovPlanStats(plan, s);
@@ -544,6 +567,7 @@ function renderPlanGrid(plan) {
 async function init() {
   $("club").onchange = loadClub;
   $("plan-all").onclick = planAll;
+  $("bingo-back").onclick = (e) => { e.preventDefault(); $("bingo-sec").hidden = true; $("overview-sec").scrollIntoView({ behavior: "smooth" }); };
   $("back-link").onclick = (e) => { e.preventDefault(); $("plan-sec").hidden = true; $("overview-sec").scrollIntoView({ behavior: "smooth" }); };
   try { await loadClubs(); } catch (e) { status(`Server niet bereikbaar (${API}): ${e.message}`, "err"); }
 }

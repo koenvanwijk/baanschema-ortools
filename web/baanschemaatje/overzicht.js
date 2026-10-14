@@ -76,6 +76,7 @@ function ovPlanStats(plan, club) {
 
 function ovStatus(day) {
   if (day.allPlayed) return { cls: "played", txt: "gespeeld (vast)" };
+  if (day.bingo) return { cls: "bingo", txt: "Bingo (live)" };
   if (day.changed && day.wedstrijden) return { cls: "changed", txt: "aangepast, nog niet berekend" };
   if (!day.wedstrijden) return { cls: "neutral", txt: day.kind === "inhaaldag" ? "inhaaldag, geen wedstrijden" : "geen thuiswedstrijden" };
   const s = day.stats;
@@ -117,7 +118,8 @@ function ovRender(el, days, opts = {}) {
         <span style="width:${Math.min(100, s.pct)}%"></span><b>${s.pct}%</b></div>${extreme ? `<span class="ov-hot">extreem druk</span>` : ""}`
       : d.wedstrijden ? `<span class="hint">–</span>` : "";
     const mvBtn = d.wedstrijden && !d.allPlayed && opts.onMove ? ` <button class="btn2 ov-calc ov-move" data-date="${ovEsc(d.date)}" title="Wedstrijden van deze dag naar een andere dag verzetten">Verzetten…</button>` : "";
-    const btn = d.wedstrijden && !d.allPlayed && opts.onCompute && (!s || d.changed || opts.recompute)
+    const bingoBtn = d.bingo && !d.allPlayed && opts.onBingo ? `<button class="btn2 ov-calc ov-bingo" data-date="${ovEsc(d.date)}" title="Bingo-avond: banen worden live ingedeeld">Avond openen</button>` : "";
+    const btn = d.bingo ? bingoBtn : d.wedstrijden && !d.allPlayed && opts.onCompute && (!s || d.changed || opts.recompute)
       ? `<button class="btn2 ov-calc" data-date="${ovEsc(d.date)}" title="Deze dag nu (opnieuw) berekenen op de server"${busy ? " disabled" : ""}>${computing.has(d.date) ? "Bezig…" : s ? "Opnieuw" : "Nu berekenen"}</button>` : "";
     const kind = d.kind === "inhaaldag" ? `<span class="ov-kind inh">inhaaldag</span>` : `<span class="ov-kind">speeldag</span>`;
     return `<tr class="ov-row ${stt.cls}${computing.has(d.date) ? " computing" : ""}${d.kind === "inhaaldag" ? " inh" : ""}${open ? " click" : ""}${extreme ? " extreme" : ""}" data-date="${ovEsc(d.date)}">
@@ -142,7 +144,8 @@ function ovRender(el, days, opts = {}) {
     tr.onclick = (e) => { if (e.target.closest("button")) return; e.preventDefault(); opts.onOpen(tr.dataset.date); };
   }
   for (const b of el.querySelectorAll("button.ov-move")) b.onclick = (e) => { e.stopPropagation(); opts.onMove(b.dataset.date); };
-  for (const b of el.querySelectorAll("button.ov-calc:not(.ov-move)")) b.onclick = (e) => { e.stopPropagation(); opts.onCompute(b.dataset.date); };
+  for (const b of el.querySelectorAll("button.ov-bingo")) b.onclick = (e) => { e.stopPropagation(); opts.onBingo(b.dataset.date); };
+  for (const b of el.querySelectorAll("button.ov-calc:not(.ov-move):not(.ov-bingo)")) b.onclick = (e) => { e.stopPropagation(); opts.onCompute(b.dataset.date); };
 }
 
 // Dag-object voor ovRender uit een ovSeasonDays-item.

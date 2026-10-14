@@ -42,7 +42,7 @@ function renderWeekdays(wds) {
     const next = type === "time" && v && toMin(v) >= 1440 ? ' <span class="hint">volgende dag</span>' : "";
     return `<td>${inp}${next}${isD ? ' <span class="dflt" title="Standaardwaarde, nog niet door de club bevestigd">standaard</span>' : ' <span class="hint" title="Door de club ingesteld">✓ bevestigd</span>'}</td>`;
   };
-  $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Eerste aanvang</th><th>Laatste start</th><th>Park dicht</th><th>Banen</th><th>Verlichting</th><th>Regels</th></tr>` +
+  $("weekdays").innerHTML = `<tr><th>Weekdag</th><th>Eerste aanvang</th><th>Laatste start</th><th>Park dicht</th><th>Banen</th><th>Verlichting</th><th>Schema</th><th>Regels</th></tr>` +
     show.map((wd) => {
       const w = wds[wd] || {};
       const b3 = w.bijlage3;
@@ -50,6 +50,8 @@ function renderWeekdays(wds) {
         (b3 ? `<td colspan="3" class="hint">algemene dagstart/laatste start/einde (hierboven)</td>` :
           cell(wd, "start", "time", w.start) + cell(wd, "last_start", "time", w.last_start) + cell(wd, "end", "time", w.end)) +
         cell(wd, "courts", "number", w.courts) + cell(wd, "lighting", "checkbox", w.lighting) +
+        `<td class="wd-mode">${[["gepland", "Gepland (berekend)"], ["bingo", "Bingo (live)"]].map(([v, l]) =>
+          `<label><input type="radio" name="mode-${wd}" data-wd="${wd}" data-k="mode" value="${v}"${(w.mode || "gepland") === v ? " checked" : ""}> ${l}</label>`).join("<br>")}</td>` +
         `<td class="hint">${b3 ? "KNLTB Bijlage 3" : "avond: begintijd 19:00–20:00 (KNLTB)"}</td></tr>`;
     }).join("");
   for (const el of $("weekdays").querySelectorAll("input")) el.disabled = !CLUB.editable;
@@ -60,6 +62,7 @@ function readWeekdays() {
   const raw = JSON.parse(JSON.stringify((CLUB.profile && CLUB.profile.weekdays) || {}));
   const eff = CLUB.summary.weekdays || {};
   for (const el of $("weekdays").querySelectorAll("input")) {
+    if (el.type === "radio" && !el.checked) continue;
     const wd = el.dataset.wd, k = el.dataset.k;
     const v = el.type === "checkbox" ? el.checked : el.type === "number" ? (el.value ? parseInt(el.value, 10) : null) : el.value;
     let cur = (eff[wd] || {})[k];
