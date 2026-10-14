@@ -88,7 +88,7 @@ function render() {
   $("bg-teams").innerHTML = BG.matches.map((m) => {
     const left = m.parts.filter((p) => !ST.done[p.id]).length;
     return `<label class="bg-team${ST.present[m.key] ? " on" : ""}"><input type="checkbox" data-key="${esc(m.key)}"${ST.present[m.key] ? " checked" : ""}>
-      <span><b>${esc(m.label)} ${esc(m.home)}</b> – ${esc(m.away)}<br><span class="hint">${m.export_start ? `${esc(m.export_start)} · ` : ""}${m.parts.length} partijen${left < m.parts.length ? ` · nog ${left}` : ""}</span></span></label>`;
+      <span><b>${esc(m.label)} ${esc(m.home)}</b> – ${esc(m.away)}<br><span class="hint">${m.moved_from ? `verzet van ${esc(m.moved_from)} · ` : ""}${m.export_start ? `${esc(m.export_start)} · ` : ""}${m.parts.length} partijen${left < m.parts.length ? ` · nog ${left}` : ""}</span></span></label>`;
   }).join("") || '<p class="hint">Geen (niet-gespeelde) wedstrijden op deze avond. Opgaven tellen niet mee.</p>';
 
   $("bg-log").innerHTML = [...ST.log].reverse().map((l) => `<li><span class="hint">${hm(l.t)}</span> ${esc(l.msg)}</li>`).join("");

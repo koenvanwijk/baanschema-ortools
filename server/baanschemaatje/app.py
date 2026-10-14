@@ -494,8 +494,25 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
     """Wedstrijden van de avond met hun partijen (S/D/GD volgens de KNLTB-categorie); zonder opgaven en gespeelde."""
     from baanschemaatje.planner import build_parts
 
-    season = _season(prof.knltb_name, _season_path(club_id))
-    cm = _cancel_map(_cancellations(club_id))
+    # Opgeslagen verzettingen tellen mee: een naar deze bingo-avond verzette wedstrijd verschijnt
+    # bij de commissaris (en een weg-verzette verdwijnt). Ongeldige/verouderde verzettingen worden overgeslagen.
+    spath = _season_path(club_id)
+    cancels = _cancellations(club_id)
+    cm = _cancel_map(cancels)
+    gone = {(k[0], t, k[3]) for k in cm for t in (k[1], k[2])}
+    moves = []
+    for m in ((_get_json(f"clubs/{club_id}/moves.json") or {}).get("moves") or []):
+        try:
+            mv = Move.model_validate(m)
+            if (_norm(mv.schema_), _norm(mv.home), mv.from_) in gone:
+                continue
+            _apply_moves(spath, [mv])
+            moves.append(mv)
+        except Exception:  # noqa: BLE001 - verouderde verzetting: negeren
+            continue
+    moved_in = {(_norm(m.schema_), _norm(m.home)): m.from_ for m in moves if m.to == date}
+    spath, _ = _apply_moves(spath, moves)
+    season = _season(prof.knltb_name, spath)
     out = []
     for f in season.day(date):
         if f.played or _ckey(f.schema, f.home_team, f.away_team, f.date) in cm or f.is_block:
@@ -503,6 +520,7 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
         key = f"{' '.join(f.schema.split())}|{f.home_team}"
         out.append({"key": key, "label": f.label, "schema": f.schema, "home": f.home_team, "away": f.away_team,
                     "category": f.category.value, "export_start": f.export_start,
+                    "moved_from": moved_in.get((_norm(f.schema), _norm(f.home_team))),
                     "duration": prof.duration_for(f.category, f.export_duration),
                     "parts": [{"id": f"{key}|{lab}", "label": lab, "kind": kind} for lab, kind in build_parts(f)]})
     return out

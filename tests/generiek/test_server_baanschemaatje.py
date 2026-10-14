@@ -416,3 +416,16 @@ def test_bingo_evening_state_with_generation(client, root, monkeypatch):
     assert client.delete(f"/clubs/{cid}/bingo/{sun['date']}").json()["deleted"] is True
     assert client.get(f"/clubs/{cid}/bingo/{sun['date']}").json()["gen"] == 0
     assert client.put(f"/clubs/{cid}/bingo/bad", json={"state": st, "gen": 0}).status_code == 422
+
+
+def test_bingo_includes_moved_matches(client):
+    """Naar een bingo-avond verzette wedstrijden verschijnen op het commissarisscherm; verouderde verzettingen tellen niet."""
+    cid = _stored_club(client, "TV Bingoverzet")
+    w = _mierlo_fixture(client)
+    assert client.get(f"/clubs/{cid}/bingo/16-10-2026").json()["matches"] == []
+    mv = {"schema": w["schema"], "home": w["home"], "from": "27-09-2026", "to": "16-10-2026"}
+    bad = {"schema": "Bestaat niet", "home": "MIERLO 9", "from": "27-09-2026", "to": "16-10-2026"}
+    assert client.put(f"/clubs/{cid}/moves", json={"moves": [mv, bad]}).status_code == 200
+    ms = client.get(f"/clubs/{cid}/bingo/16-10-2026").json()["matches"]
+    assert [(m["home"], m["moved_from"]) for m in ms] == [(w["home"], "27-09-2026")] and ms[0]["parts"]
+    assert all(m["home"] != w["home"] or m["schema"] != w["schema"] for m in client.get(f"/clubs/{cid}/bingo/27-09-2026").json()["matches"])

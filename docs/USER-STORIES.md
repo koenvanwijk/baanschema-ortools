@@ -44,6 +44,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Bingo stap 2 gebouwd: commissarisscherm (bingo.html), opslag per club/datum met generatie (409 bij conflict), polling 5 s | Oscar |
 | 2026-10-12 | 25-10 niet in te plannen: exporttijd 11:15 (hard) botste met halve-uur-raster (CR B3 1.1, hard). Besluit: KNLTB-exporttijd wint; raster vervalt voor dat team (planner + editor-check). Test: export 11:15 → ingepland om 11:15. | Oscar |
 | 2026-10-14 | Voorkeur lage baannummers (clubinstelling `court_assignment.prefer_low_courts`, default aan, vinkje in Instellingen): bij genoeg plek eerst de laagste banen. Zacht, alleen tie-break (gewicht onder alle andere voorkeuren); aangrenzend/overige regels blijven. Geen sleepcheck (zacht). Aanleiding: 25-10 MIERLO 3 op baan 9-10. | Oscar |
+| 2026-10-14 | Bingo: opgeslagen verzettingen tellen mee op het commissarisscherm (naar de avond verzet = erbij, met "verzet van <datum>"; weg-verzet = eraf; verouderde verzetting genegeerd) | Oscar |
 
 ---
 
@@ -186,3 +187,4 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
 | 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |
+| 20 | [Bingo] | Naar een bingo-avond verzette wedstrijden verschijnen bij de commissaris | G2 | klaar (14-10-2026) |
