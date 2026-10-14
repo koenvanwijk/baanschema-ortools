@@ -273,10 +273,10 @@ def test_upload_all_weekdays_played_locked_and_reprocess(client, root, monkeypat
 
     mod = sys.modules["bs_server_app"]
     monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
-    prof = {"club": {"name": "TV Avond", "knltb_name": "MIERLO"}, "courts": {"count": 10},
+    prof = {"club": {"name": "TV Avond", "knltb_name": "THUISCLUB"}, "courts": {"count": 10},
             "weekdays": {"vrijdag": {"courts": 6}}}
     cid = client.post("/clubs", json={"profile": prof}).json()["id"]
-    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    data = (root / "tests" / "generiek" / "data" / "export_anoniem_20261010.xlsx").read_bytes()
     j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
     rep = j["report"]
     assert rep["imported"] == 112 and rep["per_weekday"]["vrijdag"] == 40 and rep["per_weekday"]["donderdag"] == 12
@@ -314,9 +314,9 @@ def test_cancellations_wordt_niet_gespeeld(client, root, monkeypatch):
 
     mod = sys.modules["bs_server_app"]
     monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
-    prof = {"club": {"name": "TV Vervallen", "knltb_name": "MIERLO"}, "courts": {"count": 10}}
+    prof = {"club": {"name": "TV Vervallen", "knltb_name": "THUISCLUB"}, "courts": {"count": 10}}
     cid = client.post("/clubs", json={"profile": prof}).json()["id"]
-    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    data = (root / "tests" / "generiek" / "data" / "export_anoniem_20261010.xlsx").read_bytes()
     j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
     day = next(d for d in j["dates"] if d["open_fixtures"] >= 2)
     w = next(x for x in day["wedstrijden"] if x["status"] != "gespeeld")
@@ -361,10 +361,10 @@ def test_bingo_day_mode(client, root, monkeypatch):
 
     mod = sys.modules["bs_server_app"]
     monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
-    prof = {"club": {"name": "TV Bingo", "knltb_name": "MIERLO"}, "courts": {"count": 10},
+    prof = {"club": {"name": "TV Bingo", "knltb_name": "THUISCLUB"}, "courts": {"count": 10},
             "weekdays": {"vrijdag": {"mode": "bingo"}}}
     cid = client.post("/clubs", json={"profile": prof}).json()["id"]
-    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    data = (root / "tests" / "generiek" / "data" / "export_anoniem_20261010.xlsx").read_bytes()
     j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
     assert all(d["window"]["mode"] == "bingo" for d in j["dates"] if d["weekday"] == "vrijdag")
     assert all(d["window"]["mode"] == "gepland" for d in j["dates"] if d["weekday"] != "vrijdag")
@@ -386,10 +386,10 @@ def test_bingo_evening_state_with_generation(client, root, monkeypatch):
 
     mod = sys.modules["bs_server_app"]
     monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
-    prof = {"club": {"name": "TV Bingo2", "knltb_name": "MIERLO"}, "courts": {"count": 10},
+    prof = {"club": {"name": "TV Bingo2", "knltb_name": "THUISCLUB"}, "courts": {"count": 10},
             "weekdays": {"vrijdag": {"mode": "bingo", "end": "01:00"}}}
     cid = client.post("/clubs", json={"profile": prof}).json()["id"]
-    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    data = (root / "tests" / "generiek" / "data" / "export_anoniem_20261010.xlsx").read_bytes()
     j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
     sun = next(d for d in j["dates"] if d["date"] == "11-10-2026")  # heeft nog niet-gespeelde wedstrijden
     g = client.get(f"/clubs/{cid}/bingo/{sun['date']}").json()

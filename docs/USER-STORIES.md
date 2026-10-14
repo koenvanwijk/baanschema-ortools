@@ -40,6 +40,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Avond: laatste start = sluiting − 1:30 (generiek, per club instelbaar `day.evening_close_margin`); vrijdag 23:30 | Oscar |
 | 2026-10-14 | Mierlo donderdag: eindtijd 00:00 (bevestigd) → laatste start 22:30 | Oscar |
 | 2026-10-14 | JU11-14 MIERLO 2 – VALKENSWAARD 1 (11-10) "Tegenstander opgave" is echt; blijft staan | Oscar |
+| 2026-10-14 | Testbestand geanonimiseerd: `export_mierlo_20261010.xlsx` → `tests/generiek/data/export_anoniem_20261010.xlsx` (THUISCLUB n / TEGENSTANDER X n, fictieve uitslagen, status/structuur gelijk). Geen history-rewrite: origineel blijft in git-geschiedenis (commit 39f5781) | Oscar |
 | 2026-10-14 | Bingo stap 2 gebouwd: commissarisscherm (bingo.html), opslag per club/datum met generatie (409 bij conflict), polling 5 s | Oscar |
 
 ---
@@ -180,6 +181,6 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 14 | [Planner] | 27-09 herberekenen op verzoek | — | open |
 | 15 | [Planner] | Reisafstand per tegenstander (80 km-regel) | B6 | uitgesteld |
 | 16 | [Planner] | Dashboard / herplannen op de wedstrijddag (ROADMAP fase 3) | — | gepland |
-| 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen (`tests/generiek/data/export_mierlo_20261010.xlsx`, alleen op product/generiek) verwijderen of anonimiseren? | — | open vraag (Oscar) |
+| 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
 | 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |

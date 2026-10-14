@@ -50,8 +50,8 @@ def test_weekday_filter_and_unknown_formats(root):
 def test_oscar_export_all_weekdays_and_played(root):
     """Upload Oscar 10-10-2026: do/vr-avond, za en zo; gespeeld = uitslag."""
     from datetime import date
-    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
-    rows, rep = parse_export(data, "w.xlsx", "MIERLO", today=date(2026, 10, 10))
+    data = (root / "tests" / "generiek" / "data" / "export_anoniem_20261010.xlsx").read_bytes()
+    rows, rep = parse_export(data, "w.xlsx", "THUISCLUB", today=date(2026, 10, 10))
     assert rep["rows_in_file"] == 228 and rep["imported"] == 112
     assert rep["per_weekday"] == {"zondag": 51, "donderdag": 12, "vrijdag": 40, "zaterdag": 9}
     assert rep["skipped"] == {"uitwedstrijd": 116} and not rep["unknown_schemas"]
@@ -63,5 +63,5 @@ def test_oscar_export_all_weekdays_and_played(root):
     g = [r for r in rows if r["Status"] == "gespeeld"]
     assert all(r["Uitslag"] for r in g)
     # Round-trip via TSV behoudt status/uitslag/dagdeel.
-    rows2, rep2 = parse_export(to_tsv(rows).encode(), "s.tsv", "MIERLO", today=date(2026, 10, 10))
+    rows2, rep2 = parse_export(to_tsv(rows).encode(), "s.tsv", "THUISCLUB", today=date(2026, 10, 10))
     assert rep2["played"] == 95 and [r["Status"] for r in rows2] == [r["Status"] for r in rows]
