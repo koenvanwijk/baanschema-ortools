@@ -1,5 +1,7 @@
 # Baanschema Optimizer (OR-Tools + Python)
 
+> **Werkprincipe:** elke beslissing en requirement wordt vastgelegd als user story in [`docs/USER-STORIES.md`](docs/USER-STORIES.md) en in dezelfde commit bijgewerkt.
+
 Planningsproject voor Oscar om wedstrijden over banen en tijdsloten te plannen met:
 
 - **Harde constraints** (moeten altijd gelden)

@@ -11,6 +11,8 @@ Baanschemaatje is een **generiek product** voor elke tennisvereniging. De specif
 
 Productrichting en fases: zie [`../ROADMAP.md`](../ROADMAP.md).
 
+Alle beslissingen en requirements als user stories (met status, datum, bron): [`USER-STORIES.md`](./USER-STORIES.md).
+
 | [`SPEC.md`](./SPEC.md) | Operationele SPEC van de bestaande (live) stack — bewust ongewijzigd |
 
 > Voor Baanschemaatje zijn SPEC-core + clubprofiel leidend. `SPEC.md` blijft staan zodat de live pagina en de validator/CI van `main` hun bron houden.

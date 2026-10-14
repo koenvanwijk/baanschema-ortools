@@ -6,6 +6,8 @@
 **Status:** productrichting vastgelegd — 2026-10-05  
 **Solver:** OR-Tools CP-SAT (enige productpad)
 
+> **Beslissingen en requirements:** zie [`docs/USER-STORIES.md`](docs/USER-STORIES.md) — levend brondocument; elke beslissing wordt daar als user story vastgelegd, in dezelfde commit.
+
 ## Houding (belangrijk)
 
 Baanschemaatje is een **generiek product** voor elke tennisvereniging. Er is geen “hoofdclub”.
