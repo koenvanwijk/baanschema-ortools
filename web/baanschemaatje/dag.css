@@ -1,0 +1,10 @@
+.dg-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0 12px; }
+.dg-actions .btn2 { text-decoration: none; padding: 8px 12px; border: 1px solid #888; border-radius: 8px; background: #fff; color: #222; font-size: 1em; cursor: pointer; }
+.dg-actions #dg-wa { background: #25d366; border-color: #1da851; color: #fff; }
+.dg-teams { list-style: none; padding: 0; margin: 0; }
+.dg-team { border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: #fff; }
+.dg-head { display: flex; gap: 10px; align-items: baseline; font-size: 1.1em; }
+.dg-time { font-weight: 700; font-size: 1.3em; min-width: 3.2em; font-variant-numeric: tabular-nums; }
+.dg-courts { margin: 4px 0 2px 4.2em; font-weight: 600; }
+.dg-parts { margin-left: 4.2em; }
+@media print { .no-print { display: none !important; } .dg-team { break-inside: avoid; border-color: #999; } header { background: none !important; color: #000 !important; } }

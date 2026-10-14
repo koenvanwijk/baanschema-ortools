@@ -465,6 +465,7 @@ function showPlan(date, scroll = true, force = false) {
   for (const b of document.querySelectorAll("#plan-state .un-cancel")) b.onclick = () => uncancelMatch(b.dataset.schema, b.dataset.home, date);
   SHOWN_DATE = date;
   EDITOR.load(plan); // werkkopie: slepen + directe controle; Opslaan bewaart hem op de server
+  $("share-btn").href = `dag.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
   $("print-btn").onclick = () => printPlan(EDITOR.plan, { clubName: s.name, date, dayStart: s.day.fallback_start || s.day.start, dayEnd: s.day.end,
     note: [SHOWN_SRC === "handmatig aangepast" || EDITOR.edited ? "handmatig aangepast" : SHOWN_SRC ? "berekend" : "nog niet berekend",
       EDITOR.dirty ? "niet opgeslagen" : SHOWN_STATE.saved ? `opgeslagen ${hhmm(SHOWN_STATE.saved.saved_at)}` : ""].filter(Boolean).join(", ") });

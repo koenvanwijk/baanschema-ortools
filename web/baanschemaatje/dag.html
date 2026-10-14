@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baanschema van de dag</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="dag.css">
+</head>
+<body class="dag">
+<header><div class="brand"><h1 id="dg-title">Baanschema</h1><span class="sub" id="dg-sub"></span></div></header>
+<main>
+  <div class="dg-actions no-print">
+    <button id="dg-copy" class="btn2">🔗 Kopieer link</button>
+    <a id="dg-wa" class="btn2" target="_blank" rel="noopener">WhatsApp</a>
+    <button id="dg-print" class="btn2" onclick="window.print()">Printen</button>
+    <span id="dg-copied" class="hint"></span>
+  </div>
+  <div id="dg-body"><p class="hint">Laden…</p></div>
+</main>
+<script src="common.js"></script>
+<script src="dag.js"></script>
+</body>
+</html>
