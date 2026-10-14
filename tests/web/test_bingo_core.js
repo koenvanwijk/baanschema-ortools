@@ -34,3 +34,25 @@ test("waarschuwing na laatste start en na sluiting (na middernacht)", () => {
   assert.match(B.bgWarnings(w, 120, at(23, 15))[0], /na sluiting \(01:00\)/);
   assert.strictEqual(B.bgEveningMin(at(0, 30)), 24 * 60 + 30);
 });
+
+test("voorstel volgende partij: laagste vrije baan, minst bezette team, KNLTB-volgorde, tijdsgrens", () => {
+  const w = { start: "19:00", last_start: "23:30", end: "25:00", courts: 3 };
+  let s = B.bgEmpty();
+  assert.strictEqual(B.bgSuggest(s, M, w, at(19, 0)), null);
+  s = B.bgSetPresent(s, M[0], true, at(19, 0));
+  s = B.bgSetPresent(s, M[1], true, at(19, 0));
+  let g = B.bgSuggest(s, M, w, at(19, 1));
+  assert.deepStrictEqual([g.court, g.label, g.match.home], [1, "DD", "MIERLO 1"]);
+  s = B.bgAssign(s, M, g.part, g.court, "", at(19, 1));
+  g = B.bgSuggest(s, M, w, at(19, 2));
+  assert.deepStrictEqual([g.court, g.label, g.match.home], [2, "D1", "MIERLO 2"]);
+  assert.strictEqual(B.bgSuggest(s, M, w, at(23, 45)), null);
+  assert.ok(B.bgSuggest(s, M, w, at(23, 30 - 60)));
+});
+
+test("voorstel: partij die na sluiting eindigt wordt niet voorgesteld", () => {
+  const w = { start: "19:00", last_start: "23:30", end: "24:30", courts: 2 };
+  const s = B.bgSetPresent(B.bgEmpty(), M[1], true, at(19, 0));
+  assert.ok(B.bgSuggest(s, M, w, at(23, 0)));
+  assert.strictEqual(B.bgSuggest(s, M, w, at(23, 15)), null);
+});

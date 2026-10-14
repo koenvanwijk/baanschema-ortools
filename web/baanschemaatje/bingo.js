@@ -78,6 +78,15 @@ function render() {
       <button class="btn bg-big bg-done" data-court="${i + 1}">Klaar</button></div>`;
   }).join("") || '<p class="hint">Geen banen ingesteld.</p>';
 
+  // Voorstel
+  const sg = bgSuggest(ST, BG.matches, BG.window, new Date());
+  $("bg-suggest").hidden = !sg;
+  if (sg) {
+    $("bg-sg-text").innerHTML = `Volgende op <b>baan ${sg.court}</b>: <b>${esc(sg.label)}</b> ${esc(sg.match.label)} ${esc(sg.match.home)} <span class="hint">– ${esc(sg.match.away)}</span>`;
+    $("bg-sg-ok").onclick = () => act((s) => bgAssign(s, BG.matches, sg.part, sg.court, ""));
+    $("bg-sg-other").onclick = () => openAssign(sg.part);
+  }
+
   // Wachtrij
   const q = bgQueue(ST, BG.matches);
   $("bg-qn").textContent = `(${q.length})`;

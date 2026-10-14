@@ -45,6 +45,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-12 | 25-10 niet in te plannen: exporttijd 11:15 (hard) botste met halve-uur-raster (CR B3 1.1, hard). Besluit: KNLTB-exporttijd wint; raster vervalt voor dat team (planner + editor-check). Test: export 11:15 → ingepland om 11:15. | Oscar |
 | 2026-10-14 | Voorkeur lage baannummers (clubinstelling `court_assignment.prefer_low_courts`, default aan, vinkje in Instellingen): bij genoeg plek eerst de laagste banen. Zacht, alleen tie-break (gewicht onder alle andere voorkeuren); aangrenzend/overige regels blijven. Geen sleepcheck (zacht). Aanleiding: 25-10 MIERLO 3 op baan 9-10. | Oscar |
 | 2026-10-14 | Bingo: opgeslagen verzettingen tellen mee op het commissarisscherm (naar de avond verzet = erbij, met "verzet van <datum>"; weg-verzet = eraf; verouderde verzetting genegeerd) | Oscar |
+| 2026-10-14 | Bingo stap 3: voorstel "Volgende op baan X" = laagste vrije baan, aanwezig team met minste partijen op de baan, singles vóór dubbels, alleen als hij ≤ laatste start begint en vóór sluiting klaar is; één tik accepteren, commissaris kan anders kiezen | Oscar |
 
 ---
 
@@ -152,7 +153,8 @@ Antwoorden van Oscar (14-10-2026):
 - AC: `bingo.html#<club>/<datum>` via "Avond openen"; per team "aanwezig"; alle banen vrij/bezet met verstreken tijd; wachtrij met partijen (S/D/GD volgens KNLTB-categorie) van aanwezige teams; partij op vrije baan zetten met opstelling (vrije tekst); "Klaar" maakt baan vrij (geen uitslag); ongedaan maken; logboek met tijden; waarschuwing na laatste start (23:30) of einde na 01:00; geen rust-/max-banen-/aangrenzend-regel; opgaven en gespeelde wedstrijden tellen niet mee; geen login (iedereen met de link). Opslag per club/datum met generatie (409 bij gelijktijdige wijziging), polling elke 5 s.
 - Status: gereed (deze commit) · Bron: Oscar 14-10-2026.
 
-**G3 — Voorstel volgende partij + ongedaan maken.** Als commissaris wil ik een voorstel voor de volgende partij en een "ongedaan maken". · Status: gepland.
+**G3 — Voorstel volgende partij + ongedaan maken.** Als commissaris wil ik een voorstel voor de volgende partij en een "ongedaan maken".
+- AC: blok "Volgende op baan X" (laagste vrije baan) met partij van een aanwezig team, singles vóór dubbels (KNLTB-volgorde), voorrang aan het team met de minste partijen op de baan; alleen als hij nog mag starten (≤ laatste start) en vóór sluiting klaar is; één tik "Starten", of "Anders kiezen…"/wachtrij. Geen rust-/max-banen-regel. Ongedaan maken zat al in G2. · Status: klaar (14-10-2026).
 
 **G4 — Tv/beamer-scherm (alleen-lezen).** Als lid/bar wil ik op een groot scherm zien wat waar speelt en wat volgt. Prioriteit boven meekijken op telefoon. · Status: gepland.
 
@@ -175,7 +177,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | nog niet gestart |
 | 6 | [UX] | Dagschema als lijst op telefoon | F3 | nog niet gestart |
 | 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | nog niet gestart |
-| 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | nog niet gestart |
+| 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | klaar (14-10-2026) |
 | 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | nog niet gestart |
 | 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | nog niet gestart |
 | 11 | [Bingo] | Mierlo-vrijdag op bingo | G1 | klaar (besluit 14-10-2026) |

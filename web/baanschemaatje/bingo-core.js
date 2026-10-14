@@ -50,6 +50,25 @@ function bgWarnings(window, duration, now) {
   return w;
 }
 
+// Voorstel "Volgende op baan X" (besluit Oscar 14-10-2026, simpel): laagste vrije baan; partij van een aanwezig team,
+// per team in KNLTB-volgorde (singles vóór dubbels, zoals de export: S, D, GD); voorrang aan het team met de minste
+// partijen nu op de baan, daarna wie het eerst in de lijst staat. Alleen als de partij nog mag starten (≤ laatste start)
+// en vóór sluiting klaar is. Geen rust-/max-banen-regel. Geeft {court, part, match} of null.
+function bgSuggest(state, matches, window, now = new Date()) {
+  const n = (window && window.courts) || 0;
+  const court = bgFreeCourts(state, n)[0];
+  if (!court) return null;
+  if (window && window.last_start && bgEveningMin(now) > bgMin(window.last_start)) return null;
+  const playing = {};
+  for (const c of Object.values(state.courts)) for (const m of matches) if (m.parts.some((p) => p.id === c.part)) playing[m.key] = (playing[m.key] || 0) + 1;
+  const q = bgQueue(state, matches).filter((p) => !(window && window.end && p.match.duration && bgEveningMin(now) + p.match.duration > bgMin(window.end)));
+  if (!q.length) return null;
+  const firstOf = new Map();
+  for (const p of q) if (!firstOf.has(p.match.key)) firstOf.set(p.match.key, p);
+  const pick = [...firstOf.values()].sort((a, b) => (playing[a.match.key] || 0) - (playing[b.match.key] || 0))[0];
+  return { court, part: pick.id, match: pick.match, label: pick.label };
+}
+
 function _bgSnap(state) { const { undo, ...rest } = state; return JSON.parse(JSON.stringify(rest)); }
 function _bgDo(state, fn, msg, now) {
   const s = JSON.parse(JSON.stringify(state));
@@ -85,4 +104,4 @@ function bgUndo(state, now = new Date()) {
   return { ...prev, undo: u.slice(0, -1), log: [...prev.log, { t: now.toISOString(), msg: `Ongedaan: ${lastMsg}` }] };
 }
 
-if (typeof module !== "undefined") module.exports = { bgEmpty, bgNorm, bgQueue, bgFreeCourts, bgWarnings, bgSetPresent, bgAssign, bgFinish, bgUndo, bgEveningMin, bgHM };
+if (typeof module !== "undefined") module.exports = { bgEmpty, bgNorm, bgQueue, bgFreeCourts, bgWarnings, bgSetPresent, bgAssign, bgFinish, bgUndo, bgSuggest, bgEveningMin, bgHM };
