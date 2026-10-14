@@ -221,8 +221,12 @@ class PlanEditor {
     this.orig = JSON.parse(JSON.stringify(plan));
     this.plan = JSON.parse(JSON.stringify(plan));
     this.history = [];
+    this.savedRows = JSON.stringify(this.plan.rows);
     this.refresh();
   }
+
+  // Gewijzigd sinds laden/laatste opslag (los van de undo-geschiedenis, die na automatisch opslaan blijft).
+  get changedSinceSave() { return JSON.stringify(this.plan.rows) !== this.savedRows; }
 
   get edited() { return this.history.length > 0 || JSON.stringify(this.plan.rows) !== JSON.stringify(this.orig.rows); }
 
@@ -243,16 +247,21 @@ class PlanEditor {
   undo() { if (this.history.length) { this.plan.rows = JSON.parse(this.history.pop()); this.refresh(); } }
   reset() { this.plan = JSON.parse(JSON.stringify(this.orig)); this.history = []; this.refresh(); }
   // Na opslaan: huidige stand wordt het nieuwe "origineel".
-  markSaved() { this.orig = JSON.parse(JSON.stringify(this.plan)); this.history = []; }
+  // Automatisch opslaan (opts.save.auto): ongedaan maken blijft mogelijk; terug naar origineel = de geladen versie.
+  markSaved() {
+    this.savedRows = JSON.stringify(this.plan.rows);
+    if (!(this.opts.save && this.opts.save.auto)) { this.orig = JSON.parse(JSON.stringify(this.plan)); this.history = []; }
+  }
   // Opslag-status (alleen als opts.save bestaat): {unsaved, savedAt, source, canDelete}
   get saveState() { return this.opts.save ? this.opts.save.state() : null; }
-  get dirty() { const st = this.saveState; return this.edited || !!(st && st.unsaved); }
+  get dirty() { const st = this.saveState; return (st && st.auto ? this.changedSinceSave : this.edited) || !!(st && st.unsaved); }
 
   refresh() {
     this.opts.render(this.plan);
     const res = checkPlan(this.plan.rows, this.opts.club());
     this.decorate(res);
     this.renderBar(res);
+    if (this.opts.onRefresh) this.opts.onRefresh(res);
   }
 
   decorate(res) {
@@ -276,7 +285,12 @@ class PlanEditor {
     const hhmm = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
     const nEd = `${this.history.length} wijziging${this.history.length === 1 ? "" : "en"}`;
     let banner = "";
-    if (sv) {
+    if (sv && sv.auto) {
+      if (sv.error) banner = `<div class="ed-banner">Niet opgeslagen: ${e(sv.error)}</div>`;
+      else if (sv.stale && !this.changedSinceSave) banner = `<div class="ed-banner">Wijkt af van het definitieve schema door verzettingen. Bereken de dag opnieuw of versleep partijen; dat wordt meteen opgeslagen.</div>`;
+      else if (this.dirty || sv.busy) banner = `<div class="ed-banner">Opslaan…</div>`;
+      else if (sv.savedAt) banner = `<div class="ed-banner saved"><span class="badge-def">Definitief schema</span> opgeslagen om ${hhmm(sv.savedAt)}${sv.source ? ` · ${e(sv.source)}` : ""}</div>`;
+    } else if (sv) {
       if (this.dirty) banner = `<div class="ed-banner">Aangepast, niet opgeslagen${this.edited ? ` (${nEd})` : sv.unsavedWhy ? ` (${e(sv.unsavedWhy)})` : ""}. Druk op Opslaan om dit baanschema te bewaren.</div>`;
       else if (sv.savedAt) banner = `<div class="ed-banner saved">Opgeslagen om ${hhmm(sv.savedAt)}${sv.savedDay ? ` op ${e(sv.savedDay)}` : ""}${sv.source ? ` · ${e(sv.source)}` : ""}</div>`;
     } else if (this.edited) {
@@ -287,7 +301,7 @@ class PlanEditor {
         <span class="hint">${edOn()
           ? (ED_TOUCH ? "Houd een partij even vast (tot hij oplicht) en sleep hem naar een andere baan of tijd (per kwartier). Gewoon vegen scrolt." : "Sleep een partij naar een andere baan of tijd (per kwartier). Niet-ingeplande partijen kun je op het grid slepen.")
           : `${ED_TOUCH ? "Tik" : "Klik"} op een partij voor details. Wil je iets verschuiven? Druk op "Partijen verslepen".`}</span>
-        ${sv ? `<button class="btn ed-save" id="ed-save" ${this.dirty && !sv.busy ? "" : "disabled"}>${sv.busy ? "Opslaan…" : "Opslaan"}</button>` : ""}
+        ${sv && !sv.auto ? `<button class="btn ed-save" id="ed-save" ${this.dirty && !sv.busy ? "" : "disabled"}>${sv.busy ? "Opslaan…" : "Opslaan"}</button>` : ""}
         <button class="btn2" id="ed-undo" ${this.history.length ? "" : "disabled"}>Ongedaan maken</button>
         <button class="btn2" id="ed-reset" ${this.edited ? "" : "disabled"}>Terug naar origineel</button>
         ${sv && sv.canDelete ? `<button class="btn2 ed-del" id="ed-del" title="Verwijder het opgeslagen baanschema van deze dag; daarna zie je weer de berekende/niet-berekende stand">Opgeslagen versie verwijderen</button>` : ""}</div>
@@ -295,7 +309,7 @@ class PlanEditor {
       ${groups.length ? groups.map(([lv, l]) => `<div class="ed-issues ${lv}"><b>${label[lv]} (${l.length})</b><ul>${l.slice(0, 12).map((x) => `<li>${e(x.msg)}</li>`).join("")}${l.length > 12 ? `<li>… en ${l.length - 12} meer</li>` : ""}</ul></div>`).join("")
         : (this.edited ? `<div class="ed-ok">Geen overtredingen gevonden door de directe controle.</div>` : "")}`;
     if (sv) {
-      bar.querySelector("#ed-save").onclick = () => this.opts.save.onSave(res);
+      if (bar.querySelector("#ed-save")) bar.querySelector("#ed-save").onclick = () => this.opts.save.onSave(res);
       const del = bar.querySelector("#ed-del");
       if (del) del.onclick = () => this.opts.save.onDelete();
     }

@@ -137,11 +137,12 @@ function mvBarHtml(state, saveNote, saved) {
   const groups = new Map();
   for (const x of state.list) { const k = `${x.from} → ${x.to}`; groups.set(k, (groups.get(k) || 0) + 1); }
   const hhmm = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
-  const head = saved && !saved.dirty ? `Verzet: ${state.count} wedstrijd${state.count === 1 ? "" : "en"}${saved.savedAt ? ` · opgeslagen om ${hhmm(saved.savedAt)}` : ""}`
+  const head = saved && saved.auto ? `Verzet: ${state.count} wedstrijd${state.count === 1 ? "" : "en"} · ${saved.dirty || saved.busy ? "opslaan…" : saved.savedAt ? `opgeslagen ${hhmm(saved.savedAt)}` : "opgeslagen"}`
+    : saved && !saved.dirty ? `Verzet: ${state.count} wedstrijd${state.count === 1 ? "" : "en"}${saved.savedAt ? ` · opgeslagen om ${hhmm(saved.savedAt)}` : ""}`
     : `Verzet, niet opgeslagen: ${state.count} wedstrijd${state.count === 1 ? "" : "en"}`;
-  return `<div class="ed-banner mv-bar${saved && !saved.dirty ? " saved" : ""}">${head}
+  return `<div class="ed-banner mv-bar${saved && (saved.auto || !saved.dirty) ? " saved" : ""}">${head}
     ${[...groups].map(([k, n]) => `<span class="mv-tag">${n}× ${k}</span>`).join(" ")}
-    ${saved ? `<button class="btn mv-save-btn" ${saved.dirty && !saved.busy ? "" : "disabled"}>${saved.busy ? "Opslaan…" : "Verzettingen opslaan"}</button>` : ""}
+    ${saved && !saved.auto ? `<button class="btn mv-save-btn" ${saved.dirty && !saved.busy ? "" : "disabled"}>${saved.busy ? "Opslaan…" : "Verzettingen opslaan"}</button>` : ""}
     <button class="btn2 mv-undo" ${state.hist.length ? "" : "disabled"}>Ongedaan maken</button>
     <button class="btn2 mv-reset" ${state.count ? "" : "disabled"}>Alle verzettingen terugdraaien</button>
     ${saveNote !== "" ? `<div class="hint">${saveNote || "Opslaan komt later; verzettingen gelden alleen in dit tabblad."}</div>` : ""}</div>`;

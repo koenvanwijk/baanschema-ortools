@@ -268,3 +268,10 @@ body.view-list .view-hint { display: inline; }
 .pl-slot ul { list-style: none; margin: 0; padding: 0; flex: 1; }
 .pl-slot li { padding: 2px 0; }
 .pl-court { display: inline-block; min-width: 4.2em; font-weight: 600; }
+
+/* Eén opslagregel + badge definitief schema (F4) */
+.save-line { margin: 4px 0; font-weight: 600; min-height: 1.2em; }
+.save-line.ok { color: #2e7d32; }
+.save-line.busy { color: #8a6d00; }
+.save-line.err { color: #b3261e; }
+.badge-def { display: inline-block; background: #2e7d32; color: #fff; border-radius: 999px; padding: 1px 10px; font-size: .85em; margin-right: 6px; }

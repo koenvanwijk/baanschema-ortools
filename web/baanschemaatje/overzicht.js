@@ -106,7 +106,7 @@ function ovRender(el, days, opts = {}) {
     ${counts.grey ? `<span class="ov-pill grey">${counts.grey} nog niet berekend</span>` : ""}
     ${counts.played ? `<span class="ov-pill played">${counts.played} gespeeld</span>` : ""}
     ${counts.changed ? `<span class="ov-pill changed">${counts.changed} aangepast, nog niet berekend</span>` : ""}
-    ${days.some((d) => d.saveCls === "saved") ? `<span class="ov-pill saved">${days.filter((d) => d.saveCls === "saved").length} opgeslagen</span>` : ""}
+    ${days.some((d) => d.saveCls === "saved") ? `<span class="ov-pill saved">${days.filter((d) => d.saveCls === "saved").length} definitief</span>` : ""}
     ${days.some((d) => d.saveCls === "unsaved") ? `<span class="ov-pill unsaved">${days.filter((d) => d.saveCls === "unsaved").length} niet opgeslagen</span>` : ""}
     ${busiest ? `<span title="${ovEsc(OV_BEZETTING_TIP)}">Drukste dag: <b>${ovEsc(busiest.date)}</b> (${busiest.stats.pct}% bezet)</span>` : ""}
   </div>`;

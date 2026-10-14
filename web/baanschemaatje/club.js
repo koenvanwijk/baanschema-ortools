@@ -195,31 +195,67 @@ async function saveMoves() {
   SAVED_MOVES = { json: movesJson(), at: r.saved_at };
 }
 
-async function saveDay(res) {
-  const date = SHOWN_DATE;
-  if (!date || SAVING) return;
-  SAVING = true; EDITOR.refresh();
+// Eén opslaggedrag (F4, besluit Oscar 14-10-2026): alles wordt meteen opgeslagen — verzettingen, versleepte
+// partijen en net berekende dagen. Eén statusregel "Alles opgeslagen ✓ hh:mm". Ongedaan maken blijft werken
+// (en wordt ook meteen opgeslagen). Een opgeslagen schema heet "Definitief schema".
+let SAVE_ERR = "";
+let AUTO_T = null;
+function saveLine(kind, msg = "") {
+  const el = $("save-line");
+  if (!el) return;
+  el.className = `save-line ${kind}`;
+  el.innerHTML = kind === "ok" ? `Alles opgeslagen ✓ ${esc(msg)}` : kind === "busy" ? "Opslaan…" : kind === "err" ? `Niet opgeslagen: ${esc(msg)} <button type="button" class="btn2" id="save-retry">Opnieuw</button>` : "";
+  if ($("save-retry")) $("save-retry").onclick = () => { SAVE_ERR = ""; autosave(); };
+}
+function scheduleAutosave(force = false) {
+  if (!CLUB || !CLUB.editable || (SAVE_ERR && !force)) return; // na een fout: alleen via "Opnieuw"
+  clearTimeout(AUTO_T);
+  AUTO_T = setTimeout(autosave, 600);
+}
+const shownNeedsSave = () => SHOWN_DATE && !$("plan-sec").hidden && EDITOR.plan && (EDITOR.changedSinceSave || SHOWN_STATE.unsaved);
+const otherDaysToSave = () => [...PLANS.entries()].filter(([d, p]) => d !== SHOWN_DATE && p && !p.error && p.rows && p.sig === cmv().sig(d));
+
+async function putDay(date, plan0, src, check) {
+  const plan = JSON.parse(JSON.stringify(plan0));
+  delete plan.sig;
+  // Onveranderd berekend: status volgens de solver-validatie; anders volgens de directe controle.
+  const v = plan.validator || {};
+  if (src === "berekend" && typeof v.hard === "number") Object.assign(check, { direct: { hard: check.hard, model: check.model }, hard: v.hard, model: v.model ?? 0, by: "solver-validatie" });
+  const r = await api(`/clubs/${encodeURIComponent(CLUB.id)}/schedule/${date}`, jsonOpts("PUT", { plan, source: src, check, sig: cmv().sig(date) }));
+  SAVED.set(date, { ...r, plan });
+  PLANS.delete(date);
+  return r;
+}
+
+async function autosave() {
+  if (!CLUB || !CLUB.editable) return;
+  if (SAVING) { scheduleAutosave(); return; }
+  const shown = shownNeedsSave(), others = otherDaysToSave();
+  if (!movesDirty() && !shown && !others.length) return;
+  SAVING = true; SAVE_ERR = ""; saveLine("busy");
+  let at = "";
   try {
-    if (movesDirty()) await saveMoves();
-    const rows = EDITOR.plan.rows;
-    const check = checkSummary(rows, res);
-    const src = EDITOR.edited || SHOWN_SRC === "handmatig aangepast" ? "handmatig aangepast" : "berekend";
-    const plan = JSON.parse(JSON.stringify(EDITOR.plan));
-    delete plan.sig;
-    // Onveranderd berekend: status volgens de solver-validatie (zoals vóór opslaan); anders volgens de directe controle.
-    const v = plan.validator || {};
-    if (src === "berekend" && typeof v.hard === "number") Object.assign(check, { direct: { hard: check.hard, model: check.model }, hard: v.hard, model: v.model ?? 0, by: "solver-validatie" });
-    const r = await api(`/clubs/${encodeURIComponent(CLUB.id)}/schedule/${date}`, jsonOpts("PUT", { plan, source: src, check, sig: cmv().sig(date) }));
-    SAVED.set(date, { ...r, plan });
-    PLANS.delete(date);
-    EDITOR.markSaved();
-    status(`Baanschema ${date} opgeslagen om ${hhmm(r.saved_at)}.`, "ok");
+    if (movesDirty()) { await saveMoves(); at = SAVED_MOVES.at; }
+    if (shown) {
+      const date = SHOWN_DATE;
+      const rows = EDITOR.plan.rows;
+      const src = EDITOR.edited || SHOWN_SRC === "handmatig aangepast" ? "handmatig aangepast" : "berekend";
+      const r = await putDay(date, EDITOR.plan, src, checkSummary(rows, checkPlan(rows, dayClub(date))));
+      if (src === "handmatig aangepast") SHOWN_SRC = src;
+      EDITOR.markSaved();
+      SHOWN_STATE = { saved: SAVED.get(date), unsaved: false, stale: false };
+      at = r.saved_at;
+    }
+    for (const [d, p] of others) at = (await putDay(d, p, "berekend", checkSummary(p.rows, checkPlan(p.rows, dayClub(d))))).saved_at;
+    saveLine("ok", at ? hhmm(at) : hhmm(new Date().toISOString()));
   } catch (e) {
-    status(`Opslaan mislukt: ${e.message}`, "err");
+    SAVE_ERR = e.message;
+    saveLine("err", e.message);
   }
   SAVING = false;
   renderDates();
-  showPlan(date, false, true);
+  renderMoveBars();
+  if (SHOWN_DATE && !$("plan-sec").hidden && EDITOR.plan) EDITOR.refresh();
 }
 
 async function deleteSaved() {
@@ -237,14 +273,7 @@ async function deleteSaved() {
   showPlan(date, false, true);
 }
 
-async function saveMovesOnly() {
-  if (SAVING) return;
-  SAVING = true; renderMoveBars();
-  try { await saveMoves(); status("Verzettingen opgeslagen.", "ok"); } catch (e) { status(`Opslaan mislukt: ${e.message}`, "err"); }
-  SAVING = false;
-  renderDates();
-  if (SHOWN_DATE && !$("plan-sec").hidden) EDITOR.refresh();
-}
+async function saveMovesOnly() { await autosave(); }
 
 window.addEventListener("beforeunload", (e) => { if (anyDirty()) { e.preventDefault(); e.returnValue = ""; } });
 
@@ -276,13 +305,14 @@ function renderMoveBars() {
   for (const id of ["mv-bar-ov", "mv-bar-day"]) {
     const el = $(id);
     el.innerHTML = CLUB.editable
-      ? mvBarHtml(cmv(), "Verzettingen gelden voor het hele seizoen. Opslaan bewaart ze op de server (ook met Opslaan bij een dag).", { dirty: movesDirty(), savedAt: SAVED_MOVES.at, busy: SAVING })
+      ? mvBarHtml(cmv(), "Verzettingen gelden voor het hele seizoen en worden meteen opgeslagen.", { auto: true, dirty: movesDirty(), savedAt: SAVED_MOVES.at, busy: SAVING })
       : mvBarHtml(cmv(), "Dit voorbeeldprofiel is alleen-lezen: verzettingen gelden alleen in dit tabblad.");
     const u = el.querySelector(".mv-undo"), r = el.querySelector(".mv-reset"), sb = el.querySelector(".mv-save-btn");
     if (sb) sb.onclick = saveMovesOnly;
     if (u) u.onclick = () => { cmv().undo(); afterMove(); };
     if (r) r.onclick = () => { cmv().reset(); afterMove(); };
   }
+  if (CLUB.editable && movesDirty()) scheduleAutosave();
 }
 
 function afterMove() {
@@ -298,8 +328,8 @@ function renderDates() {
     const day = ovDay(x, { wedstrijden: mvFromRows(plan.rows).length, partijen: plan.rows.filter((r) => r.kind !== "W").length || null,
       stats, moves: cmv() });
     day.changed = changed;
-    if (saved) { day.saveInfo = `opgeslagen ${hhmm(saved.saved_at)}${saved.source === "handmatig aangepast" ? " · handmatig aangepast" : ""}`; day.saveCls = "saved"; }
-    else if (unsaved) { day.saveInfo = "berekend, niet opgeslagen"; day.saveCls = "unsaved"; }
+    if (saved) { day.saveInfo = `definitief schema · ${hhmm(saved.saved_at)}${saved.source === "handmatig aangepast" ? " · handmatig aangepast" : ""}`; day.saveCls = "saved"; }
+    else if (unsaved) { day.saveInfo = "berekend, wordt opgeslagen…"; day.saveCls = "unsaved"; }
     else if (staleSaved) { day.saveInfo = "opgeslagen versie past niet meer bij de verzettingen"; day.saveCls = "unsaved"; }
     const p = PLANS.get(x.date);
     if (p && p.error) day.note = `Fout: ${p.error}`;
@@ -352,6 +382,7 @@ async function planDay(date, show, prefix = "") {
     }
     p.sig = sig;
     PLANS.set(date, p);
+    scheduleAutosave(); // berekend = meteen opgeslagen (F4)
     const sm = p.summary;
     PROG().finish(`${prefix}${date} · ${p.summary.solved ? pgDoneText(sm) : "geen oplossing binnen de rekentijd"}`,
       !sm.solved || sm.unscheduled || sm.hard ? "warn" : "ok");
@@ -513,15 +544,16 @@ function openTeamMenu(anchor, w, team, date, sd) {
 let SHOWN_DATE = null;
 let SHOWN_STATE = { saved: null, unsaved: false };
 const EDITOR = new PlanEditor({
-  bar: () => $("edit-bar"), club: () => (SHOWN_DATE ? dayClub(SHOWN_DATE) : CLUB.summary), render: (p) => { renderPlanGrid(p); renderPlanList(p); },
+  bar: () => $("edit-bar"), club: () => (SHOWN_DATE ? dayClub(SHOWN_DATE) : CLUB.summary), render: (p) => { renderPlanGrid(p); renderPlanList(p); }, onRefresh: () => scheduleAutosave(),
   save: {
     state: () => {
       if (!CLUB || !CLUB.editable) return null;
       const sv = SHOWN_STATE.saved;
       const unsavedWhy = SHOWN_STATE.unsaved ? "berekend, nog niet opgeslagen" : SHOWN_STATE.stale ? "wijkt af van de opgeslagen versie door verzettingen" : movesDirty() ? "verzettingen nog niet opgeslagen" : "";
-      return { unsaved: !!unsavedWhy, unsavedWhy, savedAt: sv && sv.saved_at, source: sv && sv.source, canDelete: SAVED.has(SHOWN_DATE), busy: SAVING };
+      return { auto: true, unsaved: !!SHOWN_STATE.unsaved, stale: !!SHOWN_STATE.stale, unsavedWhy, savedAt: sv && sv.saved_at, source: sv && sv.source, canDelete: SAVED.has(SHOWN_DATE), busy: SAVING, error: SAVE_ERR };
     },
-    onSave: (res) => saveDay(res),
+    auto: true,
+    onSave: () => autosave(),
     onDelete: () => deleteSaved(),
   },
 });

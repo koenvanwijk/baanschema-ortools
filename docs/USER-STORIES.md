@@ -49,6 +49,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Bingo stap 4: tv/beamer-scherm tv.html#club/datum, alleen-lezen (zelfde GET als commissaris, geen knoppen), ververst elke 5 s; voorstelblok staat boven de banen | Oscar |
 | 2026-10-14 | Deelbare dagpagina toont alleen het opgeslagen schema (wat de TC definitief maakte), niet een werkversie; geen schema = melding | Oscar |
 | 2026-10-14 | Telefoon: dagschema standaard als lijst per tijd (≤ 700 px), schakelaar naar rooster; keuze per apparaat onthouden; slepen alleen in rooster | Oscar |
+| 2026-10-14 | Eén opslaggedrag: alles meteen opgeslagen (verzettingen, slepen, berekende dagen); undo blijft; verouderd opgeslagen schema (door verzettingen) wordt niet automatisch overschreven; na een fout pas opnieuw via knop Opnieuw (geen herhaallus) | Oscar |
 
 ---
 
@@ -130,7 +131,8 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 **F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen.
 - AC: schakelaar Lijst/Rooster boven het dagschema; standaard Lijst op schermen ≤ 700 px, Rooster op groter; keuze onthouden op het apparaat; slepen kan alleen in het rooster (hint). · Status: klaar (14-10-2026).
 
-**F4 — Eén opslaggedrag.** Als TC wil ik dat alles op dezelfde manier wordt opgeslagen, met één statusregel en een badge "definitief schema", zodat ik weet wat geldt. · Status: nog niet gestart.
+**F4 — Eén opslaggedrag.** Als TC wil ik dat alles op dezelfde manier wordt opgeslagen, met één statusregel en een badge "definitief schema", zodat ik weet wat geldt.
+- AC: verzettingen, versleepte partijen en net berekende dagen (ook via Alle dagen) worden meteen opgeslagen (geen Opslaan-knoppen meer); één statusregel "Alles opgeslagen ✓ hh:mm" / "Opslaan…" / "Niet opgeslagen: … [Opnieuw]"; badge "Definitief schema" bij het opgeslagen schema van een dag, "definitief" in het overzicht; Ongedaan maken blijft werken na opslaan (en slaat ook meteen op). Een opgeslagen schema dat niet meer past bij verzettingen wordt níet automatisch overschreven (melding: opnieuw berekenen of slepen). · Status: klaar (14-10-2026).
 
 **F5 — Opruimen.** Als TC wil ik geen jargon (Solver/Rekentijd/Dagstart onder "Details"), tijden na middernacht als "01:00+" (niet 19:00–25:00), en een ⋯-menu per wedstrijd.
 - AC: overzicht, dagweergave, instellingen en print consistent; ⋯ werkt op telefoon. · Status: klaar (commit 3a5ddcc) · Bron: Oscar 14-10-2026.
@@ -181,7 +183,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 4 | [UX] | Deelbare dagpagina (alleen-lezen + WhatsApp/kopieerlink) | F1 | klaar (14-10-2026) |
 | 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | nog niet gestart |
 | 6 | [UX] | Dagschema als lijst op telefoon | F3 | klaar (14-10-2026) |
-| 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | nog niet gestart |
+| 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | klaar (14-10-2026) |
 | 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | klaar (14-10-2026) |
 | 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | klaar (14-10-2026) |
 | 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | nog niet gestart |
