@@ -16,6 +16,7 @@ Endpoints
   GET  /clubs/{id}/season            speeldagen + wedstrijden
   GET  /clubs/{id}/schedules         alle opgeslagen dagschema's (voor het seizoensoverzicht)
   GET/PUT/DELETE /clubs/{id}/schedule/{datum}   opgeslagen baanschema van één dag
+  GET/PUT/DELETE /clubs/{id}/bingo/{date}  bingo-avond (live indelen); PUT met "gen" (optimistische gelijktijdigheid, 409 bij conflict)
   GET/PUT /clubs/{id}/cancellations  wedstrijden die niet gespeeld worden ("vervallen"; sleutel schema+thuis+uit+datum)
   GET/PUT /clubs/{id}/moves          opgeslagen verzettingen (wedstrijd van dag X naar Y)
   GET  /dates?club=<id>              speeldagen met aantal wedstrijden
@@ -478,6 +479,71 @@ def _apply_cancellations(spath: Path, cancels: list[dict[str, Any]]) -> Path:
     if not p.exists():
         p.write_bytes(b)
     return p
+
+
+# ---------------------------------------------------------------- bingo-avond (baancommissaris, live)
+
+MAX_BINGO_BYTES = int(os.environ.get("BS_MAX_BINGO_BYTES", str(512 * 1024)))
+
+
+def _bingo_key(club_id: str, date: str) -> str:
+    return f"clubs/{club_id}/bingo/{date}.json"
+
+
+def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str, Any]]:
+    """Wedstrijden van de avond met hun partijen (S/D/GD volgens de KNLTB-categorie); zonder opgaven en gespeelde."""
+    from baanschemaatje.planner import build_parts
+
+    season = _season(prof.knltb_name, _season_path(club_id))
+    cm = _cancel_map(_cancellations(club_id))
+    out = []
+    for f in season.day(date):
+        if f.played or _ckey(f.schema, f.home_team, f.away_team, f.date) in cm or f.is_block:
+            continue
+        key = f"{' '.join(f.schema.split())}|{f.home_team}"
+        out.append({"key": key, "label": f.label, "schema": f.schema, "home": f.home_team, "away": f.away_team,
+                    "category": f.category.value, "export_start": f.export_start,
+                    "duration": prof.duration_for(f.category, f.export_duration),
+                    "parts": [{"id": f"{key}|{lab}", "label": lab, "kind": kind} for lab, kind in build_parts(f)]})
+    return out
+
+
+@app.get("/clubs/{club_id}/bingo/{date}")
+def get_bingo(club_id: str, date: str) -> dict[str, Any]:
+    _known_club(club_id)
+    _check_date(date)
+    prof = _profile(_club_raw(club_id), club_id)
+    data, gen = STORE.get_gen(_bingo_key(club_id, date))
+    fx = _season(prof.knltb_name, _season_path(club_id)).day(date)
+    return {"club": club_id, "date": date, "name": prof.name, "gen": gen,
+            "state": json.loads(data) if data else None,
+            "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
+            "window": _day_window(prof, date, fx), "matches": _bingo_matches(club_id, prof, date)}
+
+
+@app.put("/clubs/{club_id}/bingo/{date}")
+async def put_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    # Geen login (besluit Oscar 14-10-2026): iedereen met de commissaris-link mag tikken.
+    _writable(club_id, request)
+    _check_date(date)
+    body = await _json_body(request, MAX_BINGO_BYTES)
+    if not isinstance(body, dict) or not isinstance(body.get("state"), dict) or not isinstance(body.get("gen"), int):
+        raise HTTPException(422, 'verwacht {"state": {...}, "gen": <getal>}')
+    state = body["state"]
+    state["saved_at"] = _now()
+    new = STORE.put_if(_bingo_key(club_id, date), json.dumps(state, ensure_ascii=False).encode(), body["gen"])
+    if new is None:
+        data, gen = STORE.get_gen(_bingo_key(club_id, date))
+        raise HTTPException(409, {"message": "Iemand anders heeft de avond net gewijzigd; opnieuw geladen.",
+                                  "gen": gen, "state": json.loads(data) if data else None})
+    return {"ok": True, "gen": new, "saved_at": state["saved_at"]}
+
+
+@app.delete("/clubs/{club_id}/bingo/{date}")
+def delete_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    _writable(club_id, request)
+    _check_date(date)
+    return {"deleted": STORE.delete(_bingo_key(club_id, date))}
 
 
 CANCEL_TYPES = ("eigen", "tegenstander")  # eigen opgave / tegenstander opgave

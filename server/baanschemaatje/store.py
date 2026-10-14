@@ -47,6 +47,29 @@ class LocalStore:
         out = [str(p.relative_to(self.root)).replace("\\", "/") for p in d.rglob("*") if p.is_file() and not p.name.endswith(".tmp")]
         return sorted(k for k in out if k.startswith(prefix))
 
+    # Optimistische gelijktijdigheid (bingo-avond): generatie = mtime in µs (0 = bestaat niet).
+    # µs (zoals GCS-generaties) blijft onder 2^53, dus exact in JavaScript.
+    def get_gen(self, key: str) -> tuple[bytes | None, int]:
+        p = self.root / key
+        if not p.is_file():
+            return None, 0
+        return p.read_bytes(), p.stat().st_mtime_ns // 1000
+
+    def put_if(self, key: str, data: bytes, gen: int, content_type: str = "application/json") -> int | None:
+        """Schrijf alleen als de huidige generatie == gen. Geeft nieuwe generatie, of None bij conflict."""
+        import threading
+        lock = self.__dict__.setdefault("_lock", threading.Lock())
+        with lock:
+            _, cur = self.get_gen(key)
+            if cur != gen:
+                return None
+            self.put(key, data, content_type)
+            new = (self.root / key).stat().st_mtime_ns // 1000
+            if new <= cur:  # zelfde tik: forceer een hogere generatie
+                new = cur + 1
+                os.utime(self.root / key, ns=(new * 1000, new * 1000))
+            return new
+
     def list_clubs(self) -> list[str]:
         d = self.root / "clubs"
         return sorted(x.name for x in d.iterdir() if (x / "meta.json").is_file()) if d.is_dir() else []
@@ -84,6 +107,26 @@ class GCSStore:
 
     def list(self, prefix: str) -> list[str]:
         return sorted(b.name for b in self.bucket.list_blobs(prefix=prefix))
+
+    def get_gen(self, key: str) -> tuple[bytes | None, int]:
+        from google.api_core.exceptions import NotFound
+
+        b = self.bucket.blob(key)
+        try:
+            data = b.download_as_bytes()
+        except NotFound:
+            return None, 0
+        return data, int(b.generation or 0)
+
+    def put_if(self, key: str, data: bytes, gen: int, content_type: str = "application/json") -> int | None:
+        from google.api_core.exceptions import PreconditionFailed
+
+        b = self.bucket.blob(key)
+        try:
+            b.upload_from_string(data, content_type=content_type, if_generation_match=gen)
+        except PreconditionFailed:
+            return None
+        return int(b.generation or 0)
 
     def list_clubs(self) -> list[str]:
         ids = set()

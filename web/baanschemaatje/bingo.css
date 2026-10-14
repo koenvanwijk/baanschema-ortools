@@ -1,0 +1,32 @@
+/* Bingo-avond (baancommissaris): groot en leesbaar, telefoon/tablet */
+body.bingo { font-size: 17px; }
+.bg-bar { display: flex; flex-wrap: wrap; gap: .8em; align-items: center; margin: .5em 0; }
+.bg-clock { font-size: 2em; font-weight: 700; }
+.bg-big { font-size: 1.05em; padding: .6em 1em; min-height: 2.8em; }
+.bg-status { min-height: 1.4em; font-weight: 600; }
+.bg-status.ok { color: #2a7a3b; } .bg-status.warn { color: #a66300; } .bg-status.bad { color: #b00020; }
+.bg-courts { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.bg-court { border-radius: 10px; padding: .7em; border: 2px solid #cfd8cf; background: #f4faf4; }
+.bg-court.busy { background: #fff7e6; border-color: #e3a73b; }
+.bg-court.long { background: #fdecec; border-color: #d0533f; }
+.bg-cn { font-size: 1.3em; font-weight: 700; }
+.bg-free-lbl { color: #2a7a3b; font-weight: 600; font-size: 1.2em; margin-top: .3em; }
+.bg-what { margin: .3em 0; } .bg-lineup { font-style: italic; } .bg-time { margin: .3em 0 .5em; }
+.bg-done { width: 100%; }
+.bg-queue { display: flex; flex-direction: column; gap: 6px; }
+.bg-q { text-align: left; font-size: 1em; padding: .7em .8em; border-radius: 8px; border: 1px solid #c9c9c9; background: #fff; cursor: pointer; }
+.bg-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.bg-team { display: flex; gap: .6em; align-items: flex-start; padding: .6em; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
+.bg-team.on { background: #eef7ee; border-color: #8cc49a; }
+.bg-team input { width: 1.6em; height: 1.6em; margin-top: .1em; }
+.bg-dlg { max-width: 520px; width: calc(100% - 24px); border-radius: 12px; }
+.bg-dlg input { width: 100%; font-size: 1.05em; padding: .5em; box-sizing: border-box; }
+.bg-free { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin: .5em 0 1em; }
+.bg-warn { color: #a66300; font-weight: 600; margin: .4em 0; }
+.bg-log li { margin: .2em 0; }
+.bg-link { color: inherit; }
+@media (max-width: 520px) {
+  .bg-courts { grid-template-columns: repeat(2, 1fr); }
+  .bg-court.busy { grid-column: 1 / -1; }
+  .bg-court.free { padding: .5em; }
+}

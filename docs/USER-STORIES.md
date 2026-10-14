@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 14-10-2026.
+Laatst bijgewerkt: 14-10-2026 (avond).
 
 ## Werkprincipe
 
@@ -35,6 +35,12 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | UX-review: 5 vervolgacties; (5) opruimen eerst | Oscar |
 | 2026-10-14 | Bingo-schema (vrijdagavond live) als dagkeuze; volgorde: opruimen → bingo 1 → bingo 2 | Oscar |
 | 2026-10-14 | Werkprincipe: alle beslissingen als user story in dit document | Oscar |
+| 2026-10-14 | Mierlo-vrijdag = bingo (profiel server + clubs/mierlo.yaml) | Oscar |
+| 2026-10-14 | Geen login voorlopig: iedereen met de commissaris-link mag tikken; login per club blijft backlog | Oscar |
+| 2026-10-14 | Avond: laatste start = sluiting − 1:30 (generiek, per club instelbaar `day.evening_close_margin`); vrijdag 23:30 | Oscar |
+| 2026-10-14 | Mierlo donderdag: eindtijd 00:00 (bevestigd) → laatste start 22:30 | Oscar |
+| 2026-10-14 | JU11-14 MIERLO 2 – VALKENSWAARD 1 (11-10) "Tegenstander opgave" is echt; blijft staan | Oscar |
+| 2026-10-14 | Bingo stap 2 gebouwd: commissarisscherm (bingo.html), opslag per club/datum met generatie (409 bij conflict), polling 5 s | Oscar |
 
 ---
 
@@ -80,7 +86,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 - AC: standaard hard (clubregel `export_start`, uit te zetten); dagweergave "tijd uit export"; afwijking na slepen gemeld. · Status: gereed · Bron: Oscar 12-10-2026, commit 81c9db9.
 
 **B8 — Avondcompetities (do/vr).** Als TC wil ik per weekdag een dagvenster (eerste aanvang, laatste start, park dicht, banen, verlichting), zodat avonden goed gepland worden.
-- AC: Bijlage 3 alleen za/zo; avond 19:00–20:00 begintijd; Mierlo vrijdag park dicht 01:00 (bevestigd), laatste start 20:30 (onbevestigd). · Status: gereed · Bron: Oscar 10-10-2026.
+- AC: Bijlage 3 alleen za/zo; avond 19:00–20:00 begintijd; laatste start = sluiting − 1:30 (per club instelbaar, eigen waarde per weekdag wint). Mierlo: vrijdag park dicht 01:00 → laatste start 23:30; donderdag eind 00:00 → 22:30 (bevestigd). · Status: gereed · Bron: Oscar 10/14-10-2026.
 
 ## C. Import & seizoen
 
@@ -95,7 +101,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 **D1 — Team verzetten.** Als TC wil ik een wedstrijd/team naar een andere dag (bv. inhaaldag) verzetten, zodat ik na regen snel kan herplannen.
 - AC: via teammenu; omkeerbaar; opslaan op server. · Status: gereed · Bron: Oscar.
 
-**D2 — Opgave (wordt niet gespeeld).** Als TC wil ik een wedstrijd markeren als *Eigen opgave* of *Tegenstander opgave* met optionele toelichting, zodat banen vrijkomen.
+**D2 — Opgave (wordt niet gespeeld).** (Echte opgave vastgelegd: JU11-14 MIERLO 2 – VALKENSWAARD 1, 11-10-2026, tegenstander opgave — blijft staan.) Als TC wil ik een wedstrijd markeren als *Eigen opgave* of *Tegenstander opgave* met optionele toelichting, zodat banen vrijkomen.
 - AC: partijen weg uit rooster; validator negeert; "vervallen" doorgestreept; "Toch spelen" om terug te draaien; overleeft herimport; export met uitslag wint (gemarkeerd). · Status: gereed · Bron: Oscar 12/14-10-2026.
 
 ## E. Delen & weergave
@@ -136,9 +142,11 @@ Antwoorden van Oscar (14-10-2026):
 9. Dekking (wifi/4G) ruim voldoende; offline niet nodig.
 
 **G1 — Keuze gepland/bingo per speeldag.** Als TC wil ik per weekdag kiezen tussen *Gepland (berekend)* en *Bingo (live)*, zodat de vrijdagavond live kan.
-- AC: standaard gepland; label "Bingo (live)" in overzicht/dag; geen "Nu berekenen" (ook niet bij Alle dagen, server weigert); knop "Avond openen" met placeholder + wedstrijdlijst. Mierlo-vrijdag blijft gepland tot Oscar anders beslist. · Status: gereed (commit 94a32a7).
+- AC: standaard gepland; label "Bingo (live)" in overzicht/dag; geen "Nu berekenen" (ook niet bij Alle dagen, server weigert); knop "Avond openen" met placeholder + wedstrijdlijst. Mierlo-vrijdag staat op bingo (besluit 14-10-2026). · Status: gereed (commit 94a32a7).
 
-**G2 — MVP commissarisscherm.** Als commissaris wil ik teams aanmelden, banen zien, een wachtrij van partijen, en per partij start/klaar tikken, op één apparaat. · Status: gepland (volgende stap).
+**G2 — MVP commissarisscherm.** Als commissaris wil ik teams aanmelden, banen zien, een wachtrij van partijen, en per partij start/klaar tikken, op één apparaat.
+- AC: `bingo.html#<club>/<datum>` via "Avond openen"; per team "aanwezig"; alle banen vrij/bezet met verstreken tijd; wachtrij met partijen (S/D/GD volgens KNLTB-categorie) van aanwezige teams; partij op vrije baan zetten met opstelling (vrije tekst); "Klaar" maakt baan vrij (geen uitslag); ongedaan maken; logboek met tijden; waarschuwing na laatste start (23:30) of einde na 01:00; geen rust-/max-banen-/aangrenzend-regel; opgaven en gespeelde wedstrijden tellen niet mee; geen login (iedereen met de link). Opslag per club/datum met generatie (409 bij gelijktijdige wijziging), polling elke 5 s.
+- Status: gereed (deze commit) · Bron: Oscar 14-10-2026.
 
 **G3 — Voorstel volgende partij + ongedaan maken.** Als commissaris wil ik een voorstel voor de volgende partij en een "ongedaan maken". · Status: gepland.
 
@@ -158,7 +166,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 |---|---|---|---|---|
 | 1 | [UX] | Opruimen: jargon naar "Details", 01:00+ i.p.v. 25:00, ⋯-menu per wedstrijd — **hoogste prioriteit** | F5 | klaar (commit 3a5ddcc, 14-10-2026) |
 | 2 | [Bingo] | Stap 1: keuze gepland/bingo per speeldag, label, "Avond openen" | G1 | klaar (commit 94a32a7) |
-| 3 | [Bingo] | Stap 2: MVP commissarisscherm (aanmelden, banen, wachtrij, start/klaar, één apparaat) | G2 | volgende stap |
+| 3 | [Bingo] | Stap 2: MVP commissarisscherm (aanmelden, banen, wachtrij, start/klaar, één apparaat) | G2 | klaar |
 | 4 | [UX] | Deelbare dagpagina (alleen-lezen + WhatsApp/kopieerlink) | F1 | nog niet gestart |
 | 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | nog niet gestart |
 | 6 | [UX] | Dagschema als lijst op telefoon | F3 | nog niet gestart |
@@ -166,12 +174,12 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | nog niet gestart |
 | 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | nog niet gestart |
 | 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | nog niet gestart |
-| 11 | [Bingo] | Vraag: Mierlo-vrijdag op bingo zetten of eerst testclub? (nu: testclub) | G1 | open vraag |
-| 12 | [Bingo] | Vraag: zonder login iedereen met commissaris-link laten tikken + aparte alleen-kijken tv-link? | G2/G4 | open vraag |
-| 13 | [Planner] | Bevestigen: laatste start avond (20:30), donderdag-eindtijd (verlichting alle banen en vrijdag park 01:00 zijn bevestigd) | B8 | open vraag |
+| 11 | [Bingo] | Mierlo-vrijdag op bingo | G1 | klaar (besluit 14-10-2026) |
+| 12 | [Bingo] | Zonder login: iedereen met de commissaris-link mag tikken (besloten); aparte alleen-kijken tv-link volgt bij stap 4 | G2/G4 | besloten |
+| 13 | [Planner] | Laatste start avond = sluiting − 1:30; donderdag eind 00:00 | B8 | klaar (besluit 14-10-2026) |
 | 14 | [Planner] | 27-09 herberekenen op verzoek | — | open |
 | 15 | [Planner] | Reisafstand per tegenstander (80 km-regel) | B6 | uitgesteld |
 | 16 | [Planner] | Dashboard / herplannen op de wedstrijddag (ROADMAP fase 3) | — | gepland |
-| 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen verwijderen of anonimiseren? | — | open vraag |
+| 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen (`tests/generiek/data/export_mierlo_20261010.xlsx`, alleen op product/generiek) verwijderen of anonimiseren? | — | open vraag (Oscar) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
 | 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |

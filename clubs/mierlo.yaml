@@ -61,9 +61,15 @@ rules:
     hard: false
 
 # Besluit Oscar 10-10-2026: op vrijdag sluit het park om 01:00 (volgende dag).
+# Besluit Oscar 14-10-2026: donderdag eindtijd ~middernacht (00:00); vrijdag = bingo
+# (live indelen door de baancommissaris, geen berekend schema). Laatste start op een
+# avond = sluiting − 1:30 (day.evening_close_margin): do 22:30, vr 23:30.
 weekdays:
+  donderdag:
+    end: "00:00"
   vrijdag:
     end: "01:00"
+    mode: bingo
 
 # Dagvensters per weekdag (do/vr-avondcompetities). Niet ingevuld = Baanschemaatje-
 # standaard: start 19:00, laatste start 20:30, alles klaar 23:00, alle 10 banen,

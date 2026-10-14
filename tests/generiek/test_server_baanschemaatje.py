@@ -375,5 +375,44 @@ def test_bingo_day_mode(client, root, monkeypatch):
     assert summ["weekdays"]["vrijdag"]["mode"] == "bingo" and summ["weekdays"]["zondag"]["mode"] == "gepland"
     bad = {"club": {"name": "X", "knltb_name": "X"}, "courts": {"count": 4}, "weekdays": {"vrijdag": {"mode": "loterij"}}}
     assert client.post("/clubs", json={"profile": bad}).status_code == 422
-    # Mierlo blijft gepland (niet omgezet).
-    assert client.get("/clubs/mierlo").json()["summary"]["weekdays"]["vrijdag"]["mode"] == "gepland"
+    # Besluit Oscar 14-10-2026: Mierlo-vrijdag = bingo; donderdag gepland.
+    mw = client.get("/clubs/mierlo").json()["summary"]["weekdays"]
+    assert mw["vrijdag"]["mode"] == "bingo" and mw["donderdag"]["mode"] == "gepland"
+
+
+def test_bingo_evening_state_with_generation(client, root, monkeypatch):
+    """Bingo-avond: wedstrijden + partijen (zonder opgaven/gespeelde), opslaan met generatie, 409 bij conflict, opruimen."""
+    from datetime import date as _date
+
+    mod = sys.modules["bs_server_app"]
+    monkeypatch.setattr(mod, "_today_ams", lambda: _date(2026, 10, 10))
+    prof = {"club": {"name": "TV Bingo2", "knltb_name": "MIERLO"}, "courts": {"count": 10},
+            "weekdays": {"vrijdag": {"mode": "bingo", "end": "01:00"}}}
+    cid = client.post("/clubs", json={"profile": prof}).json()["id"]
+    data = (root / "tests" / "generiek" / "data" / "export_mierlo_20261010.xlsx").read_bytes()
+    j = client.post(f"/clubs/{cid}/season", content=data, params={"filename": "w.xlsx"}).json()
+    sun = next(d for d in j["dates"] if d["date"] == "11-10-2026")  # heeft nog niet-gespeelde wedstrijden
+    g = client.get(f"/clubs/{cid}/bingo/{sun['date']}").json()
+    assert g["gen"] == 0 and g["state"] is None and g["matches"]
+    m = g["matches"][0]
+    assert m["parts"] and all(p["id"].startswith(m["key"]) for p in m["parts"]) and m["duration"] > 0
+    # opgave valt weg
+    c = {"schema": m["schema"], "home": m["home"], "away": m["away"], "date": sun["date"], "type": "eigen"}
+    client.put(f"/clubs/{cid}/cancellations", json={"cancellations": [c]})
+    assert m["key"] not in {x["key"] for x in client.get(f"/clubs/{cid}/bingo/{sun['date']}").json()["matches"]}
+    fri = client.get(f"/clubs/{cid}/bingo/09-10-2026").json()
+    assert fri["mode"] == "bingo" and fri["window"]["last_start"] == "23:30" and fri["window"]["end"] == "25:00"
+    assert fri["matches"] == []  # alles gespeeld
+    st = {"present": {m["key"]: True}, "courts": {}, "done": {}, "log": [], "undo": []}
+    r1 = client.put(f"/clubs/{cid}/bingo/{sun['date']}", json={"state": st, "gen": 0})
+    assert r1.status_code == 200
+    gen1 = r1.json()["gen"]
+    assert client.put(f"/clubs/{cid}/bingo/{sun['date']}", json={"state": st, "gen": 0}).status_code == 409
+    r2 = client.put(f"/clubs/{cid}/bingo/{sun['date']}", json={"state": {**st, "log": [{"t": "x", "msg": "y"}]}, "gen": gen1})
+    assert r2.status_code == 200 and r2.json()["gen"] != gen1
+    stale = client.put(f"/clubs/{cid}/bingo/{sun['date']}", json={"state": st, "gen": gen1})
+    assert stale.status_code == 409 and stale.json()["detail"]["state"]["log"]
+    assert client.get(f"/clubs/{cid}/bingo/{sun['date']}").json()["state"]["present"] == {m["key"]: True}
+    assert client.delete(f"/clubs/{cid}/bingo/{sun['date']}").json()["deleted"] is True
+    assert client.get(f"/clubs/{cid}/bingo/{sun['date']}").json()["gen"] == 0
+    assert client.put(f"/clubs/{cid}/bingo/bad", json={"state": st, "gen": 0}).status_code == 422

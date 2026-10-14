@@ -50,6 +50,7 @@ def profile_summary(prof: ClubProfile, club_id: str) -> dict[str, Any]:
             "fallback_start": min_to_hhmm(prof.fallback_start) if prof.fallback_start is not None else None,
             "last_start": min_to_hhmm(prof.last_start),
             "end": min_to_hhmm(prof.day_end),
+            "evening_close_margin": min_to_hhmm(prof.evening_margin),
         },
         "reservations": {
             k.value: {"courts": list(v.courts), "courts_if_rood": list(v.courts_if_rood) if v.courts_if_rood else None}

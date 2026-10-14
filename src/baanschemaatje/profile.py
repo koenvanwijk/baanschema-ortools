@@ -167,6 +167,9 @@ class ClubProfile:
     #: Voor welke weekdag dit profiel is afgeleid (None = basis/zondag).
     weekday: str | None = None
     lighting: bool = True
+    #: Avond (ma-vr): laatste start = sluiting − deze marge, tenzij de club per
+    #: weekdag een eigen laatste start opgeeft (besluit Oscar 14-10-2026: 1:30).
+    evening_margin: int = 90
 
     @property
     def bijlage3(self) -> bool:
@@ -192,6 +195,8 @@ class ClubProfile:
         # Einde ná middernacht: "01:00" bij start 19:00 betekent 01:00 de volgende dag (25:00).
         if out["end"] <= out["start"]:
             out["end"] += 24 * 60
+        if weekday not in BIJLAGE3_DAYS and "last_start" not in cfg:
+            out["last_start"] = evening_last_start(out["start"], out["end"], self.evening_margin)
         out.setdefault("mode", "gepland")
         out["defaults"] = sorted(k for k in ("start", "last_start", "end", "courts", "lighting", "mode") if k not in cfg)
         return out
@@ -313,6 +318,10 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
             errors.append(str(exc))
             return None
 
+    margin = _t("evening_close_margin", "01:30")
+    if margin is None or margin % 15 or not 0 <= margin <= 6 * 60:
+        errors.append("day.evening_close_margin moet een duur op het kwartiergrid zijn (00:00–06:00), bv. 01:30")
+        margin = 90
     day_start = _t("start", "09:00")
     fallback = _t("fallback_start", None)
     last_start = _t("last_start", "19:30")
@@ -480,10 +489,10 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
         weekday_cfg[wd] = c
     for wd, c in weekday_cfg.items():
         st = c.get("start", hhmm_to_min(EVENING_DEFAULT["start"]) if wd not in BIJLAGE3_DAYS else (day_start or 0))
-        ls = c.get("last_start", hhmm_to_min(EVENING_DEFAULT["last_start"]) if wd not in BIJLAGE3_DAYS else (last_start or 0))
         en = c.get("end", hhmm_to_min(EVENING_DEFAULT["end"]) if wd not in BIJLAGE3_DAYS else (day_end or 0))
         if en <= st:
             en += 24 * 60
+        ls = c.get("last_start", evening_last_start(st, en, margin) if wd not in BIJLAGE3_DAYS else (last_start or 0))
         if not st < ls <= en:
             errors.append(f"weekdays.{wd}: verwacht start < last_start <= end (einde mag na middernacht, bv. 01:00)")
 
@@ -507,7 +516,13 @@ def profile_from_dict(data: dict[str, Any], source: str = "") -> ClubProfile:
         durations=durations,
         source=source,
         weekday_cfg=weekday_cfg,
+        evening_margin=margin,
     )
+
+
+def evening_last_start(start: int, end: int, margin: int) -> int:
+    """Laatste start op een avond = sluiting − marge (kwartiergrid), minstens een kwartier na de start."""
+    return max(start + 15, (end - margin) // 15 * 15)
 
 
 def load_profile(path: str | Path) -> ClubProfile:

@@ -6,6 +6,7 @@ eigenschappen (capaciteit, banen, reserveringen), niet optimaliteit.
 
 from collections import defaultdict
 
+from pathlib import Path
 import pytest
 
 from baanschemaatje.categories import Category
@@ -241,7 +242,7 @@ def test_weekday_profile_defaults_and_overrides():
     p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8},
                            "weekdays": {"vrijdag": {"courts": 6, "end": "22:30"}}})
     f = p.for_day("vrijdag", {"avond"})
-    assert (f.day_start, f.last_start, f.day_end, f.courts, f.bijlage3) == (19 * 60, 20 * 60 + 30, 22 * 60 + 30, 6, False)
+    assert (f.day_start, f.last_start, f.day_end, f.courts, f.bijlage3) == (19 * 60, 21 * 60, 22 * 60 + 30, 6, False)  # laatste start = sluiting − 1:30
     assert not f.rules["first_start_deadline"].hard
     t = p.for_day("donderdag", {"avond", "ochtend"})
     assert t.day_start == 9 * 60 and t.courts == 8
@@ -259,7 +260,7 @@ def test_friday_end_after_midnight():
 
     p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 8}, "weekdays": {"vrijdag": {"end": "01:00"}}})
     f = p.for_day("vrijdag", {"avond"})
-    assert (f.day_end, f.last_start) == (25 * 60, 20 * 60 + 30)
+    assert (f.day_end, f.last_start) == (25 * 60, 23 * 60 + 30)  # sluiting − 1:30
     w = profile_summary(p, "x")["weekdays"]["vrijdag"]
     assert w["end"] == "25:00" and w["end_display"] == "01:00 (volgende dag)" and "end" not in w["defaults"]
     assert "last_start" in w["defaults"]
@@ -277,3 +278,20 @@ def test_export_start_is_used_as_first_start(profiles):
     rows = _placed(res.rows)
     assert res.unscheduled == 0 and min(_m(r["start"]) for r in rows) == 12 * 60
     assert all(r["export_start"] == "12:00" for r in rows)
+
+
+def test_evening_last_start_is_close_minus_margin():
+    """Besluit 14-10-2026: avond laatste start = sluiting − 1:30 (per club instelbaar); eigen waarde wint."""
+    from baanschemaatje.profile import ProfileError, load_profile, profile_from_dict
+    import pytest
+
+    m = load_profile(Path(__file__).resolve().parents[2] / "clubs" / "mierlo.yaml")
+    assert m.weekday_settings("vrijdag")["last_start"] == 23 * 60 + 30 and m.weekday_settings("vrijdag")["mode"] == "bingo"
+    assert m.weekday_settings("donderdag")["end"] == 24 * 60 and m.weekday_settings("donderdag")["last_start"] == 22 * 60 + 30
+    p = profile_from_dict({"club": {"name": "X"}, "courts": {"count": 6}, "day": {"evening_close_margin": "02:00"},
+                           "weekdays": {"dinsdag": {"end": "23:00"}, "woensdag": {"end": "23:00", "last_start": "20:00"}}})
+    assert p.weekday_settings("dinsdag")["last_start"] == 21 * 60
+    assert p.weekday_settings("woensdag")["last_start"] == 20 * 60
+    assert p.weekday_settings("zondag")["last_start"] == 19 * 60 + 30  # Bijlage 3 ongewijzigd
+    with pytest.raises(ProfileError):
+        profile_from_dict({"club": {"name": "X"}, "courts": {"count": 6}, "day": {"evening_close_margin": "01:20"}})

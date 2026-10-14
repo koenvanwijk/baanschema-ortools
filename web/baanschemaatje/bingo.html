@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baanschemaatje — bingo-avond (baancommissaris)</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="bingo.css">
+</head>
+<body class="bingo">
+<header>
+  <div class="brand">
+    <h1 id="bg-title">Bingo-avond</h1>
+    <span class="sub" id="bg-sub">baancommissaris</span>
+  </div>
+  <div class="controls"><a id="bg-back" class="bg-link" href="club.html">← Clubpagina</a></div>
+</header>
+<main>
+  <div id="bg-status" class="bg-status" role="status"></div>
+  <section class="bg-bar">
+    <span id="bg-clock" class="bg-clock">--:--</span>
+    <span id="bg-window" class="hint"></span>
+    <button id="bg-undo" class="btn2 bg-big" disabled>↶ Ongedaan maken</button>
+  </section>
+
+  <section>
+    <h2>Banen</h2>
+    <div id="bg-courts" class="bg-courts"></div>
+  </section>
+
+  <section>
+    <h2>Wachtrij <small id="bg-qn" class="hint"></small></h2>
+    <p class="hint">Tik op een partij om hem op een vrije baan te zetten. Alleen partijen van teams die er zijn.</p>
+    <div id="bg-queue" class="bg-queue"></div>
+  </section>
+
+  <section>
+    <h2>Teams aanwezig?</h2>
+    <div id="bg-teams" class="bg-teams"></div>
+  </section>
+
+  <details class="uitleg"><summary>Logboek</summary><ol id="bg-log" class="bg-log" reversed></ol></details>
+</main>
+
+<dialog id="bg-dlg" class="bg-dlg">
+  <form method="dialog" id="bg-form">
+    <h3 id="bg-dlg-title">Partij starten</h3>
+    <label>Opstelling (namen, vrij invullen)<input id="bg-lineup" autocomplete="off" placeholder="bv. Jan + Piet – Kees + Henk"></label>
+    <div id="bg-warn" class="bg-warn"></div>
+    <div class="hint">Kies een vrije baan:</div>
+    <div id="bg-free" class="bg-free"></div>
+    <button value="cancel" class="btn2 bg-big">Annuleren</button>
+  </form>
+</dialog>
+
+<script src="common.js"></script>
+<script src="bingo-core.js"></script>
+<script src="bingo.js"></script>
+</body>
+</html>

@@ -84,6 +84,7 @@ function fillForm() {
   $("f-name").value = s.name; $("f-knltb").value = s.knltb_name; $("f-courts").value = s.courts;
   $("f-start").value = s.day.start; $("f-fallback").value = s.day.fallback_start || "";
   $("f-last").value = s.day.last_start; $("f-end").value = s.day.end;
+  if ($("f-margin")) $("f-margin").value = s.day.evening_close_margin || "01:30";
   const r = s.reservations || {};
   $("f-rood").value = r.rood ? r.rood.courts.join(", ") : "";
   $("f-oranje").value = r.oranje ? r.oranje.courts.join(", ") : "";
@@ -173,6 +174,7 @@ function buildProfile() {
   raw.club = { ...(raw.club || {}), name: $("f-name").value.trim(), knltb_name: $("f-knltb").value.trim() };
   raw.courts = { ...(raw.courts || {}), count: parseInt($("f-courts").value, 10) };
   raw.day = { start: $("f-start").value, last_start: $("f-last").value, end: $("f-end").value };
+  if ($("f-margin") && $("f-margin").value) raw.day.evening_close_margin = $("f-margin").value;
   if ($("f-fallback").value) raw.day.fallback_start = $("f-fallback").value;
   const res = {};
   if ($("f-rood").value.trim()) res.rood = { courts: courtsList($("f-rood").value) };

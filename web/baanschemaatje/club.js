@@ -318,7 +318,7 @@ function renderDates() {
     if (m && m.window && !m.window.bijlage3) day.note = [day.note, `${m.dagdelen.filter((x) => x !== "dag").join("/") || "avond"} ${m.window.start}–${clockShort(m.window.end)}`].filter(Boolean).join(" · ");
     return day;
   });
-  ovRender($("overview"), days, { onOpen: (date) => (isBingo(date) ? showBingo(date) : showPlan(date)), onBingo: (date) => showBingo(date), onCompute: (date) => planDay(date, true), recompute: true,
+  ovRender($("overview"), days, { onOpen: (date) => (isBingo(date) ? showBingo(date) : showPlan(date)), onBingo: (date) => openBingo(date), onCompute: (date) => planDay(date, true), recompute: true,
     computing: COMPUTING, queued: QUEUED, busy: !!RUN, openAlways: true, onMove: (date) => showPlan(date) });
 }
 
@@ -401,6 +401,10 @@ function isBingo(date) {
   const d = ALL_DATES.find((x) => x.date === date);
   return !!(d && d.window && d.window.mode === "bingo");
 }
+// "Avond openen": baancommissaris-scherm (bingo.html#club/datum).
+function openBingo(date) {
+  location.href = `bingo.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
+}
 function showBingo(date) {
   const d = ALL_DATES.find((x) => x.date === date);
   $("plan-sec").hidden = true;
@@ -409,10 +413,12 @@ function showBingo(date) {
   const ws = d ? d.wedstrijden : [];
   const st = (w) => (w.status === "gespeeld" ? ` · 🔒 uitslag ${esc(w.result)}` : w.status === "vervallen" ? " · vervallen" : "");
   $("bingo-body").innerHTML = `<h2>Bingo-avond — ${esc(ovWeekday(date))} ${esc(date)}</h2>
-    <div class="banner">Binnenkort: baancommissaris-scherm. Hier deel je straks op de avond zelf de banen live in. Er wordt voor deze avond geen baanschema berekend.</div>
+    <div class="banner">Bingo-avond: de banen worden live ingedeeld door de baancommissaris. Er wordt geen baanschema berekend.
+      <button class="btn bg-open" id="bg-open">Avond openen (baancommissaris)</button></div>
     ${d && d.window ? `<p class="hint">Avond ${esc(d.window.start)}–${esc(clockHHMM(d.window.end))} · ${d.window.courts} banen</p>` : ""}
     <h3>Wedstrijden volgens de KNLTB-export</h3>
     <ul class="plain">${ws.map((w) => `<li class="${w.status === "vervallen" ? "vervallen-item" : ""}"><b>${esc(w.export_start || "–")}</b> · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${st(w)}</li>`).join("") || "<li>Geen wedstrijden.</li>"}</ul>`;
+  $("bg-open").onclick = () => openBingo(date);
   sec.scrollIntoView({ behavior: "smooth" });
 }
 
