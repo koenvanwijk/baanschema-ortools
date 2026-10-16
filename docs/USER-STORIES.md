@@ -53,6 +53,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-14 | Bingo stap 5: printbare bingolijst (A4, lege vakjes) en verslag achteraf uit de opgeslagen toestand/logboek; geen uitslagen (KNLTB-app) | Oscar |
 | 2026-10-14 | Vaste clublink via dezelfde Cloud Run-service (statische web-app onder /app, korte links /club/<id> e.d.), niet via GitHub Pages (Koens repo) | Oscar |
 | 2026-10-16 | Oscar vraagt het speeldag-dashboard met herplannen uit te werken: stories SD1–SD7 + open vragen V1–V7 (sectie H); herplannen alleen expliciet, gespeelde/lopende partijen vast | Oscar |
+| 2026-10-16 | Antwoorden dashboard (V1–V7): één baancommissaris op één apparaat; start/klaar per partij; herplannen mag naar andere baan, geen harde grens later beginnen (alleen sluiting/regels); omwisselen tussen teams OPEN (tot besluit alleen schuiven); regen per team (staken/doorgaan/later starten, nieuwe story SD8), niet hele dag stilleggen; tv-scherm ook voor geplande dagen (SD9); captains niet automatisch inlichten, gedeelde link volstaat (SD7 vervalt) | Oscar |
 
 ---
 
@@ -174,40 +175,47 @@ Antwoorden van Oscar (14-10-2026):
 
 ## H. [Dashboard] Speeldag-dashboard met herplannen (epic)
 
-Doel: op de speeldag zelf zien wat waar speelt, afwijkingen vastleggen en — alleen als de TC daarom vraagt — de rest van de dag herplannen. Hergebruikt wat er is: dagpagina (F1), tv-scherm (G4), verzetten (D1), opgave (D2), bingo-commissarisscherm met logboek/ongedaan maken/generatie-opslag (G2). Nummering SD1–SD7 (D1/D2 zijn al in gebruik). Open vragen: zie *Open vragen dashboard* (V1–V7) hieronder.
+Doel: op de speeldag zelf zien wat waar speelt, afwijkingen vastleggen en — alleen als de TC daarom vraagt — de rest van de dag herplannen. Hergebruikt wat er is: dagpagina (F1), tv-scherm (G4), verzetten (D1), opgave (D2), bingo-commissarisscherm met logboek/ongedaan maken/generatie-opslag (G2). Nummering SD1–SD7 (D1/D2 zijn al in gebruik). Open vragen en antwoorden: zie *Open vragen dashboard* (V1–V7) hieronder; alleen V4 is nog open.
 
-**SD1 — Dagoverzicht vandaag.** Prioriteit 1. Als baancommissaris/TC wil ik op de speeldag één scherm met alle banen en tijden van vandaag, met per partij de status *gepland / bezig / klaar / vervallen*, zodat ik in één oogopslag zie hoe de dag loopt.
+**SD1 — Dagoverzicht vandaag.** Prioriteit 1. Als baancommissaris wil ik op de speeldag één scherm met alle banen en tijden van vandaag, met per partij de status *gepland / bezig / klaar / vervallen*, zodat ik in één oogopslag zie hoe de dag loopt.
 - AC: opent standaard op vandaag (vaste link, bv. `/dashboard/<club>`); bron = opgeslagen (definitief) schema; rooster per baan/tijd en lijstweergave op telefoon (F3); "nu"-lijn op de huidige tijd; opgaven tonen als vervallen (D2), verzette wedstrijden zichtbaar (D1); zonder definitief schema een duidelijke melding. · Status: nog niet gestart · Vragen: V1, V6.
 
 **SD2 — Werkelijk verloop registreren.** Prioriteit 1. Als baancommissaris wil ik per partij *gestart* / *klaar* tikken en per team *aanwezig* / *te laat* registreren, zodat het dashboard de echte stand toont en herplannen daarop kan rekenen.
-- AC: dezelfde mechaniek als bingo (G2): één tik, logboek met tijden, ongedaan maken, opslag per club/datum met generatie (409 bij gelijktijdige wijziging), polling 5 s; geen uitslagen (KNLTB-app); werkt op telefoon. Omvang (alles bijhouden of alleen afwijkingen) volgt uit V2. · Status: nog niet gestart · Vragen: V1, V2.
+- AC: dezelfde mechaniek als bingo (G2): één tik, logboek met tijden, ongedaan maken, opslag per club/datum met generatie (409 bij gelijktijdige wijziging), polling 5 s; geen uitslagen (KNLTB-app); werkt op telefoon. Start en klaar worden per partij bijgehouden (V2); één baancommissaris, één apparaat (V1). · Status: nog niet gestart.
 
 **SD3 — Baan buiten gebruik vanaf tijd X.** Prioriteit 2. Als baancommissaris wil ik een baan (of alle banen) vanaf een tijd buiten gebruik zetten (regen, onderhoud, kapotte verlichting), zodat ik zie welke partijen geraakt worden.
-- AC: baan + van-tijd (+ optioneel tot-tijd); geraakte partijen gemarkeerd als "geraakt"; omkeerbaar; in logboek; "alle banen" = stilleggen (regen); niets wordt vanzelf verschoven (dat doet SD5). · Status: nog niet gestart · Vragen: V5.
+- AC: baan + van-tijd (+ optioneel tot-tijd); geraakte partijen gemarkeerd als "geraakt"; omkeerbaar; in logboek; voor onderhoud/verlichting; regen wordt per team afgehandeld (SD8, V5), niet door de hele dag stil te leggen; niets wordt vanzelf verschoven (dat doet SD5). · Status: nog niet gestart.
 
 **SD4 — Uitloop / vertraging.** Prioriteit 2. Als baancommissaris wil ik zien welke partij uitloopt en de gevolgen voor volgende partijen op die baan, zodat ik op tijd kan bijsturen.
-- AC: partij die langer bezig is dan de normtijd kleurt (zoals op het tv-scherm); verwachte vertraging per volgende partij op die baan en van hetzelfde team getoond; optioneel "doorschuiven op deze baan" (alleen latere partijen op dezelfde baan, met voorvertoning en bevestiging); max. uitloop volgens V3. · Status: nog niet gestart · Vragen: V3.
+- AC: partij die langer bezig is dan de normtijd kleurt (zoals op het tv-scherm); verwachte vertraging per volgende partij op die baan en van hetzelfde team getoond; optioneel "doorschuiven op deze baan" (alleen latere partijen op dezelfde baan, met voorvertoning en bevestiging); geen harde grens voor later beginnen, alleen sluitingstijd en regels (V3). · Status: nog niet gestart.
 
 **SD5 — "Herplan rest van de dag".** Prioriteit 2. Als TC wil ik met één knop de rest van de dag laten herplannen vanaf nu, zodat ik na regen, uitloop of een buiten-gebruik-baan een haalbaar schema heb.
-- AC: alleen expliciet via de knop (nooit automatisch); gespeelde en lopende partijen staan vast (vergrendeld); niet-beschikbare banen (SD3) en de huidige tijd als ondergrens; KNLTB-regels, clubafspraken en exporttijd blijven gelden; toont verschil oud ↔ nieuw (per partij baan/tijd, aantal verschoven, nieuwe eindtijd, onplanbare partijen) en vraagt bevestiging; pas na bevestiging wordt het nieuwe schema definitief (F4), het oude blijft terug te halen; korte rekentijd. Wat mag bewegen volgt uit V3/V4. · Status: nog niet gestart · Vragen: V3, V4, V5.
+- AC: alleen expliciet via de knop (nooit automatisch); gespeelde en lopende partijen staan vast (vergrendeld); niet-beschikbare banen (SD3) en de huidige tijd als ondergrens; KNLTB-regels, clubafspraken en exporttijd blijven gelden; toont verschil oud ↔ nieuw (per partij baan/tijd, aantal verschoven, nieuwe eindtijd, onplanbare partijen) en vraagt bevestiging; pas na bevestiging wordt het nieuwe schema definitief (F4), het oude blijft terug te halen; korte rekentijd. Partijen mogen naar een andere baan; geen harde grens voor later beginnen, alleen sluitingstijd en regels (V3). Gestaakte/later-startende teams uit SD8 tellen mee. Omwisselen tussen teams: **open (V4)**; tot besluit alleen schuiven. · Status: nog niet gestart · Vragen: V4.
 
 **SD6 — Doorzetten naar dagpagina en tv-scherm.** Prioriteit 3. Als captain/lid wil ik op de gedeelde dagpagina (F1) en het tv-scherm (G4) direct de actuele stand zien, met een markering "gewijzigd", zodat ik weet dat het schema is aangepast.
-- AC: dagpagina en tv-scherm lezen het actuele definitieve schema + verloop; gewijzigde partijen gemarkeerd met oude → nieuwe tijd/baan; tijdstip "laatst gewijzigd"; tv-scherm ook voor geplande dagen (afhankelijk van V6); alleen-lezen. · Status: nog niet gestart · Vragen: V6.
+- AC: dagpagina en tv-scherm lezen het actuele definitieve schema + verloop; gewijzigde partijen gemarkeerd met oude → nieuwe tijd/baan; tijdstip "laatst gewijzigd"; tv-scherm voor geplande dagen: zie SD9; alleen-lezen. · Status: nog niet gestart.
 
-**SD7 — Captains informeren (later).** Prioriteit 4 (later). Als captain wil ik bericht krijgen als de tijd of baan van mijn team wijzigt, zodat ik niet hoef te blijven kijken.
-- AC: eerst alleen een kant-en-klaar bericht + link (WhatsApp-deelknop, zoals F1); automatisch versturen pas na besluit V7 (vereist contactgegevens/privacy). · Status: nog niet gestart · Vragen: V7.
+**SD7 — Captains informeren.** ~~Automatisch bericht bij wijziging~~. · Status: **vervallen/gesloten** (V7, Oscar 16-10-2026): niet automatisch; de gedeelde dagpagina (F1/SD6) volstaat.
+
+**SD8 — Per team staken / hervatten.** Prioriteit 2. Als baancommissaris wil ik bij regen per team kunnen vastleggen of het *staakt*, *doorgaat* of *later start* (met nieuwe starttijd), zodat ik niet de hele dag hoef stil te leggen en elk team apart kan afhandelen.
+- AC: per team op het dashboard een keuze staken / doorgaan / later starten (tijd); gestaakte partijen gemarkeerd (gespeelde/lopende blijven zoals ze zijn), staken is omkeerbaar; geen automatische opgave (D2 blijft apart); in logboek; "later starten" en gestaakte teams worden meegenomen door SD5 (herplan rest van de dag); KNLTB-regels voor staken/hervatten als toelichting (Regelmaatje). Voorbeeld uit de praktijk: ochtendregen, de 13:00-teams speelden alsnog, verre teams hadden al gestaakt. · Status: nog niet gestart · Bron: Oscar 16-10-2026 (V5).
+
+**SD9 — Tv-scherm voor geplande dagen.** Prioriteit 3. Als lid/bar wil ik het tv-scherm (G4) ook op gewone (geplande) speeldagen gebruiken, zodat iedereen op het park ziet wat waar speelt en wat straks komt.
+- AC: `tv.html#<club>/<datum>` (vaste link `/tv/<club>/<datum>`) werkt ook voor geplande dagen: per baan de lopende partij (uit SD2 of anders volgens schema) met verstreken tijd, rij "Straks" uit het definitieve schema, vervallen/gewijzigd gemarkeerd (SD6); alleen-lezen, ververst elke 5 s. · Status: nog niet gestart · Bron: Oscar 16-10-2026 (V6).
 
 ### Open vragen dashboard
 
-| # | Vraag | Raakt |
-|---|---|---|
-| V1 | Wie bedient het dashboard op een speeldag (baancommissaris of TC), en op één apparaat tegelijk? | SD1, SD2 |
-| V2 | Moet start/klaar per partij worden bijgehouden, of alleen afwijkingen (te laat, uitloop, baan dicht)? | SD2 |
-| V3 | Mogen partijen bij herplannen naar andere banen schuiven, en hoeveel later mag iets beginnen (max. uitloop)? | SD4, SD5 |
-| V4 | Mag herplannen partijen over teams heen omwisselen, of alleen schuiven? | SD5 |
-| V5 | Regen: hele dag stilleggen en later hervatten met herplan? KNLTB-regels voor staken/hervatten meenemen? | SD3, SD5 |
-| V6 | Moet het tv-scherm ook voor geplande (niet-bingo) dagen werken? | SD1, SD6 |
-| V7 | Captains automatisch informeren (WhatsApp) of alleen via de gedeelde link? | SD7 |
+Antwoorden Oscar 16-10-2026.
+
+| # | Vraag | Raakt | Antwoord |
+|---|---|---|---|
+| V1 | Wie bedient het dashboard op een speeldag, en op één apparaat tegelijk? | SD1, SD2 | Eén baancommissaris, op één apparaat. |
+| V2 | Start/klaar per partij bijhouden, of alleen afwijkingen? | SD2 | Per partij start en klaar bijhouden. |
+| V3 | Mogen partijen bij herplannen naar andere banen, en hoeveel later mag iets beginnen? | SD4, SD5 | Andere baan mag; geen harde grens voor later beginnen, alleen sluitingstijd en regels. |
+| V4 | Mag herplannen partijen over teams heen omwisselen, of alleen schuiven? | SD5 | **Open**: Oscar weet het nog niet. Tot besluit: alleen schuiven. |
+| V5 | Regen: hele dag stilleggen en later hervatten? KNLTB staken/hervatten? | SD3, SD5, SD8 | Niet de hele dag stilleggen; per team beslissen (staken / doorgaan / later starten). Voorbeeld: ochtendregen, de 13:00-teams speelden alsnog, verre teams hadden al gestaakt. → SD8. |
+| V6 | Tv-scherm ook voor geplande dagen? | SD6, SD9 | Ja. → SD9. |
+| V7 | Captains automatisch informeren of alleen via gedeelde link? | SD7 | Niet automatisch; de gedeelde link volstaat. SD7 vervalt. |
 
 ## Beslisvolgorde (14-10-2026)
 
@@ -234,7 +242,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 13 | [Planner] | Laatste start avond = sluiting − 1:30; donderdag eind 00:00 | B8 | klaar (besluit 14-10-2026) |
 | 14 | [Planner] | 27-09 herberekenen op verzoek | — | open |
 | 15 | [Planner] | Reisafstand per tegenstander (80 km-regel) | B6 | uitgesteld |
-| 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): uitgewerkt in SD1–SD7, open vragen V1–V7 | H | nog niet gestart (wacht op antwoorden V1–V7) |
+| 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): uitgewerkt in SD1–SD9 (SD7 vervallen), vragen V1–V7 beantwoord behalve V4 | H | nog niet gestart |
 | 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
 | 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |
