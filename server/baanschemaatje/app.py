@@ -285,7 +285,7 @@ def _apply_moves(spath: Path, moves: list[Move]) -> tuple[Path, list[dict[str, A
 # ---------------------------------------------------------------- opgeslagen schema's + verzettingen
 
 _DATE_RE = re.compile(r"^\d{2}-\d{2}-\d{4}$")
-SOURCES = ("berekend", "handmatig aangepast")
+SOURCES = ("berekend", "handmatig aangepast", "herplan")  # herplan = aangepast op de speeldag (dashboard)
 
 
 def _check_date(date: str) -> str:
@@ -582,7 +582,8 @@ def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
     return {"club": club_id, "date": date, "name": prof.name, "gen": gen,
             "state": json.loads(data) if data else None,
             "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
-            "window": _day_window(prof, date, fx), "schedule": _get_json(_sched_key(club_id, date))}
+            "window": _day_window(prof, date, fx), "schedule": _get_json(_sched_key(club_id, date)),
+            "profile": profile_summary(prof.for_date(date, fx), club_id)}
 
 
 @app.put("/clubs/{club_id}/dayrun/{date}")

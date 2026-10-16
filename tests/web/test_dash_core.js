@@ -46,3 +46,16 @@ test("baan buiten gebruik: geraakte partijen, opheffen", () => {
   s = D.dsOffRemove(s, 0, at(10, 5));
   assert.deepStrictEqual(s.off, []);
 });
+
+test("uitloop: verwachte vertraging, doorschuiven op één baan, verschil en gewijzigd-markering", () => {
+  const rows = D.dsRows(PLAN);
+  let s = D.dsStart(D.dsEmpty(), rows[0], 1, at(9, 10));
+  assert.strictEqual(D.dsExpectedDelay(rows, s, 1, at(10, 50)), 20); // nu 10:50 (na verwacht eind 10:40) − volgende 10:30
+  assert.strictEqual(D.dsExpectedDelay(rows, s, 1, at(9, 30)), 10);
+  const nw = D.dsShiftCourt(PLAN.rows, s, 1, 10 * 60 + 30, 30, 10 * 60 + 50);
+  const diff = D.dsDiff(PLAN.rows, nw);
+  assert.deepStrictEqual(diff.map((d) => [d.row.part, d.old.start, d.new.start]), [["D1", "10:30", "11:00"]]);
+  const ch = D.dsChanged({}, diff);
+  assert.deepStrictEqual(ch[D.dsPid(rows[2])], { start: "10:30", court: 1 });
+  assert.deepStrictEqual(D.dsChanged(ch, [{ pid: D.dsPid(rows[2]), old: { start: "11:00", court: 1 } }])[D.dsPid(rows[2])].start, "10:30");
+});

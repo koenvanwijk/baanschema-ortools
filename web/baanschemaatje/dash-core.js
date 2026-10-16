@@ -97,6 +97,45 @@ function dsHit(r, state) {
   const a = dsMin(r.start), b = dsMin(r.end);
   return (state.off || []).some((o) => o.court === r.court && a < (o.to ? dsMin(o.to) : 24 * 60) && b > dsMin(o.from));
 }
+// SD4: doorschuiven op één baan. Geplande (niet begonnen) partijen op `court` die op/na `fromMin` beginnen,
+// schuiven `delta` minuten op (volgorde blijft). Geeft nieuwe rijen; het origineel blijft onaangeroerd.
+function dsShiftCourt(rows, state, court, fromMin, delta, now) {
+  return rows.map((r) => {
+    if (r.court !== court || dsMin(r.start) < fromMin || dsStatus(r, state, now).status !== "gepland" || !r.start) return r;
+    return { ...r, start: dsHM(dsMin(r.start) + delta), end: dsHM(dsMin(r.end) + delta) };
+  });
+}
+// Verwachte vertraging per volgende partij op die baan door uitloop van de lopende partij.
+function dsExpectedDelay(rows, state, court, nowDate) {
+  const now = dsClock(nowDate);
+  const cur = rows.find((r) => { const s = dsStatus(r, state, now); return s.status === "bezig" && s.court === court; });
+  const next = rows.find((r) => r.court === court && dsStatus(r, state, now).status === "gepland");
+  if (!cur || !next) return 0;
+  const p = state.parts[dsPid(cur)];
+  const expEnd = Math.max(dsClock(new Date(p.start)) + (dsMin(cur.end) - dsMin(cur.start)), now);
+  return Math.max(0, expEnd - dsMin(next.start));
+}
+// Verschil oud ↔ nieuw (per partij): verplaatst, nieuw onplanbaar.
+function dsDiff(oldRows, newRows) {
+  const o = new Map(oldRows.filter((r) => r.kind !== "W").map((r) => [dsPid(r), r]));
+  const out = [];
+  for (const n of newRows) {
+    if (n.kind === "W") continue;
+    const a = o.get(dsPid(n));
+    const placed = n.court && n.start && n.start !== "NIET_GELUKT";
+    const was = a && a.court && a.start !== "NIET_GELUKT";
+    if (!a) continue;
+    if (!placed && was) out.push({ pid: dsPid(n), row: n, old: { start: a.start, court: a.court }, new: null });
+    else if (placed && (!was || a.start !== n.start || a.court !== n.court)) out.push({ pid: dsPid(n), row: n, old: was ? { start: a.start, court: a.court } : null, new: { start: n.start, court: n.court } });
+  }
+  return out.sort((x, y) => dsMin((x.new || x.old).start) - dsMin((y.new || y.old).start));
+}
+// "gewijzigd"-markering: oorspronkelijke tijd/baan per partij blijft bewaard over meerdere wijzigingen.
+function dsChanged(prevChanged, diff) {
+  const ch = { ...(prevChanged || {}) };
+  for (const d of diff) if (!ch[d.pid] && d.old) ch[d.pid] = { start: d.old.start, court: d.old.court };
+  return ch;
+}
 const dsName = (r) => `${r.label} ${r.home_team} ${r.part}`;
 
-if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam, dsOffAdd, dsOffRemove, dsHit };
+if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam, dsOffAdd, dsOffRemove, dsHit, dsShiftCourt, dsExpectedDelay, dsDiff, dsChanged };

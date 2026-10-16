@@ -35,7 +35,15 @@
   <label>Reden <input id="ds-off-why" maxlength="80" placeholder="bv. onderhoud"></label>
   <button class="btn bg-big" id="ds-off-ok">Opslaan</button> <button value="cancel" class="btn2 bg-big">Annuleren</button>
 </form></dialog>
+<dialog id="ds-diff-dlg" class="bg-dlg"><form method="dialog">
+  <h3 id="ds-diff-title">Voorstel</h3>
+  <div id="ds-diff-info" class="hint"></div>
+  <div id="ds-diff"></div>
+  <p class="hint">Pas na "Bevestigen" wordt dit het definitieve schema (dagpagina en tv-scherm tonen dan "gewijzigd"). De vorige versie is terug te zetten.</p>
+  <button type="button" class="btn bg-big" id="ds-diff-ok">Bevestigen</button> <button value="cancel" class="btn2 bg-big">Annuleren</button>
+</form></dialog>
 <script src="common.js"></script>
+<script src="editor.js"></script>
 <script src="dash-core.js"></script>
 <script src="dashboard.js"></script>
 </body>

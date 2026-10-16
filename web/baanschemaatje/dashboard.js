@@ -25,7 +25,7 @@ async function load(quiet = false) {
   const r = await dsFetch(`/clubs/${encodeURIComponent(club)}/dayrun/${encodeURIComponent(date)}`);
   if (!r.ok) { say(`Kon de speeldag niet laden: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
   const j = r.body;
-  DS = { club, date, name: j.name, window: j.window, mode: j.mode, plan: j.schedule && j.schedule.plan, saved: j.schedule };
+  DS = { club, date, name: j.name, window: j.window, mode: j.mode, plan: j.schedule && j.schedule.plan, saved: j.schedule, profile: j.profile };
   if (j.gen !== GEN || !quiet) { ST = dsNorm(j.state); GEN = j.gen; }
   render();
 }
@@ -69,9 +69,11 @@ function courtCard(c) {
   if (!c.cur) return `<div class="bg-court free"><div class="bg-cn">Baan ${c.court}</div><div class="bg-free-lbl">vrij</div>${nx}</div>`;
   const p = ST.parts[dsPid(c.cur)], over = dsOverrun(c.cur, ST, new Date());
   const el = Math.max(0, Math.floor((Date.now() - new Date(p.start)) / 60000));
+  const delay = dsExpectedDelay(dsRows(DS.plan), ST, c.court, new Date());
+  const shift = delay > 0 && c.next ? `<div class="ds-over">Volgende partij ~${delay} min later</div><button class="btn2 ds-shift" data-court="${c.court}" data-delta="${Math.ceil(delay / 15) * 15}">Doorschuiven +${Math.ceil(delay / 15) * 15} min…</button>` : "";
   return `<div class="bg-court busy${over ? " long" : ""}"><div class="bg-cn">Baan ${c.court}</div>
     <div class="bg-what"><b>${esc(c.cur.part)}</b> ${esc(c.cur.label)} ${esc(c.cur.home_team)}</div>
-    <div class="bg-time">sinds ${new Date(p.start).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · <b>${el} min</b>${over ? ` · <span class="ds-over">${over} min uitloop</span>` : ""}</div>${nx}${cardButtons(c)}</div>`;
+    ${shift}<div class="bg-time">sinds ${new Date(p.start).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · <b>${el} min</b>${over ? ` · <span class="ds-over">${over} min uitloop</span>` : ""}</div>${nx}${cardButtons(c)}</div>`;
 }
 
 // SD2: tikken (start/klaar, team aanwezig/te laat), ongedaan maken, opslaan met generatie.
@@ -122,6 +124,7 @@ function renderTeams(rows) {
 function bind() {
   $("ds-actions").innerHTML = `<button id="ds-undo" class="btn2 bg-big"${(ST.undo || []).length && !BUSY ? "" : " disabled"}>↶ Ongedaan maken</button>`;
   $("ds-undo").onclick = () => act((s) => dsUndo(s));
+  if ((ST.prev || []).length) { $("ds-actions").insertAdjacentHTML("beforeend", ' <button id="ds-restore" class="btn2">Vorige schemaversie terugzetten</button>'); $("ds-restore").onclick = restorePrev; }
   for (const b of document.querySelectorAll(".ds-start")) b.onclick = () => openStart(rowOf(b.dataset.pid));
   for (const b of document.querySelectorAll(".ds-done")) b.onclick = () => act((s) => dsFinish(s, rowOf(b.dataset.pid)));
   for (const b of document.querySelectorAll(".ds-team-b")) b.onclick = () => {
@@ -139,7 +142,57 @@ function bindMore() {
   for (const b of document.querySelectorAll(".ds-off-rm")) b.onclick = () => act((s) => dsOffRemove(s, +b.dataset.i));
   bindMore2();
 }
-function bindMore2() {}
+function bindMore2() {
+  for (const b of document.querySelectorAll(".ds-shift")) b.onclick = () => {
+    const c = +b.dataset.court, d = +b.dataset.delta;
+    const rows = DS.plan.rows;
+    const next = ROWS().find((r) => r.court === c && dsStatus(r, ST, nowMin()).status === "gepland");
+    proposePlan(dsShiftCourt(rows, ST, c, dsMin(next.start), d, nowMin()), `Doorschuiven baan ${c}: +${d} min`);
+  };
+  bindMore3();
+}
+function bindMore3() {}
+
+// Voorstel tonen (verschil oud ↔ nieuw) en pas na bevestiging opslaan als definitief schema (bron "herplan").
+let PROPOSAL = null;
+function proposePlan(newRows, title, info = "") {
+  const diff = dsDiff(DS.plan.rows, newRows);
+  PROPOSAL = { rows: newRows, diff, title };
+  $("ds-diff-title").textContent = title;
+  const iss = checkPlan(newRows, DS.profile).issues.filter((x) => ["conflict", "Spelersconflict", "Volgorde", "KNLTB"].includes(x.level));
+  $("ds-diff-info").innerHTML = info + (iss.length ? `<div class="ds-over">⚠ ${iss.length} regelpunt(en) in het nieuwe schema, bv. ${esc(iss[0].msg)}</div>` : "");
+  $("ds-diff").innerHTML = diff.length ? `<table class="ds-diff"><tr><th>Partij</th><th>Oud</th><th>Nieuw</th></tr>${diff.map((d) => `<tr><td>${esc(dsName(d.row))}</td><td>${d.old ? `${esc(d.old.start)} · baan ${d.old.court}` : "niet ingepland"}</td><td>${d.new ? `<b>${esc(d.new.start)} · baan ${d.new.court}</b>` : '<b class="ds-over">past niet meer</b>'}</td></tr>`).join("")}</table>`
+    : '<p class="hint">Geen wijzigingen.</p>';
+  $("ds-diff-ok").disabled = !diff.length;
+  $("ds-diff-dlg").showModal();
+}
+async function confirmProposal() {
+  const P = PROPOSAL;
+  $("ds-diff-dlg").close();
+  if (!P || !P.diff.length) return;
+  const old = DS.plan;
+  const plan = { ...JSON.parse(JSON.stringify(old)), rows: P.rows, changed: dsChanged(old.changed, P.diff), changed_at: new Date().toISOString() };
+  delete plan.sig;
+  const check = checkSummary(P.rows, checkPlan(P.rows, DS.profile));
+  BUSY = true;
+  const r = await dsFetch(`/clubs/${encodeURIComponent(DS.club)}/schedule/${encodeURIComponent(DS.date)}`, jsonOpts("PUT", { plan, source: "herplan", check, sig: (DS.saved && DS.saved.sig) || "[]" }));
+  BUSY = false;
+  if (!r.ok) { say(`Niet opgeslagen: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
+  DS.plan = plan; DS.saved = { ...DS.saved, ...r.body, plan };
+  // Vorige versie bewaren in het verloop (terug te zetten), plus logregel.
+  await act((s) => _dsDo(s, (x) => { x.prev = [...(x.prev || []), { at: new Date().toISOString(), title: P.title, rows: old.rows, changed: old.changed || null }].slice(-3); },
+    `${P.title}: ${P.diff.length} partij(en) gewijzigd`, new Date()));
+}
+async function restorePrev() {
+  const pv = (ST.prev || [])[ST.prev.length - 1];
+  if (!pv || !confirm(`Vorige versie (vóór "${pv.title}") terugzetten?`)) return;
+  const plan = { ...JSON.parse(JSON.stringify(DS.plan)), rows: pv.rows, changed: pv.changed || undefined };
+  if (!pv.changed) delete plan.changed;
+  const r = await dsFetch(`/clubs/${encodeURIComponent(DS.club)}/schedule/${encodeURIComponent(DS.date)}`, jsonOpts("PUT", { plan, source: "herplan", check: checkSummary(pv.rows, checkPlan(pv.rows, DS.profile)), sig: (DS.saved && DS.saved.sig) || "[]" }));
+  if (!r.ok) { say(`Niet teruggezet: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
+  DS.plan = plan;
+  await act((s) => _dsDo(s, (x) => { x.prev = x.prev.slice(0, -1); }, `Vorige versie teruggezet (vóór "${pv.title}")`, new Date()));
+}
 function openOff() {
   const n = (DS.window || {}).courts || 0;
   $("ds-off-courts").innerHTML = [...Array(n).keys()].map((i) => `<label class="inline"><input type="checkbox" value="${i + 1}"> ${i + 1}</label>`).join(" ");
@@ -166,6 +219,7 @@ function openStart(r) {
 }
 
 function init() {
+  $("ds-diff-ok").onclick = confirmProposal;
   window.addEventListener("hashchange", () => { GEN = -1; load(); });
   load();
   setInterval(() => { if (!BUSY && !document.querySelector("dialog[open]")) load(true).catch(() => {}); else render(); }, DS_POLL);
