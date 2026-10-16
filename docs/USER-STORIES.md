@@ -59,6 +59,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-16 | SD4/SD5 opslaan: wijzigingen op de speeldag pas na bevestiging definitief (bron herplan), oorspronkelijke tijd/baan per partij bewaard voor gewijzigd-markering, laatste 3 versies terug te zetten | Oscar |
 | 2026-10-16 | SD5 herplannen: alleen schuiven (V4 open), andere baan mag; bij herplannen worden max-banen/aangrenzend en gelijk-starten losgelaten en tijdregels die door vertraging onhaalbaar werden zacht; voorstel wordt pas na bevestiging opgeslagen | Oscar |
 | 2026-10-16 | SD8 regen per team: staakt/gaat door/start later; staken laat niet-begonnen partijen vervallen bij herplannen (geen opgave, terug te draaien) | Oscar |
+| 2026-10-16 | SD9 tv-scherm ook op geplande dagen; zonder getikte partijen toont het de partij volgens schema (gemarkeerd "volgens schema") | Oscar |
 
 ---
 
@@ -206,7 +207,7 @@ Doel: op de speeldag zelf zien wat waar speelt, afwijkingen vastleggen en — al
 - AC: per team op het dashboard een keuze staken / doorgaan / later starten (tijd); gestaakte partijen gemarkeerd (gespeelde/lopende blijven zoals ze zijn), staken is omkeerbaar; geen automatische opgave (D2 blijft apart); in logboek; "later starten" en gestaakte teams worden meegenomen door SD5 (herplan rest van de dag); KNLTB-regels voor staken/hervatten als toelichting (Regelmaatje). Voorbeeld uit de praktijk: ochtendregen, de 13:00-teams speelden alsnog, verre teams hadden al gestaakt. · Status: klaar (16-10-2026): per team knoppen aanwezig / te laat / staakt / gaat door / start later (met tijd); staken met bevestiging, omkeerbaar, geen opgave; gestaakte niet-begonnen partijen vervallen bij herplannen (in het verschil als "vervalt (team staakt)"), al begonnen partijen lopen door; "start later" is de ondergrens voor dat team bij herplannen · Bron: Oscar 16-10-2026 (V5).
 
 **SD9 — Tv-scherm voor geplande dagen.** Prioriteit 3. Als lid/bar wil ik het tv-scherm (G4) ook op gewone (geplande) speeldagen gebruiken, zodat iedereen op het park ziet wat waar speelt en wat straks komt.
-- AC: `tv.html#<club>/<datum>` (vaste link `/tv/<club>/<datum>`) werkt ook voor geplande dagen: per baan de lopende partij (uit SD2 of anders volgens schema) met verstreken tijd, rij "Straks" uit het definitieve schema, vervallen/gewijzigd gemarkeerd (SD6); alleen-lezen, ververst elke 5 s. · Status: nog niet gestart · Bron: Oscar 16-10-2026 (V6).
+- AC: `tv.html#<club>/<datum>` (vaste link `/tv/<club>/<datum>`) werkt ook voor geplande dagen: per baan de lopende partij (uit SD2 of anders volgens schema) met verstreken tijd, rij "Straks" uit het definitieve schema, vervallen/gewijzigd gemarkeerd (SD6); alleen-lezen, ververst elke 5 s. · Status: klaar (16-10-2026): `tv.html#<club>/<datum>` / `/tv/<club>/<datum>` werkt ook op geplande dagen (bingo-avonden blijven zoals G4): per baan de lopende partij (getikt op het dashboard; zonder tikken "volgens schema") met verstreken tijd en rood bij uitloop, volgende partij op vrije banen, buiten gebruik grijs, rij "Straks" uit het definitieve schema, chip "gewijzigd" en "schema gewijzigd" in de kop (SD6); alleen-lezen, ververst elke 5 s · Bron: Oscar 16-10-2026 (V6).
 
 ### Open vragen dashboard
 
@@ -247,7 +248,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 13 | [Planner] | Laatste start avond = sluiting − 1:30; donderdag eind 00:00 | B8 | klaar (besluit 14-10-2026) |
 | 14 | [Planner] | 27-09 herberekenen op verzoek | — | open |
 | 15 | [Planner] | Reisafstand per tegenstander (80 km-regel) | B6 | uitgesteld |
-| 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): uitgewerkt in SD1–SD9 (SD7 vervallen), vragen V1–V7 beantwoord behalve V4 | H | nog niet gestart |
+| 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): SD1–SD9 (SD7 vervallen), vragen V1–V7 beantwoord behalve V4 (omwisselen tussen teams) | H | klaar (16-10-2026); V4 open |
 | 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
 | 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |

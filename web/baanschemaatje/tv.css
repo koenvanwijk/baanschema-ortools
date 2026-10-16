@@ -22,3 +22,6 @@ body.tv { margin: 0; background: #0d1b12; color: #f2f5f2; font-family: system-ui
 .tv-next ol { margin: 0; padding-left: 2vw; font-size: 2.6vh; line-height: 1.5; }
 .tv-none { list-style: none; opacity: .7; }
 .tv-msg { margin-top: 2vh; color: #ffb4a0; font-size: 2vh; }
+
+.tv-chg { display: inline-block; background: #1f5fa8; color: #fff; border-radius: 999px; padding: 0 .6vw; font-size: 1.6vh; vertical-align: middle; }
+.tv-nx { text-align: center; font-size: 2vh; opacity: .8; margin-top: .5vh; }
