@@ -73,11 +73,73 @@ function courtCard(c) {
     <div class="bg-time">sinds ${new Date(p.start).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · <b>${el} min</b>${over ? ` · <span class="ds-over">${over} min uitloop</span>` : ""}</div>${nx}${cardButtons(c)}</div>`;
 }
 
-// Knoppen (SD2+) — in SD1 alleen-lezen.
-function rowButtons() { return ""; }
-function cardButtons() { return ""; }
-function renderTeams() { $("ds-teams-sec").hidden = true; }
-function bind() {}
+// SD2: tikken (start/klaar, team aanwezig/te laat), ongedaan maken, opslaan met generatie.
+async function act(fn) {
+  if (BUSY) return;
+  let next;
+  try { next = fn(ST); } catch (e) { say(e.message, "bad"); return; }
+  BUSY = true;
+  const prev = ST;
+  ST = next; render();
+  const r = await dsFetch(`/clubs/${encodeURIComponent(DS.club)}/dayrun/${encodeURIComponent(DS.date)}`, jsonOpts("PUT", { state: next, gen: GEN }));
+  BUSY = false;
+  if (r.ok) { GEN = r.body.gen; say(`Alles opgeslagen ✓ ${new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}`, "ok"); render(); return; }
+  if (r.status === 409 && r.body && r.body.detail) { ST = dsNorm(r.body.detail.state); GEN = r.body.detail.gen; say(r.body.detail.message, "warn"); }
+  else { ST = prev; say(`Niet opgeslagen: ${(r.body && ((r.body.detail || {}).message || r.body.detail)) || r.status}`, "bad"); }
+  render();
+}
+const ROWS = () => dsRows(DS.plan);
+const rowOf = (pid) => ROWS().find((r) => dsPid(r) === pid);
+function rowButtons(r, s) {
+  if (s.status === "gepland") return ` <button class="btn2 ds-start" data-pid="${esc(dsPid(r))}">Start</button>`;
+  if (s.status === "bezig") return ` <button class="btn2 ds-done" data-pid="${esc(dsPid(r))}">Klaar</button>`;
+  return "";
+}
+function cardButtons(c) {
+  return c.cur ? `<button class="btn bg-big ds-done" data-pid="${esc(dsPid(c.cur))}">Klaar</button>` : "";
+}
+function teamsOf(rows) {
+  const m = new Map();
+  for (const r of rows) if (!m.has(r.team_id)) m.set(r.team_id, { id: r.team_id, label: `${r.label} ${r.home_team}`, away: r.away_team, first: r.start, rows: [] });
+  for (const r of rows) m.get(r.team_id).rows.push(r);
+  return [...m.values()];
+}
+function teamButtons(t) {
+  const cur = (ST.teams[t.id] || {}).status;
+  return ["aanwezig", "te_laat"].map((k) => `<button class="btn2 ds-team-b${cur === k ? " on" : ""}" data-team="${esc(t.id)}" data-st="${k}">${DS_TEAM_NL[k]}</button>`).join("");
+}
+function renderTeams(rows) {
+  $("ds-teams-sec").hidden = false;
+  const now = nowMin();
+  $("ds-teams").innerHTML = teamsOf(rows).map((t) => {
+    const done = t.rows.filter((r) => dsStatus(r, ST, now).status === "klaar").length;
+    const cur = ST.teams[t.id];
+    return `<div class="ds-team"><b>${esc(t.label)}</b> – ${esc(t.away)}<br><span class="hint">aanvang ${esc(clockShort(t.first))} · ${done}/${t.rows.length} klaar${cur ? ` · ${esc(DS_TEAM_NL[cur.status])}${cur.time ? ` ${esc(cur.time)}` : ""}` : ""}</span>
+      <div class="btns">${teamButtons(t)}</div></div>`;
+  }).join("");
+}
+function bind() {
+  $("ds-actions").innerHTML = `<button id="ds-undo" class="btn2 bg-big"${(ST.undo || []).length && !BUSY ? "" : " disabled"}>↶ Ongedaan maken</button>`;
+  $("ds-undo").onclick = () => act((s) => dsUndo(s));
+  for (const b of document.querySelectorAll(".ds-start")) b.onclick = () => openStart(rowOf(b.dataset.pid));
+  for (const b of document.querySelectorAll(".ds-done")) b.onclick = () => act((s) => dsFinish(s, rowOf(b.dataset.pid)));
+  for (const b of document.querySelectorAll(".ds-team-b")) b.onclick = () => {
+    const t = teamsOf(ROWS()).find((x) => x.id === b.dataset.team);
+    const cur = (ST.teams[t.id] || {}).status;
+    act((s) => dsTeam(s, t.id, t.label, cur === b.dataset.st ? null : b.dataset.st));
+  };
+  bindMore();
+}
+function bindMore() {}
+// Starten: op de geplande baan, of (als die bezet/buiten gebruik is) op een andere vrije baan.
+function openStart(r) {
+  const n = (DS.window || {}).courts || 0, now = nowMin();
+  const busy = new Set(dsCourts(ROWS(), ST, now, n).filter((c) => c.cur || c.off).map((c) => c.court));
+  if (!busy.has(r.court)) { act((s) => dsStart(s, r, r.court)); return; }
+  const free = [...Array(n).keys()].map((i) => i + 1).filter((c) => !busy.has(c));
+  const c = prompt(`Baan ${r.court} is bezet. Op welke baan start ${dsName(r)}? Vrij: ${free.join(", ") || "geen"}`, free[0] || "");
+  if (c && free.includes(+c)) act((s) => dsStart(s, r, +c));
+}
 
 function init() {
   window.addEventListener("hashchange", () => { GEN = -1; load(); });

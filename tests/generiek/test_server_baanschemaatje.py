@@ -454,3 +454,18 @@ def test_dayrun_get_en_dashboard_links(client):
     r = client.get("/dashboard/mierlo", follow_redirects=False)
     assert r.status_code == 307 and r.headers["location"].startswith("/app/dashboard.html#mierlo/")
     assert client.get("/dashboard/mierlo/25-10-2026", follow_redirects=False).headers["location"] == "/app/dashboard.html#mierlo/25-10-2026"
+
+
+def test_dayrun_opslaan_generatie(client):
+    """SD2: verloop opslaan met generatie (409 bij gelijktijdige wijziging); voorbeeldprofiel alleen-lezen."""
+    cid = _stored_club(client, "TV Dagverloop")
+    g0 = client.get(f"/clubs/{cid}/dayrun/25-10-2026").json()["gen"]
+    r = client.put(f"/clubs/{cid}/dayrun/25-10-2026", json={"state": {"parts": {"a|S1": {"status": "bezig"}}}, "gen": g0})
+    assert r.status_code == 200
+    g1 = r.json()["gen"]
+    r2 = client.put(f"/clubs/{cid}/dayrun/25-10-2026", json={"state": {"parts": {}}, "gen": g0})
+    assert r2.status_code == 409 and r2.json()["detail"]["gen"] == g1
+    assert client.get(f"/clubs/{cid}/dayrun/25-10-2026").json()["state"]["parts"]["a|S1"]["status"] == "bezig"
+    assert client.put(f"/clubs/{cid}/dayrun/25-10-2026", json={"state": []}).status_code == 422
+    assert client.put("/clubs/voorbeeld-6-banen/dayrun/25-10-2026", json={"state": {}, "gen": 0}).status_code == 403
+    assert client.delete(f"/clubs/{cid}/dayrun/25-10-2026").json()["deleted"]

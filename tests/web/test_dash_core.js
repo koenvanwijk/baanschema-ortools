@@ -22,3 +22,17 @@ test("dagoverzicht: status, banen nu, uitloop", () => {
   assert.strictEqual(D.dsOverrun(rows[0], s, at(10, 50)), 15);
   assert.strictEqual(D.dsOverrun(rows[0], s, at(10, 0)), 0);
 });
+
+test("verloop: start/klaar/team/ongedaan", () => {
+  const rows = D.dsRows(PLAN);
+  let s = D.dsStart(D.dsEmpty(), rows[0], 4, at(9, 3));
+  assert.deepStrictEqual([s.parts[D.dsPid(rows[0])].court, D.dsStatus(rows[0], s, 600).status], [4, "bezig"]);
+  assert.match(s.log[0].msg, /gepland op baan 1/);
+  assert.throws(() => D.dsFinish(s, rows[1], at(9, 4)), /niet bezig/);
+  s = D.dsFinish(s, rows[0], at(10, 40));
+  assert.strictEqual(D.dsStatus(rows[0], s, 640).status, "klaar");
+  s = D.dsTeam(s, "T · M 2", "HD M 2", "te_laat", {}, at(10, 41));
+  assert.strictEqual(s.teams["T · M 2"].status, "te_laat");
+  s = D.dsUndo(s, at(10, 42));
+  assert.ok(!s.teams["T · M 2"] && s.parts[D.dsPid(rows[0])].status === "klaar");
+});

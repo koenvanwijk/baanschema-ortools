@@ -68,6 +68,21 @@ function dsUndo(state, now = new Date()) {
   const last = (state.log[state.log.length - 1] || {}).msg || "";
   return { ...prev, undo: u.slice(0, -1), log: [...prev.log, { t: now.toISOString(), msg: `Ongedaan: ${last}` }] };
 }
+// SD2: werkelijk verloop.
+function dsStart(state, r, court, now = new Date()) {
+  return _dsDo(state, (s) => { s.parts[dsPid(r)] = { status: "bezig", start: now.toISOString(), court: court || r.court }; },
+    `Baan ${court || r.court}: ${dsName(r)} gestart${court && court !== r.court ? ` (gepland op baan ${r.court})` : ""}`, now);
+}
+function dsFinish(state, r, now = new Date()) {
+  const p = state.parts[dsPid(r)];
+  if (!p || p.status !== "bezig") throw new Error(`${dsName(r)} is niet bezig.`);
+  return _dsDo(state, (s) => { s.parts[dsPid(r)] = { ...p, status: "klaar", end: now.toISOString() }; }, `Baan ${p.court}: ${dsName(r)} klaar`, now);
+}
+const DS_TEAM_NL = { aanwezig: "aanwezig", te_laat: "te laat", staakt: "staakt", doorgaan: "gaat door", later: "start later" };
+function dsTeam(state, teamId, label, status, extra = {}, now = new Date()) {
+  return _dsDo(state, (s) => { if (status) s.teams[teamId] = { ...extra, status, at: now.toISOString() }; else delete s.teams[teamId]; },
+    `${label}: ${status ? DS_TEAM_NL[status] + (extra.time ? ` (${extra.time})` : "") : "status gewist"}`, now);
+}
 const dsName = (r) => `${r.label} ${r.home_team} ${r.part}`;
 
-if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName };
+if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam };

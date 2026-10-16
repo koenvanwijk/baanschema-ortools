@@ -585,6 +585,31 @@ def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
             "window": _day_window(prof, date, fx), "schedule": _get_json(_sched_key(club_id, date))}
 
 
+@app.put("/clubs/{club_id}/dayrun/{date}")
+async def put_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    # Eén baancommissaris op één apparaat (besluit Oscar 16-10-2026, V1); geen login, zoals bingo.
+    _writable(club_id, request)
+    _check_date(date)
+    body = await _json_body(request, MAX_BINGO_BYTES)
+    if not isinstance(body, dict) or not isinstance(body.get("state"), dict) or not isinstance(body.get("gen"), int):
+        raise HTTPException(422, 'verwacht {"state": {...}, "gen": <getal>}')
+    state = body["state"]
+    state["saved_at"] = _now()
+    new = STORE.put_if(_dayrun_key(club_id, date), json.dumps(state, ensure_ascii=False).encode(), body["gen"])
+    if new is None:
+        data, gen = STORE.get_gen(_dayrun_key(club_id, date))
+        raise HTTPException(409, {"message": "Het verloop is net op een ander apparaat gewijzigd; opnieuw geladen.",
+                                  "gen": gen, "state": json.loads(data) if data else None})
+    return {"ok": True, "gen": new, "saved_at": state["saved_at"]}
+
+
+@app.delete("/clubs/{club_id}/dayrun/{date}")
+def delete_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    _writable(club_id, request)
+    _check_date(date)
+    return {"deleted": STORE.delete(_dayrun_key(club_id, date))}
+
+
 CANCEL_TYPES = ("eigen", "tegenstander")  # eigen opgave / tegenstander opgave
 
 
