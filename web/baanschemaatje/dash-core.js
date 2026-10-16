@@ -83,6 +83,20 @@ function dsTeam(state, teamId, label, status, extra = {}, now = new Date()) {
   return _dsDo(state, (s) => { if (status) s.teams[teamId] = { ...extra, status, at: now.toISOString() }; else delete s.teams[teamId]; },
     `${label}: ${status ? DS_TEAM_NL[status] + (extra.time ? ` (${extra.time})` : "") : "status gewist"}`, now);
 }
+// SD3: baan buiten gebruik vanaf tijd X (optioneel tot Y). Niets schuift vanzelf (dat doet herplannen, SD5).
+function dsOffAdd(state, courts, from, to, why, now = new Date()) {
+  return _dsDo(state, (s) => { for (const c of courts) s.off.push({ court: c, from, to: to || "", why: why || "" }); },
+    `Baan ${courts.join(", ")} buiten gebruik vanaf ${from}${to ? ` tot ${to}` : ""}${why ? ` (${why})` : ""}`, now);
+}
+function dsOffRemove(state, idx, now = new Date()) {
+  const o = state.off[idx];
+  return _dsDo(state, (s) => { s.off.splice(idx, 1); }, `Baan ${o.court} weer in gebruik`, now);
+}
+// Geraakt: geplande (nog niet begonnen) partij overlapt een buiten-gebruik-periode op zijn baan.
+function dsHit(r, state) {
+  const a = dsMin(r.start), b = dsMin(r.end);
+  return (state.off || []).some((o) => o.court === r.court && a < (o.to ? dsMin(o.to) : 24 * 60) && b > dsMin(o.from));
+}
 const dsName = (r) => `${r.label} ${r.home_team} ${r.part}`;
 
-if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam };
+if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam, dsOffAdd, dsOffRemove, dsHit };

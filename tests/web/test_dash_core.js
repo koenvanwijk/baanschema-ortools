@@ -36,3 +36,13 @@ test("verloop: start/klaar/team/ongedaan", () => {
   s = D.dsUndo(s, at(10, 42));
   assert.ok(!s.teams["T · M 2"] && s.parts[D.dsPid(rows[0])].status === "klaar");
 });
+
+test("baan buiten gebruik: geraakte partijen, opheffen", () => {
+  const rows = D.dsRows(PLAN);
+  let s = D.dsOffAdd(D.dsEmpty(), [1], "10:00", "", "onderhoud", at(9, 50));
+  assert.deepStrictEqual(rows.map((r) => D.dsHit(r, s)), [true, false, true, false]);
+  assert.ok(D.dsCourts(rows, s, 600, 3)[0].off);
+  assert.ok(!D.dsCourts(rows, s, 590, 3)[0].off);
+  s = D.dsOffRemove(s, 0, at(10, 5));
+  assert.deepStrictEqual(s.off, []);
+});

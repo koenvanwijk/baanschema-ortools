@@ -30,7 +30,8 @@ async function load(quiet = false) {
   render();
 }
 
-function chip(s) {
+function chip(s, r) {
+  if (s.status === "gepland" && r && dsHit(r, ST)) return '<span class="ds-chip late" title="Baan buiten gebruik in deze periode">geraakt · baan buiten gebruik</span>';
   if (s.status === "gepland" && s.late) return '<span class="ds-chip late">gepland · nog niet gestart</span>';
   return `<span class="ds-chip ${s.status}">${s.status}</span>`;
 }
@@ -55,7 +56,7 @@ function render() {
   for (const r of rows) { if (!by.has(r.start)) by.set(r.start, []); by.get(r.start).push(r); }
   $("ds-list").innerHTML = [...by].map(([t, rs]) => `<div class="pl-slot${dsMin(t) <= now && now < dsMin(t) + 15 ? " now" : ""}"><div class="pl-time">${esc(clockShort(t))}</div><ul>${rs.map((r) => {
     const s = dsStatus(r, ST, now), ch = changed[dsPid(r)];
-    return `<li data-pid="${esc(dsPid(r))}"><span class="pl-court">Baan ${s.court || r.court}</span> <b>${esc(r.label)} ${esc(r.home_team)}</b> ${esc(r.part)} ${chip(s)}${ch ? ` <span class="ds-chip gewijzigd" title="was ${esc(ch.start)} baan ${ch.court}">gewijzigd</span>` : ""}${rowButtons(r, s)}</li>`;
+    return `<li data-pid="${esc(dsPid(r))}"><span class="pl-court">Baan ${s.court || r.court}</span> <b>${esc(r.label)} ${esc(r.home_team)}</b> ${esc(r.part)} ${chip(s, r)}${ch ? ` <span class="ds-chip gewijzigd" title="was ${esc(ch.start)} baan ${ch.court}">gewijzigd</span>` : ""}${rowButtons(r, s)}</li>`;
   }).join("")}</ul></div>`).join("");
   renderTeams(rows);
   $("ds-log").innerHTML = [...ST.log].reverse().map((l) => `<li><span class="hint">${new Date(l.t).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</span> ${esc(l.msg)}</li>`).join("");
@@ -130,7 +131,30 @@ function bind() {
   };
   bindMore();
 }
-function bindMore() {}
+function bindMore() {
+  $("ds-actions").insertAdjacentHTML("beforeend", ` <button id="ds-off" class="btn2 bg-big">Baan buiten gebruik…</button>`);
+  $("ds-off").onclick = openOff;
+  const offs = ST.off || [];
+  $("ds-offs").innerHTML = offs.length ? `<div class="banner">Buiten gebruik: ${offs.map((o, i) => `baan ${o.court} vanaf ${esc(o.from)}${o.to ? ` tot ${esc(o.to)}` : ""}${o.why ? ` (${esc(o.why)})` : ""} <button class="btn2 ds-off-rm" data-i="${i}">opheffen</button>`).join(" · ")}</div>` : "";
+  for (const b of document.querySelectorAll(".ds-off-rm")) b.onclick = () => act((s) => dsOffRemove(s, +b.dataset.i));
+  bindMore2();
+}
+function bindMore2() {}
+function openOff() {
+  const n = (DS.window || {}).courts || 0;
+  $("ds-off-courts").innerHTML = [...Array(n).keys()].map((i) => `<label class="inline"><input type="checkbox" value="${i + 1}"> ${i + 1}</label>`).join(" ");
+  $("ds-off-from").value = dsHM(Math.ceil(nowMin() / 15) * 15);
+  $("ds-off-to").value = ""; $("ds-off-why").value = "";
+  $("ds-off-dlg").showModal();
+  $("ds-off-all").onclick = () => { for (const i of $("ds-off-courts").querySelectorAll("input")) i.checked = true; };
+  $("ds-off-ok").onclick = (ev) => {
+    ev.preventDefault();
+    const cs = [...$("ds-off-courts").querySelectorAll("input:checked")].map((i) => +i.value);
+    if (!cs.length || !/^\d\d:\d\d$/.test($("ds-off-from").value)) { alert("Kies minstens één baan en een begintijd."); return; }
+    $("ds-off-dlg").close();
+    act((s) => dsOffAdd(s, cs, $("ds-off-from").value, $("ds-off-to").value, $("ds-off-why").value.trim()));
+  };
+}
 // Starten: op de geplande baan, of (als die bezet/buiten gebruik is) op een andere vrije baan.
 function openStart(r) {
   const n = (DS.window || {}).courts || 0, now = nowMin();
