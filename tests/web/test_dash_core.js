@@ -56,7 +56,7 @@ test("uitloop: verwachte vertraging, doorschuiven op één baan, verschil en gew
   const diff = D.dsDiff(PLAN.rows, nw);
   assert.deepStrictEqual(diff.map((d) => [d.row.part, d.old.start, d.new.start]), [["D1", "10:30", "11:00"]]);
   const ch = D.dsChanged({}, diff);
-  assert.deepStrictEqual(ch[D.dsPid(rows[2])], { start: "10:30", court: 1 });
+  assert.deepStrictEqual([ch[D.dsPid(rows[2])].start, ch[D.dsPid(rows[2])].court, ch[D.dsPid(rows[2])].name], ["10:30", 1, "HD M 1 D1"]);
   assert.deepStrictEqual(D.dsChanged(ch, [{ pid: D.dsPid(rows[2]), old: { start: "11:00", court: 1 } }])[D.dsPid(rows[2])].start, "10:30");
 });
 

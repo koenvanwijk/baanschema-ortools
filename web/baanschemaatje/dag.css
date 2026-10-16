@@ -8,3 +8,7 @@
 .dg-courts { margin: 4px 0 2px 4.2em; font-weight: 600; }
 .dg-parts { margin-left: 4.2em; }
 @media print { .no-print { display: none !important; } .dg-team { break-inside: avoid; border-color: #999; } header { background: none !important; color: #000 !important; } }
+
+.dg-team.changed { border-color: #1f5fa8; border-width: 2px; }
+.dg-chip { display: inline-block; background: #1f5fa8; color: #fff; border-radius: 999px; padding: 0 8px; font-size: .75em; vertical-align: middle; }
+.dg-changed { border-left: 4px solid #1f5fa8; }

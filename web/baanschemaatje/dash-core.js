@@ -137,7 +137,7 @@ function dsDiff(oldRows, newRows) {
 function dsChanged(prevChanged, diff) {
   const ch = { ...(prevChanged || {}) };
   for (const d of diff) {
-    if (!ch[d.pid] && d.old) ch[d.pid] = { start: d.old.start, court: d.old.court };
+    if (!ch[d.pid] && d.old) ch[d.pid] = { start: d.old.start, court: d.old.court, name: `${d.row.label} ${d.row.home_team} ${d.row.part}`, team: `${d.row.label} ${d.row.home_team}` };
     if (ch[d.pid] && d.gone) ch[d.pid].gone = true;
   }
   return ch;
