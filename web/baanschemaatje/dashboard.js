@@ -151,7 +151,25 @@ function bindMore2() {
   };
   bindMore3();
 }
-function bindMore3() {}
+// SD5: "Herplan rest van de dag" — alleen op deze knop; voorstel met verschil, pas na bevestiging definitief.
+function bindMore3() {
+  $("ds-actions").insertAdjacentHTML("beforeend", ' <button id="ds-replan" class="btn bg-big">Herplan rest van de dag…</button>');
+  $("ds-replan").onclick = replanRest;
+  bindMore4();
+}
+function bindMore4() {}
+async function replanRest() {
+  const now = dsHM(nowMin());
+  if (!confirm(`Rest van de dag herplannen vanaf ${now}?\n\nGespeelde en lopende partijen blijven staan. Banen buiten gebruik, gestaakte teams en "later starten" tellen mee. Partijen kunnen naar een andere baan en later beginnen (tot sluiting). Je ziet eerst het verschil; pas na Bevestigen wordt het definitief.`)) return;
+  BUSY = true; say("Herplannen… (enkele seconden)", "warn");
+  const r = await dsFetch(`/clubs/${encodeURIComponent(DS.club)}/replan/${encodeURIComponent(DS.date)}`, jsonOpts("POST", { now, time_limit_s: 8 }));
+  BUSY = false;
+  if (!r.ok) { say(`Herplannen lukte niet: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
+  say("");
+  const j = r.body;
+  proposePlan(j.rows, `Herplan rest van de dag (vanaf ${now})`,
+    `${j.pinned} partij(en) vast (gespeeld/bezig)${j.dropped ? ` · ${j.dropped} gestaakt` : ""}${j.unscheduled ? ` · <b class="ds-over">${j.unscheduled} past niet meer</b>` : " · alles past"}. Alleen schuiven, geen omwisselen tussen teams.`);
+}
 
 // Voorstel tonen (verschil oud ↔ nieuw) en pas na bevestiging opslaan als definitief schema (bron "herplan").
 let PROPOSAL = null;

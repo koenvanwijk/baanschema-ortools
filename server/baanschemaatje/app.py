@@ -490,6 +490,24 @@ def _bingo_key(club_id: str, date: str) -> str:
     return f"clubs/{club_id}/bingo/{date}.json"
 
 
+def _saved_moves(club_id: str) -> list[Move]:
+    """Opgeslagen verzettingen die nog toepasbaar zijn (opgaven en verouderde verzettingen overgeslagen)."""
+    spath = _season_path(club_id)
+    cm = _cancel_map(_cancellations(club_id))
+    gone = {(k[0], t, k[3]) for k in cm for t in (k[1], k[2])}
+    out = []
+    for m in ((_get_json(f"clubs/{club_id}/moves.json") or {}).get("moves") or []):
+        try:
+            mv = Move.model_validate(m)
+            if (_norm(mv.schema_), _norm(mv.home), mv.from_) in gone:
+                continue
+            _apply_moves(spath, [mv])
+            out.append(mv)
+        except Exception:  # noqa: BLE001 - verouderde verzetting: negeren
+            continue
+    return out
+
+
 def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str, Any]]:
     """Wedstrijden van de avond met hun partijen (S/D/GD volgens de KNLTB-categorie); zonder opgaven en gespeelde."""
     from baanschemaatje.planner import build_parts
@@ -497,19 +515,8 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
     # Opgeslagen verzettingen tellen mee: een naar deze bingo-avond verzette wedstrijd verschijnt
     # bij de commissaris (en een weg-verzette verdwijnt). Ongeldige/verouderde verzettingen worden overgeslagen.
     spath = _season_path(club_id)
-    cancels = _cancellations(club_id)
-    cm = _cancel_map(cancels)
-    gone = {(k[0], t, k[3]) for k in cm for t in (k[1], k[2])}
-    moves = []
-    for m in ((_get_json(f"clubs/{club_id}/moves.json") or {}).get("moves") or []):
-        try:
-            mv = Move.model_validate(m)
-            if (_norm(mv.schema_), _norm(mv.home), mv.from_) in gone:
-                continue
-            _apply_moves(spath, [mv])
-            moves.append(mv)
-        except Exception:  # noqa: BLE001 - verouderde verzetting: negeren
-            continue
+    cm = _cancel_map(_cancellations(club_id))
+    moves = _saved_moves(club_id)
     moved_in = {(_norm(m.schema_), _norm(m.home)): m.from_ for m in moves if m.to == date}
     spath, _ = _apply_moves(spath, moves)
     season = _season(prof.knltb_name, spath)
@@ -609,6 +616,66 @@ def delete_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
     _writable(club_id, request)
     _check_date(date)
     return {"deleted": STORE.delete(_dayrun_key(club_id, date))}
+
+
+class ReplanRequest(BaseModel):
+    now: str = Field(..., description="huidige tijd HH:MM (speeldag)")
+    time_limit_s: float = Field(8.0, gt=0, le=20)
+
+
+def _iso_to_min(iso: str) -> int | None:
+    from zoneinfo import ZoneInfo
+    try:
+        d = datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(ZoneInfo("Europe/Amsterdam"))
+    except (ValueError, AttributeError):
+        return None
+    return d.hour * 60 + d.minute
+
+
+@app.post("/clubs/{club_id}/replan/{date}")
+def replan(club_id: str, date: str, req: ReplanRequest) -> dict[str, Any]:
+    """SD5 "Herplan rest van de dag": rekent alleen een voorstel uit (slaat niets op). Gespeelde/lopende partijen
+    (uit het verloop) staan vast; banen buiten gebruik, gestaakte teams en "later starten" tellen mee."""
+    from baanschemaatje.planner import replan_day
+
+    _known_club(club_id)
+    _check_date(date)
+    if not re.match(r"^\d{2}:\d{2}$", req.now):
+        raise HTTPException(422, "now moet HH:MM zijn")
+    saved = _get_json(_sched_key(club_id, date))
+    if not saved:
+        raise HTTPException(404, f"geen definitief schema voor {date}")
+    state = json.loads(STORE.get_gen(_dayrun_key(club_id, date))[0] or b"{}")
+    _, prof, _, season, _ = _resolve(PlanRequest(club=club_id, date=date, moves=[m.model_dump(by_alias=True) for m in _saved_moves(club_id)]))
+    rows = [r for r in saved["plan"].get("rows", []) if r.get("kind") != "W"]
+    old = {(r["team_id"], r["part"]): (_hm_min(r["start"]), r["court"]) for r in rows if r.get("court") and ":" in str(r.get("start"))}
+    pins: dict[tuple[str, str], tuple[int, int]] = {}
+    for pid, p in (state.get("parts") or {}).items():
+        tk, _, lab = pid.rpartition("|")
+        if p.get("status") in ("bezig", "klaar") and (tk, lab) in old:
+            m = _iso_to_min(p.get("start") or "")
+            pins[(tk, lab)] = (m if m is not None else old[(tk, lab)][0], int(p.get("court") or old[(tk, lab)][1]))
+    day_end = _hm_min(_day_window(prof, date, season.day(date))["end"])
+    off = [(int(o["court"]), _hm_min(o["from"]), _hm_min(o["to"]) if o.get("to") else day_end)
+           for o in (state.get("off") or []) if o.get("court") and o.get("from")]
+    drop, later = set(), {}
+    for tk, t in (state.get("teams") or {}).items():
+        if t.get("status") == "staakt":
+            drop |= {k for k in old if k[0] == tk and k not in pins}
+        elif t.get("status") == "later" and t.get("time"):
+            later[tk] = _hm_min(t["time"])
+    day_start = _hm_min(saved["plan"].get("day_start") or "09:00")
+    status, new_rows = replan_day(prof, season.fixtures, date, day_start, _hm_min(req.now), pins, old, off=off, drop=drop,
+                                  team_earliest=later, time_limit_s=min(req.time_limit_s, MAX_TIME_LIMIT), workers=WORKERS)
+    if not new_rows:
+        raise HTTPException(409, f"geen haalbaar schema gevonden ({status}); probeer minder banen buiten gebruik of een team later te laten starten")
+    unsched = [r for r in new_rows if not r.get("court") and r.get("kind") != "W"]
+    return {"status": status, "rows": new_rows, "pinned": len(pins), "dropped": len(drop), "unscheduled": len(unsched)}
+
+
+def _hm_min(hhmm: str) -> int:
+    h, m = str(hhmm)[:5].split(":")
+    return int(h) * 60 + int(m)
 
 
 CANCEL_TYPES = ("eigen", "tegenstander")  # eigen opgave / tegenstander opgave

@@ -203,10 +203,12 @@ def _solve(
     workers: int,
     mode: str = "optimize",
     hint: dict[tuple[str, str], tuple[int, int]] | None = None,
+    rp: dict[str, Any] | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
     """mode: "optimize" (max ingepland + zachte doelen), "feasibility" (alles
     verplicht, geen doel) of "fit" (alles verplicht + zachte doelen).
-    hint: (team_key, partlabel) -> (start, baan) als startoplossing."""
+    hint: (team_key, partlabel) -> (start, baan) als startoplossing.
+    rp: herplannen op de speeldag (zie ``replan_day``)."""
     R = profile.rules
     end = profile.day_end
     slots = list(range(day_start, end, GRID))  # begintijden van kwartierslots
@@ -246,6 +248,12 @@ def _solve(
             m, w, tot = player_demand(f.schema, label, kind)
             parts.append(dict(f=f, label=label, kind=kind, dur=dur, male=m, female=w, total=tot))
 
+    # Herplannen: gestaakte partijen vallen weg; vastgezette (gespeeld/bezig) staan op tijd+baan.
+    pins = (rp or {}).get("pins", {})
+    if rp:
+        parts = [p for p in parts if (p["f"].team_key, p["label"]) not in rp.get("drop", set())]
+    started = {tk for (tk, _l) in pins}
+
     x: dict[tuple[int, int, int], cp_model.IntVar] = {}
     start_used: dict[tuple[int, int], Any] = {}
     y: list[Any] = []
@@ -261,7 +269,16 @@ def _solve(
         if r.hard and f.category in YOUTH_CATEGORIES:
             st = [s for s in st if s <= r.params["time"]]
         t_exp = _export_start(f, profile, slots)
-        if t_exp is not None and R["export_start"].hard:
+        if rp:
+            # Niets vóór "nu" (of het latere starttijdstip van het team); exporttijd alleen als die nog kan.
+            lo = max(rp.get("earliest", 0), rp.get("team_earliest", {}).get(f.team_key, 0))
+            st = [s for s in st if s >= lo]
+            if t_exp is not None and R["export_start"].hard and f.team_key not in started and t_exp >= lo:
+                st = [s for s in st if s >= t_exp]
+            pin = pins.get((f.team_key, p["label"]))
+            if pin is not None:
+                st = [pin[0]]
+        elif t_exp is not None and R["export_start"].hard:
             st = [s for s in st if s >= t_exp]  # niets vóór de exporttijd
         allowed[i] = st
         vs = []
@@ -278,6 +295,21 @@ def _solve(
         yi = model.new_bool_var(f"y{i}")
         model.add(sum(vs) == yi)
         y.append(yi)
+        if rp:
+            pin = pins.get((f.team_key, p["label"]))
+            if pin is not None:
+                model.add(x[(i, pin[0], pin[1])] == 1)
+            else:
+                for (oc, ofrom, oto) in rp.get("off", []):
+                    for s in st:
+                        if s < oto and s + p["dur"] > ofrom and (i, s, oc) in x:
+                            model.add(x[(i, s, oc)] == 0)
+                old = rp.get("old", {}).get((f.team_key, p["label"]))
+                if old is not None:
+                    # Zo min mogelijk veranderen: zelfde baan en tijd belonen (onder alle regels/voorkeuren).
+                    if (i, old[0], old[1]) in x:
+                        rp.setdefault("_bonus", []).append(40_000 * x[(i, old[0], old[1])])
+                    rp.setdefault("_bonus", []).append(20_000 * sum(x[(i, s, old[1])] for s in st if (i, s, old[1]) in x))
 
     def occ_at(i: int, t: int, c: int | None = None) -> list:
         out = []
@@ -337,7 +369,8 @@ def _solve(
             before(s_p, non_s)
             for lst in (s_p, d_p, m_p):
                 for k in range(0, len(lst) - 1, 2):
-                    same_start(lst[k], lst[k + 1])
+                    if not rp:  # herplannen: rondes hoeven niet meer gelijk te starten
+                        same_start(lst[k], lst[k + 1])
         if strict_8p:
             before(d_p, m_p)
 
@@ -375,8 +408,9 @@ def _solve(
                 for s in allowed[i]:
                     model.add(x[(i, s, c)] <= u)
             use[c] = u
-        model.add(sum(use.values()) <= profile.max_courts_per_team)
-        if pairs:
+        if not rp:  # herplannen: partij mag naar een andere baan (besluit Oscar 16-10-2026, V3)
+            model.add(sum(use.values()) <= profile.max_courts_per_team)
+        if pairs and not rp:
             pv = []
             in_pair = set()
             for k, (a, b) in enumerate(pairs):
@@ -397,7 +431,7 @@ def _solve(
                 model.add(mx >= c).only_enforce_if(use[c])
             spread = model.new_int_var(0, len(courts), f"spr_{h}")
             model.add(spread >= mx - mn)
-            if profile.adjacent_courts:
+            if profile.adjacent_courts and not rp:
                 # Aangrenzende banen (hard): aantal gebruikte banen == mx - mn + 1, dus
                 # mn/mx zijn exact de laagste/hoogste baan en er zit geen gat tussen.
                 # Gebruikt het team geen baan, dan geldt mx = mn - 1.
@@ -435,7 +469,7 @@ def _solve(
                 model.add(r_ <= 1 - prev)
             rises.append(r_)
         rb = R["max_blocks_per_team"]
-        if rb.hard:
+        if rb.hard and not rp:
             model.add(sum(rises) <= rb.params["value"])
         else:
             extra = model.new_int_var(0, len(rises), f"xb_{h}")
@@ -460,7 +494,7 @@ def _solve(
                 suf[k] = v
             for t0 in range(1, n - win):
                 clause = act[t0 : t0 + win] + [pre[t0 - 1].Not(), suf[t0 + win].Not()]
-                if not rw.hard:
+                if not rw.hard or rp:
                     viol = model.new_bool_var(f"wait_{h}_{t0}")
                     clause.append(viol)
                     obj_pen.append(1_000_000 * viol)
@@ -477,6 +511,8 @@ def _solve(
 
         # Begintijd uit de KNLTB-export: eerste partij precies op die tijd.
         t_exp = _export_start(f, profile, slots)
+        if rp and t_exp is not None and (tk in started or t_exp < max(rp.get("earliest", 0), rp.get("team_earliest", {}).get(tk, 0))):
+            t_exp = None  # exporttijd is voorbij of het team is al begonnen
         if t_exp is not None:
             at = [start_used[(i, t_exp)] for i in idxs if t_exp in allowed[i]]
             if R["export_start"].hard:
@@ -491,7 +527,7 @@ def _solve(
 
         for k, (r, limit) in enumerate(_upper_bound_rules(R, f)):
             et = early_terms(limit)
-            if r.hard:
+            if r.hard and not rp:
                 if et:
                     model.add(sum(et) >= 1).only_enforce_if(any_y)
                 else:
@@ -509,7 +545,7 @@ def _solve(
         # Begintijd uit de KNLTB-export (bv. 11:15) wint van het halve-uur-raster: de KNLTB heeft
         # die tijd zelf vastgesteld. Anders sluiten de twee harde regels elkaar uit (25-10-2026).
         exp_off_grid = t_exp is not None and R["export_start"].hard and t_exp % g != 0
-        if g > GRID and not exp_off_grid:
+        if g > GRID and not exp_off_grid and not (rp and tk in started):
             for i in idxs:
                 for s in allowed[i]:
                     if s % g == 0:
@@ -564,6 +600,7 @@ def _solve(
     model.maximize(
         1_000_000_000 * sum(y)
         + sum(obj_bonus)
+        + sum((rp or {}).get("_bonus", []))
         - sum(obj_pen)
         - 1_000 * sum(block_court_cost)
     )
@@ -616,3 +653,38 @@ def _row(f: Fixture, part: str, kind: str, start: str, end: str, court: int | No
         "dagdeel": getattr(f, "dagdeel", "dag"),
         "export_start": getattr(f, "export_start", "") or "",
     }
+
+
+def replan_day(
+    profile: ClubProfile,
+    fixtures: list[Fixture],
+    date: str,
+    day_start: int,
+    now: int,
+    pins: dict[tuple[str, str], tuple[int, int]],
+    old: dict[tuple[str, str], tuple[int, int]],
+    off: list[tuple[int, int, int]] | None = None,
+    drop: set[tuple[str, str]] | None = None,
+    team_earliest: dict[str, int] | None = None,
+    time_limit_s: float = 8.0,
+    workers: int = 8,
+) -> tuple[str, list[dict[str, Any]]]:
+    """Herplan de rest van een speeldag (dashboard, SD5). Alleen op expliciet verzoek.
+
+    - ``pins``: gespeelde en lopende partijen (team_key, label) -> (start, baan): staan vast.
+    - Andere partijen niet vóór ``now`` (op kwartier naar boven) of het latere starttijdstip van hun team.
+    - ``off``: banen buiten gebruik (baan, van, tot); ``drop``: gestaakte partijen (vallen weg).
+    - KNLTB-regels en clubafspraken blijven; exporttijd alleen als die nog haalbaar is en het team nog niet
+      begon. Partijen mogen naar een andere baan; alleen schuiven (geen omwisselen tussen teams, V4 open).
+      Tijdregels die door de vertraging niet meer haalbaar zijn (bv. uiterste begintijd) worden zacht.
+    - Zo min mogelijk verandering t.o.v. ``old`` (zelfde baan/tijd beloond).
+    Geeft (status, rijen) in het gewone rij-formaat."""
+    day = [f for f in fixtures if f.date == date and not getattr(f, "played", False)]
+    if profile.weekday is None:
+        profile = profile.for_date(date, day)
+    lo = -(-now // GRID) * GRID
+    pins = {k: (max(day_start, (s // GRID) * GRID), c) for k, (s, c) in pins.items()}
+    rp = {"pins": pins, "old": old, "earliest": lo, "off": list(off or []), "drop": set(drop or set()),
+          "team_earliest": {k: -(-v // GRID) * GRID for k, v in (team_earliest or {}).items()}}
+    hint = {**old, **pins}
+    return _solve(profile, day, date, day_start, time_limit_s, 42, workers, mode="optimize", hint=hint, rp=rp)

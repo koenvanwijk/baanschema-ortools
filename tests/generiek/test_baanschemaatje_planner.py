@@ -313,3 +313,29 @@ def test_low_courts_first_tiebreak(profiles):
                   "CLUB 3", "GAST 4", export_start="11:15")]
     res = plan_day(profiles["mierlo"], fx, "25-10-2026", time_limit_s=3, fit_check=False)
     assert sorted({r["court"] for r in _placed(res.rows)}) == [1, 2]
+
+
+def test_replan_day_locks_pins_and_shifts_after_now(profiles):
+    """SD5: gespeelde/lopende partijen vast, de rest niet vóór 'nu', baan buiten gebruik gemeden, gestaakt valt weg."""
+    from baanschemaatje.planner import replan_day
+    fx = [Fixture("25-10-2026", "Junioren 11 t/m 14 jaar Zondag – 2e klasse – Afdeling 34", Category.JUNIOREN_11_14, 6, 0, 4, 2, 0,
+                  "CLUB 3", "GAST 4", export_start="11:15"),
+          Fixture("25-10-2026", "Heren Zondag – 4e klasse – Afdeling 4", Category.SENIOREN, 6, 0, 4, 2, 0, "CLUB 1", "GAST 1")]
+    prof = profiles["mierlo"]
+    res = plan_day(prof, fx, "25-10-2026", time_limit_s=3, fit_check=False)
+    old = {(r["team_id"], r["part"]): (_m(r["start"]), r["court"]) for r in _placed(res.rows)}
+    jun = [r for r in _placed(res.rows) if r["home_team"] == "CLUB 3"]
+    first = min(jun, key=lambda r: _m(r["start"]))
+    pins = {(first["team_id"], first["part"]): (_m(first["start"]), first["court"])}
+    now = _m(first["start"]) + 20
+    heren = [r for r in res.rows if r["home_team"] == "CLUB 1"]
+    st, rows = replan_day(prof, fx, "25-10-2026", _m(res.day_start), now, pins, old,
+                          off=[(first["court"] % 10 + 1, now, 20 * 60)], drop={(r["team_id"], r["part"]) for r in heren}, time_limit_s=3)
+    assert st in ("OPTIMAL", "FEASIBLE")
+    placed = _placed(rows)
+    assert all(r["home_team"] != "CLUB 1" for r in rows)
+    pinned = [r for r in placed if (r["team_id"], r["part"]) in pins]
+    assert [(r["start"], r["court"]) for r in pinned] == [(first["start"], first["court"])]
+    rest = [r for r in placed if (r["team_id"], r["part"]) not in pins]
+    assert len(rest) == 5 and all(_m(r["start"]) >= now for r in rest)
+    assert all(not (r["court"] == first["court"] % 10 + 1 and _m(r["end"]) > now) for r in rest)
