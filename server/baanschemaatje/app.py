@@ -564,6 +564,27 @@ def delete_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
     return {"deleted": STORE.delete(_bingo_key(club_id, date))}
 
 
+# ---------------------------------------------------------------- speeldag-dashboard (sectie H)
+# Toestand van een gewone speeldag (verloop): per partij gestart/klaar, per team aanwezig/te laat/staakt/…,
+# banen buiten gebruik, logboek en ongedaan maken. Zelfde opslag als bingo: per club/datum met generatie.
+
+def _dayrun_key(club_id: str, date: str) -> str:
+    return f"clubs/{club_id}/dayrun/{date}.json"
+
+
+@app.get("/clubs/{club_id}/dayrun/{date}")
+def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
+    _known_club(club_id)
+    _check_date(date)
+    prof = _profile(_club_raw(club_id), club_id)
+    data, gen = STORE.get_gen(_dayrun_key(club_id, date))
+    fx = _season(prof.knltb_name, _season_path(club_id)).day(date)
+    return {"club": club_id, "date": date, "name": prof.name, "gen": gen,
+            "state": json.loads(data) if data else None,
+            "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
+            "window": _day_window(prof, date, fx), "schedule": _get_json(_sched_key(club_id, date))}
+
+
 CANCEL_TYPES = ("eigen", "tegenstander")  # eigen opgave / tegenstander opgave
 
 
@@ -1090,9 +1111,14 @@ def web_club(club_id: str) -> RedirectResponse:
     return _go("club.html", _link_id(club_id))
 
 
+@app.get("/dashboard/{club_id}", include_in_schema=False)
+def web_dashboard_today(club_id: str) -> RedirectResponse:
+    return _go("dashboard.html", _link_id(club_id), _today_ams().strftime("%d-%m-%Y"))
+
+
 @app.get("/{page}/{club_id}/{date}", include_in_schema=False)
 def web_day(page: str, club_id: str, date: str) -> RedirectResponse:
-    pages = {"dag": "dag.html", "bingo": "bingo.html", "tv": "tv.html", "bingolijst": "bingo-print.html"}
+    pages = {"dashboard": "dashboard.html", "dag": "dag.html", "bingo": "bingo.html", "tv": "tv.html", "bingolijst": "bingo-print.html"}
     if page not in pages:
         raise HTTPException(404, "niet gevonden")
     return _go(pages[page], _link_id(club_id), _check_date(date))

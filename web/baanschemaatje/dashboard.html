@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baanschemaatje — speeldag-dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="bingo.css">
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="bingo dash">
+<header>
+  <div class="brand"><h1 id="ds-title">Speeldag</h1><span class="sub" id="ds-sub">dashboard</span></div>
+  <div class="controls"><a id="ds-tv" class="bg-link" target="_blank" href="tv.html">📺 Tv-scherm</a> <a id="ds-dag" class="bg-link" target="_blank" href="dag.html">Dagpagina</a> <a id="ds-back" class="bg-link" href="club.html">← Clubpagina</a></div>
+</header>
+<main>
+  <div id="ds-status" class="bg-status" role="status"></div>
+  <section class="bg-bar">
+    <span id="ds-clock" class="bg-clock">--:--</span>
+    <span id="ds-window" class="hint"></span>
+    <span id="ds-actions"></span>
+  </section>
+  <section><h2>Banen nu</h2><div id="ds-courts" class="bg-courts"></div></section>
+  <section id="ds-teams-sec"><h2>Teams</h2><div id="ds-teams" class="ds-teams"></div></section>
+  <section><h2>Schema vandaag</h2><div id="ds-list" class="ds-list"></div></section>
+  <details class="uitleg" id="ds-log-sec"><summary>Logboek</summary><ol id="ds-log" class="bg-log" reversed></ol></details>
+</main>
+<script src="common.js"></script>
+<script src="dash-core.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+.ds-list .pl-slot li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.ds-chip { display: inline-block; border-radius: 999px; padding: 0 8px; font-size: .8em; font-weight: 600; background: #eee; color: #333; }
+.ds-chip.bezig { background: #c8501e; color: #fff; }
+.ds-chip.klaar { background: #2e7d32; color: #fff; }
+.ds-chip.gestaakt, .ds-chip.vervallen { background: #777; color: #fff; text-decoration: line-through; }
+.ds-chip.late { background: #f3c26b; color: #4a3300; }
+.ds-chip.gewijzigd { background: #1f5fa8; color: #fff; }
+.bg-court.off { background: #eee; border-color: #999; color: #666; }
+.ds-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.ds-team { border: 1px solid #ddd; border-radius: 10px; padding: 8px 10px; background: #fff; }
+.ds-team .btns { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.ds-team .btns button.on { background: #2e6b4a; color: #fff; border-color: #2e6b4a; }
+.ds-next { font-size: .9em; margin-top: 4px; }
+.ds-over { color: #b3261e; font-weight: 700; }
+.ds-diff { max-height: 50vh; overflow: auto; font-size: .9em; }
+.ds-diff td, .ds-diff th { padding: 2px 6px; border-bottom: 1px solid #eee; text-align: left; }

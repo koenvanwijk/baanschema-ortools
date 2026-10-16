@@ -445,3 +445,12 @@ def test_vaste_clublink_serveert_web(client):
     assert page.status_code == 200 and "club.js" in page.text
     assert client.get("/app/../app.py").status_code == 404
     assert client.get("/clubs/mierlo/moves").status_code == 200  # API-routes blijven voorgaan
+
+
+def test_dayrun_get_en_dashboard_links(client):
+    """SD1: dashboard leest definitief schema + verloop; vaste link /dashboard/<club>[/<datum>]."""
+    j = client.get("/clubs/mierlo/dayrun/25-10-2026").json()
+    assert j["gen"] == 0 and j["state"] is None and j["mode"] == "gepland" and j["window"]["courts"] == 10 and "schedule" in j
+    r = client.get("/dashboard/mierlo", follow_redirects=False)
+    assert r.status_code == 307 and r.headers["location"].startswith("/app/dashboard.html#mierlo/")
+    assert client.get("/dashboard/mierlo/25-10-2026", follow_redirects=False).headers["location"] == "/app/dashboard.html#mierlo/25-10-2026"
