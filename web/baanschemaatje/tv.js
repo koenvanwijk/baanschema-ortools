@@ -35,13 +35,14 @@ function tvRenderPlanned() {
   if (!plan) { $("tv-courts").innerHTML = ""; $("tv-queue").innerHTML = '<li class="tv-none">Nog geen definitief schema</li>'; return; }
   const st = dsNorm(j.state), rows = dsRows(plan), now = dsClock(new Date());
   const tapped = Object.keys(st.parts).length > 0;
+  const t0 = new Date(), isToday = j.date === `${String(t0.getDate()).padStart(2, "0")}-${String(t0.getMonth() + 1).padStart(2, "0")}-${t0.getFullYear()}`;
   const chip = (r) => (ch[dsPid(r)] ? ' <span class="tv-chg">gewijzigd</span>' : "");
   $("tv-courts").innerHTML = dsCourts(rows, st, now, n).map((c) => {
     if (c.off) return `<div class="tv-court free"><div class="tv-cn">${c.court}</div><div class="tv-free">buiten gebruik</div></div>`;
     // Lopend: getikt op het dashboard; zonder tikken volgens schema.
     let cur = c.cur, el = null, est = false;
     if (cur) el = tvMins(st.parts[dsPid(cur)].start);
-    else if (!tapped) { cur = rows.find((r) => r.court === c.court && dsMin(r.start) <= now && now < dsMin(r.end)) || null; if (cur) { el = now - dsMin(cur.start); est = true; } }
+    else if (!tapped && isToday) { cur = rows.find((r) => r.court === c.court && dsMin(r.start) <= now && now < dsMin(r.end)) || null; if (cur) { el = now - dsMin(cur.start); est = true; } }
     if (!cur) return `<div class="tv-court free"><div class="tv-cn">${c.court}</div><div class="tv-free">vrij</div>${c.next ? `<div class="tv-nx">${esc(clockShort(c.next.start))} ${esc(c.next.label)} ${esc(c.next.home_team)}</div>` : ""}</div>`;
     const dur = dsMin(cur.end) - dsMin(cur.start);
     return `<div class="tv-court busy${el > dur ? " long" : ""}"><div class="tv-cn">${c.court}</div>
@@ -49,7 +50,7 @@ function tvRenderPlanned() {
       <div class="tv-part">${esc(cur.part)} <span class="tv-away">– ${esc(cur.away_team)}</span></div>
       <div class="tv-el">${est ? "volgens schema · " : ""}${tvDur(el)}</div></div>`;
   }).join("");
-  const q = rows.filter((r) => dsStatus(r, st, now).status === "gepland" && dsMin(r.end) > now).filter((r) => tapped || dsMin(r.start) > now).slice(0, 10);
+  const q = rows.filter((r) => dsStatus(r, st, now).status === "gepland" && dsMin(r.end) > now).filter((r) => tapped || !isToday || dsMin(r.start) > now).slice(0, 10);
   $("tv-queue").innerHTML = q.map((r) => `<li><b>${esc(clockShort(r.start))}</b> baan ${r.court} · ${esc(r.label)} ${esc(r.home_team)} ${esc(r.part)}${chip(r)}</li>`).join("")
     || '<li class="tv-none">Niets meer gepland</li>';
 }
