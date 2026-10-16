@@ -61,6 +61,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-16 | SD8 regen per team: staakt/gaat door/start later; staken laat niet-begonnen partijen vervallen bij herplannen (geen opgave, terug te draaien) | Oscar |
 | 2026-10-16 | SD9 tv-scherm ook op geplande dagen; zonder getikte partijen toont het de partij volgens schema (gemarkeerd "volgens schema") | Oscar |
 | 2026-10-16 | Teambezetting hard bij herplannen en doorschuiven (Oscar: enkel en dubbel goed controleren): spelers-/volgorderegels blijven hard; opstelling met namen (dashboard bij Start, bingo) → zelfde speler niet tegelijk in twee lopende partijen van het team; max banen/aangrenzend/gelijk starten mogen los | Oscar |
+| 2026-10-16 | Oscar bevestigt: bij herplannen worden tijdregels die door vertraging onhaalbaar zijn geworden (bv. uiterste begintijd) voorkeuren i.p.v. harde regels. Omwisselen tussen teams blijft open (V4) | Oscar |
 
 ---
 
