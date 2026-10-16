@@ -128,12 +128,18 @@ function dsDiff(oldRows, newRows) {
     if (!placed && was) out.push({ pid: dsPid(n), row: n, old: { start: a.start, court: a.court }, new: null });
     else if (placed && (!was || a.start !== n.start || a.court !== n.court)) out.push({ pid: dsPid(n), row: n, old: was ? { start: a.start, court: a.court } : null, new: { start: n.start, court: n.court } });
   }
+  // Weggevallen partijen (team staakt): staan niet meer in het nieuwe schema.
+  const seen = new Set(newRows.map(dsPid));
+  for (const [pid, a] of o) if (!seen.has(pid) && a.court && a.start !== "NIET_GELUKT") out.push({ pid, row: a, old: { start: a.start, court: a.court }, new: null, gone: true });
   return out.sort((x, y) => dsMin((x.new || x.old).start) - dsMin((y.new || y.old).start));
 }
 // "gewijzigd"-markering: oorspronkelijke tijd/baan per partij blijft bewaard over meerdere wijzigingen.
 function dsChanged(prevChanged, diff) {
   const ch = { ...(prevChanged || {}) };
-  for (const d of diff) if (!ch[d.pid] && d.old) ch[d.pid] = { start: d.old.start, court: d.old.court };
+  for (const d of diff) {
+    if (!ch[d.pid] && d.old) ch[d.pid] = { start: d.old.start, court: d.old.court };
+    if (ch[d.pid] && d.gone) ch[d.pid].gone = true;
+  }
   return ch;
 }
 const dsName = (r) => `${r.label} ${r.home_team} ${r.part}`;

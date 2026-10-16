@@ -109,7 +109,7 @@ function teamsOf(rows) {
 }
 function teamButtons(t) {
   const cur = (ST.teams[t.id] || {}).status;
-  return ["aanwezig", "te_laat"].map((k) => `<button class="btn2 ds-team-b${cur === k ? " on" : ""}" data-team="${esc(t.id)}" data-st="${k}">${DS_TEAM_NL[k]}</button>`).join("");
+  return ["aanwezig", "te_laat", "staakt", "doorgaan", "later"].map((k) => `<button class="btn2 ds-team-b${cur === k ? " on" : ""}" data-team="${esc(t.id)}" data-st="${k}">${DS_TEAM_NL[k]}</button>`).join("");
 }
 function renderTeams(rows) {
   $("ds-teams-sec").hidden = false;
@@ -119,7 +119,7 @@ function renderTeams(rows) {
     const cur = ST.teams[t.id];
     return `<div class="ds-team"><b>${esc(t.label)}</b> – ${esc(t.away)}<br><span class="hint">aanvang ${esc(clockShort(t.first))} · ${done}/${t.rows.length} klaar${cur ? ` · ${esc(DS_TEAM_NL[cur.status])}${cur.time ? ` ${esc(cur.time)}` : ""}` : ""}</span>
       <div class="btns">${teamButtons(t)}</div></div>`;
-  }).join("");
+  }).join("") + '<p class="hint" style="grid-column:1/-1">Regen? Beslis per team: staakt, gaat door of start later. Daarna "Herplan rest van de dag".</p>';
 }
 function bind() {
   $("ds-actions").innerHTML = `<button id="ds-undo" class="btn2 bg-big"${(ST.undo || []).length && !BUSY ? "" : " disabled"}>↶ Ongedaan maken</button>`;
@@ -129,8 +129,17 @@ function bind() {
   for (const b of document.querySelectorAll(".ds-done")) b.onclick = () => act((s) => dsFinish(s, rowOf(b.dataset.pid)));
   for (const b of document.querySelectorAll(".ds-team-b")) b.onclick = () => {
     const t = teamsOf(ROWS()).find((x) => x.id === b.dataset.team);
-    const cur = (ST.teams[t.id] || {}).status;
-    act((s) => dsTeam(s, t.id, t.label, cur === b.dataset.st ? null : b.dataset.st));
+    const cur = (ST.teams[t.id] || {}).status, k = b.dataset.st;
+    if (cur === k) { act((s) => dsTeam(s, t.id, t.label, null)); return; }
+    if (k === "later") {
+      // SD8: later starten met nieuwe starttijd; herplannen (SD5) houdt die aan.
+      const tm = prompt(`${t.label}: vanaf hoe laat kan het team (weer) spelen? (HH:MM)`, dsHM(Math.ceil((nowMin() + 60) / 15) * 15));
+      if (!tm || !/^\d\d:\d\d$/.test(tm)) return;
+      act((s) => dsTeam(s, t.id, t.label, "later", { time: tm }));
+      return;
+    }
+    if (k === "staakt" && !confirm(`${t.label} staakt: de partijen die nog niet begonnen zijn vallen weg bij herplannen (geen opgave; terug te draaien). Doorgaan?`)) return;
+    act((s) => dsTeam(s, t.id, t.label, k));
   };
   bindMore();
 }
@@ -179,7 +188,7 @@ function proposePlan(newRows, title, info = "") {
   $("ds-diff-title").textContent = title;
   const iss = checkPlan(newRows, DS.profile).issues.filter((x) => ["conflict", "Spelersconflict", "Volgorde", "KNLTB"].includes(x.level));
   $("ds-diff-info").innerHTML = info + (iss.length ? `<div class="ds-over">⚠ ${iss.length} regelpunt(en) in het nieuwe schema, bv. ${esc(iss[0].msg)}</div>` : "");
-  $("ds-diff").innerHTML = diff.length ? `<table class="ds-diff"><tr><th>Partij</th><th>Oud</th><th>Nieuw</th></tr>${diff.map((d) => `<tr><td>${esc(dsName(d.row))}</td><td>${d.old ? `${esc(d.old.start)} · baan ${d.old.court}` : "niet ingepland"}</td><td>${d.new ? `<b>${esc(d.new.start)} · baan ${d.new.court}</b>` : '<b class="ds-over">past niet meer</b>'}</td></tr>`).join("")}</table>`
+  $("ds-diff").innerHTML = diff.length ? `<table class="ds-diff"><tr><th>Partij</th><th>Oud</th><th>Nieuw</th></tr>${diff.map((d) => `<tr><td>${esc(dsName(d.row))}</td><td>${d.old ? `${esc(d.old.start)} · baan ${d.old.court}` : "niet ingepland"}</td><td>${d.new ? `<b>${esc(d.new.start)} · baan ${d.new.court}</b>` : d.gone ? "<b>vervalt (team staakt)</b>" : '<b class="ds-over">past niet meer</b>'}</td></tr>`).join("")}</table>`
     : '<p class="hint">Geen wijzigingen.</p>';
   $("ds-diff-ok").disabled = !diff.length;
   $("ds-diff-dlg").showModal();

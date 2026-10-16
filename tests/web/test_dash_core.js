@@ -59,3 +59,22 @@ test("uitloop: verwachte vertraging, doorschuiven op één baan, verschil en gew
   assert.deepStrictEqual(ch[D.dsPid(rows[2])], { start: "10:30", court: 1 });
   assert.deepStrictEqual(D.dsChanged(ch, [{ pid: D.dsPid(rows[2]), old: { start: "11:00", court: 1 } }])[D.dsPid(rows[2])].start, "10:30");
 });
+
+test("per team staken / later starten (SD8)", () => {
+  const rows = D.dsRows(PLAN);
+  let s = D.dsTeam(D.dsEmpty(), "T · M 1", "HD M 1", "later", { time: "13:00" }, at(10, 0));
+  assert.deepStrictEqual([s.teams["T · M 1"].status, s.teams["T · M 1"].time], ["later", "13:00"]);
+  assert.match(s.log[0].msg, /start later \(13:00\)/);
+  s = D.dsTeam(s, "T · M 1", "HD M 1", "staakt", {}, at(10, 1));
+  assert.strictEqual(D.dsStatus(rows[0], s, 600).status, "gestaakt");
+  s = D.dsStart(D.dsEmpty(), rows[0], 1, at(9, 0));
+  s = D.dsTeam(s, "T · M 1", "HD M 1", "staakt", {}, at(10, 1));
+  assert.strictEqual(D.dsStatus(rows[0], s, 600).status, "bezig"); // al begonnen blijft lopen
+});
+
+test("verschil toont weggevallen (gestaakte) partijen", () => {
+  const nw = PLAN.rows.filter((r) => r.home_team !== "M 2");
+  const d = D.dsDiff(PLAN.rows, nw);
+  assert.deepStrictEqual(d.map((x) => [x.row.home_team, x.gone]), [["M 2", true]]);
+  assert.strictEqual(D.dsChanged({}, d)[d[0].pid].gone, true);
+});
