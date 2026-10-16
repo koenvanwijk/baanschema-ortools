@@ -78,3 +78,12 @@ test("verschil toont weggevallen (gestaakte) partijen", () => {
   assert.deepStrictEqual(d.map((x) => [x.row.home_team, x.gone]), [["M 2", true]]);
   assert.strictEqual(D.dsChanged({}, d)[d[0].pid].gone, true);
 });
+
+test("opstelling: speler niet tegelijk in twee lopende partijen van het team", () => {
+  const rows = D.dsRows(PLAN);
+  let s = D.dsStart(D.dsEmpty(), rows[0], 1, at(9, 0), "Jan + Piet", rows);
+  assert.throws(() => D.dsStart(s, rows[1], 2, at(9, 1), "Kees, jan", rows), /jan speelt nog S1/);
+  s = D.dsStart(s, rows[1], 2, at(9, 1), "Kees + Henk", rows);
+  assert.strictEqual(s.parts[D.dsPid(rows[1])].lineup, "Kees + Henk");
+  assert.deepStrictEqual(D.dsNames("Ann + Bo – Cor & Dirk"), ["ann", "bo", "cor", "dirk"]);
+});

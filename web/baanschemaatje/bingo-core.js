@@ -83,8 +83,19 @@ function bgSetPresent(state, match, on, now = new Date()) {
     `${match.label} ${match.home} ${on ? "aanwezig" : "niet meer aanwezig"}`, now);
 }
 
+// Opstelling bekend: een speler kan niet tegelijk in twee partijen van hetzelfde team (besluit Oscar 16-10-2026).
+const bgNames = (l) => String(l || "").split(/[,+–\-\/&]| en /i).map((x) => x.trim().toLowerCase()).filter((x) => x.length > 1);
 function bgAssign(state, matches, partId, court, lineup, now = new Date()) {
   if (state.courts[String(court)]) throw new Error(`Baan ${court} is bezet.`);
+  const m = matches.find((x) => x.parts.some((p) => p.id === partId));
+  const mine = new Set(bgNames(lineup));
+  if (m && mine.size) {
+    for (const [c, cur] of Object.entries(state.courts)) {
+      if (!m.parts.some((p) => p.id === cur.part)) continue;
+      const hit = bgNames(cur.lineup).filter((n) => mine.has(n));
+      if (hit.length) throw new Error(`${hit.join(", ")} speelt nog op baan ${c}.`);
+    }
+  }
   return _bgDo(state, (s) => { s.courts[String(court)] = { part: partId, lineup: lineup || "", start: now.toISOString() }; },
     `Baan ${court}: ${bgPartName(matches, partId)} gestart${lineup ? ` (${lineup})` : ""}`, now);
 }

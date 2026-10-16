@@ -69,8 +69,10 @@ function dsUndo(state, now = new Date()) {
   return { ...prev, undo: u.slice(0, -1), log: [...prev.log, { t: now.toISOString(), msg: `Ongedaan: ${last}` }] };
 }
 // SD2: werkelijk verloop.
-function dsStart(state, r, court, now = new Date()) {
-  return _dsDo(state, (s) => { s.parts[dsPid(r)] = { status: "bezig", start: now.toISOString(), court: court || r.court }; },
+function dsStart(state, r, court, now = new Date(), lineup = "", rows = null) {
+  const clash = rows ? dsNameClash(state, rows, r, lineup) : [];
+  if (clash.length) throw new Error(`Kan ${dsName(r)} niet starten: ${clash.join("; ")}.`);
+  return _dsDo(state, (s) => { s.parts[dsPid(r)] = { status: "bezig", start: now.toISOString(), court: court || r.court, ...(lineup ? { lineup } : {}) }; },
     `Baan ${court || r.court}: ${dsName(r)} gestart${court && court !== r.court ? ` (gepland op baan ${r.court})` : ""}`, now);
 }
 function dsFinish(state, r, now = new Date()) {
@@ -82,6 +84,20 @@ const DS_TEAM_NL = { aanwezig: "aanwezig", te_laat: "te laat", staakt: "staakt",
 function dsTeam(state, teamId, label, status, extra = {}, now = new Date()) {
   return _dsDo(state, (s) => { if (status) s.teams[teamId] = { ...extra, status, at: now.toISOString() }; else delete s.teams[teamId]; },
     `${label}: ${status ? DS_TEAM_NL[status] + (extra.time ? ` (${extra.time})` : "") : "status gewist"}`, now);
+}
+// Opstelling (namen) bekend? Dan mag een speler niet tegelijk in twee lopende partijen staan (besluit Oscar 16-10-2026).
+function dsNames(lineup) { return String(lineup || "").split(/[,+–\-\/&]| en /i).map((x) => x.trim().toLowerCase()).filter((x) => x.length > 1); }
+function dsNameClash(state, rows, r, lineup) {
+  const mine = new Set(dsNames(lineup));
+  if (!mine.size) return [];
+  const out = [];
+  for (const o of rows) {
+    if (o.team_id !== r.team_id || dsPid(o) === dsPid(r)) continue;
+    const p = state.parts[dsPid(o)];
+    if (!p || p.status !== "bezig") continue;
+    for (const n of dsNames(p.lineup)) if (mine.has(n)) out.push(`${n} speelt nog ${o.part}`);
+  }
+  return out;
 }
 // SD3: baan buiten gebruik vanaf tijd X (optioneel tot Y). Niets schuift vanzelf (dat doet herplannen, SD5).
 function dsOffAdd(state, courts, from, to, why, now = new Date()) {
@@ -144,4 +160,4 @@ function dsChanged(prevChanged, diff) {
 }
 const dsName = (r) => `${r.label} ${r.home_team} ${r.part}`;
 
-if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam, dsOffAdd, dsOffRemove, dsHit, dsShiftCourt, dsExpectedDelay, dsDiff, dsChanged };
+if (typeof module !== "undefined") module.exports = { dsPid, dsMin, dsHM, dsClock, dsEmpty, dsNorm, dsRows, dsStatus, dsCourts, dsOverrun, dsUndo, _dsDo, dsName, dsStart, dsFinish, dsTeam, dsOffAdd, dsOffRemove, dsHit, dsNames, dsNameClash, dsShiftCourt, dsExpectedDelay, dsDiff, dsChanged };

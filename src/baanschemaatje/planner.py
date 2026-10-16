@@ -249,6 +249,8 @@ def _solve(
             parts.append(dict(f=f, label=label, kind=kind, dur=dur, male=m, female=w, total=tot))
 
     # Herplannen: gestaakte partijen vallen weg; vastgezette (gespeeld/bezig) staan op tijd+baan.
+    # Teambezetting blijft HARD (besluit Oscar 16-10-2026): enkels vóór dubbels (niet-gemengd), max partijen/spelers
+    # tegelijk, gemengd 2H+2D. Alleen max banen/aangrenzend en gelijk starten van rondes worden losgelaten.
     pins = (rp or {}).get("pins", {})
     if rp:
         parts = [p for p in parts if (p["f"].team_key, p["label"]) not in rp.get("drop", set())]

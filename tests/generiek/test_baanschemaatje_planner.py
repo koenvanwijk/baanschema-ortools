@@ -339,3 +339,26 @@ def test_replan_day_locks_pins_and_shifts_after_now(profiles):
     rest = [r for r in placed if (r["team_id"], r["part"]) not in pins]
     assert len(rest) == 5 and all(_m(r["start"]) >= now for r in rest)
     assert all(not (r["court"] == first["court"] % 10 + 1 and _m(r["end"]) > now) for r in rest)
+
+
+def test_replan_keeps_player_rules_hard(profiles):
+    """Oscar 16-10: bij herplannen enkel/dubbel goed controleren op teambezetting. Vertraagde enkels (lopend,
+    vast) mogen niet overlappen met dubbels van dat team; max 4 spelers tegelijk blijft hard."""
+    from baanschemaatje.planner import replan_day
+    fx = [Fixture("25-10-2026", "Heren Zondag – 4e klasse – Afdeling 4", Category.SENIOREN, 6, 0, 4, 2, 0, "CLUB 1", "GAST 1")]
+    prof = profiles["mierlo"]
+    res = plan_day(prof, fx, "25-10-2026", time_limit_s=3, fit_check=False)
+    rows = _placed(res.rows)
+    old = {(r["team_id"], r["part"]): (_m(r["start"]), r["court"]) for r in rows}
+    tk = rows[0]["team_id"]
+    # S1/S2 begonnen pas om 13:00 (vertraagd) en lopen nog; nu 13:30.
+    pins = {(tk, "S1"): (13 * 60, 1), (tk, "S2"): (13 * 60, 2)}
+    st, new = replan_day(prof, fx, "25-10-2026", _m(res.day_start), 13 * 60 + 30, pins, old, time_limit_s=3)
+    placed = _placed(new)
+    by = {r["part"]: r for r in placed}
+    assert {"S1", "S2", "S3", "S4", "D1", "D2"} <= set(by)
+    s_end = max(_m(by[p]["end"]) for p in ("S1", "S2", "S3", "S4"))
+    assert all(_m(by[d]["start"]) >= s_end for d in ("D1", "D2")), "dubbels pas na alle enkels (zelfde spelers)"
+    for t in range(13 * 60, 21 * 60, 15):  # nooit meer dan 4 spelers / 2 partijen tegelijk
+        live = [r for r in placed if _m(r["start"]) <= t < _m(r["end"])]
+        assert len(live) <= 2 and sum(1 if r["kind"] == "S" else 2 for r in live) <= 4

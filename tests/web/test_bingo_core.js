@@ -67,3 +67,10 @@ test("verslag achteraf: gespeelde partijen op starttijd, niet-afgeronde apart", 
   assert.deepStrictEqual(r.played.map((x) => [x.part.label, x.court, x.min, x.lineup]), [["HD", 2, 90, "A – B"]]);
   assert.deepStrictEqual(r.open.map((x) => [x.part.label, x.playing && x.playing[0]]), [["DD", "1"], ["D1", undefined]]);
 });
+
+test("bingo: speler niet tegelijk op twee banen voor hetzelfde team", () => {
+  let s = B.bgSetPresent(B.bgEmpty(), M[0], true, at(19, 0));
+  s = B.bgAssign(s, M, "GEM|MIERLO 1|DD", 1, "Ann + Bo", at(19, 1));
+  assert.throws(() => B.bgAssign(s, M, "GEM|MIERLO 1|HD", 2, "Cor + bo", at(19, 2)), /bo speelt nog op baan 1/);
+  assert.ok(B.bgAssign(s, M, "GEM|MIERLO 1|HD", 2, "Cor + Dirk", at(19, 2)).courts["2"]);
+});

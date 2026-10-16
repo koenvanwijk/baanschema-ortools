@@ -186,11 +186,18 @@ function proposePlan(newRows, title, info = "") {
   const diff = dsDiff(DS.plan.rows, newRows);
   PROPOSAL = { rows: newRows, diff, title };
   $("ds-diff-title").textContent = title;
-  const iss = checkPlan(newRows, DS.profile).issues.filter((x) => ["conflict", "Spelersconflict", "Volgorde", "KNLTB"].includes(x.level));
-  $("ds-diff-info").innerHTML = info + (iss.length ? `<div class="ds-over">⚠ ${iss.length} regelpunt(en) in het nieuwe schema, bv. ${esc(iss[0].msg)}</div>` : "");
+  // Teambezetting (spelers/volgorde) en baanconflicten zijn hard (besluit Oscar 16-10-2026): alleen nieuwe
+  // problemen tellen (t.o.v. het huidige schema), anders kan Bevestigen niet.
+  const key = (x) => `${x.level}|${x.msg}`;
+  const before = new Set(checkPlan(DS.plan.rows, DS.profile).issues.map(key));
+  const all = checkPlan(newRows, DS.profile).issues.filter((x) => !before.has(key(x)));
+  const hard = all.filter((x) => ["conflict", "Spelersconflict", "Volgorde"].includes(x.level));
+  const soft = all.filter((x) => x.level === "KNLTB");
+  $("ds-diff-info").innerHTML = info + (hard.length ? `<div class="ds-over">✖ Kan zo niet: ${esc(hard[0].msg)}${hard.length > 1 ? ` (+${hard.length - 1})` : ""}. Enkels en dubbels van een team mogen niet tegelijk dezelfde spelers vragen. Gebruik "Herplan rest van de dag".</div>` : "")
+    + (soft.length ? `<div class="ds-over">⚠ ${soft.length} regelpunt(en), bv. ${esc(soft[0].msg)}</div>` : "");
   $("ds-diff").innerHTML = diff.length ? `<table class="ds-diff"><tr><th>Partij</th><th>Oud</th><th>Nieuw</th></tr>${diff.map((d) => `<tr><td>${esc(dsName(d.row))}</td><td>${d.old ? `${esc(d.old.start)} · baan ${d.old.court}` : "niet ingepland"}</td><td>${d.new ? `<b>${esc(d.new.start)} · baan ${d.new.court}</b>` : d.gone ? "<b>vervalt (team staakt)</b>" : '<b class="ds-over">past niet meer</b>'}</td></tr>`).join("")}</table>`
     : '<p class="hint">Geen wijzigingen.</p>';
-  $("ds-diff-ok").disabled = !diff.length;
+  $("ds-diff-ok").disabled = !diff.length || hard.length > 0;
   $("ds-diff-dlg").showModal();
 }
 async function confirmProposal() {
@@ -238,11 +245,13 @@ function openOff() {
 // Starten: op de geplande baan, of (als die bezet/buiten gebruik is) op een andere vrije baan.
 function openStart(r) {
   const n = (DS.window || {}).courts || 0, now = nowMin();
+  // Opstelling optioneel; als ingevuld controleren we dat niemand tegelijk in een andere lopende partij van het team staat.
+  const lineup = (prompt(`Opstelling ${dsName(r)} (optioneel, bv. "Jan + Piet"):`, "") || "").trim();
   const busy = new Set(dsCourts(ROWS(), ST, now, n).filter((c) => c.cur || c.off).map((c) => c.court));
-  if (!busy.has(r.court)) { act((s) => dsStart(s, r, r.court)); return; }
+  if (!busy.has(r.court)) { act((s) => dsStart(s, r, r.court, new Date(), lineup, ROWS())); return; }
   const free = [...Array(n).keys()].map((i) => i + 1).filter((c) => !busy.has(c));
   const c = prompt(`Baan ${r.court} is bezet. Op welke baan start ${dsName(r)}? Vrij: ${free.join(", ") || "geen"}`, free[0] || "");
-  if (c && free.includes(+c)) act((s) => dsStart(s, r, +c));
+  if (c && free.includes(+c)) act((s) => dsStart(s, r, +c, new Date(), lineup, ROWS()));
 }
 
 function init() {
