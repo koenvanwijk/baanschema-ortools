@@ -20,7 +20,8 @@ from typing import Any
 
 from ortools.sat.python import cp_model
 
-from baanschema.rules import build_parts, player_demand  # pure regels, gedeeld met de bestaande stack
+from baanschema.rules import build_parts  # pure regels, gedeeld met de bestaande stack
+from baanschemaatje.teamrules import team_demand
 from baanschemaatje.categories import DEFAULT_PRIORITY, JUNIOR_CATEGORIES, YOUTH_CATEGORIES, Category
 from baanschemaatje.profile import ClubProfile, min_to_hhmm
 from baanschemaatje.season import Fixture
@@ -245,7 +246,7 @@ def _solve(
     for f in teams:
         dur = profile.duration_for(f.category, f.export_duration)
         for label, kind in build_parts(f):
-            m, w, tot = player_demand(f.schema, label, kind)
+            m, w, tot = team_demand(f.schema, label, kind)
             parts.append(dict(f=f, label=label, kind=kind, dur=dur, male=m, female=w, total=tot))
 
     # Herplannen: gestaakte partijen vallen weg; vastgezette (gespeeld/bezig) staan op tijd+baan.

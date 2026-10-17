@@ -508,9 +508,18 @@ def _saved_moves(club_id: str) -> list[Move]:
     return out
 
 
+def _bingo_part(f: Any, key: str, lab: str, kind: str) -> dict[str, Any]:
+    """Partij met soort (HE/DE/HD/DD/GD) en spelersbehoefte, voor de teambezettingsregels in de bingo-wachtrij."""
+    from baanschemaatje.teamrules import part_type, team_demand
+
+    m, w, n = team_demand(f.schema, lab, kind)
+    return {"id": f"{key}|{lab}", "label": lab, "kind": kind, "type": part_type(f.schema, lab, kind), "men": m, "women": w, "players": n}
+
+
 def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str, Any]]:
     """Wedstrijden van de avond met hun partijen (S/D/GD volgens de KNLTB-categorie); zonder opgaven en gespeelde."""
     from baanschemaatje.planner import build_parts
+    from baanschemaatje.teamrules import team_order_rules
 
     # Opgeslagen verzettingen tellen mee: een naar deze bingo-avond verzette wedstrijd verschijnt
     # bij de commissaris (en een weg-verzette verdwijnt). Ongeldige/verouderde verzettingen worden overgeslagen.
@@ -529,7 +538,8 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
                     "category": f.category.value, "export_start": f.export_start,
                     "moved_from": moved_in.get((_norm(f.schema), _norm(f.home_team))),
                     "duration": prof.duration_for(f.category, f.export_duration),
-                    "parts": [{"id": f"{key}|{lab}", "label": lab, "kind": kind} for lab, kind in build_parts(f)]})
+                    "rules": team_order_rules(f, prof.rules["waterfall_8p"].hard),
+                    "parts": [_bingo_part(f, key, lab, kind) for lab, kind in build_parts(f)]})
     return out
 
 

@@ -15,7 +15,14 @@ const _num = (part) => { const m = String(part || "").match(/(\d+)$/); return m 
 // Spelersbehoefte van één partij als [heren, dames, totaal]; spiegelt
 // baanschema.rules.player_demand (gebruikt door src/baanschemaatje/planner.py).
 function playerDemand(schema, part, kind) {  // eslint-disable-line no-unused-vars
-  const s = String(schema || "").toLowerCase();
+  const s = String(schema || "").toLowerCase().replace(/\s+/g, " ");
+  // Gemengde dubbel-/zaterdagcompetities (DD-HD-2GD, DE-HE-GD-DD-HD): spiegelt src/baanschemaatje/teamrules.py.
+  if (s.includes("gemengd") && !s.includes("gemengd zondag")) {
+    const lb = String(part || "");
+    if (lb.startsWith("GD") || kind === "M") return [1, 1, 2];
+    if (kind === "D") return _num(lb) === 1 ? [0, 2, 2] : [2, 0, 2];
+    if (kind === "S") return _num(lb) === 1 ? [0, 1, 1] : [1, 0, 1];
+  }
   if (!s.includes("gemengd zondag")) return kind === "S" ? [0, 0, 1] : kind === "D" || kind === "M" ? [0, 0, 2] : [0, 0, 0];
   const label = String(part || "");
   if (label.startsWith("GD") || kind === "M") return [1, 1, 2];

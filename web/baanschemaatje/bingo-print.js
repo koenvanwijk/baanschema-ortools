@@ -27,7 +27,7 @@ function bpRender() {
     $("bp-body").innerHTML = `${head}<h2>Bingolijst</h2>
       <table class="bp"><thead><tr><th>Team</th><th>Partij</th><th class="w-lineup">Opstelling</th><th>Baan</th><th>Start</th><th>Klaar</th></tr></thead><tbody>
       ${j.matches.map((m) => m.parts.map((p, i) => `<tr class="${i === 0 ? "first" : ""}">${i === 0 ? `<td rowspan="${m.parts.length}" class="team"><b>${esc(m.label)} ${esc(m.home)}</b><br>– ${esc(m.away)}${m.moved_from ? `<br><small>verzet van ${esc(m.moved_from)}</small>` : ""}<br><span class="box"></span> aanwezig</td>` : ""}
-        <td>${esc(p.label)}</td><td></td><td class="box-c"></td><td class="box-c"></td><td class="box-c"></td></tr>`).join("")).join("")
+        <td>${esc(p.label)}${p.type && p.type !== p.label ? ` ${esc(p.type)}` : ""}</td><td></td><td class="box-c"></td><td class="box-c"></td><td class="box-c"></td></tr>`).join("")).join("")
         || '<tr><td colspan="6">Geen wedstrijden op deze avond.</td></tr>'}</tbody></table>`;
   } else {
     const r = bpReport(j.state, j.matches);
@@ -35,7 +35,7 @@ function bpRender() {
     $("bp-body").innerHTML = `${head}<h2>Verslag</h2>
       <p>${r.played.length} partijen gespeeld${r.open.length ? `, ${r.open.length} niet (afgerond)` : ""}.</p>
       <table class="bp"><thead><tr><th>Start</th><th>Eind</th><th>Duur</th><th>Baan</th><th>Team</th><th>Partij</th><th>Opstelling</th></tr></thead><tbody>
-      ${r.played.map((x) => `<tr><td>${bpHM(x.start)}</td><td>${bpHM(x.end)}</td><td>${x.min} min</td><td>${x.court}</td><td>${esc(x.match.label)} ${esc(x.match.home)} – ${esc(x.match.away)}</td><td>${esc(x.part.label)}</td><td>${esc(x.lineup)}</td></tr>`).join("")
+      ${r.played.map((x) => `<tr><td>${bpHM(x.start)}</td><td>${bpHM(x.end)}</td><td>${x.min} min</td><td>${x.court}</td><td>${esc(x.match.label)} ${esc(x.match.home)} – ${esc(x.match.away)}</td><td>${esc(x.part.label)}${x.part.type && x.part.type !== x.part.label ? ` ${esc(x.part.type)}` : ""}</td><td>${esc(x.lineup)}</td></tr>`).join("")
         || '<tr><td colspan="7">Nog geen partijen afgerond.</td></tr>'}</tbody></table>
       ${r.open.length ? `<h3>Niet afgerond</h3><ul>${r.open.map((x) => `<li>${esc(x.part.label)} ${esc(x.match.label)} ${esc(x.match.home)}${x.playing ? ` (nog op baan ${x.playing[0]})` : ""}</li>`).join("")}</ul>` : ""}
       <h3>Logboek</h3><ol class="bp-log">${log.map((l) => `<li><b>${bpHM(l.t)}</b> ${esc(l.msg)}</li>`).join("") || "<li>Leeg</li>"}</ol>`;

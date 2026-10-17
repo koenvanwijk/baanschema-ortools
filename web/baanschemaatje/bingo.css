@@ -33,3 +33,20 @@ body.bingo { font-size: 17px; }
 
 .bg-suggest { border: 2px solid #2e7d32; border-radius: 10px; padding: 12px; background: #eef7ee; }
 .bg-suggest #bg-sg-text { font-size: 1.15em; margin-bottom: 8px; }
+
+/* Bingo 2 (17-10-2026): partijsoort, blokkades, voortgang */
+.bg-type { display: inline-block; font-size: .8em; font-weight: 700; padding: 0 .45em; border-radius: 999px; background: #e3e8f4; color: #23407a; vertical-align: 1px; }
+.bg-type.t-DD, .bg-type.t-DE { background: #f7e1ef; color: #8a1f5c; }
+.bg-type.t-HD, .bg-type.t-HE { background: #dcebf9; color: #1d4f86; }
+.bg-type.t-GD { background: #efe6fa; color: #5b2c91; }
+.bg-q.top { border: 2px solid #2e7d32; background: #f3faf3; }
+.bg-q.blocked { background: #f5f5f5; color: #777; border-style: dashed; }
+.bg-qr { font-size: .85em; margin-top: .25em; color: #8a4b00; }
+.bg-qr.ok { color: #2a7a3b; }
+.bg-why { font-size: .85em; color: #2a7a3b; margin-top: .3em; }
+.bg-rule { color: #b00020; }
+.bg-tbody { flex: 1; }
+.bg-prog { display: flex; height: 8px; border-radius: 4px; background: #e2e2e2; overflow: hidden; margin: .4em 0 .15em; }
+.bg-prog i { display: block; height: 100%; }
+.bg-prog i.d { background: #2e7d32; } .bg-prog i.r { background: #e3a73b; }
+.bg-pt { font-size: .85em; }

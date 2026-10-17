@@ -59,6 +59,8 @@ async function act(fn) {
 const hm = (iso) => new Date(iso).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
 const mins = (iso) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
 const dur = (m) => (m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")} u` : `${m} min`);
+const typeTag = (p) => `<b>${esc(p.label)}</b>${p.type && p.type !== p.label ? ` <span class="bg-type t-${esc(p.type)}">${esc(p.type)}</span>` : ""}`;
+const progressBar = (pr) => `<span class="bg-prog" title="${pr.done} klaar, ${pr.running} bezig van ${pr.total}"><i class="d" style="width:${(100 * pr.done) / (pr.total || 1)}%"></i><i class="r" style="width:${(100 * pr.running) / (pr.total || 1)}%"></i></span>`;
 const matchOf = (partId) => BG.matches.find((m) => m.parts.some((p) => p.id === partId));
 
 function render() {
@@ -83,7 +85,7 @@ function render() {
     const m = matchOf(c.part), p = m && m.parts.find((x) => x.id === c.part);
     const el = mins(c.start), long = m && el > m.duration;
     return `<div class="bg-court busy${long ? " long" : ""}"><div class="bg-cn">Baan ${i + 1}</div>
-      <div class="bg-what"><b>${esc(p ? p.label : "?")}</b> ${esc(m ? `${m.label} ${m.home}` : c.part)}</div>
+      <div class="bg-what">${p ? typeTag(p) : "<b>?</b>"} ${esc(m ? `${m.label} ${m.home}` : c.part)}</div>
       ${c.lineup ? `<div class="bg-lineup">${esc(c.lineup)}</div>` : ""}
       <div class="bg-time">sinds ${hm(c.start)} · <b>${dur(el)}</b>${m ? ` / ${m.duration} min` : ""}</div>
       <button class="btn bg-big bg-done" data-court="${i + 1}">Klaar</button></div>`;
@@ -93,22 +95,30 @@ function render() {
   const sg = bgSuggest(ST, BG.matches, BG.window, new Date());
   $("bg-suggest").hidden = !sg;
   if (sg) {
-    $("bg-sg-text").innerHTML = `Volgende op <b>baan ${sg.court}</b>: <b>${esc(sg.label)}</b> ${esc(sg.match.label)} ${esc(sg.match.home)} <span class="hint">– ${esc(sg.match.away)}</span>`;
+    $("bg-sg-text").innerHTML = `Volgende op <b>baan ${sg.court}</b>: ${typeTag(sg.match.parts.find((x) => x.id === sg.part))} ${esc(sg.match.label)} ${esc(sg.match.home)} <span class="hint">– ${esc(sg.match.away)}</span>
+      <div class="bg-why">Waarom: ${esc(sg.why)}</div>`;
     $("bg-sg-ok").onclick = () => act((s) => bgAssign(s, BG.matches, sg.part, sg.court, ""));
     $("bg-sg-other").onclick = () => openAssign(sg.part);
   }
 
-  // Wachtrij
-  const q = bgQueue(ST, BG.matches);
-  $("bg-qn").textContent = `(${q.length})`;
-  $("bg-queue").innerHTML = q.map((p) => `<button class="bg-q" data-part="${esc(p.id)}"><b>${esc(p.label)}</b> ${esc(p.match.label)} ${esc(p.match.home)} <span class="hint">– ${esc(p.match.away)}</span></button>`).join("")
+  // Wachtrij: gesorteerd (bgRanked), eerst wat nu kan; geblokkeerd onderaan met reden (teambezetting/tijd).
+  const q = bgRanked(ST, BG.matches, BG.window, new Date());
+  const nOk = q.filter((p) => p.ok).length;
+  $("bg-qn").textContent = `(${nOk} kan nu${q.length > nOk ? `, ${q.length - nOk} wacht` : ""})`;
+  $("bg-queue").innerHTML = q.map((p, i) => {
+    const pr = bgProgress(ST, p.match);
+    return `<button class="bg-q${p.ok ? "" : " blocked"}${i === 0 && p.ok ? " top" : ""}" data-part="${esc(p.id)}">
+      ${typeTag(p)} ${esc(p.match.label)} ${esc(p.match.home)} <span class="hint">– ${esc(p.match.away)} · ${pr.done}/${pr.total} klaar${pr.running ? `, ${pr.running} bezig` : ""}</span>
+      ${p.blocked ? `<div class="bg-qr">⛔ ${esc(p.blocked)}</div>` : i === 0 ? `<div class="bg-qr ok">▲ Bovenaan: ${esc(p.why)}</div>` : / hierboven$/.test(p.why) ? `<div class="bg-qr">${esc(p.why)}</div>` : ""}</button>`;
+  }).join("")
     || `<p class="hint">${Object.keys(ST.present).length ? "Geen partijen meer in de wachtrij." : "Nog geen teams aanwezig gemeld."}</p>`;
 
-  // Teams
+  // Teams: aanwezig + voortgang
   $("bg-teams").innerHTML = BG.matches.map((m) => {
-    const left = m.parts.filter((p) => !ST.done[p.id]).length;
+    const pr = bgProgress(ST, m);
     return `<label class="bg-team${ST.present[m.key] ? " on" : ""}"><input type="checkbox" data-key="${esc(m.key)}"${ST.present[m.key] ? " checked" : ""}>
-      <span><b>${esc(m.label)} ${esc(m.home)}</b> – ${esc(m.away)}<br><span class="hint">${m.moved_from ? `verzet van ${esc(m.moved_from)} · ` : ""}${m.export_start ? `${esc(m.export_start)} · ` : ""}${m.parts.length} partijen${left < m.parts.length ? ` · nog ${left}` : ""}</span></span></label>`;
+      <span class="bg-tbody"><b>${esc(m.label)} ${esc(m.home)}</b> – ${esc(m.away)}<br><span class="hint">${m.moved_from ? `verzet van ${esc(m.moved_from)} · ` : ""}${m.export_start ? `${esc(m.export_start)} · ` : ""}${m.parts.map((p) => esc(bgType(p))).join(" ")}</span>
+      ${progressBar(pr)}<span class="bg-pt">${pr.done}/${pr.total} klaar${pr.running ? ` · ${pr.running} bezig` : ""}${pr.left && pr.left < pr.total ? ` · nog ${pr.left}` : ""}</span></span></label>`;
   }).join("") || '<p class="hint">Geen (niet-gespeelde) wedstrijden op deze avond. Opgaven tellen niet mee.</p>';
 
   $("bg-log").innerHTML = [...ST.log].reverse().map((l) => `<li><span class="hint">${hm(l.t)}</span> ${esc(l.msg)}</li>`).join("");
@@ -121,15 +131,18 @@ function render() {
 function openAssign(partId) {
   const m = matchOf(partId), p = m.parts.find((x) => x.id === partId);
   const free = bgFreeCourts(ST, (BG.window || {}).courts || 0);
-  $("bg-dlg-title").textContent = `${p.label} · ${m.label} ${m.home} – ${m.away}`;
+  $("bg-dlg-title").textContent = `${p.label}${p.type && p.type !== p.label ? ` ${p.type}` : ""} · ${m.label} ${m.home} – ${m.away}`;
   $("bg-lineup").value = "";
+  const rule = bgTeamBlock(ST, m, p);
   const warn = bgWarnings(BG.window, m.duration, new Date());
-  $("bg-warn").innerHTML = warn.map((x) => `<div>⚠ ${esc(x)}</div>`).join("");
-  $("bg-free").innerHTML = free.map((c) => `<button type="button" class="btn bg-big" data-court="${c}">Baan ${c}</button>`).join("") || '<p class="hint">Geen vrije baan.</p>';
+  $("bg-warn").innerHTML = (rule ? `<div class="bg-rule">⛔ Kan volgens de teambezetting nog niet: ${esc(rule)}. Alleen starten als het team echt andere spelers heeft.</div>` : "")
+    + warn.map((x) => `<div>⚠ ${esc(x)}</div>`).join("");
+  $("bg-free").innerHTML = free.map((c) => `<button type="button" class="btn${rule ? "2" : ""} bg-big" data-court="${c}">${rule ? "Toch op baan" : "Baan"} ${c}</button>`).join("") || '<p class="hint">Geen vrije baan.</p>';
   for (const b of $("bg-free").querySelectorAll("button")) b.onclick = () => {
     const lineup = $("bg-lineup").value.trim();
+    if (rule && !confirm(`Toch starten? ${rule}.`)) return;
     $("bg-dlg").close();
-    act((s) => bgAssign(s, BG.matches, partId, +b.dataset.court, lineup));
+    act((s) => bgAssign(s, BG.matches, partId, +b.dataset.court, lineup, new Date(), !!rule));
   };
   $("bg-dlg").showModal();
 }

@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 14-10-2026 (avond).
+Laatst bijgewerkt: 17-10-2026.
 
 ## Werkprincipe
 
@@ -65,6 +65,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-17 | "Kan mooier"/"Regels gebroken" klikbaar (Oscar: "Ik wil dat kunnen zien"): lijst per bevinding (team · partij, nu vs wens, uitleg), tik wijst de partij aan in lijst en rooster (F6) | Oscar |
 | 2026-10-17 | Ingetrokken modelgrens "jeugd 13-17 vanaf 11:00" (VENSTER-JEUGD, "ingetrokken") telt in Baanschemaatje niet meer als "Kan mooier" — ook in al opgeslagen schema's (18-10 Mierlo: 4 → 0). Gedeeld validatorscript (`scripts/validate_schedule.py`, CI main) ongewijzigd | Oscar |
 | 2026-10-17 | Bingo oefenen op democlub Demo TV (Oscar): vrijdag = bingo (sluiting 01:00, laatste start 23:30); fictieve thuiswedstrijden op vr 23-10 (7) en vr 30-10 (6) 2026, mix GD 17+/35+, DD 17+/35+, HD 35+, Heren 17+ (S+D). Bingo/commissaris/tv/dashboard zijn bij Demo TV gewoon beschrijfbaar (testdata mag daar); knop "Reset demo-avond/-dag" (`POST /clubs/{club}/demo-reset/{datum}`) wist bingo- en dashboardverloop van die datum, alleen bij democlubs (meta.demo; echte clubs 403) | Oscar |
+| 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
 
 ---
 
@@ -186,6 +187,21 @@ Antwoorden van Oscar (14-10-2026):
 
 **G5 — Print/verslag van de avond.** Als TC wil ik na afloop een verslag/print van de avond.
 - AC: `bingo-print.html#<club>/<datum>[/verslag]` (link "🖨 Lijst/verslag" op het commissarisscherm). Bingolijst A4: per team aanwezig-vakje, per partij lege vakjes opstelling/baan/start/klaar (papieren reserve). Verslag: gespeelde partijen op starttijd met eind, duur, baan, opstelling; niet-afgeronde partijen; logboek. · Status: klaar (14-10-2026).
+
+**G6 — [Bingo] Slimmere wachtrij: teambezetting, partijsoort, voortgang, logische volgorde.** Als commissaris wil ik dat de wachtrij dezelfde regels toepast als de planner, DD/HD/GD laat zien, de voortgang per team toont en zo gesorteerd is dat de bovenste partij de meest logische is, zodat ik niet zelf hoef te puzzelen wie er nu kan en niemand twee partijen tegelijk moet spelen.
+- AC regels (hard, gedeeld met planner/herplannen via `src/baanschemaatje/teamrules.py` + `baanschema.rules`): max 4 spelers van een team tegelijk; gemengd max 2 heren + 2 dames (dus DD en GD, of HD en GD, van één team niet tegelijk; DD + HD en GD + GD wel); niet-gemengd (en 8p strikt) eerst alle enkels klaar vóór een dubbel; 8p ook dubbels vóór gemengd dubbel. Geen max-banen/aangrenzend/rust (blijft besluit 14-10-2026). Na laatste start of eindigt na sluiting = niet meer voorgesteld.
+- AC weergave: elke partij met label + soort (bv. "D1 DD", "GD2 GD", "S1 HE") in voorstel, wachtrij, banen, tv, bingolijst/verslag. Geblokkeerde partijen staan onderaan, grijs, met reden ("de dames spelen nog (DD op baan 1)", "eerst de enkels klaar (HE, HE)"). Tikken op een geblokkeerde partij kan, maar de knop heet "Toch op baan X", vraagt bevestiging en het logboek vermeldt "toch gestart, regel: …".
+- AC voortgang: per team balk + "x/y klaar · z bezig · nog n" in "Teams: aanwezig en voortgang"; ook in elke wachtrijregel; tv toont rechts per team een balk (afwezige teams gedimd).
+- AC volgorde (uitlegbaar, bovenste regel toont "▲ Bovenaan: …", voorstel toont "Waarom: …"):
+  1. eerst wat nu kan (team aanwezig, geen spelers-/volgordeconflict, nog op tijd);
+  2. team met de minste partijen op de baan (spelers die staan te wachten);
+  3. team met de meeste partijen nog te gaan (wie het verst achterligt bepaalt hoe laat de avond klaar is);
+  4. wie het langst wacht (sinds aanmelden of sinds de laatste partij van het team klaar was);
+  5. vroegste exporttijd, daarna KNLTB-volgorde binnen het team (enkels, dubbels, gemengd).
+  De lijst is "van boven af starten": na elke keuze telt die partij als bezig, zodat bv. DD + HD van een gemengd team samen bovenaan komen en de GD's later ("kan ook nu, maar zelfde spelers als DD / HD hierboven").
+- AC opslag: "aanwezig" bewaart nu de tijd van aanmelden (oude toestand met `true` blijft werken).
+- Status: gereed (17-10-2026, deze commit) · Bron: Oscar, chat 17-10-2026 ("Bij de bingo moet meer intelligentie…").
+- Open (aan Oscar): volgorde 2 vs 3 omdraaien (eerst wie het verst achterligt)? Mag "toch starten" blijven (team met meer dan 4 spelers) of moet het helemaal dicht? Gemengd Dubbel D1 = DD en D2 = HD aangenomen (KNLTB-volgorde DD-HD-2GD).
 
 ## H. [Dashboard] Speeldag-dashboard met herplannen (epic)
 
