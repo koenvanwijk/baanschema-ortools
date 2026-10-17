@@ -275,3 +275,14 @@ body.view-list .view-hint { display: inline; }
 .save-line.busy { color: #8a6d00; }
 .save-line.err { color: #b3261e; }
 .badge-def { display: inline-block; background: #2e7d32; color: #fff; border-radius: 999px; padding: 1px 10px; font-size: .85em; margin-right: 6px; }
+
+/* Klikbare tegels Regels gebroken / Kan mooier */
+.card.card-btn { cursor: pointer; text-align: left; font: inherit; border: 1px solid #d0d7d2; background: #fff; }
+.card.card-btn:hover, .card.card-btn.open { border-color: #2e6b4a; box-shadow: 0 0 0 2px #2e6b4a33; }
+.find-box { border: 1px solid #d0d7d2; border-radius: 10px; padding: 10px 12px; margin: 8px 0; background: #fbfcfb; }
+.find-box .find-close { float: right; }
+.find-items { padding-left: 1.4em; margin: 8px 0 4px; }
+.find-items li { margin: 4px 0; }
+.find-it { all: unset; display: block; cursor: pointer; padding: 6px 8px; border-radius: 8px; width: 100%; box-sizing: border-box; }
+.find-it:hover, .find-it.on { background: #fff4d6; }
+.hl-find { outline: 3px solid #e0a100 !important; outline-offset: 1px; box-shadow: 0 0 0 6px #e0a10055 !important; z-index: 5; }

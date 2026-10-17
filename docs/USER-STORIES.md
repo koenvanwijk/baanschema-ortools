@@ -62,6 +62,8 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-16 | SD9 tv-scherm ook op geplande dagen; zonder getikte partijen toont het de partij volgens schema (gemarkeerd "volgens schema") | Oscar |
 | 2026-10-16 | Teambezetting hard bij herplannen en doorschuiven (Oscar: enkel en dubbel goed controleren): spelers-/volgorderegels blijven hard; opstelling met namen (dashboard bij Start, bingo) → zelfde speler niet tegelijk in twee lopende partijen van het team; max banen/aangrenzend/gelijk starten mogen los | Oscar |
 | 2026-10-16 | Oscar bevestigt: bij herplannen worden tijdregels die door vertraging onhaalbaar zijn geworden (bv. uiterste begintijd) voorkeuren i.p.v. harde regels. Omwisselen tussen teams blijft open (V4) | Oscar |
+| 2026-10-17 | "Kan mooier"/"Regels gebroken" klikbaar (Oscar: "Ik wil dat kunnen zien"): lijst per bevinding (team · partij, nu vs wens, uitleg), tik wijst de partij aan in lijst en rooster (F6) | Oscar |
+| 2026-10-17 | Ingetrokken modelgrens "jeugd 13-17 vanaf 11:00" (VENSTER-JEUGD, "ingetrokken") telt in Baanschemaatje niet meer als "Kan mooier" — ook in al opgeslagen schema's (18-10 Mierlo: 4 → 0). Gedeeld validatorscript (`scripts/validate_schedule.py`, CI main) ongewijzigd | Oscar |
 
 ---
 
@@ -146,6 +148,9 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 
 **F4 — Eén opslaggedrag.** Als TC wil ik dat alles op dezelfde manier wordt opgeslagen, met één statusregel en een badge "definitief schema", zodat ik weet wat geldt.
 - AC: verzettingen, versleepte partijen en net berekende dagen (ook via Alle dagen) worden meteen opgeslagen (geen Opslaan-knoppen meer); één statusregel "Alles opgeslagen ✓ hh:mm" / "Opslaan…" / "Niet opgeslagen: … [Opnieuw]"; badge "Definitief schema" bij het opgeslagen schema van een dag, "definitief" in het overzicht; Ongedaan maken blijft werken na opslaan (en slaat ook meteen op). Een opgeslagen schema dat niet meer past bij verzettingen wordt níet automatisch overschreven (melding: opnieuw berekenen of slepen). · Status: klaar (14-10-2026).
+
+**F6 — Bevindingen zien.** Als TC wil ik op "Kan mooier" en "Regels gebroken" kunnen tikken en per punt zien welke partij het is, wat de wens/regel is en hoe het nu staat, zodat ik weet wat ik kan verbeteren.
+- AC: tegels zijn knoppen; lijst onder de tegels met team · partij, "nu: tijd · baan", "wens", uitleg in gewone taal (incl. "begintijd ligt vast in de KNLTB-export" waar dat zo is); tik op een punt markeert de partij in lijst én rooster en scrolt erheen; werkt op telefoon; bij 0: "Niets — alle wensen/regels gehaald". Ingetrokken check "jeugd 13-17 vanaf 11:00" telt niet mee. · Status: klaar (17-10-2026) · Bron: Oscar 17-10-2026.
 
 **F5 — Opruimen.** Als TC wil ik geen jargon (Solver/Rekentijd/Dagstart onder "Details"), tijden na middernacht als "01:00+" (niet 19:00–25:00), en een ⋯-menu per wedstrijd.
 - AC: overzicht, dagweergave, instellingen en print consistent; ⋯ werkt op telefoon. · Status: klaar (commit 3a5ddcc) · Bron: Oscar 14-10-2026.

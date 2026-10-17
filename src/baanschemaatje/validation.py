@@ -32,11 +32,19 @@ _SOFT_FIRST_START = "reguliere teams: uiterlijk"
 _COURTS_USED = re.compile(r"gebruikt (\d+) banen")
 
 
+def _obsolete(f: dict[str, Any]) -> bool:
+    return f.get("rule") == "VENSTER-JEUGD" and "ingetrokken" in str(f.get("message", ""))
+
+
 def adjust_findings(findings: list[dict[str, Any]], profile: ClubProfile | None = None) -> list[dict[str, Any]]:
     out = []
     soft_first = profile is None or not profile.rule("first_start_deadline").hard
     for f in findings:
         f = dict(f)
+        # Ingetrokken modelgrens "jeugd 13-17 vanaf 11:00" (SPEC.md): telt niet als "kan mooier" (besluit 17-10-2026).
+        # Het gedeelde validatorscript blijft ongewijzigd.
+        if _obsolete(f):
+            continue
         if f.get("rule") == "EERSTE-START" and _SOFT_FIRST_START in f.get("message", "") and soft_first:
             f["severity"] = "MODEL"
             f["rule"] = "EERSTE-START-VOORKEUR"

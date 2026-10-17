@@ -167,7 +167,7 @@ const movesJson = () => JSON.stringify(cmv().forServer());
 const movesDirty = () => !!CLUB && CLUB.editable && movesJson() !== SAVED_MOVES.json;
 const hhmm = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
 // Opgeslagen plan met de status uit de opgeslagen controle.
-const savedPlan = (sv) => ({ ...sv.plan, validator: { ...(sv.plan.validator || {}), hard: sv.check.hard ?? null, model: sv.check.model ?? null } });
+const savedPlan = (sv) => ({ ...sv.plan, validator: fdCleanValidator({ ...(sv.plan.validator || {}), hard: sv.check.hard ?? null, model: sv.check.model ?? null }, sv.check.by) });
 
 async function loadSaved() {
   SAVED.clear();
@@ -381,6 +381,7 @@ async function planDay(date, show, prefix = "") {
       throw new Error("de server kent verzetten nog niet (nieuwe serverversie moet nog worden uitgerold); sleep de verzette partijen zelf op het baanschema");
     }
     p.sig = sig;
+    p.validator = fdCleanValidator(p.validator);
     PLANS.set(date, p);
     scheduleAutosave(); // berekend = meteen opgeslagen (F4)
     const sm = p.summary;
@@ -467,11 +468,13 @@ function showPlan(date, scroll = true, force = false) {
   $("plan-title").textContent = `Baanschema ${s.name} — ${ovWeekday(date)} ${date}`;
   const v = plan.validator || {};
   const st = ovPlanStats(plan, s);
+  // Klikbare tegels (Oscar 17-10-2026): lijst met de bevindingen; tik op een bevinding wijst de partij aan.
+  const tile = (kind, k, val, cls, tip) => `<button type="button" class="card card-btn${FIND_OPEN === kind ? " open" : ""}" data-find="${kind}" title="${esc(tip)}" aria-expanded="${FIND_OPEN === kind}"><div class="k">${k} ›</div><div class="v ${cls}">${esc(val)}</div></button>`;
   const card = (k, val, cls = "", tip = "") => `<div class="card"${tip ? ` title="${esc(tip)}"` : ""}><div class="k">${k}</div><div class="v ${cls}">${esc(val)}</div></div>`;
   $("summary").innerHTML = [card("Ingepland", st.scheduled, "good"),
     card("Niet ingepland", st.unscheduled, st.unscheduled ? "bad" : "good"),
-    card("Regels gebroken", v.hard ?? "–", v.hard ? "bad" : "good", "KNLTB- of clubregels die niet gebroken mogen worden. Moet 0 zijn."),
-    card("Kan mooier", v.model ?? "–", v.model ? "warn" : "", "Wensen die niet gehaald zijn: mag, maar kan mooier.")].join("")
+    tile("hard", "Regels gebroken", v.hard ?? "–", v.hard ? "bad" : "good", "KNLTB- of clubregels die niet gebroken mogen worden. Moet 0 zijn. Tik voor de lijst."),
+    tile("model", "Kan mooier", v.model ?? "–", v.model ? "warn" : "", "Wensen die niet gehaald zijn: mag, maar kan mooier. Tik voor de lijst.")].join("")
     + `<details class="tech"><summary>Details</summary><div class="cards">${[card("Eerste aanvang", plan.day_start || "–"),
       card("Rekentijd", plan.stats && typeof plan.stats.solve_time_s === "number" ? `${plan.stats.solve_time_s}s` : "–"),
       card("Uitkomst berekening", { OPTIMAL: "beste oplossing", FEASIBLE: "goede oplossing", INFEASIBLE: "past niet", GESPEELD: "gespeeld" }[plan.status] || plan.status || "–")].join("")}</div></details>`;
@@ -495,6 +498,7 @@ function showPlan(date, scroll = true, force = false) {
   if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
   for (const b of document.querySelectorAll("#plan-state .un-cancel")) b.onclick = () => uncancelMatch(b.dataset.schema, b.dataset.home, date);
   SHOWN_DATE = date;
+  bindFindings(plan, s);
   EDITOR.load(plan); // werkkopie: slepen + directe controle; Opslaan bewaart hem op de server
   $("dash-btn").href = `dashboard.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
   $("share-btn").href = `dag.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
@@ -559,6 +563,45 @@ const EDITOR = new PlanEditor({
   },
 });
 
+let FIND_OPEN = null;
+function bindFindings(plan, club) {
+  for (const b of document.querySelectorAll("#summary .card-btn")) b.onclick = () => {
+    FIND_OPEN = FIND_OPEN === b.dataset.find ? null : b.dataset.find;
+    for (const x of document.querySelectorAll("#summary .card-btn")) { x.classList.toggle("open", x.dataset.find === FIND_OPEN); x.setAttribute("aria-expanded", x.dataset.find === FIND_OPEN); }
+    renderFindings(plan, club);
+  };
+  renderFindings(plan, club);
+}
+function renderFindings(plan, club) {
+  let el = $("find-list");
+  if (!el) { el = document.createElement("div"); el.id = "find-list"; $("summary").after(el); }
+  if (!FIND_OPEN) { el.innerHTML = ""; clearFindHL(); return; }
+  const cur = EDITOR.plan && EDITOR.plan.date === plan.date ? EDITOR.plan : plan;
+  const items = fdItems(cur, club, checkPlan(cur.rows, club).issues).filter((x) => x.kind === FIND_OPEN);
+  const title = FIND_OPEN === "hard" ? "Regels gebroken" : "Kan mooier";
+  el.innerHTML = `<div class="find-box"><b>${title}</b> <button type="button" class="btn2 find-close">Sluiten</button>
+    ${items.length ? `<ol class="find-items">${items.map((x, i) => `<li><button type="button" class="find-it" data-i="${i}">
+      <b>${esc(x.who)}${x.part ? ` · ${esc(x.part)}` : ""}</b><br>
+      ${x.actual ? `nu: ${esc(x.actual)}` : ""}${x.wish ? ` · wens: ${esc(x.wish)}` : ""}<br>
+      <span class="hint">${esc(x.uitleg)}</span></button></li>`).join("")}</ol><p class="hint">Tik op een punt om de partij in het schema aan te wijzen.</p>`
+      : `<p class="hint">Niets — ${FIND_OPEN === "hard" ? "alle regels gehaald" : "alle wensen gehaald"}.</p>`}</div>`;
+  el.querySelector(".find-close").onclick = () => { FIND_OPEN = null; renderFindings(plan, club); for (const x of document.querySelectorAll("#summary .card-btn")) x.classList.remove("open"); };
+  for (const b of el.querySelectorAll(".find-it")) b.onclick = () => {
+    for (const x of el.querySelectorAll(".find-it")) x.classList.toggle("on", x === b);
+    showFindHL(items[+b.dataset.i].rows);
+  };
+}
+function clearFindHL() { for (const e of document.querySelectorAll(".hl-find")) e.classList.remove("hl-find"); }
+function showFindHL(idx) {
+  clearFindHL();
+  let first = null;
+  for (const i of idx) for (const e of document.querySelectorAll(`[data-ri="${i}"], [data-li="${i}"]`)) {
+    e.classList.add("hl-find");
+    if (!first && e.offsetParent) first = e;
+  }
+  if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 // Telefoon: dagschema als lijst per tijd (tijd · baan · team); standaard op smalle schermen, keuze onthouden.
 function planListGroups(rows) {
   const by = new Map();
@@ -578,9 +621,10 @@ function applyView() {
 }
 function renderPlanList(plan) {
   applyView();
+  const LI = new Map(plan.rows.map((r, i) => [r, i]));
   const gs = planListGroups(plan.rows);
   $("plan-list").innerHTML = gs.length ? gs.map(([t, rs]) => `<div class="pl-slot"><div class="pl-time">${esc(clockShort(t))}</div><ul>${rs.map((r) =>
-    `<li><span class="pl-court">Baan ${r.court}</span> <b>${esc(r.label)} ${esc(r.home_team)}</b> ${esc(r.part)} <span class="hint">– ${esc(r.away_team)} · tot ${esc(clockShort(r.end))}</span></li>`).join("")}</ul></div>`).join("")
+    `<li data-li="${LI.get(r)}"><span class="pl-court">Baan ${r.court}</span> <b>${esc(r.label)} ${esc(r.home_team)}</b> ${esc(r.part)} <span class="hint">– ${esc(r.away_team)} · tot ${esc(clockShort(r.end))}</span></li>`).join("")}</ul></div>`).join("")
     : '<p class="hint">Nog geen partijen ingepland.</p>';
 }
 if (typeof document !== "undefined" && $("view-list")) {

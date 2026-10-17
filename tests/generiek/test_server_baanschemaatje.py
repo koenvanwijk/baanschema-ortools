@@ -469,3 +469,11 @@ def test_dayrun_opslaan_generatie(client):
     assert client.put(f"/clubs/{cid}/dayrun/25-10-2026", json={"state": []}).status_code == 422
     assert client.put("/clubs/voorbeeld-6-banen/dayrun/25-10-2026", json={"state": {}, "gen": 0}).status_code == 403
     assert client.delete(f"/clubs/{cid}/dayrun/25-10-2026").json()["deleted"]
+
+
+def test_ingetrokken_jeugdgrens_niet_als_kan_mooier():
+    """17-10-2026: 'jeugd 13-17 vanaf 11:00' is ingetrokken; Baanschemaatje telt die validatorbevinding niet."""
+    from baanschemaatje.validation import adjust_findings
+    f = [{"rule": "VENSTER-JEUGD", "severity": "MODEL", "message": "S4 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken"},
+         {"rule": "VENSTER-JEUGD-LAAT", "severity": "MODEL", "message": "S1 start 18:00, jeugd niet na 17:30"}]
+    assert [x["rule"] for x in adjust_findings(f)] == ["VENSTER-JEUGD-LAAT"]
