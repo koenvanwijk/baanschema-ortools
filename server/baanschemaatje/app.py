@@ -543,7 +543,8 @@ def get_bingo(club_id: str, date: str) -> dict[str, Any]:
     return {"club": club_id, "date": date, "name": prof.name, "gen": gen,
             "state": json.loads(data) if data else None,
             "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
-            "window": _day_window(prof, date, fx), "matches": _bingo_matches(club_id, prof, date)}
+            "window": _day_window(prof, date, fx), "matches": _bingo_matches(club_id, prof, date),
+            "demo": _is_demo(club_id)}
 
 
 @app.put("/clubs/{club_id}/bingo/{date}")
@@ -590,7 +591,7 @@ def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
             "state": json.loads(data) if data else None,
             "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
             "window": _day_window(prof, date, fx), "schedule": _get_json(_sched_key(club_id, date)),
-            "profile": profile_summary(prof.for_date(date, fx), club_id)}
+            "profile": profile_summary(prof.for_date(date, fx), club_id), "demo": _is_demo(club_id)}
 
 
 @app.put("/clubs/{club_id}/dayrun/{date}")
@@ -616,6 +617,22 @@ def delete_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
     _writable(club_id, request)
     _check_date(date)
     return {"deleted": STORE.delete(_dayrun_key(club_id, date))}
+
+
+def _is_demo(club_id: str) -> bool:
+    meta = _meta(club_id)
+    return bool(meta and meta.get("demo"))
+
+
+@app.post("/clubs/{club_id}/demo-reset/{date}")
+def demo_reset(club_id: str, date: str, request: Request) -> dict[str, Any]:
+    """Alleen democlubs (meta.demo): wis het getikte verloop van die avond/dag (bingo + dashboard), zodat je opnieuw
+    kunt oefenen. Schema, verzettingen en opgaven blijven staan. Echte clubs: 403."""
+    _writable(club_id, request)
+    _check_date(date)
+    if not _is_demo(club_id):
+        raise HTTPException(403, "reset kan alleen bij een democlub")
+    return {"bingo": STORE.delete(_bingo_key(club_id, date)), "dayrun": STORE.delete(_dayrun_key(club_id, date))}
 
 
 class ReplanRequest(BaseModel):

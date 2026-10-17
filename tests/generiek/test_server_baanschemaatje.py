@@ -477,3 +477,20 @@ def test_ingetrokken_jeugdgrens_niet_als_kan_mooier():
     f = [{"rule": "VENSTER-JEUGD", "severity": "MODEL", "message": "S4 start 09:00, model dwingt jeugd 13-17 vanaf 11:00 af — die grens is met SPEC.md ingetrokken"},
          {"rule": "VENSTER-JEUGD-LAAT", "severity": "MODEL", "message": "S1 start 18:00, jeugd niet na 17:30"}]
     assert [x["rule"] for x in adjust_findings(f)] == ["VENSTER-JEUGD-LAAT"]
+
+
+def test_demo_reset_alleen_democlub(client):
+    """Reset demo-avond (17-10-2026): wist bingo + dashboardverloop van die datum, alleen bij meta.demo."""
+    mod = sys.modules["bs_server_app"]
+    cid = _stored_club(client, "TV Demoreset")
+    d = "23-10-2026"
+    assert client.post(f"/clubs/{cid}/demo-reset/{d}").status_code == 403
+    meta = mod._meta(cid); meta["demo"] = True; mod._put_meta(cid, meta)
+    assert client.get(f"/clubs/{cid}/bingo/{d}").json()["demo"] is True
+    g = client.get(f"/clubs/{cid}/bingo/{d}").json()["gen"]
+    assert client.put(f"/clubs/{cid}/bingo/{d}", json={"state": {"log": [1]}, "gen": g}).status_code == 200
+    g = client.get(f"/clubs/{cid}/dayrun/{d}").json()["gen"]
+    assert client.put(f"/clubs/{cid}/dayrun/{d}", json={"state": {"parts": {}}, "gen": g}).status_code == 200
+    assert client.post(f"/clubs/{cid}/demo-reset/{d}").json() == {"bingo": True, "dayrun": True}
+    assert client.get(f"/clubs/{cid}/bingo/{d}").json()["state"] is None
+    assert client.post("/clubs/voorbeeld-6-banen/demo-reset/23-10-2026").status_code == 403

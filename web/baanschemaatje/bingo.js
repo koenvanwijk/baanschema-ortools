@@ -26,9 +26,17 @@ async function load(quiet = false) {
   const r = await bgFetch(`/clubs/${encodeURIComponent(club)}/bingo/${encodeURIComponent(date)}`);
   if (!r.ok) { say(`Kon de avond niet laden: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
   const j = r.body;
-  BG = { club, date, name: j.name, window: j.window, matches: j.matches, mode: j.mode };
+  BG = { club, date, name: j.name, window: j.window, matches: j.matches, mode: j.mode, demo: !!j.demo };
   if (j.gen !== GEN || !quiet) { ST = bgNorm(j.state); GEN = j.gen; }
   render();
+}
+
+// Democlub: alles van deze avond wissen om opnieuw te oefenen (server weigert bij echte clubs).
+async function demoReset() {
+  if (!BG || !BG.demo || !confirm("Alles wat er deze avond getikt is wissen (demo)?")) return;
+  const r = await bgFetch(`/clubs/${encodeURIComponent(BG.club)}/demo-reset/${encodeURIComponent(BG.date)}`, { method: "POST" });
+  if (!r.ok) { say(`Reset mislukt: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
+  GEN = null; await load(); say("Demo-avond gereset", "ok");
 }
 
 async function act(fn) {
@@ -61,6 +69,7 @@ function render() {
   $("bg-sub").textContent = `${BG.name} · baancommissaris`;
   $("bg-tv").href = `tv.html${location.search}#${encodeURIComponent(BG.club)}/${encodeURIComponent(BG.date)}`;
   $("bg-print").href = `bingo-print.html${location.search}#${encodeURIComponent(BG.club)}/${encodeURIComponent(BG.date)}`;
+  $("bg-demo-reset").hidden = !BG.demo; $("bg-demo-reset").onclick = demoReset;
   $("bg-back").href = `club.html${location.search}#${encodeURIComponent(BG.club)}`;
   $("bg-window").textContent = w.start ? `Avond ${w.start}–${clockHHMM(w.end)} · laatste start ${w.last_start} · ${n} banen (alle met licht)` : "";
   $("bg-clock").textContent = new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });

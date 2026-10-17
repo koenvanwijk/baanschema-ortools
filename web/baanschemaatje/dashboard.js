@@ -25,9 +25,17 @@ async function load(quiet = false) {
   const r = await dsFetch(`/clubs/${encodeURIComponent(club)}/dayrun/${encodeURIComponent(date)}`);
   if (!r.ok) { say(`Kon de speeldag niet laden: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
   const j = r.body;
-  DS = { club, date, name: j.name, window: j.window, mode: j.mode, plan: j.schedule && j.schedule.plan, saved: j.schedule, profile: j.profile };
+  DS = { club, date, name: j.name, window: j.window, mode: j.mode, plan: j.schedule && j.schedule.plan, saved: j.schedule, profile: j.profile, demo: !!j.demo };
+  $("ds-demo-reset").hidden = !DS.demo; $("ds-demo-reset").onclick = demoReset;
   if (j.gen !== GEN || !quiet) { ST = dsNorm(j.state); GEN = j.gen; }
   render();
+}
+
+async function demoReset() {
+  if (!DS || !DS.demo || !confirm("Alles wat er deze dag getikt is wissen (demo)?")) return;
+  const r = await dsFetch(`/clubs/${encodeURIComponent(DS.club)}/demo-reset/${encodeURIComponent(DS.date)}`, { method: "POST" });
+  if (!r.ok) { say(`Reset mislukt: ${(r.body && r.body.detail) || r.status}`, "bad"); return; }
+  GEN = null; await load(); say("Demo-dag gereset", "ok");
 }
 
 function chip(s, r) {
