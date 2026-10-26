@@ -19,6 +19,13 @@ def client(root, tmp_path_factory):
     import os
 
     os.environ["BS_STORE"] = str(tmp_path_factory.mktemp("store"))
+    # Tests mogen clubs aanmaken zonder Google OAuth (productie zet dit nooit).
+    os.environ["BS_ALLOW_OPEN_CREATE"] = "1"
+    # Zorg dat auth-gates in tests voorspelbaar uit staan tenzij een test ze aanzet.
+    os.environ.pop("GOOGLE_OAUTH_CLIENT_ID", None)
+    os.environ.pop("GOOGLE_OAUTH_CLIENT_SECRET", None)
+    os.environ.pop("BS_SESSION_SECRET", None)
+    os.environ.pop("BS_AUTH_ENFORCE", None)
     spec = importlib.util.spec_from_file_location("bs_server_app", root / "server" / "baanschemaatje" / "app.py")
     mod = importlib.util.module_from_spec(spec)
     sys.modules["bs_server_app"] = mod
@@ -89,23 +96,28 @@ def test_builtin_club_not_editable(client):
 
 
 def test_auth_hook_is_used_for_writes(client, monkeypatch):
-    """Login per club komt later; alle schrijfroutes lopen via auth.authorize_write."""
+    """Schrijfroutes lopen via auth.authorize_write; create via authorize_platform_admin."""
     from fastapi import HTTPException
 
     import auth
 
     calls = []
 
-    def deny(club_id, request=None):
+    def deny(club_id, request=None, meta=None):
         calls.append(club_id)
         raise HTTPException(401, "login vereist")
 
     mod = sys.modules["bs_server_app"]
     monkeypatch.setattr(mod, "authorize_write", deny)
-    prof = {"club": {"name": "TV Geweigerd"}, "courts": {"count": 4}}
-    assert client.post("/clubs", json={"profile": prof}).status_code == 401
-    assert calls == ["tv-geweigerd"]
-    assert auth.authorize_write("x") is None  # nu nog open
+    # Bestaande club maken mag (BS_ALLOW_OPEN_CREATE); daarna profile-put moet de hook raken.
+    prof = {"club": {"name": "TV Geweigerd"}, "courts": {"count": 4},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    r = client.post("/clubs", json={"profile": prof})
+    assert r.status_code == 201, r.text
+    cid = r.json()["id"]
+    assert client.put(f"/clubs/{cid}/profile", json=prof).status_code == 401
+    assert cid in calls
+    assert auth.authorize_write("x") is None  # zonder OAuth nog open
 
 
 def test_club_lifecycle(client, root):
@@ -257,7 +269,7 @@ def test_save_routes_use_auth_hook(client, monkeypatch):
     cid = _stored_club(client, "TV Auth Opslaan")
     mod = sys.modules["bs_server_app"]
 
-    def deny(club_id, request=None):
+    def deny(club_id, request=None, meta=None):
         raise HTTPException(401, "login vereist")
 
     monkeypatch.setattr(mod, "authorize_write", deny)
@@ -494,3 +506,42 @@ def test_demo_reset_alleen_democlub(client):
     assert client.post(f"/clubs/{cid}/demo-reset/{d}").json() == {"bingo": True, "dayrun": True}
     assert client.get(f"/clubs/{cid}/bingo/{d}").json()["state"] is None
     assert client.post("/clubs/voorbeeld-6-banen/demo-reset/23-10-2026").status_code == 403
+
+
+def test_create_club_blocked_without_open_flag(root, tmp_path_factory, monkeypatch):
+    """Zonder BS_ALLOW_OPEN_CREATE en zonder Google OAuth: POST /clubs → 401."""
+    import os
+    import importlib
+
+    monkeypatch.setenv("BS_STORE", str(tmp_path_factory.mktemp("store2")))
+    monkeypatch.delenv("BS_ALLOW_OPEN_CREATE", raising=False)
+    monkeypatch.delenv("GOOGLE_OAUTH_CLIENT_ID", raising=False)
+    monkeypatch.delenv("GOOGLE_OAUTH_CLIENT_SECRET", raising=False)
+    monkeypatch.delenv("BS_SESSION_SECRET", raising=False)
+    # Herlaad auth + app met nieuwe env
+    for name in list(sys.modules):
+        if name in ("auth", "bs_server_app") or name.endswith(".auth"):
+            sys.modules.pop(name, None)
+    # auth wordt als top-level geladen vanuit server dir
+    sys.path.insert(0, str(root / "server" / "baanschemaatje"))
+    import auth as auth_mod
+    importlib.reload(auth_mod)
+    spec = importlib.util.spec_from_file_location("bs_server_app_locked", root / "server" / "baanschemaatje" / "app.py")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["bs_server_app_locked"] = mod
+    spec.loader.exec_module(mod)
+    c = TestClient(mod.app)
+    prof = {"club": {"name": "TV Gesloten"}, "courts": {"count": 4},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    r = c.post("/clubs", json={"profile": prof})
+    assert r.status_code == 401
+    assert "Inloggen" in r.json()["detail"]
+
+
+def test_auth_status_and_access_fields(client):
+    j = client.get("/auth/status").json()
+    assert j["configured"] is False
+    assert j["password_login"] is False
+    assert j["can_create_club"] is True  # BS_ALLOW_OPEN_CREATE in fixture
+    clubs = client.get("/clubs").json()
+    assert "auth" in clubs

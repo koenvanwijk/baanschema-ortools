@@ -101,6 +101,10 @@ function fillForm() {
   $("upload").disabled = !CLUB.editable;
   $("reprocess").disabled = !CLUB.editable;
   $("file").disabled = !CLUB.editable;
+  if (CLUB.auth) AUTH = CLUB.auth;
+  fillAccess();
+  updateCreateGate();
+  renderAuthBar();
 }
 
 function paramInputs(r) {
@@ -216,17 +220,98 @@ async function save() {
 }
 
 async function createClub() {
+  const a = AUTH || {};
+  if (!a.can_create_club) {
+    status(a.create_blocked_reason || "Inloggen vereist", "err");
+    return;
+  }
   const name = $("new-name").value.trim();
   if (!name) { status("Vul een clubnaam in.", "err"); return; }
-  const profile = { club: { name, knltb_name: $("new-knltb").value.trim().toUpperCase() || name.toUpperCase() },
+  const days = [...document.querySelectorAll('input[name="new-wd"]:checked')].map((el) => el.value);
+  if (!days.length) { status("Kies minstens één competitiedag.", "err"); return; }
+  const eveningMode = ($("new-evening-mode") && $("new-evening-mode").value) || "bingo";
+  const eveningEnd = ($("new-evening-end") && $("new-evening-end").value) || "01:00";
+  const margin = ($("new-evening-margin") && $("new-evening-margin").value) || "01:30";
+  const weekdays = {};
+  for (const wd of days) {
+    if (wd === "zaterdag" || wd === "zondag") {
+      weekdays[wd] = { mode: "gepland" };
+    } else {
+      weekdays[wd] = { mode: eveningMode, end: eveningEnd, lighting: true };
+    }
+  }
+  const profile = {
+    club: { name, knltb_name: $("new-knltb").value.trim().toUpperCase() || name.toUpperCase() },
     courts: { count: parseInt($("new-courts").value, 10) || 6 },
-    day: { start: "09:00", fallback_start: "08:30", last_start: "19:30", end: "20:00" } };
+    day: { start: "09:00", fallback_start: "08:30", last_start: "19:30", end: "20:00", evening_close_margin: margin },
+    weekdays,
+  };
+  const body = { profile };
+  const id = $("new-id") && $("new-id").value.trim();
+  if (id) body.id = id.toLowerCase();
   try {
-    const j = await api("/clubs", jsonOpts("POST", { profile }));
+    const j = await api("/clubs", jsonOpts("POST", body));
     $("new-sec").hidden = true;
     await loadClubs(j.id);
-    status(`Club "${name}" aangemaakt. Upload nu de KNLTB-export.`, "ok");
+    status(`Club "${name}" aangemaakt. Stel eventueel verder in en upload de KNLTB-export.`, "ok");
+    showTab("import");
   } catch (e) { status(`Aanmaken mislukt: ${e.message}`, "err"); }
+}
+
+function updateCreateGate() {
+  const a = AUTH || {};
+  const btn = $("new-btn");
+  const gate = $("new-gate");
+  const form = $("new-form");
+  if (!btn) return;
+  // Knop alleen zichtbaar voor platformbeheerder (of als create mogelijk is).
+  btn.hidden = !a.can_create_club;
+  if (gate) {
+    if (a.can_create_club) {
+      gate.hidden = true; gate.textContent = "";
+      if (form) form.hidden = false;
+    } else {
+      gate.hidden = false;
+      gate.textContent = a.create_blocked_reason || "Inloggen vereist";
+      if (form) form.hidden = true;
+      // Toon knop met uitleg als OAuth aan staat maar user niet admin — anders verborgen.
+      if (a.configured && a.user && !a.is_platform_admin) {
+        btn.hidden = false;
+        btn.disabled = true;
+        btn.title = "Alleen de platformbeheerder mag clubs aanmaken";
+      }
+    }
+  }
+}
+
+async function saveAccess() {
+  const st = $("access-status");
+  if (!CLUB || !CLUB.editable) { st.textContent = "Deze club is niet bewerkbaar."; return; }
+  const writers = ($("f-writers").value || "").split(/[\n,;]+/).map((s) => s.trim()).filter(Boolean);
+  const auth_required = $("f-auth-required").checked;
+  st.textContent = "Opslaan…";
+  try {
+    await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`, jsonOpts("PUT", { writers, auth_required }));
+    await loadClub();
+    st.textContent = "Toegang opgeslagen.";
+  } catch (e) {
+    st.innerHTML = `<span style="color:#c53030">${esc(e.message)}</span>`;
+    if (e.status === 401) st.innerHTML += ` — <a href="${esc(loginUrl(null, CLUB.id))}">Inloggen</a>`;
+  }
+}
+
+function fillAccess() {
+  const meta = (CLUB && CLUB.meta) || {};
+  const a = (CLUB && CLUB.auth) || AUTH || {};
+  if ($("f-auth-required")) $("f-auth-required").checked = !!meta.auth_required;
+  if ($("f-writers")) $("f-writers").value = (meta.writers || []).join("\n");
+  const can = a.is_platform_admin || (a.user && meta.auth_required && (meta.writers || []).includes(a.user.email));
+  const disabled = !CLUB.editable || !a.configured || !can;
+  if ($("f-auth-required")) $("f-auth-required").disabled = disabled;
+  if ($("f-writers")) $("f-writers").disabled = disabled;
+  if ($("access-save")) $("access-save").disabled = disabled;
+  if ($("access-status") && !a.configured) $("access-status").textContent = "Google-login nog niet geconfigureerd — toegang opslaan kan pas daarna.";
+  else if ($("access-status") && disabled && a.configured) $("access-status").textContent = can ? "" : "Alleen platformbeheerder of club-schrijver mag toegang beheren.";
 }
 
 // ---------------------------------------------------------------- seizoen
@@ -284,9 +369,14 @@ async function init() {
   $("save").onclick = save;
   $("upload").onclick = upload;
   $("reprocess").onclick = reprocess;
-  $("new-btn").onclick = () => { $("new-sec").hidden = false; $("new-name").focus(); };
+  $("new-btn").onclick = () => {
+    updateCreateGate();
+    $("new-sec").hidden = false;
+    if ((AUTH || {}).can_create_club) $("new-name").focus();
+  };
   $("new-cancel").onclick = () => { $("new-sec").hidden = true; };
   $("new-create").onclick = createClub;
+  if ($("access-save")) $("access-save").onclick = saveAccess;
   for (const b of $("tabs").querySelectorAll("button")) b.onclick = () => showTab(b.dataset.tab);
   document.querySelector("main").addEventListener("input", (e) => { if (e.target.closest("[data-pane]") && e.target.id !== "file") setDirty(true); });
   window.addEventListener("beforeunload", (e) => { if (DIRTY) { e.preventDefault(); e.returnValue = ""; } });

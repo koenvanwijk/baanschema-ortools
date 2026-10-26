@@ -28,3 +28,12 @@ td.res-bad { color: #c53030; font-weight: 600; }
 .err { color: #c53030; }
 .rh-share-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .rh-fb { color: #276749; font-weight: 600; }
+
+
+/* Google-login balk (I3) */
+.auth-bar { display: inline-flex; align-items: center; gap: .4rem; margin-left: .5rem; font-size: .9rem; }
+.auth-bar .auth-user { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auth-bar .badge { background: #2b6cb0; color: #fff; border-radius: .25rem; padding: 0 .35rem; font-size: .75rem; }
+fieldset.new-days { border: 1px solid #ddd; border-radius: .4rem; padding: .5rem .75rem; margin: .5rem 0; }
+fieldset.new-days legend { padding: 0 .35rem; font-weight: 600; }
+fieldset.new-days label { display: inline-flex; margin-right: .75rem; margin-bottom: .25rem; }

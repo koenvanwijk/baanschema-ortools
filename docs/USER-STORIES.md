@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 26-10-2026 (D3 iedere dag / bingo).
+Laatst bijgewerkt: 26-10-2026 (I1/I3 Google-login + club-aanmaakpoort).
 
 ## Werkprincipe
 
@@ -69,6 +69,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-26 | Productrichting: zelf nieuwe clubs toevoegen + per club logins/access management (I1–I5). Eerdere "geen login voorlopig" blijft gelden tot fase 2 live is; implementatie gefaseerd. | Oscar |
 | 2026-10-26 | Toegang besloten (I1/I3/I5): (1) alleen Oscar/platformbeheerder mag nieuwe clubs toevoegen (env-allowlist of vergelijkbare gate); (2) login = Google OAuth per club (goedgekeurde e-mails), **geen** gedeeld clubwachtwoord; (3) tv- en dagpagina (en bingolijst alleen-kijken) blijven publiek zonder login | Oscar |
 | 2026-10-26 | Auth later optioneel: e-mailadres + wachtwoord **per gebruiker** (individuele accounts), niet één clubwachtwoord (Oscar: "evt later e-mailadres en wachtwoord per user") | Oscar |
+| 2026-10-26 | Implementatie I1/I3 gestart: `POST /clubs` nooit anoniem open (401 zonder Google of `BS_ALLOW_OPEN_CREATE` alleen voor tests); Google OAuth-routes `/auth/*`; per club `writers` + `auth_required` in meta; tv/dag GET publiek (I5). Feature uit tot OAuth-client credentials op Cloud Run staan. | Oscar "begin" |
 | 2026-10-26 | Wachtwoordveiligheid (antwoord Oscar "kun je wachtwoorden wel echt veilig houden?"): ja — als er wachtwoorden komen (later per user), alleen salted Argon2id (of bcrypt) hashes, nooit plaintext in GCS/logs/chat; HTTPS; rate-limit loginpogingen. Fase 2 is Google (geen wachtwoordopslag bij ons) | Oscar |
 | 2026-10-26 | D3 geldt op **iedere** competitiedag (Oscar: "ja, dit zou in principe op iedere dag kunnen"): gepland én bingo (vrijdag e.d.), donderdagavond enz. Gemarkeerde uitwedstrijd verschijnt in bingo-wachtrij/TV/commissaris net als een thuiswedstrijd | Oscar |
 | 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
@@ -291,20 +292,20 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 
 **I1 — [Beheer] Nieuwe club zonder code-deploy.** Als platformbeheerder wil ik een nieuwe club aanmaken (profiel in de bucket) zonder een deploy of YAML in git, zodat we zelf clubs kunnen toevoegen.
 - AC: unieke club-id (slug); profiel + meta in store; club verschijnt in clubkeuze en onder `/club/<id>`; geen schrijven naar live Mierlo-testdata; max-clubs-vangrail blijft; ingebouwde YAML blijft alleen-lezen; **alleen Oscar/platformbeheerder** mag aanmaken (env-allowlist of vergelijkbare gate; `POST /clubs` 403 voor anderen; knop "+ Nieuwe club" alleen zichtbaar/bruikbaar voor beheerder).
-- Stand nu: `POST /clubs` + knop "+ Nieuwe club" bestaan (naam, KNLTB-naam, aantal banen); weekdagen/bingo/sluiting daarna via Instellingen (I2). Ontbreekt: Oscar-only gate, rijkere wizard, duidelijke "klaar voor seizoen"-check.
-- Status: **gedeeltelijk gereed** · rest **gepland** (fase 1) · Datum: 2026-10-26 · Bron: Oscar ("zelf nieuwe clubs toevoegen"; 26-10: alleen Oscar mag toevoegen).
+- Stand nu: Oscar-only gate via `PLATFORM_ADMIN_EMAILS` + Google-sessie (`authorize_platform_admin`); zonder OAuth-config is aanmaken geblokkeerd ("Inloggen vereist"). Wizard: naam, slug, KNLTB-naam, #banen, competitiedagen, avond bingo/gepland, park dicht, marge. Verdere velden via Instellingen (I2).
+- Status: **fase 1 grotendeels gereed** (wacht op Google OAuth-client om live clubs aan te maken) · Datum: 2026-10-26 · Bron: Oscar ("begin").
 - Besluitlog: eerdere edit-key per club is destijds bewust geschrapt (open testen); vervangen door I3 i.p.v. opnieuw een losse sleutel zonder login. **Besluit 26-10-2026:** geen self-service club-aanmaken — alleen Oscar/platformbeheerder.
 
 **I2 — [Beheer] [UX] Clubprofiel volledig via UI.** Als TC wil ik na aanmaken banen, speeldagen, bingo vs gepland, sluitingstijden, avondmarge, reserveringen en clubafspraken instellen en opslaan, zodat de club zonder codewijziging kan draaien.
 - AC: zelfde velden als clubprofiel/YAML; opslaan via bestaande `PUT /clubs/{id}/profile`; geen herberekening zonder expliciete knop (A3); democlubs mogen reset.
-- Status: **grotendeels gereed** (Instellingen-tabs); wizard bij aanmaken mag fase 1 verbeteren · Datum: 2026-10-26 · Bron: Oscar.
+- Status: **grotendeels gereed** (Instellingen-tabs + rijkere aanmaak-wizard) · Datum: 2026-10-26 · Bron: Oscar.
 
 **I3 — [Beheer] Login per club (schrijven beveiligen).** Als clubbeheerder wil ik dat wijzigen van onze club alleen na inloggen kan, zodat vreemden ons schema/bingo niet kunnen aanpassen.
 - AC: alle schrijfroutes via `authorize_write`; 401/403 zonder geldige club-sessie; lezen van publieke schermen volgens I5; democlubs: beleid open vraag (vrij houden of ook locken); Mierlo niet breken tijdens uitrol (feature-flag of per-club `auth_required`).
 - AC login-vorm: **Google OAuth** begrensd tot goedgekeurde e-mails per club; **geen gedeeld clubwachtwoord**.
 - AC als later e-mail+wachtwoord per user (optioneel, zie I4): wachtwoord alleen als salted **Argon2id** (of bcrypt) hash; **nooit** plaintext of reversibel in GCS, logs, chat of UI-responses; HTTPS; rate-limit op mislukte loginpogingen; geen wachtwoord (noch hash) in access-/error-logs.
-- Status: **gepland** (fase 2 = Google) · vervangt/concretiseert backlog #19 / ROADMAP issue 27 · Datum: 2026-10-26 · Bron: Oscar ("per club logins"; 26-10: Google; later evt e-mail+wachtwoord per user).
-- Besluitlog: "Geen login voorlopig; iedereen met de commissaris-link mag tikken" (09/14-10-2026) blijft **interim** tot fase 2 voor die club aan staat — productrichting is wél login; implementatie gefaseerd. **Besluit 26-10-2026:** Google OAuth per club; geen gedeeld clubwachtwoord. Later optioneel: e-mail + wachtwoord **per gebruiker**.
+- Status: **in aanbouw / feature-flag** — code voor Google OAuth, sessiecookie, `writers`/`auth_required` en `/clubs/{id}/access` staat klaar; live pas na OAuth-client op Cloud Run. Per club `auth_required` (default uit) zodat Mierlo open blijft tot Oscar hem aanzet. Commissaris-schrijven vereist dan login (vervangt interim "iedereen met de link"). · Datum: 2026-10-26 · Bron: Oscar ("begin").
+- Besluitlog: interim open schrijven blijft tot `auth_required` (of `BS_AUTH_ENFORCE`) voor die club. **Besluit 26-10-2026:** Google OAuth; geen clubwachtwoord. Env: `GOOGLE_OAUTH_CLIENT_ID/SECRET`, `BS_SESSION_SECRET`, `PLATFORM_ADMIN_EMAILS`, `BS_PUBLIC_BASE_URL`.
 
 **I4 — [Beheer] Rollen & access management.** Als clubbeheerder wil ik rollen toekennen (clubbeheerder, TC, commissaris, alleen-lezen) en toegang intrekken, zodat niet iedereen hetzelfde mag.
 - AC: clubbeheerder beheert gebruikers/rollen voor die club; TC: import/instellingen/plannen; commissaris: bingo/dashboard tikken; alleen-lezen: schema/tv; geen cross-club rechten; audit/log lichtgewicht (wie wijzigde wat) wenselijk maar niet blocker voor MVP.
@@ -355,10 +356,10 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): SD1–SD9 (SD7 vervallen), vragen V1–V7 beantwoord behalve V4 (omwisselen tussen teams) | H | klaar (16-10-2026); V4 open |
 | 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
-| 19 | [Beheer] | Login per club (ROADMAP #27) — zie I3; fase 2 = Google OAuth per club (geen gedeeld clubwachtwoord); later optioneel e-mail+wachtwoord per user; interim "open" tot fase 2 | I3 / A4 | gepland (fase 2 Google) |
+| 19 | [Beheer] | Login per club (ROADMAP #27) — Google OAuth code klaar; aanzetten per club via `auth_required` na OAuth-credentials op Cloud Run | I3 / A4 | in aanbouw / flag |
 | 20 | [Bingo] | Naar een bingo-avond verzette wedstrijden verschijnen bij de commissaris | G2 | klaar (14-10-2026) |
 | 21 | [Bingo] | Democlub Demo TV: bingo-vrijdagen 23-10/30-10 om te oefenen + "Reset demo-avond" | G | klaar (17-10-2026) |
-| 22 | [Beheer] | Nieuwe club zonder deploy afronden (wizard + Oscar-only gate) | I1 | gepland (fase 1); API/UI-basis klaar; besluit: alleen Oscar |
-| 23 | [Beheer] [UX] Clubprofiel-wizard bij aanmaken (speeldagen/bingo/sluiting) | I2 | gepland (fase 1) |
+| 22 | [Beheer] | Nieuwe club zonder deploy afronden (wizard + Oscar-only gate) | I1 | grotendeels klaar (code); live aanmaken wacht op Google OAuth |
+| 23 | [Beheer] [UX] Clubprofiel-wizard bij aanmaken (speeldagen/bingo/sluiting) | I2 | klaar (wizard uitgebreid 26-10-2026) |
 | 24 | [Beheer] | Rollen & access management (clubbeheerder / TC / commissaris / read-only); later optioneel e-mail+wachtwoord per user | I4 | gepland (fase 3) |
-| 25 | [Beheer] [UX] Publieke deel-links tv/dag naast login | I5 | besloten: houden (publiek) |
+| 25 | [Beheer] [UX] Publieke deel-links tv/dag naast login | I5 | besloten: houden (publiek); GET ongewijzigd |

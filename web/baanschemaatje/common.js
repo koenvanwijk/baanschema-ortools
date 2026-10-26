@@ -1,6 +1,6 @@
 "use strict";
-// Baanschemaatje: gedeelde helpers voor clubpagina (club.html) en club-instellingen (club-instellingen.html).
-// Praat met de live-backend (server/baanschemaatje). Geen login (nog): zie ROADMAP "Login per club".
+// Baanschemaatje: gedeelde helpers voor clubpagina en club-instellingen.
+// Login: Google OAuth (I3); tv/dag blijven publiek (I5). Geen gedeeld clubwachtwoord.
 
 const API_DEFAULT = "https://baanschemaatje-356953092000.europe-west1.run.app";
 const API = (new URLSearchParams(location.search).get("api") || API_DEFAULT).replace(/\/+$/, "");
@@ -39,20 +39,26 @@ const RULE_NL = {
 let CLUBS = [];
 let CLUB = null;      // GET /clubs/{id}
 let DATES = [];
+let AUTH = null;      // /auth/status of clubs.auth
 
-function status(msg, cls = "") { const el = $("status"); el.className = `live-status ${cls}`; el.textContent = msg; }
+function status(msg, cls = "") { const el = $("status"); if (!el) return; el.className = `live-status ${cls}`; el.textContent = msg; }
 
 async function api(path, opts = {}) {
-  const res = await fetch(`${API}${path}`, opts);
+  const o = { credentials: "include", ...opts };
+  if (o.headers) o.headers = { ...o.headers };
+  const res = await fetch(`${API}${path}`, o);
   let body = null;
   try { body = await res.json(); } catch (_) { /* geen JSON */ }
   if (!res.ok) {
     const d = body && body.detail;
-    throw new Error(typeof d === "string" ? d : d && d.message ? d.message : `HTTP ${res.status}`);
+    const msg = typeof d === "string" ? d : d && d.message ? d.message : `HTTP ${res.status}`;
+    const err = new Error(msg);
+    err.status = res.status;
+    throw err;
   }
   return body;
 }
-const jsonOpts = (method, data) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+const jsonOpts = (method, data) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
 
 // Hash: #<club>[&comp=<competitie>] (club.html) of #regelhulp?q=… (Regelmaatje).
 function parseHash() {
@@ -69,10 +75,53 @@ function setHash(club, comp) {
 async function loadClubList(select) {
   const j = await api("/clubs");
   CLUBS = j.clubs;
+  AUTH = j.auth || AUTH;
   $("club").innerHTML = CLUBS.map((c) =>
     `<option value="${esc(c.id)}">${esc(c.name)}${c.demo ? " — demo" : ""}${c.stored ? "" : " (alleen lezen)"}</option>`).join("");
   const dflt = (CLUBS.find((c) => c.id === "mierlo") || CLUBS[0]).id;
   const want = select || parseHash().club || dflt;
   $("club").value = CLUBS.some((c) => c.id === want) ? want : dflt;
+  renderAuthBar();
 }
 
+async function refreshAuth(clubId) {
+  try {
+    AUTH = await api(`/auth/status${clubId ? `?club=${encodeURIComponent(clubId)}` : ""}`);
+  } catch (_) { AUTH = AUTH || { configured: false, user: null }; }
+  renderAuthBar();
+  return AUTH;
+}
+
+function loginUrl(next, club) {
+  const n = encodeURIComponent(next || (location.pathname + location.search + location.hash));
+  const c = club ? `&club=${encodeURIComponent(club)}` : "";
+  // Zelfde origin: /auth/login op de API-host. Als UI via /app draait is API same-origin.
+  const base = API || "";
+  return `${base}/auth/login?next=${n}${c}`;
+}
+
+async function logout() {
+  try { await api("/auth/logout", { method: "POST" }); } catch (_) { /* ignore */ }
+  AUTH = { ...(AUTH || {}), user: null, is_platform_admin: false, can_create_club: false };
+  renderAuthBar();
+}
+
+function renderAuthBar() {
+  const el = $("auth-bar");
+  if (!el) return;
+  const a = AUTH || {};
+  if (!a.configured) {
+    el.innerHTML = `<span class="hint">Login: Google nog niet geconfigureerd</span>`;
+    return;
+  }
+  if (a.user) {
+    el.innerHTML = `<span class="auth-user" title="${esc(a.user.email)}">${esc(a.user.name || a.user.email)}</span>`
+      + (a.is_platform_admin ? ' <span class="badge">beheerder</span>' : "")
+      + ` <button type="button" class="btn2" id="auth-logout">Uitloggen</button>`;
+    const btn = $("auth-logout");
+    if (btn) btn.onclick = async () => { await logout(); location.reload(); };
+  } else {
+    const club = ($("club") && $("club").value) || "";
+    el.innerHTML = `<a class="live-btn" id="auth-login" href="${esc(loginUrl(null, club))}">Inloggen met Google</a>`;
+  }
+}

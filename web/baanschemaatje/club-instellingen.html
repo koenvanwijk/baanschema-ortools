@@ -16,7 +16,8 @@
   </div>
   <div class="controls">
     <label>Club <select id="club"></select></label>
-    <button id="new-btn" class="btn2">+ Nieuwe club</button>
+    <button id="new-btn" class="btn2" hidden>+ Nieuwe club</button>
+    <span id="auth-bar" class="auth-bar"></span>
   </div>
 </header>
 
@@ -24,10 +25,31 @@
   <p id="status" class="live-status"></p>
   <section id="new-sec" hidden>
     <h2>Nieuwe club</h2>
-    <div class="form">
+    <p id="new-gate" class="hint" hidden></p>
+    <div class="form" id="new-form">
       <label>Clubnaam <input id="new-name" placeholder="bv. TV De Baan"></label>
+      <label>Club-id (slug, optioneel) <input id="new-id" placeholder="bv. de-baan"><small>Leeg = afgeleid van de naam. Alleen a-z, 0-9 en -.</small></label>
       <label>Naam in de KNLTB-export <input id="new-knltb" placeholder="bv. DE BAAN"><small>Zo heet het thuisteam in de export (zonder teamnummer).</small></label>
       <label>Aantal banen <input id="new-courts" type="number" min="1" max="40" value="6"></label>
+      <fieldset class="new-days">
+        <legend>Competitiedagen</legend>
+        <label class="inline"><input type="checkbox" name="new-wd" value="zaterdag" checked> Zaterdag (gepland)</label>
+        <label class="inline"><input type="checkbox" name="new-wd" value="zondag" checked> Zondag (gepland)</label>
+        <label class="inline"><input type="checkbox" name="new-wd" value="vrijdag"> Vrijdag</label>
+        <label class="inline"><input type="checkbox" name="new-wd" value="donderdag"> Donderdag</label>
+        <label class="inline"><input type="checkbox" name="new-wd" value="woensdag"> Woensdag</label>
+        <label class="inline"><input type="checkbox" name="new-wd" value="dinsdag"> Dinsdag</label>
+        <label class="inline"><input type="checkbox" name="new-wd" value="maandag"> Maandag</label>
+      </fieldset>
+      <label>Vrijdag/avond-modus
+        <select id="new-evening-mode">
+          <option value="bingo">Bingo (live indelen)</option>
+          <option value="gepland">Gepland (van tevoren berekend)</option>
+        </select>
+        <small>Geldt voor aangevinkte doordeweekse dagen.</small>
+      </label>
+      <label>Park dicht op avond (na middernacht mag) <input id="new-evening-end" type="time" step="900" value="01:00"></label>
+      <label>Avondmarge (laatste start = dicht − marge) <input id="new-evening-margin" type="time" step="900" value="01:30"></label>
       <div><button id="new-create" class="live-btn">Club aanmaken</button> <button id="new-cancel" class="btn2">Annuleren</button></div>
     </div>
   </section>
@@ -36,13 +58,14 @@
     <div><h2 id="club-title">Club</h2><p id="club-kind" class="hint"></p></div>
     <div class="club-actions"><a id="back-club2" class="btn2" href="club.html">← Clubpagina</a></div>
   </section>
-  <details class="uitleg"><summary>Uitleg</summary><p>Na opslaan wordt er niets vanzelf opnieuw berekend; dat doe je op de clubpagina. Testomgeving zonder login: iedereen met de link kan wijzigen.</p></details>
+  <details class="uitleg"><summary>Uitleg</summary><p>Na opslaan wordt er niets vanzelf opnieuw berekend; dat doe je op de clubpagina. Schrijven kan achter Google-login staan (per club); tv- en dagpagina blijven publiek.</p></details>
 
   <nav class="tabs" id="tabs">
     <button type="button" data-tab="algemeen" class="on">Algemeen</button>
     <button type="button" data-tab="speeldag">Per speeldag</button>
     <button type="button" data-tab="reserveringen">Reserveringen</button>
     <button type="button" data-tab="afspraken">Clubafspraken</button>
+    <button type="button" data-tab="toegang">Toegang</button>
     <button type="button" data-tab="import">Import</button>
   </nav>
 
@@ -89,6 +112,18 @@
   <section data-pane="afspraken" hidden>
     <p class="hint">Per regel: waarde voor deze club en de KNLTB-/standaardwaarde. Ruimer dan het KNLTB-reglement wordt rood.</p>
     <div class="tablewrap"><table id="rules"></table></div>
+  </section>
+
+  <section data-pane="toegang" hidden>
+    <h3>Google-login voor schrijven</h3>
+    <p class="hint">Geen gedeeld clubwachtwoord. Alleen goedgekeurde Google-e-mails mogen wijzigen (instellingen, plannen, bingo). TV, dagpagina en bingolijst blijven open zonder login. Later optioneel: e-mail + wachtwoord per gebruiker (nog niet gebouwd).</p>
+    <div class="form">
+      <label class="inline"><input id="f-auth-required" type="checkbox"> Schrijven alleen na Google-login</label>
+      <label>Toegestane e-mails (één per regel)
+        <textarea id="f-writers" rows="5" placeholder="naam@vereniging.nl"></textarea>
+      </label>
+      <div><button id="access-save" class="live-btn">Toegang opslaan</button> <span id="access-status" class="hint"></span></div>
+    </div>
   </section>
 
   <section data-pane="import" hidden>

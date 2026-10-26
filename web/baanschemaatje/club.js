@@ -18,6 +18,8 @@ async function loadClub() {
   if (!/^#regel/.test(location.hash) || CLUB) setHash(id, COMP);
   status("Club laden…", "busy");
   CLUB = await api(`/clubs/${encodeURIComponent(id)}`);
+  if (CLUB.auth) AUTH = CLUB.auth;
+  renderAuthBar();
   PLANS.clear();
   $("plan-sec").hidden = true;
   SHOWN_DATE = null;

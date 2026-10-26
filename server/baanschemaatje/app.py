@@ -25,11 +25,11 @@ Endpoints
                                      optioneel "moves": [{schema, home, from, to}] = verzette wedstrijden (bv. naar een inhaaldag)
   POST /scenarios                    oplossingen voor een dag die niet past → zoals <datum>.solutions.json
 
-Beveiliging: alles is voorlopig open, ook schrijven (besluit Oscar
-09-10-2026). Alle schrijfacties lopen via ``auth.authorize_write``; daar komt
-later "Login per club" (ROADMAP). Ingebouwde clubs (clubs/*.yaml) zijn niet
-te overschrijven via POST /clubs; een opgeslagen club met dezelfde id (geseed)
-gaat voor.
+Beveiliging (I1/I3/I5, Oscar 26-10-2026): schrijfacties via
+``auth.authorize_write``. Google OAuth + club-writers als de club
+``auth_required`` heeft (of ``BS_AUTH_ENFORCE=1``); anders interim open.
+``POST /clubs`` alleen voor platformbeheerder (nooit anoniem open).
+TV/dag/bingolijst GET blijven publiek. Ingebouwde YAML-clubs alleen-lezen.
 
 Request-body voor /plan en /scenarios::
 
@@ -62,7 +62,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -75,7 +75,21 @@ from baanschemaatje.validation import validate_plan
 from baanschemaatje.webexport import profile_summary
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from auth import authorize_write  # noqa: E402
+from auth import (  # noqa: E402
+    authorize_platform_admin,
+    authorize_write,
+    auth_configured,
+    auth_status,
+    clear_session_cookie,
+    club_writers,
+    consume_oauth_state,
+    current_user,
+    exchange_code_for_user,
+    is_platform_admin,
+    set_oauth_state_cookie,
+    set_session_cookie,
+    start_oauth_url,
+)
 from store import make_store  # noqa: E402
 
 ROOT = Path(os.environ.get("BS_ROOT", Path(__file__).resolve().parents[2]))
@@ -110,6 +124,7 @@ app.add_middleware(
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
+    allow_credentials=True,  # sessiecookie na Google-login (zelfde origin op Cloud Run)
     max_age=3600,
 )
 
@@ -202,7 +217,7 @@ def _writable(club_id: str, request: Request | None) -> dict[str, Any]:
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403,
                             f"club '{club_id}' is niet bewerkbaar (alleen-lezen voorbeeldprofiel)")
-    authorize_write(club_id, request)
+    authorize_write(club_id, request, meta=meta)
     return meta
 
 
@@ -214,7 +229,19 @@ def _put_meta(club_id: str, meta: dict[str, Any]) -> None:
 def _public_meta(meta: dict[str, Any] | None) -> dict[str, Any] | None:
     if meta is None:
         return None
-    return dict(meta)
+    out = {
+        "id": meta.get("id"),
+        "name": meta.get("name"),
+        "created_at": meta.get("created_at"),
+        "updated_at": meta.get("updated_at"),
+        "season": meta.get("season"),
+        "demo": bool(meta.get("demo")),
+        "auth_required": bool(meta.get("auth_required")),
+        "writers": sorted(club_writers(meta)),
+        # Geen wachtwoordhashes e.d. — later I4: alleen flags, nooit secrets.
+        "password_login": False,
+    }
+    return out
 
 
 def _deep_merge(base: Any, over: Any) -> Any:
@@ -1053,11 +1080,12 @@ def health() -> dict[str, Any]:
         "store": STORE.describe().split(":")[0],
         "regelhulp": True,
         "max_time_limit_s": MAX_TIME_LIMIT,
+        "auth_configured": auth_configured(),
     }
 
 
 @app.get("/clubs")
-def clubs() -> dict[str, Any]:
+def clubs(request: Request) -> dict[str, Any]:
     out = []
     for cid in _all_ids():
         meta = _meta(cid)
@@ -1070,8 +1098,9 @@ def clubs() -> dict[str, Any]:
         s["builtin"] = cid in _builtin_files()
         s["has_season"] = bool(meta and meta.get("season"))
         s["demo"] = bool(meta and meta.get("demo"))
+        s["auth_required"] = bool(meta and meta.get("auth_required"))
         out.append(s)
-    return {"season_file": SEASON_FILE.name, "clubs": out}
+    return {"season_file": SEASON_FILE.name, "clubs": out, "auth": auth_status(request)}
 
 
 class CreateClub(BaseModel):
@@ -1081,6 +1110,8 @@ class CreateClub(BaseModel):
 
 @app.post("/clubs", status_code=201)
 def create_club(body: CreateClub, request: Request) -> dict[str, Any]:
+    """Alleen platformbeheerder (I1). Anoniem nooit open — ook niet zonder OAuth."""
+    admin_email = authorize_platform_admin(request)
     prof = _profile(body.profile, "nieuw")
     cid = body.id or _slug(prof.name)
     if not _ID_RE.match(cid):
@@ -1089,22 +1120,31 @@ def create_club(body: CreateClub, request: Request) -> dict[str, Any]:
         raise HTTPException(409, f"club-id '{cid}' bestaat al")
     if len(STORE.list_clubs()) >= MAX_CLUBS:
         raise HTTPException(429, "maximum aantal clubs bereikt")
-    authorize_write(cid, request)
     now = _now()
     STORE.put(f"clubs/{cid}/profile.json", json.dumps(body.profile, ensure_ascii=False, indent=1).encode(), "application/json")
-    meta = {"id": cid, "name": prof.name, "created_at": now, "season": None}
+    # Platformbeheerder staat standaard in writers; auth_required default uit (geleidelijke uitrol).
+    meta = {
+        "id": cid,
+        "name": prof.name,
+        "created_at": now,
+        "season": None,
+        "writers": [admin_email] if admin_email != "test@localhost" else [],
+        "auth_required": False,
+        "created_by": admin_email,
+    }
     _put_meta(cid, meta)
     return {"id": cid}
 
 
 @app.get("/clubs/{club_id}")
-def get_club(club_id: str) -> dict[str, Any]:
+def get_club(club_id: str, request: Request) -> dict[str, Any]:
     raw = _club_raw(club_id)
     prof = _profile(raw, club_id)
     meta = _meta(club_id)
     return {"id": club_id, "profile": raw, "summary": profile_summary(prof, club_id),
             "stored": meta is not None, "builtin": club_id in _builtin_files(),
-            "editable": meta is not None, "meta": _public_meta(meta)}
+            "editable": meta is not None, "meta": _public_meta(meta),
+            "auth": auth_status(request, club_meta=meta if meta else {"id": club_id})}
 
 
 @app.put("/clubs/{club_id}/profile")
@@ -1115,6 +1155,57 @@ def put_profile(club_id: str, raw: dict[str, Any], request: Request) -> dict[str
     meta["name"] = prof.name
     _put_meta(club_id, meta)
     return {"ok": True, "summary": profile_summary(prof, club_id)}
+
+
+class ClubAccess(BaseModel):
+    """Schrijfrechten per club (I3). Geen gedeeld wachtwoord; later I4 evt. e-mail+wachtwoord per user."""
+    writers: list[str] | None = None
+    auth_required: bool | None = None
+
+
+@app.get("/clubs/{club_id}/access")
+def get_access(club_id: str, request: Request) -> dict[str, Any]:
+    meta = _meta(club_id)
+    if meta is None:
+        raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
+    return {
+        "id": club_id,
+        "writers": sorted(club_writers(meta)),
+        "auth_required": bool(meta.get("auth_required")),
+        "auth": auth_status(request, club_meta=meta),
+    }
+
+
+@app.put("/clubs/{club_id}/access")
+def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, Any]:
+    """Alleen platformbeheerder, of (als auth al aan staat) een bestaande writer."""
+    meta = _meta(club_id)
+    if meta is None:
+        raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
+    user = current_user(request)
+    email = user["email"] if user else None
+    if not auth_configured():
+        raise HTTPException(503, "Google-login is nog niet geconfigureerd")
+    if not email:
+        raise HTTPException(401, "Inloggen vereist")
+    allowed = is_platform_admin(email) or (
+        bool(meta.get("auth_required")) and email in club_writers(meta)
+    )
+    if not allowed:
+        raise HTTPException(403, "Geen recht om toegang van deze club te beheren")
+    if body.writers is not None:
+        cleaned = sorted({e.strip().lower() for e in body.writers if e and "@" in e.strip()})
+        if is_platform_admin(email) and email not in cleaned:
+            cleaned.append(email)  # beheerder kan zichzelf niet per ongeluk eruit gooien bij eerste setup
+            cleaned = sorted(set(cleaned))
+        meta["writers"] = cleaned
+    if body.auth_required is not None:
+        meta["auth_required"] = bool(body.auth_required)
+        if meta["auth_required"] and not club_writers(meta):
+            # Zorg dat er minstens één writer is als we auth aanzetten.
+            meta["writers"] = [email]
+    _put_meta(club_id, meta)
+    return {"ok": True, "writers": sorted(club_writers(meta)), "auth_required": bool(meta.get("auth_required"))}
 
 
 @app.post("/clubs/{club_id}/season")
@@ -1392,12 +1483,72 @@ def regelhulp(req: RegelVraag, request: Request) -> dict[str, Any]:
     return out
 
 
+
+# ---------------------------------------------------------------- auth (Google OAuth, I3)
+
+from fastapi.responses import RedirectResponse  # noqa: E402
+
+
+@app.get("/auth/status")
+def get_auth_status(request: Request, club: str | None = None) -> dict[str, Any]:
+    meta = _meta(club) if club and _ID_RE.match(club) else None
+    return auth_status(request, club_meta=meta)
+
+
+@app.get("/auth/login")
+def auth_login(request: Request, next: str = "/", club: str = "") -> RedirectResponse:
+    """Start Google OAuth. ``next`` = pad of volledige URL op dezelfde host."""
+    next_url = next or "/"
+    # Alleen relatieve paden of zelfde-origin URLs (open redirect voorkomen).
+    if next_url.startswith("http"):
+        base = public_base_from_request(request)
+        if not next_url.startswith(base):
+            next_url = "/"
+    elif not next_url.startswith("/"):
+        next_url = "/"
+    url, state_token = start_oauth_url(request, next_url=next_url, club_id=club or "")
+    resp = RedirectResponse(url, status_code=302)
+    set_oauth_state_cookie(resp, request, state_token)
+    return resp
+
+
+def public_base_from_request(request: Request) -> str:
+    from auth import public_base_url
+    return public_base_url(request)
+
+
+@app.get("/auth/callback")
+def auth_callback(request: Request, response: Response, code: str | None = None,
+                  state: str | None = None, error: str | None = None) -> RedirectResponse:
+    if error:
+        raise HTTPException(401, f"Google-login geannuleerd: {error}")
+    if not code or not state:
+        raise HTTPException(400, "OAuth-callback mist code of state")
+    ctx = consume_oauth_state(request, state)
+    user = exchange_code_for_user(request, code)
+    next_url = ctx.get("next") or "/"
+    resp = RedirectResponse(next_url, status_code=302)
+    set_session_cookie(resp, request, user["email"], user.get("name") or "")
+    resp.delete_cookie("bs_oauth", path="/")
+    return resp
+
+
+@app.post("/auth/logout")
+def auth_logout(response: Response) -> dict[str, Any]:
+    clear_session_cookie(response)
+    return {"ok": True}
+
+
+@app.get("/auth/me")
+def auth_me(request: Request) -> dict[str, Any]:
+    return auth_status(request)
+
+
 # ---------------------------------------------------------------- vaste clublink (F2)
 # De statische web-app (web/baanschemaatje) wordt door dezelfde Cloud Run-service geserveerd onder /app,
 # met korte vaste links zonder githack-tussenpagina: /club/<id>, /dag/<id>/<datum>, /bingo/<id>/<datum>,
 # /tv/<id>/<datum>. Zelfde origin als de API, dus de standaard-API-URL in common.js klopt. Geen extra kosten
 # (zelfde service, min-instances 0). Alleen lezen van bestanden; geen nieuwe schrijfroutes.
-from fastapi.responses import RedirectResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 WEB_DIR = Path(os.environ.get("BS_WEB", ROOT / "web" / "baanschemaatje"))
