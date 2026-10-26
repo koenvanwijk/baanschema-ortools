@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 26-10-2026.
+Laatst bijgewerkt: 26-10-2026 (D3 iedere dag / bingo).
 
 ## Werkprincipe
 
@@ -66,6 +66,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-17 | Ingetrokken modelgrens "jeugd 13-17 vanaf 11:00" (VENSTER-JEUGD, "ingetrokken") telt in Baanschemaatje niet meer als "Kan mooier" — ook in al opgeslagen schema's (18-10 Mierlo: 4 → 0). Gedeeld validatorscript (`scripts/validate_schedule.py`, CI main) ongewijzigd | Oscar |
 | 2026-10-17 | Bingo oefenen op democlub Demo TV (Oscar): vrijdag = bingo (sluiting 01:00, laatste start 23:30); fictieve thuiswedstrijden op vr 23-10 (7) en vr 30-10 (6) 2026, mix GD 17+/35+, DD 17+/35+, HD 35+, Heren 17+ (S+D). Bingo/commissaris/tv/dashboard zijn bij Demo TV gewoon beschrijfbaar (testdata mag daar); knop "Reset demo-avond/-dag" (`POST /clubs/{club}/demo-reset/{datum}`) wist bingo- en dashboardverloop van die datum, alleen bij democlubs (meta.demo; echte clubs 403) | Oscar |
 | 2026-10-26 | Uitwedstrijd → thuis gespeeld (D3): knop in dagweergave; away.tsv + host_away.json; zelfde plannerregels | Oscar |
+| 2026-10-26 | D3 geldt op **iedere** competitiedag (Oscar: "ja, dit zou in principe op iedere dag kunnen"): gepland én bingo (vrijdag e.d.), donderdagavond enz. Gemarkeerde uitwedstrijd verschijnt in bingo-wachtrij/TV/commissaris net als een thuiswedstrijd | Oscar |
 | 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
 
 ---
@@ -133,13 +134,14 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 **D3 — Uitwedstrijd wordt thuis gespeeld.** [Planner] [Beheer] Als TC wil ik een uitwedstrijd (die niet bij de tegenstander kan) markeren als *Wordt thuis gespeeld*, zodat die banen krijgt in ons baanschema (zelfde regels als een thuiswedstrijd).
 - AC:
   - Bij de KNLTB-import worden uitwedstrijden bewaard (`away.tsv`); ze verdwijnen niet meer stil.
-  - Per dag: sectie "Uitwedstrijden" met knop/menu **Wordt thuis gespeeld** (optionele toelichting).
-  - Gemarkeerde wedstrijd verschijnt bij de thuiswedstrijden met label "thuis (was uit)"; telt mee bij "Nu berekenen", verzetten, bingo/dashboard.
+  - Per dag (elke weekdag/dagdeel uit de export): sectie "Uitwedstrijden" met knop/menu **Wordt thuis gespeeld** (optionele toelichting) — ook op vrijdag-bingo, donderdagavond, zaterdag, enz.
+  - Gemarkeerde wedstrijd verschijnt bij de thuiswedstrijden met label "thuis (was uit)"; telt mee bij "Nu berekenen" op geplande dagen én in bingo (commissaris, TV, wachtrij/teamregels) en dashboard.
+  - Op een bingo-avond: zelfde teambezettingsregels en wachtrij-logica als andere thuiswedstrijden; badge "thuis (was uit)" bij het team.
   - Omkeerbaar via **Toch uit spelen**.
   - Geen nieuw venue-systeem; hergebruikt het patroon van opgave/verzetten (`host_away.json`).
   - Gespeelde uitwedstrijden niet markeerbaar.
-- Status: gereed (26-10-2026) · Bron: Oscar chat 26-10-2026 (zondag uitwedstrijd verplaatst naar Mierlo).
-- Besluitlog: kleinste knop i.p.v. volledig speellocatie-model; labels blijven MIERLO – TEGENSTANDER (onze club als "home" voor de planner).
+- Status: gereed (26-10-2026) · Bron: Oscar chat 26-10-2026 (zondag uitwedstrijd verplaatst naar Mierlo); 26-10-2026 "iedere dag, ook bingo".
+- Besluitlog: kleinste knop i.p.v. volledig speellocatie-model; labels blijven MIERLO – TEGENSTANDER (onze club als "home" voor de planner). Geldt op iedere competitiedag (Oscar 26-10-2026).
 
 ## E. Delen & weergave
 

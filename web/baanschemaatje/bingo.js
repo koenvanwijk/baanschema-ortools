@@ -117,7 +117,7 @@ function render() {
   $("bg-teams").innerHTML = BG.matches.map((m) => {
     const pr = bgProgress(ST, m);
     return `<label class="bg-team${ST.present[m.key] ? " on" : ""}"><input type="checkbox" data-key="${esc(m.key)}"${ST.present[m.key] ? " checked" : ""}>
-      <span class="bg-tbody"><b>${esc(m.label)} ${esc(m.home)}</b> – ${esc(m.away)}<br><span class="hint">${m.moved_from ? `verzet van ${esc(m.moved_from)} · ` : ""}${m.export_start ? `${esc(m.export_start)} · ` : ""}${m.parts.map((p) => esc(bgType(p))).join(" ")}</span>
+      <span class="bg-tbody"><b>${esc(m.label)} ${esc(m.home)}</b> – ${esc(m.away)}${m.hosted_away ? ' <span class="mv-tag" title="Was uitwedstrijd; speelt hier">thuis (was uit)</span>' : ""}<br><span class="hint">${m.moved_from ? `verzet van ${esc(m.moved_from)} · ` : ""}${m.export_start ? `${esc(m.export_start)} · ` : ""}${m.parts.map((p) => esc(bgType(p))).join(" ")}</span>
       ${progressBar(pr)}<span class="bg-pt">${pr.done}/${pr.total} klaar${pr.running ? ` · ${pr.running} bezig` : ""}${pr.left && pr.left < pr.total ? ` · nog ${pr.left}` : ""}</span></span></label>`;
   }).join("") || '<p class="hint">Geen (niet-gespeelde) wedstrijden op deze avond. Opgaven tellen niet mee.</p>';
 

@@ -630,6 +630,7 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
     moved_in = {(_norm(m.schema_), _norm(m.home)): m.from_ for m in moves if m.to == date}
     spath, _ = _apply_moves(spath, moves)
     season = _season(prof.knltb_name, spath)
+    hm = _host_away_map(_host_away_list(club_id))
     out = []
     for f in season.day(date):
         if f.played or _ckey(f.schema, f.home_team, f.away_team, f.date) in cm or f.is_block:
@@ -638,6 +639,7 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
         out.append({"key": key, "label": f.label, "schema": f.schema, "home": f.home_team, "away": f.away_team,
                     "category": f.category.value, "export_start": f.export_start,
                     "moved_from": moved_in.get((_norm(f.schema), _norm(f.home_team))),
+                    "hosted_away": _ckey(f.schema, f.home_team, f.away_team, f.date) in hm,
                     "duration": prof.duration_for(f.category, f.export_duration),
                     "rules": team_order_rules(f, prof.rules["waterfall_8p"].hard),
                     "parts": [_bingo_part(f, key, lab, kind) for lab, kind in build_parts(f)]})
@@ -650,7 +652,9 @@ def get_bingo(club_id: str, date: str) -> dict[str, Any]:
     _check_date(date)
     prof = _profile(_club_raw(club_id), club_id)
     data, gen = STORE.get_gen(_bingo_key(club_id, date))
-    fx = _season(prof.knltb_name, _season_path(club_id)).day(date)
+    # Inclusief gemarkeerde uitwedstrijden (D3): venster/mode klopt ook op een dag
+    # die alleen hosted-away heeft, en op bingo-avonden (vrijdag e.d.).
+    fx = _season(prof.knltb_name, _apply_host_away(_season_path(club_id), club_id, prof.knltb_name)).day(date)
     return {"club": club_id, "date": date, "name": prof.name, "gen": gen,
             "state": json.loads(data) if data else None,
             "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
@@ -697,7 +701,7 @@ def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
     _check_date(date)
     prof = _profile(_club_raw(club_id), club_id)
     data, gen = STORE.get_gen(_dayrun_key(club_id, date))
-    fx = _season(prof.knltb_name, _season_path(club_id)).day(date)
+    fx = _season(prof.knltb_name, _apply_host_away(_season_path(club_id), club_id, prof.knltb_name)).day(date)
     return {"club": club_id, "date": date, "name": prof.name, "gen": gen,
             "state": json.loads(data) if data else None,
             "mode": prof.day_mode(WEEKDAYS_NL[datetime.strptime(date, "%d-%m-%Y").weekday()]),
