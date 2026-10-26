@@ -1,6 +1,6 @@
 "use strict";
 // Baanschemaatje: gedeelde helpers voor clubpagina en club-instellingen.
-// Login: Google OAuth (I3); tv/dag blijven publiek (I5). Geen gedeeld clubwachtwoord.
+// Login: Google OAuth (I3); tv/dag via deellink ?s=TOKEN (I5). Geen gedeeld clubwachtwoord.
 
 const API_DEFAULT = "https://baanschemaatje-356953092000.europe-west1.run.app";
 const API = (new URLSearchParams(location.search).get("api") || API_DEFAULT).replace(/\/+$/, "");
@@ -126,4 +126,18 @@ function renderAuthBar() {
     const club = ($("club") && $("club").value) || "";
     el.innerHTML = `<a class="live-btn" id="auth-login" href="${esc(loginUrl(null, club))}">Inloggen met Google</a>`;
   }
+}
+
+/** Deellink-token uit ?s= of ?share= (tv/dag/bingolijst). */
+function shareToken() {
+  try {
+    const q = new URLSearchParams(location.search);
+    return (q.get("s") || q.get("share") || "").trim();
+  } catch (_) { return ""; }
+}
+/** Zet ?s=TOKEN achter een API-pad als er een deellink is. */
+function withShare(path) {
+  const s = shareToken();
+  if (!s) return path;
+  return path + (path.includes("?") ? "&" : "?") + "s=" + encodeURIComponent(s);
 }

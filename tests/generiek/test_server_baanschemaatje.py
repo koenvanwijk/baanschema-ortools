@@ -449,7 +449,8 @@ def test_vaste_clublink_serveert_web(client):
     assert r.status_code == 307 and r.headers["location"] == "/app/club.html#mierlo"
     assert client.get("/dag/mierlo/25-10-2026", follow_redirects=False).headers["location"] == "/app/dag.html#mierlo/25-10-2026"
     assert client.get("/tv/mierlo/16-10-2026", follow_redirects=False).headers["location"] == "/app/tv.html#mierlo/16-10-2026"
-    assert client.get("/", follow_redirects=False).headers["location"] == "/app/club.html"
+    r0 = client.get("/", follow_redirects=False)
+    assert r0.status_code == 200 and ("Baanschemaatje" in r0.text or r0.headers.get("location") == "/app/club.html")
     assert client.get("/club/Bad..Id", follow_redirects=False).status_code == 404
     assert client.get("/tv/mierlo/2026-10-16", follow_redirects=False).status_code == 422
     assert client.get("/xyz/mierlo/16-10-2026", follow_redirects=False).status_code == 404
@@ -633,9 +634,16 @@ def test_roles_legacy_writers_and_hierarchy(root, tmp_path_factory, monkeypatch)
     c.cookies.set("bs_session", session_cookie("niemand@club.nl"))
     assert c.put(f"/clubs/{cid}/bingo/{d}", json={"state": {"log": []}, "gen": 0}).status_code == 403
 
-    # Publieke GET tv/bingo blijft 200 zonder cookie
+    # Zonder cookie/token: bingo GET dicht; met deellink open
     c.cookies.clear()
-    assert c.get(f"/clubs/{cid}/bingo/{d}").status_code == 200
+    assert c.get(f"/clubs/{cid}/bingo/{d}").status_code == 401
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    tok = c.get(f"/clubs/{cid}/access").json()["share"]["token"]
+    assert tok
+    c.cookies.clear()
+    assert c.get(f"/clubs/{cid}/bingo/{d}", params={"s": tok}).status_code == 200
+    assert c.get(f"/clubs/{cid}/bingo/{d}", params={"s": "verkeerd"}).status_code == 401
+    assert c.put(f"/clubs/{cid}/bingo/{d}", json={"state": {"log": []}, "gen": 0}).status_code == 401
     assert c.get(f"/tv/{cid}/{d}", follow_redirects=False).status_code in (200, 302, 307)
 
 
@@ -643,3 +651,57 @@ def test_auth_status_includes_role_fields(client):
     j = client.get("/auth/status").json()
     assert "password_login" in j
     assert j.get("role_labels") is None or isinstance(j.get("role_labels"), dict)
+
+def test_writes_always_require_login_when_oauth_configured(root, tmp_path_factory, monkeypatch):
+    """Met OAuth: anonieme schrijfactie faalt ook zonder meta.auth_required."""
+    import importlib
+    import time
+    import json
+    import base64
+    import hashlib
+    import hmac
+
+    monkeypatch.setenv("BS_STORE", str(tmp_path_factory.mktemp("store-enforce")))
+    monkeypatch.setenv("BS_ALLOW_OPEN_CREATE", "0")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", "test-client")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_SECRET", "test-secret")
+    monkeypatch.setenv("BS_SESSION_SECRET", "test-session-secret-32chars!!")
+    monkeypatch.setenv("PLATFORM_ADMIN_EMAILS", "admin@example.com")
+    monkeypatch.delenv("BS_AUTH_ENFORCE", raising=False)
+
+    for name in list(sys.modules):
+        if name in ("auth", "bs_server_app_enforce") or name.endswith(".auth"):
+            sys.modules.pop(name, None)
+    sys.path.insert(0, str(root / "server" / "baanschemaatje"))
+    import auth as auth_mod
+    importlib.reload(auth_mod)
+    spec = importlib.util.spec_from_file_location("bs_server_app_enforce", root / "server" / "baanschemaatje" / "app.py")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["bs_server_app_enforce"] = mod
+    spec.loader.exec_module(mod)
+    c = TestClient(mod.app)
+
+    def session_cookie(email, name=""):
+        now = int(time.time())
+        payload = json.dumps({"email": email, "name": name, "iat": now, "exp": now + 3600}, separators=(",", ":")).encode()
+        secret = b"test-session-secret-32chars!!"
+        sig = hmac.new(secret, payload, hashlib.sha256).digest()
+        def b64(b):
+            return base64.urlsafe_b64encode(b).rstrip(b"=").decode()
+        return f"{b64(payload)}.{b64(sig)}"
+
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    prof = {"club": {"name": "TV Enforce"}, "courts": {"count": 4},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    r = c.post("/clubs", json={"id": "tv-enforce", "profile": prof})
+    assert r.status_code == 201, r.text
+    cid = r.json()["id"]
+    c.cookies.clear()
+    assert c.put(f"/clubs/{cid}/profile", json=prof).status_code == 401
+    assert c.get(f"/clubs/{cid}/bingo/23-10-2026").status_code == 401
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    r = c.post(f"/clubs/{cid}/share-token")
+    assert r.status_code == 200, r.text
+    tok = r.json()["share"]["token"]
+    c.cookies.clear()
+    assert c.get(f"/clubs/{cid}/bingo/23-10-2026", params={"s": tok}).status_code == 200

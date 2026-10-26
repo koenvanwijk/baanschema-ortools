@@ -74,6 +74,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-26 | D3 geldt op **iedere** competitiedag (Oscar: "ja, dit zou in principe op iedere dag kunnen"): gepland én bingo (vrijdag e.d.), donderdagavond enz. Gemarkeerde uitwedstrijd verschijnt in bingo-wachtrij/TV/commissaris net als een thuiswedstrijd | Oscar |
 | 2026-10-26 | Product-frontpage op `/` (alsof baanschemaatje.nl): marketing/CTA **Inloggen met Google**, daarna alleen clubs waar de user rol heeft (platformbeheerder: alle + nieuwe club). Geen publieke clubdirectory op de homepage; geen wachtwoorden op de pagina. Custom domain baanschemaatje.nl kan later naar dezelfde Cloud Run-service wijzen (DNS nog niet live). Clubpagina blijft via `/club/<id>` (en deellink-werk elders). | Oscar |
 | 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
+| 2026-10-26 | Toegang aangescherpt (Oscar: "iemand zonder login kan nog steeds alles zien en wijzigen"): (1) **schrijven altijd** achter Google-login + rol zodra OAuth aan staat — open-schrijven via `auth_required=false` vervalt; (2) tv/dag/bingolijst **niet meer publiek** op alleen club-id — wel via **geheime deellink** `?s=TOKEN` (Instellingen → Toegang: kopiëren/vernieuwen) of ingelogde rol. Regenereren maakt oude links ongeldig. Vervangt eerdere I5-besluit "tv/dag publiek". | Oscar |
 
 ---
 
@@ -312,8 +313,9 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 - AC: alle schrijfroutes via `authorize_write`; 401/403 zonder geldige club-sessie; lezen van publieke schermen volgens I5; democlubs: beleid open vraag (vrij houden of ook locken); Mierlo niet breken tijdens uitrol (feature-flag of per-club `auth_required`).
 - AC login-vorm: **Google OAuth** begrensd tot goedgekeurde e-mails per club; **geen gedeeld clubwachtwoord**.
 - AC als later e-mail+wachtwoord per user (optioneel, zie I4): wachtwoord alleen als salted **Argon2id** (of bcrypt) hash; **nooit** plaintext of reversibel in GCS, logs, chat of UI-responses; HTTPS; rate-limit op mislukte loginpogingen; geen wachtwoord (noch hash) in access-/error-logs.
-- Status: **OAuth live / feature-flag** — Google OAuth + sessiecookie + `writers`/`auth_required` + `/clubs/{id}/access` live op Cloud Run (`auth_configured: true`). Per club `auth_required` (default uit) zodat Mierlo open blijft tot Oscar hem aanzet. Commissaris-schrijven vereist dan login (vervangt interim "iedereen met de link"). · Datum: 2026-10-26 · Bron: Oscar ("begin").
-- Besluitlog: interim open schrijven blijft tot `auth_required` (of `BS_AUTH_ENFORCE`) voor die club. **Besluit 26-10-2026:** Google OAuth; geen clubwachtwoord. Env: `GOOGLE_OAUTH_CLIENT_ID/SECRET`, `BS_SESSION_SECRET`, `PLATFORM_ADMIN_EMAILS`, `BS_PUBLIC_BASE_URL`. **26-10-2026 (later):** OAuth-client in Console aangemaakt en op Cloud Run gezet (secret niet in docs/git); knop "Inloggen met Google" in de auth-balk op club-/instellingenpagina's; login-URL `/auth/login`.
+- AC: met OAuth geconfigureerd is schrijven **altijd** dicht voor anoniem (geen `auth_required`-loophole meer).
+- Status: **gereed (aangescherpt)** — schrijven altijd achter Google+rol; vinkje "Schrijven alleen na login" verwijderd. · Datum: 2026-10-26 · Bron: Oscar ("iemand zonder login…").
+- Besluitlog: **Besluit 26-10-2026:** Google OAuth; geen clubwachtwoord. **26-10-2026 (later):** OAuth live. **26-10-2026 (aanscherping):** open-schrijven via `auth_required=false` ingetrokken.
 
 **I4 — [Beheer] Rollen & access management.** Als clubbeheerder wil ik rollen toekennen (clubbeheerder, baancommissaris) en toegang intrekken, zodat niet iedereen hetzelfde mag.
 - AC: Google-e-mail → rol per club in `meta.roles` (legacy `writers` = club_admin). Rollen:
@@ -322,15 +324,17 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
   - **commissaris** (Baancommissaris): speeldag-schrijven — bingo (aanwezig/start/klaar/reset demo), dashboard dayrun, herplan-voorstel; **niet** instellingen/import/rollen/upload/berekenen.
   - **viewer**: zonder login of zonder rol — alleen `/tv`, `/dag`, bingolijst, schema lezen.
 - AC: Instellingen → Toegang: e-mail + rol-dropdown (Clubbeheerder | Baancommissaris); platformbeheerder altijd impliciet.
-- AC: API 403 met duidelijke NL-tekst bij onvoldoende rol; zonder `auth_required` blijven schrijfacties open (Mierlo/demo-uitrol); met `auth_required` is rol verplicht.
+- AC: API 403 met duidelijke NL-tekst bij onvoldoende rol; met OAuth is rol altijd verplicht voor schrijven.
 - AC later optioneel: e-mailadres + wachtwoord **per gebruiker** (individuele accounts naast of i.p.v. alleen Google); wachtwoordopslag volgens I3-veiligheids-AC (Argon2id/bcrypt hash-only, rate-limit, geen plaintext in GCS/logs).
 - Status: **gereed (MVP)** · Datum: 2026-10-26 · Bron: Oscar ("ik wil verschillende rollen").
 - Besluitlog: **Besluit 26-10-2026:** geen gedeeld clubwachtwoord; per-user e-mail+wachtwoord later optioneel. **26-10-2026 (rollen):** TC samengevoegd met clubbeheerder (geen aparte TC-rol in UI); alleen-lezen = publieke links zonder login; commissaris mag **niet** "Nu berekenen" (alleen clubbeheerder); commissaris mag wel speeldag-herplan-voorstel.
 
-**I5 — [Beheer] [UX] Publieke deel-links naast login.** Als TC wil ik tv-scherm, dagpagina en bingolijst (alleen-lezen) kunnen delen zonder dat die personen inloggen, zodat bar/captains meekijken terwijl schrijven wél beveiligd is.
-- AC: alleen-lezen routes blijven bereikbaar via bestaande `/tv`, `/dag`, `/bingolijst` (of via apart deel-token als we URLs willen roteren); schrijven vereist I3; commissaris-schrijflink is níet publiek hetzelfde als tv.
-- Status: **besloten: houden** (publiek zonder login) · Datum: 2026-10-26 · Bron: Oscar 26-10-2026 (tv- en daglinks blijven publiek).
-- Besluitlog: **Besluit 26-10-2026:** tv- en daglinks (en bingolijst alleen-kijken) blijven publiek; geen login voor meekijken.
+**I5 — [Beheer] [UX] Geheime deellinks (niet publiek).** Als TC wil ik tv-scherm, dagpagina en bingolijst (alleen-lezen) kunnen delen met bar/captains **zonder** dat die URLs te raden zijn op alleen de clubnaam, terwijl schrijven achter login blijft.
+- AC: kijken via `?s=TOKEN` (of header `X-BS-Share`) óf ingelogde rol ≥ commissaris; zonder token/login → 401/403 op schema/bingo/dayrun GET.
+- AC: clubbeheerder kopieert/vernieuwt links onder Instellingen → Toegang; `POST /clubs/{id}/share-token` regenereert (oude links ongeldig).
+- AC: kale `/tv/<club>/<datum>` zonder `?s=` levert geen data; commissaris-schrijven blijft login+rol.
+- Status: **gereed** · Datum: 2026-10-26 · Bron: Oscar ("deelbare link, maar niet zo publiek toegankelijk").
+- Besluitlog: **Besluit 26-10-2026 (ochtend):** tv/dag publiek. **Ingetrokken 26-10-2026 (avond):** geheime deellink-model.
 
 ### Open / besloten vragen (Oscar)
 
@@ -338,7 +342,7 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 |---|---|---|---|
 | Q1 | Wie mag nieuwe clubs toevoegen: alleen Oscar/beheerder, of elke club zelf (self-service)? | I1 fase 1 | **Besloten 26-10-2026:** alleen Oscar/platformbeheerder (env-allowlist). |
 | Q2 | Login-vorm: gedeeld clubwachtwoord, Google, of per-persoon accounts? | I3 / I4 | **Besloten 26-10-2026:** fase 2 = Google OAuth per club (geen gedeeld clubwachtwoord). Later optioneel: e-mail + wachtwoord **per gebruiker**. |
-| Q3 | Blijven tv / dagpagina / bingolijst publiek deelbaar zonder login? | I5 | **Besloten 26-10-2026:** ja, publiek houden. |
+| Q3 | Blijven tv / dagpagina / bingolijst publiek deelbaar zonder login? | I5 | **Herzien 26-10-2026:** nee publiek; wel geheime deellink (`?s=TOKEN`) of login. |
 | Q4 | Democlubs (Demo TV, TV Voorbeeld): open laten zonder login, of ook beveiligen? TV Voorbeeld uit clubkeuze verbergen? | I3, A4 | **Open** |
 | Q5 | Mag commissaris-tikken (bingo/dashboard) op een kortere code/PIN i.p.v. volledige club-login? | I3/I4 | **Open** |
 
@@ -370,11 +374,11 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): SD1–SD9 (SD7 vervallen), vragen V1–V7 beantwoord behalve V4 (omwisselen tussen teams) | H | klaar (16-10-2026); V4 open |
 | 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
-| 19 | [Beheer] | Login per club (ROADMAP #27) — Google OAuth live op Cloud Run; aanzetten per club via `auth_required` | I3 / A4 | OAuth live / flag |
+| 19 | [Beheer] | Login per club (ROADMAP #27) — schrijven altijd achter Google+rol | I3 / A4 | gereed (aangescherpt 26-10) |
 | 20 | [Bingo] | Naar een bingo-avond verzette wedstrijden verschijnen bij de commissaris | G2 | klaar (14-10-2026) |
 | 21 | [Bingo] | Democlub Demo TV: bingo-vrijdagen 23-10/30-10 om te oefenen + "Reset demo-avond" | G | klaar (17-10-2026) |
 | 22 | [Beheer] | Nieuwe club zonder deploy afronden (wizard + Oscar-only gate) | I1 | grotendeels klaar (code); live aanmaken wacht op Google OAuth |
 | 23 | [Beheer] [UX] Clubprofiel-wizard bij aanmaken (speeldagen/bingo/sluiting) | I2 | klaar (wizard uitgebreid 26-10-2026) |
 | 24 | [Beheer] | Rollen & access management (clubbeheerder / baancommissaris); later optioneel e-mail+wachtwoord per user | I4 | gereed (MVP 26-10-2026) |
-| 25 | [Beheer] [UX] Publieke deel-links tv/dag naast login | I5 | besloten: houden (publiek); GET ongewijzigd |
+| 25 | [Beheer] [UX] Geheime deellinks tv/dag/bingolijst (`?s=TOKEN`) | I5 | gereed (26-10-2026) |
 | 26 | [UX] [Beheer] | Product-frontpage op `/` (login → mijn clubs; alsof baanschemaatje.nl) | A5 | klaar (26-10-2026) |

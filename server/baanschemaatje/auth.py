@@ -1,15 +1,13 @@
-"""Schrijfrechten per club + Google OAuth (I1/I3/I5).
+"""Schrijfrechten per club + Google OAuth + deellinks (I1/I3/I5).
 
-Besluit Oscar 26-10-2026:
+Besluit Oscar 26-10-2026 (bijgewerkt zelfde dag):
 - Alleen platformbeheerder (PLATFORM_ADMIN_EMAILS) mag clubs aanmaken.
-- Schrijven: Google-login + e-mail in club.writers (of platformbeheerder),
-  pas als auth geconfigureerd is én de club ``auth_required`` heeft
-  (of globale BS_AUTH_ENFORCE=1). Tot die tijd blijft schrijven open
-  (interim), behalve club-aanmaken: dat is nooit anoniem open.
-- Geen gedeeld clubwachtwoord. Rollen per club (I4): club_admin / commissaris;
-  platform_admin via PLATFORM_ADMIN_EMAILS. Later optioneel e-mail+wachtwoord
-  per user — hier alleen een haak; niet gebouwd.
-- TV / dag / bingolijst (GET) blijven publiek (I5).
+- Schrijven: altijd Google-login + rol zodra OAuth geconfigureerd is.
+  Geen open-schrijven-loophole meer via ``auth_required=false``.
+- Kijken (tv/dag/bingolijst + GET-API's): geheime deellink ``?s=TOKEN``
+  of ingelogde rol — niet meer publiek op alleen club-id.
+- Geen gedeeld clubwachtwoord. Rollen: club_admin / commissaris / platform_admin.
+  Later optioneel e-mail+wachtwoord per user — alleen een haak; niet gebouwd.
 
 Env (Cloud Run / lokaal):
   PLATFORM_ADMIN_EMAILS   komma-lijst, bv. oscarreynhout@gmail.com
@@ -17,7 +15,7 @@ Env (Cloud Run / lokaal):
   GOOGLE_OAUTH_CLIENT_SECRET
   BS_SESSION_SECRET       willekeurige string (≥16 tekens) voor cookie-HMAC
   BS_PUBLIC_BASE_URL      https://…run.app (redirect URI-basis); leeg = request.base_url
-  BS_AUTH_ENFORCE         1 = alle clubs schrijven achter login (ook zonder meta.auth_required)
+  BS_AUTH_ENFORCE         legacy (schrijven is sowieso dicht bij OAuth)
   BS_ALLOW_OPEN_CREATE    1 = alleen voor tests: POST /clubs zonder login
 
 Cookies (HTTP-only, Secure in productie, SameSite=Lax):
@@ -341,7 +339,8 @@ def club_writers(meta: dict[str, Any] | None) -> set[str]:
 
 
 def club_auth_required(meta: dict[str, Any] | None) -> bool:
-    if auth_enforce_global():
+    """Legacy: schrijven is altijd dicht bij OAuth. True zodra OAuth aan staat."""
+    if auth_configured() or auth_enforce_global():
         return True
     if not meta:
         return False
@@ -368,6 +367,26 @@ def can_write_club(email: str | None, club_id: str, meta: dict[str, Any] | None)
 
 def can_manage_access(email: str | None, meta: dict[str, Any] | None) -> bool:
     return role_at_least(resolve_role(email, meta), ROLE_CLUB_ADMIN)
+
+
+def new_share_token() -> str:
+    """Onvoorspelbare deellink-token (url-safe)."""
+    return secrets.token_urlsafe(24)
+
+
+def share_token_of(meta: dict[str, Any] | None) -> str | None:
+    if not meta:
+        return None
+    tok = (meta.get("share_token") or "").strip()
+    return tok or None
+
+
+def share_token_ok(meta: dict[str, Any] | None, candidate: str | None) -> bool:
+    """Constant-time vergelijking van deellink-token."""
+    expect = share_token_of(meta)
+    if not expect or not candidate:
+        return False
+    return secrets.compare_digest(expect, candidate.strip())
 
 
 def authorize_platform_admin(request: Request | None) -> str:
@@ -411,18 +430,12 @@ def authorize_write(
 ) -> None:
     """Gooi 401/403 als de aanvrager deze actie niet mag.
 
-    Zonder geconfigureerde Google OAuth: open (interim), behalve create elders.
-    Met OAuth + auth_required (of BS_AUTH_ENFORCE): sessie + rol ≥ min_role.
-    Democlubs zonder auth_required blijven open (Q4).
-    min_role: commissaris (speeldag) of club_admin (beheer/import/toegang/schema).
+    Zonder geconfigureerde Google OAuth: open (alleen lokale tests zonder OAuth).
+    Met OAuth: altijd sessie + rol ≥ min_role (geen open-schrijven meer).
     """
     if min_role not in ROLE_RANK:
         min_role = ROLE_COMMISSARIS
     if not auth_configured():
-        return None
-    if meta is not None and not club_auth_required(meta):
-        return None
-    if meta is None and not auth_enforce_global():
         return None
     user = current_user(request)
     if not user:
@@ -433,18 +446,47 @@ def authorize_write(
     return None
 
 
+def authorize_view(
+    club_id: str,
+    request: Request | None = None,
+    *,
+    meta: dict[str, Any] | None = None,
+    share_token: str | None = None,
+) -> None:
+    """Gooi 401/403 als kijken niet mag (tv/dag/bingo GET).
+
+    Zonder OAuth: open (tests). Met OAuth: deellink-token óf ingelogde rol
+    (commissaris/club_admin/platform). Alleen club-id weten is niet genoeg.
+    """
+    if not auth_configured():
+        return None
+    if share_token_ok(meta, share_token):
+        return None
+    user = current_user(request)
+    if user and role_at_least(resolve_role(user["email"], meta), ROLE_COMMISSARIS):
+        return None
+    if user:
+        raise HTTPException(
+            403,
+            f"Geen kijkrecht voor club '{club_id}'. Gebruik de deellink of vraag om een rol.",
+        )
+    raise HTTPException(
+        401,
+        "Deellink of inloggen vereist om dit schema te zien",
+    )
+
+
 def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = None) -> dict[str, Any]:
     user = current_user(request)
     email = user["email"] if user else None
     role = resolve_role(email, club_meta) if club_meta is not None else (
         ROLE_PLATFORM_ADMIN if is_platform_admin(email) else (ROLE_VIEWER if email else None)
     )
-    open_writes = (not auth_configured()) or (
-        club_meta is not None and not club_auth_required(club_meta)
-    )
+    open_writes = not auth_configured()
+    has_share = bool(share_token_of(club_meta)) if club_meta is not None else None
     return {
         "configured": auth_configured(),
-        "enforce": auth_enforce_global(),
+        "enforce": True if auth_configured() else auth_enforce_global(),
         "user": user,
         "is_platform_admin": is_platform_admin(email),
         "role": role,
@@ -462,7 +504,10 @@ def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = N
                 else "Alleen de platformbeheerder mag clubs aanmaken"
             )
         ),
-        "club_auth_required": club_auth_required(club_meta) if club_meta is not None else None,
+        "club_auth_required": True if (club_meta is not None and auth_configured()) else (
+            club_auth_required(club_meta) if club_meta is not None else None
+        ),
+        "has_share_token": has_share,
         "can_write_club": (
             open_writes or role_at_least(role or ROLE_VIEWER, ROLE_COMMISSARIS)
         )
@@ -480,6 +525,5 @@ def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = N
         else None,
         "roles": club_roles(club_meta) if club_meta is not None else None,
         "role_labels": dict(ROLE_LABELS_NL),
-        # Haak voor later: e-mail + wachtwoord per user — niet gebouwd.
         "password_login": False,
     }

@@ -14,7 +14,7 @@ function dsParse() {
 }
 function say(msg, cls = "") { const el = $("ds-status"); el.textContent = msg; el.className = `bg-status ${cls}`; }
 async function dsFetch(path, opts) {
-  const r = await fetch(`${API}${path}`, { credentials: "include", ...opts });
+  const r = await fetch(`${API}${withShare(path)}`, { credentials: "include", ...opts });
   let b = null; try { b = await r.json(); } catch (_) { /* leeg */ }
   return { ok: r.ok, status: r.status, body: b };
 }

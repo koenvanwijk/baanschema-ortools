@@ -1,3 +1,13 @@
+let SHARE_LINKS = null;
+
+async function refreshShareLinks() {
+  SHARE_LINKS = null;
+  if (!CLUB || !CLUB.editable) return;
+  try {
+    const j = await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`);
+    if (j.share && j.share.token) SHARE_LINKS = j.share;
+  } catch (_) { /* geen recht */ }
+}
 "use strict";
 // Baanschemaatje clubpagina: seizoensoverzicht + dagweergave, plannen op verzoek, Regelmaatje.
 // Instellingen en KNLTB-import staan op club-instellingen.html (instellingen.js). Helpers: common.js.
@@ -18,6 +28,7 @@ async function loadClub() {
   if (!/^#regel/.test(location.hash) || CLUB) setHash(id, COMP);
   status("Club laden…", "busy");
   CLUB = await api(`/clubs/${encodeURIComponent(id)}`);
+  await refreshShareLinks();
   if (CLUB.auth) AUTH = CLUB.auth;
   renderAuthBar();
   PLANS.clear();
@@ -537,7 +548,14 @@ function showPlan(date, scroll = true, force = false) {
   bindFindings(plan, s);
   EDITOR.load(plan); // werkkopie: slepen + directe controle; Opslaan bewaart hem op de server
   $("dash-btn").href = `dashboard.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
-  $("share-btn").href = `dag.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
+  if (SHARE_LINKS && SHARE_LINKS.dag_template) {
+    $("share-btn").href = SHARE_LINKS.dag_template.replace("{datum}", date);
+  } else {
+    $("share-btn").href = `dag.html${location.search}#${encodeURIComponent(CLUB.id)}/${encodeURIComponent(date)}`;
+  }
+  $("share-btn").title = SHARE_LINKS && SHARE_LINKS.token
+    ? "Deellink (geheime token) — veilig voor WhatsApp/bar"
+    : "Open Instellingen → Toegang voor een geheime deellink";
   $("print-btn").onclick = () => printPlan(EDITOR.plan, { clubName: s.name, date, dayStart: s.day.fallback_start || s.day.start, dayEnd: s.day.end,
     note: [SHOWN_SRC === "handmatig aangepast" || EDITOR.edited ? "handmatig aangepast" : SHOWN_SRC ? "berekend" : "nog niet berekend",
       EDITOR.dirty ? "niet opgeslagen" : SHOWN_STATE.saved ? `opgeslagen ${hhmm(SHOWN_STATE.saved.saved_at)}` : ""].filter(Boolean).join(", ") });

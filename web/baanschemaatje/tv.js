@@ -13,17 +13,17 @@ let TVP = null;
 async function tvLoad() {
   const { club, date } = tvParse();
   try {
-    const d = await fetch(`${API}/clubs/${encodeURIComponent(club)}/dayrun/${encodeURIComponent(date)}`);
+    const d = await fetch(`${API}${withShare(`/clubs/${encodeURIComponent(club)}/dayrun/${encodeURIComponent(date)}`)}`, { credentials: "include" });
     if (d.ok) {
       const j = await d.json();
       if (j.mode !== "bingo") { TVP = j; TV = null; $("tv-msg").textContent = ""; tvRenderPlanned(); return; }
     }
     TVP = null;
-    const r = await fetch(`${API}/clubs/${encodeURIComponent(club)}/bingo/${encodeURIComponent(date)}`);
+    const r = await fetch(`${API}${withShare(`/clubs/${encodeURIComponent(club)}/bingo/${encodeURIComponent(date)}`)}`, { credentials: "include" });
     if (!r.ok) throw new Error(String(r.status));
     TV = await r.json();
     $("tv-msg").textContent = "";
-  } catch (e) { $("tv-msg").textContent = `Verbinding… (${e.message})`; }
+  } catch (e) { $("tv-msg").textContent = `Kan niet laden (${e.message}). Open de deellink of log in.`; }
   tvRender();
 }
 

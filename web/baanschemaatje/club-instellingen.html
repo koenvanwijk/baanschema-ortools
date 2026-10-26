@@ -116,14 +116,26 @@
 
   <section data-pane="toegang" hidden>
     <h3>Rollen &amp; Google-login</h3>
-    <p class="hint">Geen gedeeld clubwachtwoord. Per persoon een Google-e-mail met rol. <b>Clubbeheerder</b>: instellingen, import, plannen, toegang, verzetten. <b>Baancommissaris</b>: op de speeldag bingo/dashboard tikken (aanwezig, start, klaar). TV, dagpagina en bingolijst blijven open zonder login. Platformbeheerder (Oscar) mag altijd alles.</p>
+    <p class="hint">Geen gedeeld clubwachtwoord. Wijzigen kan alleen na Google-login met een rol. <b>Clubbeheerder</b>: instellingen, import, plannen, toegang, verzetten. <b>Baancommissaris</b>: op de speeldag bingo/dashboard tikken. Platformbeheerder (Oscar) mag altijd alles.</p>
     <div class="form">
-      <label class="inline"><input id="f-auth-required" type="checkbox"> Schrijven alleen na Google-login</label>
       <div class="roles-head"><b>Leden met een rol</b>
         <button type="button" id="role-add" class="btn2">+ Lid toevoegen</button>
       </div>
       <div id="roles-list" class="roles-list"></div>
       <div><button id="access-save" class="live-btn">Toegang opslaan</button> <span id="access-status" class="hint"></span></div>
+    </div>
+    <h3 style="margin-top:1.5rem">Deellinks (alleen kijken)</h3>
+    <p class="hint">TV, dagpagina en bingolijst zijn niet open op alleen de clubnaam. Deel deze geheime links. <b>Vernieuwen</b> maakt oude links ongeldig.</p>
+    <div class="form" id="share-box">
+      <label>TV-scherm <input id="share-tv" type="text" readonly></label>
+      <label>Dagpagina <input id="share-dag" type="text" readonly></label>
+      <label>Bingolijst <input id="share-bingo" type="text" readonly></label>
+      <p class="hint" id="share-hint"></p>
+      <div>
+        <button type="button" id="share-copy-tv" class="btn2">Kopieer TV-link</button>
+        <button type="button" id="share-regen" class="btn2">Vernieuw deellink</button>
+        <span id="share-status" class="hint"></span>
+      </div>
     </div>
   </section>
 

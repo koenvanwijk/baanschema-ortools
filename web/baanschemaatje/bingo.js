@@ -16,7 +16,7 @@ function bgParse() {
 function say(msg, cls = "") { const el = $("bg-status"); el.textContent = msg; el.className = `bg-status ${cls}`; }
 
 async function bgFetch(path, opts) {
-  const r = await fetch(`${API}${path}`, { credentials: "include", ...opts });
+  const r = await fetch(`${API}${withShare(path)}`, { credentials: "include", ...opts });
   let b = null; try { b = await r.json(); } catch (_) { /* leeg */ }
   return { ok: r.ok, status: r.status, body: b };
 }

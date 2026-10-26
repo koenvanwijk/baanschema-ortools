@@ -26,12 +26,13 @@ Endpoints
                                      optioneel "moves": [{schema, home, from, to}] = verzette wedstrijden (bv. naar een inhaaldag)
   POST /scenarios                    oplossingen voor een dag die niet past → zoals <datum>.solutions.json
 
-Beveiliging (I1/I3/I5, Oscar 26-10-2026): schrijfacties via
-``auth.authorize_write`` met rollen (I4). Google OAuth + clubrollen als de club
-``auth_required`` heeft (of ``BS_AUTH_ENFORCE=1``); anders interim open.
+Beveiliging (I1/I3/I5, Oscar 26-10-2026, herzien zelfde dag): schrijfacties via
+``auth.authorize_write`` met rollen (I4). Met Google OAuth: schrijven altijd
+achter login+rol (geen open-loophole meer). Kijken (tv/dag/bingolijst + GET
+schema/bingo/dayrun) via geheime deellink ``?s=TOKEN`` of ingelogde rol.
 Rollen: club_admin (beheer) / commissaris (speeldag); platform_admin via env.
 ``POST /clubs`` alleen voor platformbeheerder (nooit anoniem open).
-TV/dag/bingolijst GET blijven publiek. Ingebouwde YAML-clubs alleen-lezen.
+Ingebouwde YAML-clubs alleen-lezen.
 
 Request-body voor /plan en /scenarios::
 
@@ -86,6 +87,7 @@ from auth import (  # noqa: E402
     auth_configured,
     auth_status,
     authorize_platform_admin,
+    authorize_view,
     authorize_write,
     can_manage_access,
     clear_session_cookie,
@@ -95,9 +97,12 @@ from auth import (  # noqa: E402
     current_user,
     exchange_code_for_user,
     is_platform_admin,
+    new_share_token,
+    public_base_url,
     resolve_role,
     set_oauth_state_cookie,
     set_session_cookie,
+    share_token_of,
     start_oauth_url,
 )
 from store import make_store  # noqa: E402
@@ -231,6 +236,42 @@ def _writable(club_id: str, request: Request | None, *, min_role: str = ROLE_CLU
     return meta
 
 
+def _share_from_request(request: Request | None) -> str | None:
+    if request is None:
+        return None
+    q = request.query_params.get("s") or request.query_params.get("share")
+    if q:
+        return q
+    return request.headers.get("x-bs-share")
+
+
+def _viewable(club_id: str, request: Request | None) -> dict[str, Any] | None:
+    """Controleer kijkrecht (deellink of login+rol); geeft meta terug."""
+    meta = _meta(club_id)
+    authorize_view(club_id, request, meta=meta, share_token=_share_from_request(request))
+    return meta
+
+
+def _ensure_share_token(meta: dict[str, Any]) -> str:
+    tok = share_token_of(meta)
+    if tok:
+        return tok
+    tok = new_share_token()
+    meta["share_token"] = tok
+    return tok
+
+
+def _share_links(club_id: str, request: Request, token: str) -> dict[str, str]:
+    base = public_base_url(request)
+    return {
+        "token": token,
+        "tv_template": f"{base}/tv/{club_id}/{{datum}}?s={token}",
+        "dag_template": f"{base}/dag/{club_id}/{{datum}}?s={token}",
+        "bingolijst_template": f"{base}/bingolijst/{club_id}/{{datum}}?s={token}",
+        "hint": "Vervang {datum} door bv. 23-10-2026. Regenereren maakt oude links ongeldig.",
+    }
+
+
 def _put_meta(club_id: str, meta: dict[str, Any]) -> None:
     meta["updated_at"] = _now()
     STORE.put(f"clubs/{club_id}/meta.json", json.dumps(meta, ensure_ascii=False, indent=1).encode(), "application/json")
@@ -246,7 +287,8 @@ def _public_meta(meta: dict[str, Any] | None) -> dict[str, Any] | None:
         "updated_at": meta.get("updated_at"),
         "season": meta.get("season"),
         "demo": bool(meta.get("demo")),
-        "auth_required": bool(meta.get("auth_required")),
+        "auth_required": True if auth_configured() else bool(meta.get("auth_required")),
+        "has_share_token": bool(share_token_of(meta)),
         "writers": sorted(club_writers(meta)),
         "roles": club_roles(meta),
         # Geen wachtwoordhashes e.d. — later optioneel e-mail+wachtwoord: alleen flags, nooit secrets.
@@ -396,8 +438,9 @@ def _guard_past(club_id: str, date: str, request: Request) -> None:
 
 
 @app.get("/clubs/{club_id}/schedules")
-def list_schedules(club_id: str) -> dict[str, Any]:
+def list_schedules(club_id: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _viewable(club_id, request)
     out: dict[str, Any] = {}
     for key in STORE.list(f"clubs/{club_id}/schedules/"):
         if key.endswith(".json"):
@@ -408,8 +451,9 @@ def list_schedules(club_id: str) -> dict[str, Any]:
 
 
 @app.get("/clubs/{club_id}/schedule/{date}")
-def get_schedule(club_id: str, date: str) -> dict[str, Any]:
+def get_schedule(club_id: str, date: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _viewable(club_id, request)
     j = _get_json(_sched_key(club_id, _check_date(date)))
     if j is None:
         raise HTTPException(404, f"geen opgeslagen baanschema voor {date}")
@@ -685,8 +729,9 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
 
 
 @app.get("/clubs/{club_id}/bingo/{date}")
-def get_bingo(club_id: str, date: str) -> dict[str, Any]:
+def get_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _viewable(club_id, request)
     _check_date(date)
     prof = _profile(_club_raw(club_id), club_id)
     data, gen = STORE.get_gen(_bingo_key(club_id, date))
@@ -702,7 +747,7 @@ def get_bingo(club_id: str, date: str) -> dict[str, Any]:
 
 @app.put("/clubs/{club_id}/bingo/{date}")
 async def put_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
-    # Speeldag: baancommissaris (I4). Zonder auth_required blijft interim open.
+    # Speeldag: baancommissaris (I4). Schrijven altijd achter login bij OAuth.
     _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     body = await _json_body(request, MAX_BINGO_BYTES)
@@ -734,8 +779,9 @@ def _dayrun_key(club_id: str, date: str) -> str:
 
 
 @app.get("/clubs/{club_id}/dayrun/{date}")
-def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
+def get_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _viewable(club_id, request)
     _check_date(date)
     prof = _profile(_club_raw(club_id), club_id)
     data, gen = STORE.get_gen(_dayrun_key(club_id, date))
@@ -749,7 +795,7 @@ def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
 
 @app.put("/clubs/{club_id}/dayrun/{date}")
 async def put_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
-    # Speeldag: baancommissaris (I4). Zonder auth_required blijft interim open.
+    # Speeldag: baancommissaris (I4). Schrijven altijd achter login bij OAuth.
     _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     body = await _json_body(request, MAX_BINGO_BYTES)
@@ -1160,7 +1206,7 @@ def create_club(body: CreateClub, request: Request) -> dict[str, Any]:
         raise HTTPException(429, "maximum aantal clubs bereikt")
     now = _now()
     STORE.put(f"clubs/{cid}/profile.json", json.dumps(body.profile, ensure_ascii=False, indent=1).encode(), "application/json")
-    # Platformbeheerder staat standaard als club_admin; auth_required default uit (geleidelijke uitrol).
+    # Platformbeheerder = club_admin; deellink meteen; schrijven altijd achter login.
     roles = {admin_email: ROLE_CLUB_ADMIN} if admin_email != "test@localhost" else {}
     meta = {
         "id": cid,
@@ -1169,7 +1215,8 @@ def create_club(body: CreateClub, request: Request) -> dict[str, Any]:
         "season": None,
         "roles": roles,
         "writers": sorted(roles.keys()),
-        "auth_required": False,
+        "auth_required": True,
+        "share_token": new_share_token(),
         "created_by": admin_email,
     }
     _put_meta(cid, meta)
@@ -1207,6 +1254,7 @@ class ClubAccess(BaseModel):
     members: list[ClubAccessMember] | None = None
     # Backward compat: platte writers-lijst → club_admin
     writers: list[str] | None = None
+    # Legacy: genegeerd — schrijven is altijd achter login bij OAuth.
     auth_required: bool | None = None
 
 
@@ -1215,6 +1263,17 @@ def get_access(club_id: str, request: Request) -> dict[str, Any]:
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
+    user = current_user(request)
+    email = user["email"] if user else None
+    show_share = bool(email) and can_manage_access(email, meta)
+    if show_share:
+        had = share_token_of(meta)
+        tok = _ensure_share_token(meta)
+        if not had:
+            _put_meta(club_id, meta)
+        share = _share_links(club_id, request, tok)
+    else:
+        share = {"has_token": bool(share_token_of(meta))}
     roles = club_roles(meta)
     members = [{"email": e, "role": r, "label": ROLE_LABELS_NL.get(r, r)} for e, r in sorted(roles.items())]
     return {
@@ -1222,7 +1281,8 @@ def get_access(club_id: str, request: Request) -> dict[str, Any]:
         "members": members,
         "roles": roles,
         "writers": sorted(roles.keys()),
-        "auth_required": bool(meta.get("auth_required")),
+        "auth_required": True if auth_configured() else bool(meta.get("auth_required")),
+        "share": share,
         "assignable_roles": [
             {"id": r, "label": ROLE_LABELS_NL[r]} for r in ASSIGNABLE_ROLES
         ],
@@ -1271,10 +1331,11 @@ def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, An
         meta["roles"] = cleaned
         meta["writers"] = sorted(cleaned.keys())
     if body.auth_required is not None:
-        meta["auth_required"] = bool(body.auth_required)
+        meta["auth_required"] = True if auth_configured() else bool(body.auth_required)
         if meta["auth_required"] and not club_roles(meta):
             meta["roles"] = {email: ROLE_CLUB_ADMIN}
             meta["writers"] = [email]
+    _ensure_share_token(meta)
     _put_meta(club_id, meta)
     roles = club_roles(meta)
     members = [{"email": e, "role": r, "label": ROLE_LABELS_NL.get(r, r)} for e, r in sorted(roles.items())]
@@ -1283,8 +1344,28 @@ def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, An
         "members": members,
         "roles": roles,
         "writers": sorted(roles.keys()),
-        "auth_required": bool(meta.get("auth_required")),
+        "auth_required": True if auth_configured() else bool(meta.get("auth_required")),
+        "share": _share_links(club_id, request, share_token_of(meta)),
     }
+
+
+@app.post("/clubs/{club_id}/share-token")
+def regenerate_share_token(club_id: str, request: Request) -> dict[str, Any]:
+    """Nieuwe deellink; oude links meteen ongeldig. Alleen clubbeheerder."""
+    meta = _meta(club_id)
+    if meta is None:
+        raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
+    user = current_user(request)
+    email = user["email"] if user else None
+    if not auth_configured():
+        raise HTTPException(503, "Google-login is nog niet geconfigureerd")
+    if not email:
+        raise HTTPException(401, "Inloggen vereist")
+    if not can_manage_access(email, meta):
+        raise HTTPException(403, "Alleen clubbeheerder mag de deellink vernieuwen")
+    meta["share_token"] = new_share_token()
+    _put_meta(club_id, meta)
+    return {"ok": True, "share": _share_links(club_id, request, meta["share_token"])}
 
 
 @app.post("/clubs/{club_id}/season")
@@ -1601,7 +1682,6 @@ def auth_login(request: Request, next: str = "/", club: str = "") -> RedirectRes
 
 
 def public_base_from_request(request: Request) -> str:
-    from auth import public_base_url
     return public_base_url(request)
 
 
@@ -1642,9 +1722,10 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 WEB_DIR = Path(os.environ.get("BS_WEB", ROOT / "web" / "baanschemaatje"))
 
 
-def _go(page: str, *parts: str) -> RedirectResponse:
+def _go(page: str, *parts: str, share: str | None = None) -> RedirectResponse:
     frag = "/".join(parts)
-    return RedirectResponse(f"/app/{page}{'#' + frag if frag else ''}", status_code=307)
+    q = f"?s={share}" if share else ""
+    return RedirectResponse(f"/app/{page}{q}{'#' + frag if frag else ''}", status_code=307)
 
 
 def _link_id(club_id: str) -> str:
@@ -1673,11 +1754,11 @@ def web_dashboard_today(club_id: str) -> RedirectResponse:
 
 
 @app.get("/{page}/{club_id}/{date}", include_in_schema=False)
-def web_day(page: str, club_id: str, date: str) -> RedirectResponse:
+def web_day(page: str, club_id: str, date: str, request: Request) -> RedirectResponse:
     pages = {"dashboard": "dashboard.html", "dag": "dag.html", "bingo": "bingo.html", "tv": "tv.html", "bingolijst": "bingo-print.html"}
     if page not in pages:
         raise HTTPException(404, "niet gevonden")
-    return _go(pages[page], _link_id(club_id), _check_date(date))
+    return _go(pages[page], _link_id(club_id), _check_date(date), share=_share_from_request(request))
 
 
 if WEB_DIR.is_dir():

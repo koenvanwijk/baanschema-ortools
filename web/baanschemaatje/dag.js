@@ -33,8 +33,9 @@ async function dgLoad() {
   $("dg-title").textContent = `Baanschema ${date}`;
   $("dg-sub").textContent = name;
   document.title = `Baanschema ${date} · ${name}`;
-  const r = await fetch(`${API}/clubs/${encodeURIComponent(club)}/schedule/${encodeURIComponent(date)}`);
+  const r = await fetch(`${API}${withShare(`/clubs/${encodeURIComponent(club)}/schedule/${encodeURIComponent(date)}`)}`, { credentials: "include" });
   if (r.status === 404) { $("dg-body").innerHTML = '<p class="banner">Voor deze dag is nog geen definitief schema opgeslagen. Kijk later nog eens.</p>'; return; }
+  if (r.status === 401 || r.status === 403) { $("dg-body").innerHTML = '<p class="banner warn">Deze pagina is beveiligd. Open de deellink van de clubbeheerder, of log in.</p>'; return; }
   if (!r.ok) { $("dg-body").innerHTML = `<p class="banner warn">Kon het schema niet laden (${r.status}).</p>`; return; }
   const j = await r.json();
   const ch = (j.plan && j.plan.changed) || {};

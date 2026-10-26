@@ -288,15 +288,75 @@ async function saveAccess() {
   const st = $("access-status");
   if (!CLUB || !CLUB.editable) { st.textContent = "Deze club is niet bewerkbaar."; return; }
   const members = readRolesFromUi();
-  const auth_required = $("f-auth-required").checked;
   st.textContent = "Opslaan…";
   try {
-    await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`, jsonOpts("PUT", { members, auth_required }));
+    await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`, jsonOpts("PUT", { members }));
     await loadClub();
+    await fillShare();
     st.textContent = "Toegang opgeslagen.";
   } catch (e) {
     st.innerHTML = `<span style="color:#c53030">${esc(e.message)}</span>`;
     if (e.status === 401) st.innerHTML += ` — <a href="${esc(loginUrl(null, CLUB.id))}">Inloggen</a>`;
+  }
+}
+
+function sampleDate() {
+  const d = new Date();
+  const day = d.getDay();
+  const add = day <= 5 ? (5 - day) : 6;
+  d.setDate(d.getDate() + add);
+  return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
+}
+
+function fillShareFrom(share) {
+  if (!$("share-tv")) return;
+  if (!share || !share.token) {
+    $("share-tv").value = "";
+    $("share-dag").value = "";
+    $("share-bingo").value = "";
+    if ($("share-hint")) $("share-hint").textContent = "Log in als clubbeheerder om de deellinks te zien.";
+    return;
+  }
+  const datum = sampleDate();
+  $("share-tv").value = (share.tv_template || "").replace("{datum}", datum);
+  $("share-dag").value = (share.dag_template || "").replace("{datum}", datum);
+  $("share-bingo").value = (share.bingolijst_template || "").replace("{datum}", datum);
+  if ($("share-hint")) $("share-hint").textContent = share.hint || "Vervang de datum indien nodig. Vernieuwen maakt oude links ongeldig.";
+}
+
+async function fillShare() {
+  if (!CLUB || !CLUB.id) return;
+  try {
+    const j = await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`);
+    fillShareFrom(j.share);
+  } catch (e) {
+    fillShareFrom(null);
+    if ($("share-status")) $("share-status").textContent = e.status === 401 || e.status === 403 ? "Geen recht om deellinks te zien." : "";
+  }
+}
+
+async function regenShare() {
+  const st = $("share-status");
+  if (!CLUB) return;
+  if (!confirm("Nieuwe deellink maken? Alle oude TV-/dag-/bingolijst-links werken dan niet meer.")) return;
+  st.textContent = "Vernieuwen…";
+  try {
+    const j = await api(`/clubs/${encodeURIComponent(CLUB.id)}/share-token`, { method: "POST" });
+    fillShareFrom(j.share);
+    st.textContent = "Nieuwe deellink actief. Oude links zijn ongeldig.";
+  } catch (e) {
+    st.innerHTML = `<span style="color:#c53030">${esc(e.message)}</span>`;
+  }
+}
+
+async function copyShareTv() {
+  const v = $("share-tv") && $("share-tv").value;
+  if (!v) return;
+  try {
+    await navigator.clipboard.writeText(v);
+    $("share-status").textContent = "TV-link gekopieerd ✓";
+  } catch (_) {
+    prompt("Kopieer deze link:", v);
   }
 }
 
@@ -334,7 +394,6 @@ function addRoleRow(email, role) {
 function fillAccess() {
   const meta = (CLUB && CLUB.meta) || {};
   const a = (CLUB && CLUB.auth) || AUTH || {};
-  if ($("f-auth-required")) $("f-auth-required").checked = !!meta.auth_required;
   const list = $("roles-list");
   if (list) {
     list.innerHTML = "";
@@ -350,13 +409,15 @@ function fillAccess() {
   const can = !!(a.is_platform_admin || a.can_manage_access
     || (a.user && (a.role === "club_admin" || a.role === "platform_admin")));
   const disabled = !CLUB.editable || !a.configured || !can;
-  if ($("f-auth-required")) $("f-auth-required").disabled = disabled;
   if ($("access-save")) $("access-save").disabled = disabled;
   if ($("role-add")) $("role-add").disabled = disabled;
+  if ($("share-regen")) $("share-regen").disabled = disabled;
+  if ($("share-copy-tv")) $("share-copy-tv").disabled = disabled;
   if (list) for (const el of list.querySelectorAll("input, select, button")) el.disabled = disabled;
   if ($("access-status") && !a.configured) $("access-status").textContent = "Google-login nog niet geconfigureerd — toegang opslaan kan pas daarna.";
   else if ($("access-status") && disabled && a.configured) $("access-status").textContent = can ? "" : "Alleen platformbeheerder of clubbeheerder mag rollen beheren.";
   else if ($("access-status") && !disabled) $("access-status").textContent = "";
+  fillShare();
 }
 
 // ---------------------------------------------------------------- seizoen
@@ -423,6 +484,8 @@ async function init() {
   $("new-create").onclick = createClub;
   if ($("access-save")) $("access-save").onclick = saveAccess;
   if ($("role-add")) $("role-add").onclick = () => addRoleRow("", "commissaris");
+  if ($("share-regen")) $("share-regen").onclick = regenShare;
+  if ($("share-copy-tv")) $("share-copy-tv").onclick = copyShareTv;
   for (const b of $("tabs").querySelectorAll("button")) b.onclick = () => showTab(b.dataset.tab);
   document.querySelector("main").addEventListener("input", (e) => { if (e.target.closest("[data-pane]") && e.target.id !== "file") setDirty(true); });
   window.addEventListener("beforeunload", (e) => { if (DIRTY) { e.preventDefault(); e.returnValue = ""; } });

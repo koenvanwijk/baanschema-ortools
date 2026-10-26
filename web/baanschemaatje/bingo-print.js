@@ -46,7 +46,7 @@ async function bpLoad() {
   const [club, date, kind] = decodeURIComponent(location.hash.slice(1)).split("/");
   document.querySelector(`input[value="${kind === "verslag" ? "verslag" : "lijst"}"]`).checked = true;
   $("bp-back").href = `bingo.html${location.search}#${encodeURIComponent(club)}/${encodeURIComponent(date)}`;
-  const r = await fetch(`${API}/clubs/${encodeURIComponent(club)}/bingo/${encodeURIComponent(date)}`);
+  const r = await fetch(`${API}${withShare(`/clubs/${encodeURIComponent(club)}/bingo/${encodeURIComponent(date)}`)}`, { credentials: "include" });
   if (!r.ok) { $("bp-body").textContent = `Kon de avond niet laden (${r.status}).`; return; }
   BP = await r.json();
   bpRender();
