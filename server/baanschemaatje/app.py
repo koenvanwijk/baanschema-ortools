@@ -6,6 +6,7 @@ backend) en van de live Pages-site: deze service leest alleen clubprofielen
 en de seizoensexport en schrijft niets terug.
 
 Endpoints
+  GET  /                             product-frontpage (home.html); clublijst na Google-login
   GET  /health                       status + versie
   GET  /clubs                        clubs (ingebouwd + opgeslagen) met samenvatting
   POST /clubs                        nieuwe club (profiel in store; login volgt I3)
@@ -81,6 +82,7 @@ from auth import (  # noqa: E402
     ROLE_CLUB_ADMIN,
     ROLE_COMMISSARIS,
     ROLE_LABELS_NL,
+    ROLE_VIEWER,
     auth_configured,
     auth_status,
     authorize_platform_admin,
@@ -1096,7 +1098,14 @@ def health() -> dict[str, Any]:
 
 
 @app.get("/clubs")
-def clubs(request: Request) -> dict[str, Any]:
+def clubs(request: Request, mine: bool = Query(False, description="alleen clubs waar de ingelogde user rol heeft (frontpage)")) -> dict[str, Any]:
+    """Clublijst. Zonder ``mine``: alle clubs (clubkiezer / diepe links).
+    Met ``mine=1``: alleen clubs van de sessie-user (platformbeheerder = alles);
+    anoniem → lege lijst. Frontpage gebruikt mine=1 zodat de productpagina
+    geen clubdirectory publiek toont.
+    """
+    user = current_user(request)
+    email = user["email"] if user else None
     out = []
     for cid in _all_ids():
         meta = _meta(cid)
@@ -1110,8 +1119,26 @@ def clubs(request: Request) -> dict[str, Any]:
         s["has_season"] = bool(meta and meta.get("season"))
         s["demo"] = bool(meta and meta.get("demo"))
         s["auth_required"] = bool(meta and meta.get("auth_required"))
+        role = resolve_role(email, meta) if email else ROLE_VIEWER
+        if email and role != ROLE_VIEWER:
+            s["my_role"] = role
+            s["my_role_label"] = ROLE_LABELS_NL.get(role, role)
+        elif email and is_platform_admin(email):
+            s["my_role"] = "platform_admin"
+            s["my_role_label"] = ROLE_LABELS_NL.get("platform_admin", "Platformbeheerder")
+        else:
+            s["my_role"] = None
+            s["my_role_label"] = None
+        if mine:
+            if not email:
+                continue
+            if is_platform_admin(email):
+                out.append(s)
+                continue
+            if role == ROLE_VIEWER:
+                continue
         out.append(s)
-    return {"season_file": SEASON_FILE.name, "clubs": out, "auth": auth_status(request)}
+    return {"season_file": SEASON_FILE.name, "clubs": out, "auth": auth_status(request), "mine": bool(mine)}
 
 
 class CreateClub(BaseModel):
@@ -1547,7 +1574,7 @@ def regelhulp(req: RegelVraag, request: Request) -> dict[str, Any]:
 
 # ---------------------------------------------------------------- auth (Google OAuth, I3)
 
-from fastapi.responses import RedirectResponse  # noqa: E402
+from fastapi.responses import FileResponse, RedirectResponse  # noqa: E402
 
 
 @app.get("/auth/status")
@@ -1627,7 +1654,11 @@ def _link_id(club_id: str) -> str:
 
 
 @app.get("/", include_in_schema=False)
-def web_root() -> RedirectResponse:
+def web_root():
+    """Product-frontpage (alsof baanschemaatje.nl). Clublijst pas na Google-login."""
+    home = WEB_DIR / "home.html"
+    if home.is_file():
+        return FileResponse(home, media_type="text/html; charset=utf-8")
     return _go("club.html")
 
 

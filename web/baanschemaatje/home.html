@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baanschemaatje — KNLTB baanschema voor tennisclubs</title>
+<meta name="description" content="Baanschemaatje plant KNLTB-competitiedagen: van export tot rooster, bingo op vrijdag, live tv-scherm en rollen per club.">
+<link rel="stylesheet" href="/app/style.css">
+<link rel="stylesheet" href="/app/home.css">
+</head>
+<body class="home">
+<header class="home-top">
+  <div class="brand">
+    <h1>Baanschemaatje</h1>
+    <span class="sub">KNLTB baanschema voor tennisclubs</span>
+  </div>
+  <div class="controls" id="auth-bar"></div>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <p class="eyebrow">Voor de TC en de baancommissaris</p>
+    <h2>Van KNLTB-export naar een speelbaar baanschema</h2>
+    <p class="lede">Plan competitiedagen, open een bingo-avond, deel het tv-scherm met de bar — zonder spreadsheet-chaos.</p>
+    <div class="cta-row" id="cta-row">
+      <a class="live-btn cta" id="cta-login" href="/auth/login?next=/">Inloggen met Google</a>
+      <a class="btn2" href="#features">Wat het doet</a>
+    </div>
+    <p class="hint" id="login-hint">Na inloggen zie je alleen de clubs waar jij bij hoort. Geen wachtwoord op deze pagina — we gebruiken Google.</p>
+  </section>
+
+  <section class="clubs-panel" id="clubs-panel" hidden>
+    <div class="clubs-head">
+      <h2>Mijn clubs</h2>
+      <button type="button" class="live-btn" id="new-club-btn" hidden>+ Nieuwe club</button>
+    </div>
+    <p class="hint" id="clubs-hint">Clubs waar jij toegang toe hebt.</p>
+    <div id="club-list" class="club-grid"></div>
+    <p id="clubs-empty" class="banner" hidden>Je hebt nog geen clubtoegang. Vraag je clubbeheerder om je Google-e-mail toe te voegen onder Instellingen → Toegang.</p>
+  </section>
+
+  <section class="new-panel cardish" id="new-panel" hidden>
+    <h2>Nieuwe club</h2>
+    <p class="hint">Alleen de platformbeheerder. Na aanmaken vul je de rest in bij Instellingen.</p>
+    <div class="form" id="new-form">
+      <label>Clubnaam <input id="new-name" placeholder="bv. TV De Baan" autocomplete="organization"></label>
+      <label>Club-id (optioneel) <input id="new-id" placeholder="bv. de-baan"><small>Leeg = afgeleid van de naam.</small></label>
+      <label>Naam in de KNLTB-export <input id="new-knltb" placeholder="bv. DE BAAN"></label>
+      <label>Aantal banen <input id="new-courts" type="number" min="1" max="40" value="6"></label>
+      <div class="cta-row">
+        <button type="button" class="live-btn" id="new-create">Club aanmaken</button>
+        <button type="button" class="btn2" id="new-cancel">Annuleren</button>
+      </div>
+      <p id="new-status" class="live-status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <h2>Wat Baanschemaatje doet</h2>
+    <ul class="feat-grid">
+      <li>
+        <strong>Export → rooster</strong>
+        <span>Upload de KNLTB-export; de planner zet thuiswedstrijden op banen met jullie clubregels.</span>
+      </li>
+      <li>
+        <strong>Bingo op de avond</strong>
+        <span>Op vrijdag (of elke bingo-dag): teams aanwezig tikken, volgende partij voorstellen, klaar melden.</span>
+      </li>
+      <li>
+        <strong>Live tv-scherm</strong>
+        <span>Beamer of tv in de kantine toont banen en wachtrij — meekijken zonder inloggen.</span>
+      </li>
+      <li>
+        <strong>Rollen per club</strong>
+        <span>Clubbeheerder plant en stelt in; baancommissaris tikt op de speeldag; delen via link.</span>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<footer class="home-foot">
+  <p>Baanschemaatje — product van Oscar Reynhout. Los van de live Mierlo-pagina op GitHub Pages.</p>
+  <p class="hint">Later ook via baanschemaatje.nl (zelfde app; custom domain kan hiernaartoe wijzen). Nu: deze Cloud Run-omgeving.</p>
+</footer>
+
+<script src="/app/config.js"></script>
+<script src="/app/common.js"></script>
+<script src="/app/home.js"></script>
+</body>
+</html>

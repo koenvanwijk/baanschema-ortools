@@ -1,0 +1,49 @@
+/* Product-frontpage (/) — zelfde kleuren/typografie als style.css */
+body.home { min-height: 100vh; display: flex; flex-direction: column; }
+body.home main { flex: 1; max-width: 960px; }
+
+.home-top { position: sticky; top: 0; z-index: 5; background: var(--accent); color: #fff;
+  padding: 12px 18px; display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; }
+.home-top h1 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
+.home-top .sub { opacity: .9; font-size: 13px; }
+.home-top .auth-bar { margin-left: 0; }
+.home-top .auth-bar .live-btn { background: #fff; color: var(--accent); border-color: #fff; }
+.home-top .auth-bar .btn2 { border-color: rgba(255,255,255,.7); color: #fff; background: transparent; }
+
+.hero { padding: 28px 4px 8px; }
+.eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+.hero h2 { margin: 0 0 10px; font-size: clamp(24px, 4.5vw, 34px); line-height: 1.2; letter-spacing: -.02em; }
+.lede { margin: 0 0 18px; font-size: 17px; color: var(--muted); max-width: 38rem; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 10px; }
+.cta-row .cta { padding: 10px 18px; font-size: 15px; text-decoration: none; display: inline-block; }
+.cta-row .btn2 { text-decoration: none; display: inline-block; padding: 8px 14px; }
+
+.clubs-panel { margin: 18px 0 8px; }
+.clubs-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.clubs-head h2 { margin: 0; }
+.club-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
+.club-card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+  text-decoration: none; color: inherit; transition: border-color .12s, box-shadow .12s; }
+.club-card:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(47,111,79,.12); }
+.club-card.recent { border-color: #7b4fc9; background: #faf8ff; }
+.club-card .name { font-size: 17px; font-weight: 700; margin: 0 0 4px; }
+.club-card .meta { font-size: 13px; color: var(--muted); margin: 0; }
+.club-card .role { margin-top: 8px; }
+
+.cardish { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+.cardish .form { max-width: 420px; }
+
+.features { margin: 36px 0 24px; }
+.features h2 { margin: 0 0 12px; }
+.feat-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.feat-grid li { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.feat-grid strong { font-size: 15px; color: var(--accent); }
+.feat-grid span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+.home-foot { color: var(--muted); font-size: 12px; padding: 20px 16px 28px; text-align: center; border-top: 1px solid var(--line); background: #eef1ec; }
+.home-foot p { margin: 4px 0; max-width: 40rem; margin-left: auto; margin-right: auto; }
+
+@media (max-width: 560px) {
+  .hero { padding-top: 18px; }
+  .home-top { padding: 10px 12px; }
+}

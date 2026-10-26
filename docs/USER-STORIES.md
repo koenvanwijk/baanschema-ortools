@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 26-10-2026 (I1/I3 Google-login + club-aanmaakpoort).
+Laatst bijgewerkt: 26-10-2026 (product-frontpage op `/`).
 
 ## Werkprincipe
 
@@ -72,6 +72,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-26 | Implementatie I1/I3 gestart: `POST /clubs` nooit anoniem open (401 zonder Google of `BS_ALLOW_OPEN_CREATE` alleen voor tests); Google OAuth-routes `/auth/*`; per club `writers` + `auth_required` in meta; tv/dag GET publiek (I5). Feature uit tot OAuth-client credentials op Cloud Run staan. | Oscar "begin" |
 | 2026-10-26 | Wachtwoordveiligheid (antwoord Oscar "kun je wachtwoorden wel echt veilig houden?"): ja — als er wachtwoorden komen (later per user), alleen salted Argon2id (of bcrypt) hashes, nooit plaintext in GCS/logs/chat; HTTPS; rate-limit loginpogingen. Fase 2 is Google (geen wachtwoordopslag bij ons) | Oscar |
 | 2026-10-26 | D3 geldt op **iedere** competitiedag (Oscar: "ja, dit zou in principe op iedere dag kunnen"): gepland én bingo (vrijdag e.d.), donderdagavond enz. Gemarkeerde uitwedstrijd verschijnt in bingo-wachtrij/TV/commissaris net als een thuiswedstrijd | Oscar |
+| 2026-10-26 | Product-frontpage op `/` (alsof baanschemaatje.nl): marketing/CTA **Inloggen met Google**, daarna alleen clubs waar de user rol heeft (platformbeheerder: alle + nieuwe club). Geen publieke clubdirectory op de homepage; geen wachtwoorden op de pagina. Custom domain baanschemaatje.nl kan later naar dezelfde Cloud Run-service wijzen (DNS nog niet live). Clubpagina blijft via `/club/<id>` (en deellink-werk elders). | Oscar |
 | 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
 
 ---
@@ -93,6 +94,13 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 **A4 — Geen login nu, democlub.** Als bezoeker wil ik zonder account kunnen proberen (democlub), zodat de drempel laag is.
 - AC: schrijven staat open tot login-fase live is; ingebouwde voorbeeldprofielen zijn alleen-lezen; democlubs (meta.demo) blijven om te oefenen; tv/dag blijven publiek (I5).
 - Status: gereed voor democlub/open testen · **productrichting login/access: zie I3–I5** (eerdere "geen login voorlopig" / backlog #12/#19 / ROADMAP issue 27 blijft interim tot fase 2 Google) · Bron: Oscar 09/14-10-2026; richting bijgesteld Oscar 26-10-2026 (Google; later evt e-mail+wachtwoord per user; tv/dag publiek).
+
+
+**A5 — [UX] [Beheer] Product-frontpage.** Als bezoeker wil ik op de startpagina (`/`) een duidelijke productpagina zien (alsof baanschemaatje.nl), met inloggen naar mijn eigen clubomgeving, zodat vreemden niet meteen alle clubs zien.
+- AC: `/` toont Baanschemaatje-productpagina (planner, bingo, tv, rollen); CTA **Inloggen met Google**; geen wachtwoordveld; geen Mierlo-geheimen of volledige clublijst publiek.
+- AC: na login → lijst van clubs waar de user toegang toe heeft (`GET /clubs?mine=1`); platformbeheerder ziet alle clubs + **+ Nieuwe club**; één club (niet-admin) mag direct doorsturen naar `/club/<id>`; laatst gebruikte club gemarkeerd.
+- AC: bestaande `/club/<id>`, `/dag`, `/tv`, `/bingo` blijven; custom domain baanschemaatje.nl mag later naar dezelfde service (nu: run.app-root).
+- Status: **gereed** · Datum: 2026-10-26 · Bron: Oscar ("algemene frontpage / alsof baanschemaatje.nl").
 
 ## B. KNLTB-regels en planner (zie SPEC-core / SPEC-mierlo)
 
@@ -369,3 +377,4 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 23 | [Beheer] [UX] Clubprofiel-wizard bij aanmaken (speeldagen/bingo/sluiting) | I2 | klaar (wizard uitgebreid 26-10-2026) |
 | 24 | [Beheer] | Rollen & access management (clubbeheerder / baancommissaris); later optioneel e-mail+wachtwoord per user | I4 | gereed (MVP 26-10-2026) |
 | 25 | [Beheer] [UX] Publieke deel-links tv/dag naast login | I5 | besloten: houden (publiek); GET ongewijzigd |
+| 26 | [UX] [Beheer] | Product-frontpage op `/` (login → mijn clubs; alsof baanschemaatje.nl) | A5 | klaar (26-10-2026) |
