@@ -221,6 +221,19 @@ function mvOpenMenu(chip, w, date, seasonDays, opts) {
 }
 if (typeof document !== "undefined") document.addEventListener("click", mvCloseMenu);
 
+
+// Hosted-away t.o.v. een bestaand plan: welke sleutels ontbreken nog in de rijen?
+function mvMissingHosted(rows, hostedKeys) {
+  const have = new Set((rows || []).map((r) => r.team_id || mvKey(r.team, r.home_team)));
+  return (hostedKeys || []).filter((k) => !have.has(k));
+}
+// Rijen van uitwedstrijden die niet meer als thuis gemarkeerd zijn, uit een oud plan filteren.
+function mvStripUnhosted(rows, unhostedKeys) {
+  const unh = unhostedKeys instanceof Set ? unhostedKeys : new Set(unhostedKeys || []);
+  if (!unh.size) return rows || [];
+  return (rows || []).filter((r) => !unh.has(r.team_id || mvKey(r.team, r.home_team)));
+}
+
 if (typeof module !== "undefined") {
-  module.exports = { MoveState, mvComp, mvKey, mvFromRows, mvFromSeason, mvParts, mvRowsFor, mvApplyPlan, mvTargets, mvWeekday };
+  module.exports = { MoveState, mvComp, mvKey, mvFromRows, mvFromSeason, mvParts, mvRowsFor, mvApplyPlan, mvTargets, mvWeekday, mvMissingHosted, mvStripUnhosted };
 }

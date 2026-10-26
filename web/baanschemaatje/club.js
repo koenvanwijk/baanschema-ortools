@@ -96,8 +96,11 @@ function hostAwayList() {
 }
 async function saveHostAway(list, msg) {
   try {
+    const before = new Set(hostAwayList().map((c) => c.date));
     const r = await api(`/clubs/${encodeURIComponent(CLUB.id)}/host-away`, jsonOpts("PUT", { hosted: list }));
     ALL_DATES = r.dates;
+    // Oude berekening/opgeslagen schema mist of bevat nog de hosted-wedstrijd → cache weg.
+    for (const d of new Set([...before, ...list.map((c) => c.date)])) PLANS.delete(d);
     applyComp();
     if (SHOWN_DATE && !$("plan-sec").hidden) showPlan(SHOWN_DATE, false, true);
     status(msg, "ok");
@@ -316,26 +319,45 @@ window.addEventListener("beforeunload", (e) => { if (anyDirty()) { e.preventDefa
 
 // Plan van een dag zoals het nu is. Nog niet berekend → alle partijen "niet ingepland" (uit de seizoensweergave).
 // Volgorde: nu berekend (nog niet opgeslagen) → opgeslagen → vooraf/niet berekend.
+/** Hosted-away sleutels op deze dag (open / verlopen — wél planbaar; alleen "gespeeld" staat vast). */
+function hostedKeysOn(date) {
+  const d = ALL_DATES.find((x) => x.date === date);
+  return (d ? d.wedstrijden : []).filter((w) => w.hosted_away && !isOff(w) && w.status !== "gespeeld")
+    .map((w) => mvKey(w.schema, w.home));
+}
+/** Plan bevat alle huidige hosted-away wedstrijden? (anders: opnieuw berekenen.) */
+function planHasHosted(rows, date) {
+  return mvMissingHosted(rows, hostedKeysOn(date)).length === 0;
+}
 function clubDayPlan(date) {
   const p = PLANS.get(date);
   const sv = SAVED.get(date);
   const sig = cmv().sig(date);
-  if (p && !p.error && p.rows && p.sig === sig) return { plan: p, computed: true, changed: false, saved: null, unsaved: true };
-  if (sv && sv.sig === sig) return { plan: savedPlan(sv), computed: true, changed: false, saved: sv, unsaved: false };
+  // Alleen geldig als verzettingen én hosted-away overeenkomen met het plan.
+  if (p && !p.error && p.rows && p.sig === sig && planHasHosted(p.rows, date)) return { plan: p, computed: true, changed: false, saved: null, unsaved: true };
+  if (sv && sv.sig === sig && planHasHosted(sv.plan ? sv.plan.rows : null, date)) return { plan: savedPlan(sv), computed: true, changed: false, saved: sv, unsaved: false };
   const ok = p && !p.error && p.rows ? p : sv ? savedPlan(sv) : null;
   const d = ALL_DATES.find((x) => x.date === date);
   const s = dayClub(date);
   // Gespeelde wedstrijden staan vast en worden nooit als "niet ingepland" getoond.
   const base = ok || { status: "", day_start: s.day.start, courts: s.courts, validator: {}, stats: {},
     rows: (d ? d.wedstrijden : []).filter((x) => !isOff(x)).flatMap((x) => mvRowsFor({ ...mvFromSeason(x), from: undefined })) };
-  const changed = cmv().into(date).length > 0 || (!!ok && cmv().touches(date));
   const off = cancelledOn(date);
   const applied = mvApplyPlan(base, date, cmv());
+  // Uitwedstrijden die niet meer "thuis" zijn: partijen uit oud schema weg.
+  const unhosted = new Set((d ? d.uitwedstrijden || [] : []).filter((w) => !w.hosted_away).map((w) => mvKey(w.schema, w.home)));
+  applied.rows = mvStripUnhosted(applied.rows, unhosted);
+  // Hosted-away die nog ontbreken in het (oude) schema → als "niet ingepland" tonen.
+  const missKeys = mvMissingHosted(applied.rows, hostedKeysOn(date));
+  const missingHost = (d ? d.wedstrijden : []).filter((w) => missKeys.includes(mvKey(w.schema, w.home)));
+  for (const w of missingHost) applied.rows.push(...mvRowsFor({ ...mvFromSeason(w), from: undefined }));
+  const hostChanged = missingHost.length > 0;
+  const changed = cmv().into(date).length > 0 || (!!ok && cmv().touches(date)) || hostChanged;
   // Vervallen wedstrijden: partijen weg uit het rooster (ook uit eerder berekende/opgeslagen plannen), banen vrij.
   const exp = new Map((d ? d.wedstrijden : []).filter((w) => w.export_start).map((w) => [`${w.schema}|${w.home}`, w.export_start]));
   applied.rows = applied.rows.map((r) => (r.export_start || r.moved_from || !exp.has(`${r.team}|${r.home_team}`) ? r : { ...r, export_start: exp.get(`${r.team}|${r.home_team}`) }));
   applied.rows = applied.rows.filter((r) => !(r.moved_from ? cancelledOn(r.moved_from) : off).has(`${r.team}|${r.home_team}`));
-  return { plan: applied, computed: !!ok, changed, saved: null, unsaved: false, staleSaved: !!sv };
+  return { plan: applied, computed: !!ok, changed, hostChanged, saved: null, unsaved: false, staleSaved: !!sv };
 }
 
 function renderMoveBars() {
@@ -367,7 +389,7 @@ function renderDates() {
     day.changed = changed;
     if (saved) { day.saveInfo = `definitief schema · ${hhmm(saved.saved_at)}${saved.source === "handmatig aangepast" ? " · handmatig aangepast" : ""}`; day.saveCls = "saved"; }
     else if (unsaved) { day.saveInfo = "berekend, wordt opgeslagen…"; day.saveCls = "unsaved"; }
-    else if (staleSaved) { day.saveInfo = "opgeslagen versie past niet meer bij de verzettingen"; day.saveCls = "unsaved"; }
+    else if (staleSaved) { day.saveInfo = "opgeslagen versie past niet meer (verzettingen of thuis-gespeelde uit)"; day.saveCls = "unsaved"; }
     const p = PLANS.get(x.date);
     if (p && p.error) day.note = `Fout: ${p.error}`;
     const m = x.match;
@@ -495,7 +517,7 @@ let SHOWN_SRC = null; // "berekend" | "handmatig aangepast" | null (nog niet ber
 function showPlan(date, scroll = true, force = false) {
   if (!force && SHOWN_DATE && SHOWN_DATE !== date && !$("plan-sec").hidden && EDITOR.plan && EDITOR.edited
       && !confirm(`Je hebt partijen op ${SHOWN_DATE} versleept zonder op te slaan. Die wijzigingen gaan verloren. Doorgaan?`)) return;
-  const { plan, computed, changed, saved, unsaved, staleSaved } = clubDayPlan(date);
+  const { plan, computed, changed, hostChanged, saved, unsaved, staleSaved } = clubDayPlan(date);
   SHOWN_SRC = saved ? saved.source : unsaved || computed ? "berekend" : null;
   SHOWN_STATE = { saved, unsaved, stale: !!staleSaved };
   const s = dayClub(date);
@@ -530,13 +552,16 @@ function showPlan(date, scroll = true, force = false) {
   const open = dd ? dd.wedstrijden.filter((w) => !isOff(w)) : [];
   const uit = dd ? (dd.uitwedstrijden || []).filter((w) => !w.hosted_away) : [];
   const openHtml = open.length ? `<div class="day-list"><h3>Wedstrijden volgens de KNLTB-export</h3><ul class="plain">${open.map((w) =>
-    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b>${w.export_start ? ' <span class="hint" title="Begintijd uit de KNLTB-export; de planner houdt die aan (Clubafspraken: export_start)">tijd uit export</span>' : ""} · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.hosted_away ? ' · <span class="mv-tag" title="Was uitwedstrijd; speelt hier">thuis (was uit)</span>' : ""}${w.status === "verlopen" ? ' · <span class="warn">datum voorbij, geen uitslag</span>' : ""} <button type="button" class="btn2 w-menu" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" ${w.hosted_away ? 'data-hosted="1"' : ""} title="Acties: markeren, verzetten, opgave" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
-  const uitHtml = uit.length ? `<div class="day-list uit-list"><h3>Uitwedstrijden</h3><p class="hint">Staat in de KNLTB-export als uit. Als die toch bij ons gespeeld wordt: markeer "Wordt thuis gespeeld".</p><ul class="plain">${uit.map((w) =>
+    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b>${w.export_start ? ' <span class="hint" title="Begintijd uit de KNLTB-export; de planner houdt die aan (Clubafspraken: export_start)">tijd uit export</span>' : ""} · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.hosted_away ? ' · <span class="mv-tag" title="Was uitwedstrijd; speelt hier">thuis (was uit)</span>' : ""}${w.status === "verlopen" ? ' · <span class="warn" title="Nog planbaar: alleen een uitslag zet de wedstrijd vast">datum voorbij, geen uitslag — nog planbaar</span>' : ""} <button type="button" class="btn2 w-menu" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" ${w.hosted_away ? 'data-hosted="1"' : ""} title="Acties: markeren, verzetten, opgave" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
+  const uitHtml = uit.length ? `<details class="day-list uit-list"><summary><strong>Uitwedstrijden</strong> <span class="hint">(${uit.length}) — meestal niet relevant</span></summary><p class="hint">Staat in de KNLTB-export als uit. Als die toch bij ons gespeeld wordt: markeer "Wordt thuis gespeeld".</p><ul class="plain">${uit.map((w) =>
     `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b> · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen · <span class="hint">uit</span>
       ${CLUB.editable ? `<button type="button" class="btn2 host-away" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" data-away="${esc(w.away)}">Wordt thuis gespeeld</button>` : ""}
-      <button type="button" class="btn2 w-menu-uit" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
+      <button type="button" class="btn2 w-menu-uit" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" aria-label="Acties">⋯</button></li>`).join("")}</ul></details>` : "";
   $("day-matches").innerHTML = openHtml + uitHtml;
-  $("plan-state").innerHTML = winNote + (conflicts.length ? `<div class="banner warn">Let op: ${conflicts.map((w) => `${esc(w.label)} ${esc(w.home)}`).join(", ")} stond op "wordt niet gespeeld", maar de KNLTB-export heeft een uitslag. De export wint.</div>` : "") + playedHtml + goneHtml + (allPlayed ? "" : changed ? `<div class="banner">Aangepast: ${[cmv().into(date).length ? `${cmv().into(date).length} wedstrijd(en) hierheen verzet` : "", cmv().outOf(date).length ? `${cmv().outOf(date).length} wedstrijd(en) naar een andere dag verzet` : ""].filter(Boolean).join(", ")}, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
+  const changeBits = [cmv().into(date).length ? `${cmv().into(date).length} wedstrijd(en) hierheen verzet` : "",
+    cmv().outOf(date).length ? `${cmv().outOf(date).length} wedstrijd(en) naar een andere dag verzet` : "",
+    hostChanged ? "uitwedstrijd wordt thuis gespeeld (nog zonder banen)" : ""].filter(Boolean);
+  $("plan-state").innerHTML = winNote + (conflicts.length ? `<div class="banner warn">Let op: ${conflicts.map((w) => `${esc(w.label)} ${esc(w.home)}`).join(", ")} stond op "wordt niet gespeeld", maar de KNLTB-export heeft een uitslag. De export wint.</div>` : "") + playedHtml + goneHtml + (allPlayed ? "" : changed ? `<div class="banner">Aangepast: ${changeBits.join(", ")}, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
     : !computed ? `<div class="banner">Nog niet berekend: alle partijen staan bij "Niet ingepland". <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>` : "");
   if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
   for (const b of document.querySelectorAll("#plan-state .un-cancel")) b.onclick = () => uncancelMatch(b.dataset.schema, b.dataset.home, date);

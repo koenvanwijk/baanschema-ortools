@@ -150,13 +150,15 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 - AC:
   - Bij de KNLTB-import worden uitwedstrijden bewaard (`away.tsv`); ze verdwijnen niet meer stil.
   - Per dag (elke weekdag/dagdeel uit de export): sectie "Uitwedstrijden" met knop/menu **Wordt thuis gespeeld** (optionele toelichting) — ook op vrijdag-bingo, donderdagavond, zaterdag, enz.
+  - Sectie **Uitwedstrijden** staat standaard ingeklapt (meestal niet relevant); gemarkeerde wedstrijden staan in de gewone thuislijst.
   - Gemarkeerde wedstrijd verschijnt bij de thuiswedstrijden met label "thuis (was uit)"; telt mee bij "Nu berekenen" op geplande dagen én in bingo (commissaris, TV, wachtrij/teamregels) en dashboard.
+  - Na markeren: bestaand opgeslagen/berekend schema is verouderd → banner **"Nu berekenen"**; partijen van de hosted-wedstrijd staan bij "Niet ingepland" tot herberekening. Alleen een uitslag (`gespeeld`) blokkeert plannen; **datum voorbij / verlopen / geen uitslag** blokkeert niet (inhaal of late vastlegging).
   - Op een bingo-avond: zelfde teambezettingsregels en wachtrij-logica als andere thuiswedstrijden; badge "thuis (was uit)" bij het team.
   - Omkeerbaar via **Toch uit spelen**.
   - Geen nieuw venue-systeem; hergebruikt het patroon van opgave/verzetten (`host_away.json`).
   - Gespeelde uitwedstrijden niet markeerbaar.
-- Status: gereed (26-10-2026) · Bron: Oscar chat 26-10-2026 (zondag uitwedstrijd verplaatst naar Mierlo); 26-10-2026 "iedere dag, ook bingo".
-- Besluitlog: kleinste knop i.p.v. volledig speellocatie-model; labels blijven MIERLO – TEGENSTANDER (onze club als "home" voor de planner). Geldt op iedere competitiedag (Oscar 26-10-2026).
+- Status: gereed (26-10-2026) · Bron: Oscar chat 26-10-2026 (zondag uitwedstrijd verplaatst naar Mierlo); 26-10-2026 "iedere dag, ook bingo"; 26-10-2026 screenshot 25-10 hosted niet in rooster + uit inklappen.
+- Besluitlog: kleinste knop i.p.v. volledig speellocatie-model; labels blijven MIERLO – TEGENSTANDER (onze club als "home" voor de planner). Geldt op iedere competitiedag (Oscar 26-10-2026). Bugfix 26-10-2026: na "Wordt thuis gespeeld" bleef het oude schema "geldig" (handtekening keek alleen naar verzettingen) → geen herbereken-knop en "Niet ingepland: 0"; hosted-partijen worden nu als ontbrekend herkend.
 
 ## E. Delen & weergave
 

@@ -221,6 +221,11 @@ details.uitleg { margin: 4px 0 10px; font-size: .9rem; color: #444; }
 details.uitleg summary { cursor: pointer; color: #2f6f4f; }
 .day-list { background: #fff; border: 1px solid #dfe5dc; border-radius: 8px; padding: 6px 12px; margin: 8px 0; }
 .day-list li.dim { opacity: .4; } .day-list .warn { color: #b26b00; }
+details.day-list.uit-list { padding-top: 4px; }
+details.day-list.uit-list > summary { list-style: disclosure-closed; cursor: pointer; color: #333; font-size: 1rem; margin: 2px 0 6px; }
+details.day-list.uit-list[open] > summary { margin-bottom: 8px; }
+details.day-list.uit-list > summary .hint { font-weight: 400; }
+
 /* Instellingen: tabs */
 .tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 2px solid #dfe5dc; margin: 10px 0; }
 .tabs button { border: 0; background: none; padding: 8px 14px; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }

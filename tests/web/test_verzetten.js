@@ -97,3 +97,18 @@ test("partijen zonder planregels: gemengd uit schema, anders 2/3 enkels; Rood/Or
   assert.strictEqual(rood.length, 1);
   assert.strictEqual(rood[0].kind, "W");
 });
+
+test("hosted-away: ontbrekende sleutels en unhost-filter", () => {
+  const rows = [
+    { team: "Junioren A", home_team: "MIERLO 1", team_id: "Junioren A · MIERLO 1", part: "S1", kind: "S" },
+    { team: "Junioren A", home_team: "MIERLO 1", team_id: "Junioren A · MIERLO 1", part: "S2", kind: "S" },
+  ];
+  const hostKey = "Junioren B · MIERLO 1";
+  assert.deepStrictEqual(mv.mvMissingHosted(rows, ["Junioren A · MIERLO 1", hostKey]), [hostKey]);
+  assert.deepStrictEqual(mv.mvMissingHosted(rows, ["Junioren A · MIERLO 1"]), []);
+  const stripped = mv.mvStripUnhosted(
+    [...rows, { team: "Junioren B", home_team: "MIERLO 1", team_id: hostKey, part: "S1", kind: "S" }],
+    [hostKey]);
+  assert.strictEqual(stripped.length, 2);
+  assert.ok(stripped.every((r) => (r.team_id || "") !== hostKey));
+});
