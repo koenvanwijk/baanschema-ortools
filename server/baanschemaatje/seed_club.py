@@ -29,6 +29,7 @@ def main() -> int:
     ap.add_argument("--season", type=Path)
     ap.add_argument("--store", required=True)
     ap.add_argument("--demo", action="store_true", help="markeer als democlub")
+    ap.add_argument("--away", type=Path, help="apart TSV met uitwedstrijden")
     a = ap.parse_args()
     raw = miniyaml.loads(a.profile.read_text(encoding="utf-8")) if a.profile.suffix != ".json" \
         else json.loads(a.profile.read_text(encoding="utf-8"))
@@ -38,8 +39,12 @@ def main() -> int:
     meta = {"id": a.id, "name": prof.name, "created_at": now, "updated_at": now, "season": None,
             "seeded_from": a.profile.name, "demo": a.demo}
     if a.season:
-        rows, rep = parse_export(a.season.read_bytes(), a.season.name, prof.knltb_name)
+        rows, away_rows, rep = parse_export(a.season.read_bytes(), a.season.name, prof.knltb_name)
         st.put(f"clubs/{a.id}/season.tsv", to_tsv(rows).encode(), "text/tab-separated-values")
+        if a.away and a.away.exists():
+            st.put(f"clubs/{a.id}/away.tsv", a.away.read_bytes(), "text/tab-separated-values")
+        else:
+            st.put(f"clubs/{a.id}/away.tsv", to_tsv(away_rows).encode(), "text/tab-separated-values")
         meta["season"] = {"filename": a.season.name, "uploaded_at": now, "report": rep}
     st.put(f"clubs/{a.id}/profile.json", json.dumps(raw, ensure_ascii=False, indent=1).encode(), "application/json")
     st.put(f"clubs/{a.id}/meta.json", json.dumps(meta, ensure_ascii=False, indent=1).encode(), "application/json")

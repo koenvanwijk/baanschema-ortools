@@ -39,7 +39,7 @@ async function loadSeason() {
   const s = j.season || {};
   const rep = s.report;
   $("season-line").innerHTML = j.own_season
-    ? `Seizoen ${esc(seasonName(ALL_DATES))} · KNLTB-export ${esc(s.filename)}, geüpload ${s.uploaded_at ? new Date(s.uploaded_at).toLocaleString("nl-NL", { dateStyle: "medium", timeStyle: "short" }) : "–"}${rep ? ` · ${rep.imported} thuiswedstrijden (${rep.played || 0} gespeeld, ${(rep.open || 0) + (rep.expired_no_result || []).length} te spelen)` : ""}`
+    ? `Seizoen ${esc(seasonName(ALL_DATES))} · KNLTB-export ${esc(s.filename)}, geüpload ${s.uploaded_at ? new Date(s.uploaded_at).toLocaleString("nl-NL", { dateStyle: "medium", timeStyle: "short" }) : "–"}${rep ? ` · ${rep.imported} thuiswedstrijden (${rep.played || 0} gespeeld, ${(rep.open || 0) + (rep.expired_no_result || []).length} te spelen)${rep.away ? ` · ${rep.away} uit` : ""}` : ""}`
     : `Nog geen eigen seizoen; het standaardseizoen wordt gebruikt. Upload de KNLTB-export via <a href="${esc($("settings-link").href)}">Instellingen</a>.`;
   renderCompPicker();
   applyComp();
@@ -75,6 +75,29 @@ function cancelMatch(w, date, type, reason) {
 function uncancelMatch(schema, home, date) {
   return saveCancels(cancelList().filter((c) => !(c.schema === schema && c.home === home && c.date === date)),
     `${home} op ${date}: wordt toch gespeeld (opgeslagen). Bereken de dag opnieuw om hem in te plannen.`);
+}
+
+function hostAwayList() {
+  return ALL_DATES.flatMap((d) => (d.wedstrijden || []).filter((w) => w.hosted_away)
+    .map((w) => ({ schema: w.schema, home: w.home, away: w.away, date: d.date, reason: w.host_reason || "" })));
+}
+async function saveHostAway(list, msg) {
+  try {
+    const r = await api(`/clubs/${encodeURIComponent(CLUB.id)}/host-away`, jsonOpts("PUT", { hosted: list }));
+    ALL_DATES = r.dates;
+    applyComp();
+    if (SHOWN_DATE && !$("plan-sec").hidden) showPlan(SHOWN_DATE, false, true);
+    status(msg, "ok");
+  } catch (e) { status(`Niet gelukt: ${e.message}`, "bad"); }
+}
+function hostAwayMatch(w, date, reason) {
+  const cur = hostAwayList().filter((c) => !(c.schema === w.schema && c.home === w.home && c.date === date));
+  return saveHostAway([...cur, { schema: w.schema, home: w.home, away: w.away, date, reason: reason || "" }],
+    `${w.label} ${w.home} – ${w.away}: wordt thuis gespeeld (opgeslagen). Bereken de dag om banen in te plannen.`);
+}
+function unhostAwayMatch(schema, home, date) {
+  return saveHostAway(hostAwayList().filter((c) => !(c.schema === schema && c.home === home && c.date === date)),
+    `${home} op ${date}: speelt weer uit (opgeslagen).`);
 }
 
 function seasonName(dates) {
@@ -125,9 +148,10 @@ const inComp = (weekday, w) => compMatch(weekday, w.dagdeel);
 function applyComp() {
   DATES = ALL_DATES.map((d) => {
     const ws = d.wedstrijden.filter((w) => inComp(d.weekday, w));
-    return { ...d, wedstrijden: ws, fixtures: ws.length, partijen: ws.reduce((s, w) => s + w.matches, 0),
+    const uit = (d.uitwedstrijden || []).filter((w) => inComp(d.weekday, w));
+    return { ...d, wedstrijden: ws, uitwedstrijden: uit, fixtures: ws.length, partijen: ws.reduce((s, w) => s + w.matches, 0),
       played: ws.filter((w) => w.status === "gespeeld").length };
-  }).filter((d) => d.wedstrijden.length);
+  }).filter((d) => d.wedstrijden.length || (d.uitwedstrijden || []).length);
   $("comp-note").textContent = COMP === "alle" ? "" : `Alleen ${COMP.includes("-") ? compLabel(COMP) : COMP}. In de dagweergave zijn partijen van andere competities lichter.`;
   renderDates();
   if (SHOWN_DATE && !$("plan-sec").hidden) showPlan(SHOWN_DATE, false, true);
@@ -491,12 +515,22 @@ function showPlan(date, scroll = true, force = false) {
   const allPlayed = dd && played.length + gone.length === dd.wedstrijden.length && !cmv().into(date).length;
   const winNote = s.bijlage3 ? "" : `<p class="hint">Dagvenster ${esc(s.weekday)}: ${esc(s.day.start)}–${esc(clockHHMM(s.day.end))}, laatste start ${esc(s.day.last_start)}, ${s.courts} banen${s.lighting ? " (met verlichting)" : ", <b>geen verlichting ingesteld</b>"}. KNLTB Bijlage 3 (variabele begintijden) geldt alleen op za/zo.</p>`;
   const open = dd ? dd.wedstrijden.filter((w) => !isOff(w)) : [];
-  $("day-matches").innerHTML = open.length ? `<div class="day-list"><h3>Wedstrijden volgens de KNLTB-export</h3><ul class="plain">${open.map((w) =>
-    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b>${w.export_start ? ' <span class="hint" title="Begintijd uit de KNLTB-export; de planner houdt die aan (Clubafspraken: export_start)">tijd uit export</span>' : ""} · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.status === "verlopen" ? ' · <span class="warn">datum voorbij, geen uitslag</span>' : ""} <button type="button" class="btn2 w-menu" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" title="Acties: markeren, verzetten, opgave" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
+  const uit = dd ? (dd.uitwedstrijden || []).filter((w) => !w.hosted_away) : [];
+  const openHtml = open.length ? `<div class="day-list"><h3>Wedstrijden volgens de KNLTB-export</h3><ul class="plain">${open.map((w) =>
+    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b>${w.export_start ? ' <span class="hint" title="Begintijd uit de KNLTB-export; de planner houdt die aan (Clubafspraken: export_start)">tijd uit export</span>' : ""} · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen${w.hosted_away ? ' · <span class="mv-tag" title="Was uitwedstrijd; speelt hier">thuis (was uit)</span>' : ""}${w.status === "verlopen" ? ' · <span class="warn">datum voorbij, geen uitslag</span>' : ""} <button type="button" class="btn2 w-menu" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" ${w.hosted_away ? 'data-hosted="1"' : ""} title="Acties: markeren, verzetten, opgave" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
+  const uitHtml = uit.length ? `<div class="day-list uit-list"><h3>Uitwedstrijden</h3><p class="hint">Staat in de KNLTB-export als uit. Als die toch bij ons gespeeld wordt: markeer "Wordt thuis gespeeld".</p><ul class="plain">${uit.map((w) =>
+    `<li class="${inComp(ovWeekday(date), w) ? "" : "dim"}"><b>${esc(w.export_start || "–")}</b> · ${esc(w.label)} <b>${esc(w.home)}</b> – ${esc(w.away)} · ${w.matches} partijen · <span class="hint">uit</span>
+      ${CLUB.editable ? `<button type="button" class="btn2 host-away" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" data-away="${esc(w.away)}">Wordt thuis gespeeld</button>` : ""}
+      <button type="button" class="btn2 w-menu-uit" data-schema="${esc(w.schema)}" data-home="${esc(w.home)}" aria-label="Acties">⋯</button></li>`).join("")}</ul></div>` : "";
+  $("day-matches").innerHTML = openHtml + uitHtml;
   $("plan-state").innerHTML = winNote + (conflicts.length ? `<div class="banner warn">Let op: ${conflicts.map((w) => `${esc(w.label)} ${esc(w.home)}`).join(", ")} stond op "wordt niet gespeeld", maar de KNLTB-export heeft een uitslag. De export wint.</div>` : "") + playedHtml + goneHtml + (allPlayed ? "" : changed ? `<div class="banner">Aangepast: ${[cmv().into(date).length ? `${cmv().into(date).length} wedstrijd(en) hierheen verzet` : "", cmv().outOf(date).length ? `${cmv().outOf(date).length} wedstrijd(en) naar een andere dag verzet` : ""].filter(Boolean).join(", ")}, nog niet berekend. Sleep de partijen zelf op het baanschema of <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>`
     : !computed ? `<div class="banner">Nog niet berekend: alle partijen staan bij "Niet ingepland". <button class="btn2 ov-calc" id="calc-day">Nu berekenen</button></div>` : "");
   if ($("calc-day")) $("calc-day").onclick = () => planDay(date, true);
   for (const b of document.querySelectorAll("#plan-state .un-cancel")) b.onclick = () => uncancelMatch(b.dataset.schema, b.dataset.home, date);
+  for (const b of document.querySelectorAll("#day-matches .host-away")) b.onclick = () => {
+    const w = (dd.uitwedstrijden || []).find((x) => x.schema === b.dataset.schema && x.home === b.dataset.home);
+    if (w) hostAwayMatch(w, date, "");
+  };
   SHOWN_DATE = date;
   bindFindings(plan, s);
   EDITOR.load(plan); // werkkopie: slepen + directe controle; Opslaan bewaart hem op de server
@@ -526,13 +560,26 @@ function bindLegend(plan) {
       if (sw.status === "vervallen") return mvOpenMenu(b, mvFromSeason(sw), date, sd, { cancelled: CANCEL_NL[sw.cancel_type] || "wordt niet gespeeld",
         onUncancel: CLUB.editable ? () => uncancelMatch(sw.schema, sw.home, date) : null });
       const key = mvKey(sw.schema, sw.home);
-      openTeamMenu(b, ws.get(key) || mvFromSeason(sw), ws.has(key) ? key : null, date, sd);
+      openTeamMenu(b, ws.get(key) || mvFromSeason(sw), ws.has(key) ? key : null, date, sd,
+        sw.hosted_away ? { hostedAway: true, onUnhost: CLUB.editable ? () => unhostAwayMatch(sw.schema, sw.home, date) : null } : null);
+    };
+  }
+  for (const b of document.querySelectorAll("#day-matches .w-menu-uit")) {
+    b.onclick = (ev) => {
+      ev.stopPropagation();
+      const uw = dd && (dd.uitwedstrijden || []).find((x) => x.schema === b.dataset.schema && x.home === b.dataset.home);
+      if (!uw) return;
+      mvOpenMenu(b, mvFromSeason(uw), date, sd, {
+        awayOnly: true,
+        onHostAway: CLUB.editable ? (reason) => hostAwayMatch(uw, date, reason) : null,
+        hostDisabled: CLUB.editable ? "" : "Alleen-lezen voorbeeldprofiel.",
+      });
     };
   }
   if (HL) mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL);
 }
 
-function openTeamMenu(anchor, w, team, date, sd) {
+function openTeamMenu(anchor, w, team, date, sd, extra) {
       mvOpenMenu(anchor, w, date, sd, { highlighted: !!team && HL === team, noHighlight: !team,
         onHighlight: () => { HL = HL === team ? null : team; mvHighlight($("grid"), $("legend"), EDITOR.plan.rows, HL); },
         // Altijd tonen voor niet-gespeelde wedstrijden (ook berekend/verzet/niet in bewerkmodus); alleen-lezen: uitgeschakeld.
@@ -543,7 +590,7 @@ function openTeamMenu(anchor, w, team, date, sd) {
           cmv().move([{ w, at: date, to }]);
           status(`${w.label} ${w.home} verzet naar ${to}. Niet opgeslagen; ${to} is nog niet berekend.`, "ok");
           afterMove();
-        } });
+        }, ...(extra || {}) });
 }
 
 let SHOWN_DATE = null;

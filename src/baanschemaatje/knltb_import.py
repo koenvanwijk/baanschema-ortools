@@ -12,7 +12,9 @@ Ondersteunde invoer (automatisch herkend aan de kopregel):
 
 Regels bij de ruwe export:
 
-* alleen **thuiswedstrijden**: Team 1 begint met ``club.knltb_name``;
+* **thuiswedstrijden** (Team 1 begint met ``club.knltb_name``) gaan in het
+  seizoen; **uitwedstrijden** (alleen Team 2 is van de club) worden apart
+  teruggegeven, zodat de TC ze later als "wordt thuis gespeeld" kan markeren;
 * alle weekdagen (default; optioneel te beperken); per wedstrijd worden de
   weekdag, het dagdeel (``dag``/``avond``/``ochtend``/``middag``, uit het
   schema) en de begintijd uit ``Datum`` meegenomen;
@@ -166,9 +168,13 @@ def parse_export(
     home_name: str,
     weekdays: set[str] | None = None,
     today: date | None = None,
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Geeft (genormaliseerde rijen, rapport). ``today`` (Europe/Amsterdam)
-    bepaalt wat 'in het verleden' is; default vandaag."""
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    """Geeft (thuisrijen, uitrijen, rapport). ``today`` (Europe/Amsterdam)
+    bepaalt wat 'in het verleden' is; default vandaag.
+
+    Uitrijen: ruwe export, alleen Team 2 is van de club. Genormaliseerde
+    bestanden hebben geen uitwedstrijden (alleen thuis).
+    """
     weekdays = {w.lower() for w in (weekdays or ALL_WEEKDAYS)}
     if today is None:
         today = _today_ams()
@@ -190,10 +196,12 @@ def parse_export(
         return r[i] if i is not None and i < len(r) else None
 
     out: list[dict[str, Any]] = []
+    away: list[dict[str, Any]] = []
     rep: dict[str, Any] = {
         "format": "genormaliseerd" if normalized else "ruwe KNLTB-export",
         "rows_in_file": len(rows) - 1,
         "imported": 0,
+        "away": 0,
         "skipped": Counter(),
         "unknown_schemas": Counter(),
         "weekdays_in_file": Counter(),
@@ -222,13 +230,21 @@ def parse_export(
         status = str(g(r, "Wedstrijdstatus") or "").strip()
         if status:
             rep["statuses"][status] += 1
-        if not normalized:
-            if home_up and not team1.upper().startswith(home_up):
-                rep["skipped"]["uitwedstrijd"] += 1
+        is_away = False
+        if not normalized and home_up:
+            t1h = team1.upper().startswith(home_up)
+            t2h = team2.upper().startswith(home_up)
+            if not t1h and t2h:
+                is_away = True
+                rep["skipped"]["uitwedstrijd"] += 1  # compat: alle uit, ook buiten gekozen weekdagen
+            elif not t1h:
+                rep["skipped"]["niet van deze club"] += 1
                 continue
-        rep["home_weekdays"][wd] += 1
+        if not is_away:
+            rep["home_weekdays"][wd] += 1
         if wd not in weekdays:
-            rep["skipped"][f"{wd} (niet gekozen)"] += 1
+            if not is_away:
+                rep["skipped"][f"{wd} (niet gekozen)"] += 1
             continue
         if normalized:
             fmt = (_int(g(r, "Wedstrijden")), _int(g(r, "Wedstrijdduur")), _int(g(r, "Singles")),
@@ -252,35 +268,46 @@ def parse_export(
             played = is_played(uitslag, status)
         if played:
             st = "gespeeld"
-            rep["played"] += 1
-            try:
-                a, b = (int(x) for x in uitslag.replace(" ", "").split("-"))
-                if a + b < m:
-                    rep["played_partial"].append(f"{d.strftime('%d-%m-%Y')} {team1} – {team2} ({uitslag}, {m} partijen)")
-            except ValueError:
-                pass
+            if not is_away:
+                rep["played"] += 1
+                try:
+                    a, b = (int(x) for x in uitslag.replace(" ", "").split("-"))
+                    if a + b < m:
+                        rep["played_partial"].append(f"{d.strftime('%d-%m-%Y')} {team1} – {team2} ({uitslag}, {m} partijen)")
+                except ValueError:
+                    pass
         elif d < today:
             st = "verlopen"
-            rep["expired_no_result"].append(f"{d.strftime('%d-%m-%Y')} {team1} – {team2}")
+            if not is_away:
+                rep["expired_no_result"].append(f"{d.strftime('%d-%m-%Y')} {team1} – {team2}")
         else:
             st = "open"
-            rep["open"] += 1
-        comp = _competition(schema)
-        rep["per_weekday"][wd] += 1
-        rep["per_competition"][f"{wd} · {comp}"] += 1
-        out.append({
+            if not is_away:
+                rep["open"] += 1
+        row = {
             "Datum": d.strftime("%d-%m-%Y"), "Weekdag": wd, "Dagdeel": dd, "Begintijd": tijd, "Schema": schema,
             "Wedstrijden": m, "Wedstrijdduur": dur, "Singles": si, "Doubles": do, "Mix": mi,
             "Team 1": team1, "Team 2": team2, "Uitslag": uitslag, "Status": st, "_k": (d, schema, team1),
-        })
+        }
+        if is_away:
+            away.append(row)
+            continue
+        comp = _competition(schema)
+        rep["per_weekday"][wd] += 1
+        rep["per_competition"][f"{wd} · {comp}"] += 1
+        out.append(row)
     out.sort(key=lambda x: x["_k"])
+    away.sort(key=lambda x: x["_k"])
     for x in out:
         del x["_k"]
+    for x in away:
+        del x["_k"]
     rep["imported"] = len(out)
+    rep["away"] = len(away)
     for k in ("skipped", "unknown_schemas", "weekdays_in_file", "home_weekdays", "statuses", "per_weekday",
               "per_competition"):
         rep[k] = dict(rep[k])
-    return out, rep
+    return out, away, rep
 
 
 def _competition(schema: str) -> str:

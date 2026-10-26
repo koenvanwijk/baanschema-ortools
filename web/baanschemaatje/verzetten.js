@@ -186,7 +186,21 @@ function mvOpenMenu(chip, w, date, seasonDays, opts) {
     if (opts.onUncancel) m.querySelector("#cm-un").onclick = () => { mvCloseMenu(); opts.onUncancel(); };
     return;
   }
-  m.innerHTML = `<div class="cm-title"><b>${e(w.label)} ${e(w.home)}</b> – ${e(w.away)}<div class="hint">${e(mvCompName(w.category))}${w.moved_from ? ` · verzet van ${e(w.moved_from)}` : ""}</div></div>
+  // Alleen uitwedstrijd: markeren als thuis gespeeld (geen verzetten/opgave hier).
+  if (opts.awayOnly) {
+    m.innerHTML = `<div class="cm-title"><b>${e(w.label)} ${e(w.home)}</b> – ${e(w.away)}<div class="hint">Uitwedstrijd volgens de KNLTB-export</div></div>
+      <div class="cm-cancel"><div class="cm-sub">Toch bij ons spelen</div>
+      <label>Toelichting (optioneel)<input id="cm-reason" maxlength="200" placeholder="bv. tegenstander heeft geen banen"></label>
+      ${opts.onHostAway ? `<button class="live-btn" id="cm-host"${opts.hostDisabled ? " disabled" : ""}>Wordt thuis gespeeld</button>` : ""}
+      ${opts.hostDisabled ? `<div class="hint">${e(opts.hostDisabled)}</div>` : `<div class="hint">Komt in het baanschema van deze dag (of verzet daarna naar een inhaaldag).</div>`}</div>`;
+    document.body.appendChild(m);
+    mvPlaceMenu(m, chip);
+    const hb = m.querySelector("#cm-host");
+    if (hb) hb.onclick = () => { const why = m.querySelector("#cm-reason").value.trim(); mvCloseMenu(); opts.onHostAway(why); };
+    return;
+  }
+  m.innerHTML = `<div class="cm-title"><b>${e(w.label)} ${e(w.home)}</b> – ${e(w.away)}<div class="hint">${e(mvCompName(w.category))}${w.moved_from ? ` · verzet van ${e(w.moved_from)}` : ""}${opts.hostedAway ? " · thuis (was uit)" : ""}</div></div>
+    ${opts.hostedAway && opts.onUnhost ? '<button class="btn2" id="cm-unhost">Toch uit spelen</button>' : ""}
     ${opts.noHighlight ? "" : `<button class="btn2" id="cm-hl">${opts.highlighted ? "Markering uit" : "Markeer in rooster"}</button>`}
     <div class="cm-move"><label>Verzetten naar…<select id="cm-to"><option value="">— kies een dag —</option>
       <optgroup label="Inhaaldagen ${e(mvCompName(w.category))}">${t.filter((x) => x.kind === "inhaaldag" && x.valid).map(opt).join("")}</optgroup>
@@ -200,6 +214,7 @@ function mvOpenMenu(chip, w, date, seasonDays, opts) {
       ${opts.cancelDisabled ? `<div class="hint">${e(opts.cancelDisabled)}</div>` : ""}</div>` : ""}`;
   document.body.appendChild(m);
   mvPlaceMenu(m, chip);
+  if (m.querySelector("#cm-unhost")) m.querySelector("#cm-unhost").onclick = () => { mvCloseMenu(); opts.onUnhost(); };
   if (m.querySelector("#cm-hl")) m.querySelector("#cm-hl").onclick = () => { mvCloseMenu(); opts.onHighlight(); };
   for (const bt of m.querySelectorAll(".cm-off")) bt.onclick = () => { const why = m.querySelector("#cm-reason").value.trim(); mvCloseMenu(); opts.onCancel(bt.dataset.type, why); };
   m.querySelector("#cm-go").onclick = () => { const to = m.querySelector("#cm-to").value; if (!to) return; mvCloseMenu(); opts.onMove(to); };

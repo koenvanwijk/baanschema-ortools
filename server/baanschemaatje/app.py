@@ -18,6 +18,7 @@ Endpoints
   GET/PUT/DELETE /clubs/{id}/schedule/{datum}   opgeslagen baanschema van één dag
   GET/PUT/DELETE /clubs/{id}/bingo/{date}  bingo-avond (live indelen); PUT met "gen" (optimistische gelijktijdigheid, 409 bij conflict)
   GET/PUT /clubs/{id}/cancellations  wedstrijden die niet gespeeld worden ("vervallen"; sleutel schema+thuis+uit+datum)
+  GET/PUT /clubs/{id}/host-away      uitwedstrijden die toch thuis gespeeld worden (banen nodig)
   GET/PUT /clubs/{id}/moves          opgeslagen verzettingen (wedstrijd van dag X naar Y)
   GET  /dates?club=<id>              speeldagen met aantal wedstrijden
   POST /plan                         één speeldag plannen  → plan-JSON zoals web/baanschemaatje/data/<club>/<datum>.json
@@ -481,6 +482,106 @@ def _apply_cancellations(spath: Path, cancels: list[dict[str, Any]]) -> Path:
     return p
 
 
+# ---------------------------------------------------------------- uitwedstrijd → thuis gespeeld
+
+def _away_path(club_id: str | None) -> Path | None:
+    """Uitwedstrijden uit de laatste KNLTB-export (away.tsv), of afgeleid van upload/latest."""
+    if not club_id or _meta(club_id) is None:
+        return None
+    b = STORE.get(f"clubs/{club_id}/away.tsv")
+    if b is None:
+        # Bestaande clubs: eenmalig afleiden uit de bewaarde ruwe upload (geen herimport nodig).
+        data = STORE.get(f"clubs/{club_id}/upload/latest")
+        if data is None:
+            return None
+        try:
+            prof = _profile(_club_raw(club_id), club_id)
+            meta = _meta(club_id) or {}
+            fn = ((meta.get("season") or {}).get("filename") or "export.xlsx")
+            _, away_rows, _ = parse_export(data, fn, prof.knltb_name)
+            b = to_tsv(away_rows).encode()
+            STORE.put(f"clubs/{club_id}/away.tsv", b, "text/tab-separated-values")
+        except Exception:  # noqa: BLE001
+            return None
+    _SEASON_DIR.mkdir(parents=True, exist_ok=True)
+    p = _SEASON_DIR / f"{club_id}-away-{hashlib.sha256(b).hexdigest()[:16]}.tsv"
+    if not p.exists():
+        p.write_bytes(b)
+    return p
+
+
+def _host_away_list(club_id: str | None) -> list[dict[str, Any]]:
+    if not club_id:
+        return []
+    j = _get_json(f"clubs/{club_id}/host_away.json")
+    return list((j or {}).get("hosted") or [])
+
+
+def _host_away_map(items: list[dict[str, Any]]) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    return {_ckey(c.get("schema"), c.get("home"), c.get("away"), c.get("date")): c for c in items}
+
+
+def _apply_host_away(spath: Path, club_id: str, home_name: str) -> Path:
+    """Voeg gemarkeerde uitwedstrijden toe aan het seizoensbestand (als thuiswedstrijd).
+
+    In away.tsv staat Team 1 = tegenstander (export-thuis), Team 2 = onze club.
+    Voor de planner wisselen we: Team 1 = onze club, Team 2 = tegenstander.
+    """
+    hosted = _host_away_list(club_id)
+    if not hosted:
+        return spath
+    ap = _away_path(club_id)
+    if ap is None:
+        return spath
+    hm = _host_away_map(hosted)
+    with ap.open("r", encoding="utf-8", newline="") as fh:
+        away_rows = list(csv.reader(fh, delimiter="\t"))
+    if len(away_rows) < 2:
+        return spath
+    ahdr = away_rows[0]
+    try:
+        ai_d, ai_s, ai_1, ai_2 = (ahdr.index(k) for k in ("Datum", "Schema", "Team 1", "Team 2"))
+    except ValueError:
+        return spath
+    pick: list[list[str]] = []
+    for r in away_rows[1:]:
+        if len(r) <= max(ai_d, ai_s, ai_1, ai_2):
+            continue
+        # na swap is home=onze club (Team 2), away=tegenstander (Team 1)
+        if _ckey(r[ai_s], r[ai_2], r[ai_1], r[ai_d]) in hm:
+            rr = list(r)
+            rr[ai_1], rr[ai_2] = r[ai_2], r[ai_1]
+            pick.append(rr)
+    if not pick:
+        return spath
+    with spath.open("r", encoding="utf-8", newline="") as fh:
+        rows = list(csv.reader(fh, delimiter="\t"))
+    if not rows:
+        return spath
+    hdr = rows[0]
+    # Zorg dat kolommen overeenkomen; ontbrekende cellen opvullen.
+    out_rows = [hdr] + rows[1:]
+    for r in pick:
+        aligned = [(r[ahdr.index(c)] if c in ahdr and ahdr.index(c) < len(r) else "") for c in hdr]
+        out_rows.append(aligned)
+    buf = io.StringIO()
+    csv.writer(buf, delimiter="\t", lineterminator="\n").writerows(out_rows)
+    b = buf.getvalue().encode("utf-8")
+    _SEASON_DIR.mkdir(parents=True, exist_ok=True)
+    p = _SEASON_DIR / f"hosted-{hashlib.sha256(b).hexdigest()[:16]}.tsv"
+    if not p.exists():
+        p.write_bytes(b)
+    return p
+
+
+def _away_fixtures(club_id: str | None, home_name: str) -> list:
+    """Uitwedstrijden als Fixture-lijst (home_team = onze club na swap in load_season_tsv)."""
+    ap = _away_path(club_id)
+    if ap is None:
+        return []
+    return list(_season(home_name, ap).fixtures)
+
+
 # ---------------------------------------------------------------- bingo-avond (baancommissaris, live)
 
 MAX_BINGO_BYTES = int(os.environ.get("BS_MAX_BINGO_BYTES", str(512 * 1024)))
@@ -523,7 +624,7 @@ def _bingo_matches(club_id: str, prof: ClubProfile, date: str) -> list[dict[str,
 
     # Opgeslagen verzettingen tellen mee: een naar deze bingo-avond verzette wedstrijd verschijnt
     # bij de commissaris (en een weg-verzette verdwijnt). Ongeldige/verouderde verzettingen worden overgeslagen.
-    spath = _season_path(club_id)
+    spath = _apply_host_away(_season_path(club_id), club_id, prof.knltb_name)
     cm = _cancel_map(_cancellations(club_id))
     moves = _saved_moves(club_id)
     moved_in = {(_norm(m.schema_), _norm(m.home)): m.from_ for m in moves if m.to == date}
@@ -741,7 +842,48 @@ async def put_cancellations(club_id: str, request: Request) -> dict[str, Any]:
                     "reason": str(c.get("reason") or "")[:200], "at": (old.get(k) or {}).get("at") or _now()})
     doc = {"club": club_id, "saved_at": _now(), "cancellations": out}
     STORE.put(f"clubs/{club_id}/cancellations.json", json.dumps(doc, ensure_ascii=False).encode(), "application/json")
-    return {"club": club_id, "saved_at": doc["saved_at"], "count": len(out), "dates": _season_view(season, prof, out)}
+    return {"club": club_id, "saved_at": doc["saved_at"], "count": len(out), "dates": _season_view(season, prof, out, club_id=club_id)}
+
+
+@app.get("/clubs/{club_id}/host-away")
+def get_host_away(club_id: str) -> dict[str, Any]:
+    _known_club(club_id)
+    j = _get_json(f"clubs/{club_id}/host_away.json")
+    return j or {"club": club_id, "hosted": [], "saved_at": None}
+
+
+@app.put("/clubs/{club_id}/host-away")
+async def put_host_away(club_id: str, request: Request) -> dict[str, Any]:
+    """Markeer uitwedstrijden die toch thuis (op onze banen) gespeeld worden."""
+    _writable(club_id, request)
+    body = await _json_body(request, MAX_SCHEDULE_BYTES)
+    items = body.get("hosted") if isinstance(body, dict) else None
+    if not isinstance(items, list):
+        raise HTTPException(422, 'verwacht {"hosted": [...]}')
+    if len(items) > MAX_MOVES:
+        raise HTTPException(413, f"te veel gemarkeerde uitwedstrijden ({len(items)}, max {MAX_MOVES})")
+    prof = _profile(_club_raw(club_id), club_id)
+    away = _away_fixtures(club_id, prof.knltb_name)
+    known = {_ckey(f.schema, f.home_team, f.away_team, f.date): f for f in away}
+    played = {k for k, f in known.items() if f.played}
+    old = _host_away_map(_host_away_list(club_id))
+    out = []
+    for c in items:
+        if not isinstance(c, dict) or not all(isinstance(c.get(k), str) and c.get(k).strip() for k in ("schema", "home", "away", "date")):
+            raise HTTPException(422, "elke gemarkeerde uitwedstrijd heeft schema, home, away en date")
+        _check_date(c["date"])
+        k = _ckey(c["schema"], c["home"], c["away"], c["date"])
+        if k not in known:
+            raise HTTPException(404, f"geen uitwedstrijd '{c['schema']}' {c['home']} – {c['away']} op {c['date']}")
+        if k in played:
+            raise HTTPException(409, f"'{c['schema']}' {c['home']} – {c['away']} op {c['date']} is al gespeeld")
+        out.append({"schema": c["schema"], "home": c["home"], "away": c["away"], "date": c["date"],
+                    "reason": str(c.get("reason") or "")[:200], "at": (old.get(k) or {}).get("at") or _now()})
+    doc = {"club": club_id, "saved_at": _now(), "hosted": out}
+    STORE.put(f"clubs/{club_id}/host_away.json", json.dumps(doc, ensure_ascii=False).encode(), "application/json")
+    season = _season(prof.knltb_name, _season_path(club_id))
+    return {"club": club_id, "saved_at": doc["saved_at"], "count": len(out),
+            "dates": _season_view(season, prof, _cancellations(club_id), club_id=club_id)}
 
 
 class PlanRequest(BaseModel):
@@ -775,6 +917,8 @@ def _resolve(req: PlanRequest) -> tuple[str, ClubProfile, dict[str, Any], Season
         cm = _cancel_map(cancels)
         gone = {(k[0], t, k[3]) for k in cm for t in (k[1], k[2])}
         moves = [m for m in moves if (_norm(m.schema_), _norm(m.home), m.from_) not in gone]
+    if isinstance(req.club, str):
+        spath = _apply_host_away(spath, req.club, prof.knltb_name)
     spath, req._moves_applied = _apply_moves(spath, moves)
     season = _season(prof.knltb_name, spath)
     if req.date not in season.dates():
@@ -815,34 +959,77 @@ def _day_window(prof: ClubProfile | None, date: str, fx: list) -> dict[str, Any]
             "mode": prof.day_mode(dp.weekday)}
 
 
+def _wdict(f, cx: dict, hosted: bool = False) -> dict[str, Any]:
+    """Wedstrijdregel voor de seizoensweergave."""
+    d: dict[str, Any] = {"label": f.label, "schema": f.schema, "category": f.category.value,
+                         "matches": f.matches, "singles": f.singles, "doubles": f.doubles, "mix": f.mix,
+                         "home": f.home_team, "away": f.away_team, "dagdeel": f.dagdeel,
+                         "export_start": f.export_start, "result": f.result,
+                         "status": "vervallen" if cx.get(id(f)) and not f.played else f.status}
+    if cx.get(id(f)) and not f.played:
+        d["cancel_reason"] = cx[id(f)].get("reason", "")
+        d["cancel_type"] = cx[id(f)].get("type", "")
+        d["cancelled_at"] = cx[id(f)].get("at")
+    if cx.get(id(f)) and f.played:
+        d["cancel_conflict"] = True
+    if hosted:
+        d["hosted_away"] = True
+    return d
+
+
 def _season_view(season: Season, prof: ClubProfile | None = None,
-                 cancels: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
-    cm = _cancel_map(cancels or [])
+                 cancels: list[dict[str, Any]] | None = None,
+                 club_id: str | None = None) -> list[dict[str, Any]]:
+    cm = _cancel_map(cancels if cancels is not None else (_cancellations(club_id) if club_id else []))
+    home_name = prof.knltb_name if prof else ""
+    hosted_items = _host_away_list(club_id) if club_id else []
+    hm = _host_away_map(hosted_items)
+    away_fx = _away_fixtures(club_id, home_name) if club_id and home_name else []
+    away_by: dict[str, list] = {}
+    for f in away_fx:
+        away_by.setdefault(f.date, []).append(f)
+    dates = set(season.by_date()) | set(away_by)
     out = []
-    for d, fx in season.by_date().items():
+    for d in dates:
+        fx_home = list(season.by_date().get(d, []))
+        # Hosted away: toevoegen aan thuislijst (niet al aanwezig).
+        hosted_fx = []
+        for f in away_by.get(d, []):
+            if _ckey(f.schema, f.home_team, f.away_team, f.date) in hm and not f.played:
+                hosted_fx.append(f)
+        # Dedup: als dezelfde sleutel al in seizoen staat, niet dubbel.
+        have = {_ckey(f.schema, f.home_team, f.away_team, f.date) for f in fx_home}
+        extra = [f for f in hosted_fx if _ckey(f.schema, f.home_team, f.away_team, f.date) not in have]
+        fx = fx_home + extra
         cx = {id(f): cm.get(_ckey(f.schema, f.home_team, f.away_team, f.date)) for f in fx}
         gone = [f for f in fx if cx[id(f)] and not f.played]
         played = [f for f in fx if f.played]
         live = [f for f in fx if not f.played and not cx[id(f)]]
+        hosted_keys = {_ckey(f.schema, f.home_team, f.away_team, f.date) for f in extra}
+        uit = []
+        for f in away_by.get(d, []):
+            k = _ckey(f.schema, f.home_team, f.away_team, f.date)
+            uit.append({"label": f.label, "schema": f.schema, "category": f.category.value,
+                        "matches": f.matches, "singles": f.singles, "doubles": f.doubles, "mix": f.mix,
+                        "home": f.home_team, "away": f.away_team, "dagdeel": f.dagdeel,
+                        "export_start": f.export_start, "result": f.result, "status": f.status,
+                        "hosted_away": k in hm and not f.played})
         out.append({"date": d, "weekday": WEEKDAYS_NL[datetime.strptime(d, "%d-%m-%Y").weekday()], "fixtures": len(fx),
                     "partijen": sum(f.matches for f in fx),
                     "open_fixtures": len(live),
                     "open_partijen": sum(f.matches for f in live),
                     "played": len(played),
                     "cancelled": len(gone),
-                    "dagdelen": sorted({f.dagdeel for f in fx}),
-                    "competitions": sorted({" ".join(f.schema.split("–")[0].split()) for f in fx}),
-                    "window": _day_window(prof, d, fx),
-                    "wedstrijden": [{"label": f.label, "schema": f.schema, "category": f.category.value,
-                                     "matches": f.matches, "singles": f.singles, "doubles": f.doubles, "mix": f.mix,
-                                     "home": f.home_team, "away": f.away_team, "dagdeel": f.dagdeel,
-                                     "export_start": f.export_start, "result": f.result,
-                                     "status": "vervallen" if cx[id(f)] and not f.played else f.status,
-                                     **({"cancel_reason": cx[id(f)].get("reason", ""), "cancel_type": cx[id(f)].get("type", ""), "cancelled_at": cx[id(f)].get("at")}
-                                        if cx[id(f)] and not f.played else {}),
-                                     # stond op 'wordt niet gespeeld', maar de export heeft een uitslag: export wint
-                                     **({"cancel_conflict": True} if cx[id(f)] and f.played else {})}
-                                    for f in fx]})
+                    # Dagdelen/competities/venster: thuis + gemarkeerd-thuis. Ongehoste uit
+                    # telt alleen mee op dagen zonder thuiswedstrijden (anders vervuilt bv. een
+                    # ochtend-uit de donderdagavond-filter).
+                    "dagdelen": sorted({f.dagdeel for f in (fx or away_by.get(d, []))}),
+                    "competitions": sorted({" ".join(f.schema.split("–")[0].split())
+                                            for f in (fx or away_by.get(d, []))}),
+                    "window": _day_window(prof, d, fx or away_by.get(d, [])),
+                    "wedstrijden": [_wdict(f, cx, hosted=_ckey(f.schema, f.home_team, f.away_team, f.date) in hosted_keys)
+                                   for f in fx],
+                    "uitwedstrijden": uit})
     out.sort(key=lambda x: datetime.strptime(x["date"], "%d-%m-%Y"))
     return out
 
@@ -955,7 +1142,7 @@ def _import_season(club_id: str, meta: dict[str, Any], data: bytes, filename: st
     prof = _profile(_club_raw(club_id), club_id)
     wd = {d.strip().lower() for d in days.split(",") if d.strip()} or set(WEEKDAYS_NL)
     try:
-        rows, rep = parse_export(data, filename, prof.knltb_name, wd)
+        rows, away_rows, rep = parse_export(data, filename, prof.knltb_name, wd)
     except ImportError_ as exc:
         raise HTTPException(422, str(exc)) from exc
     if not rows:
@@ -964,11 +1151,13 @@ def _import_season(club_id: str, meta: dict[str, Any], data: bytes, filename: st
     tsv = to_tsv(rows).encode()
     STORE.put(f"clubs/{club_id}/upload/latest", data, "application/octet-stream")
     STORE.put(f"clubs/{club_id}/season.tsv", tsv, "text/tab-separated-values")
+    STORE.put(f"clubs/{club_id}/away.tsv", to_tsv(away_rows).encode(), "text/tab-separated-values")
     rep["days"] = [d for d in WEEKDAYS_NL if d in wd]
     meta["season"] = {"filename": filename[:120], "uploaded_at": uploaded_at, "processed_at": _now(), "report": rep}
     _put_meta(club_id, meta)
     season = _season(prof.knltb_name, _season_path(club_id))
-    return {"ok": True, "report": rep, "dates": _season_view(season, prof, _cancellations(club_id))}
+    return {"ok": True, "report": rep, "dates": _season_view(season, prof, _cancellations(club_id),
+                                                             club_id=club_id)}
 
 
 @app.get("/clubs/{club_id}/season")
@@ -978,7 +1167,7 @@ def get_season(club_id: str) -> dict[str, Any]:
     meta = _meta(club_id)
     return {"club": club_id, "own_season": spath != SEASON_FILE,
             "season": (meta or {}).get("season") if spath != SEASON_FILE else {"filename": SEASON_FILE.name},
-            "dates": _season_view(_season(prof.knltb_name, spath), prof, _cancellations(club_id))}
+            "dates": _season_view(_season(prof.knltb_name, spath), prof, _cancellations(club_id), club_id=club_id)}
 
 
 @app.get("/dates")

@@ -9,10 +9,11 @@ def _key(r):
 
 
 def test_raw_knltb_xlsx_matches_curated_season(root):
-    rows, rep = parse_export((root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes(), "w.xlsx", "MIERLO",
+    rows, away_rows, rep = parse_export((root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes(), "w.xlsx", "MIERLO",
                              {"zondag"})
     assert rep["format"] == "ruwe KNLTB-export" and rep["imported"] == 52
     assert rep["skipped"]["uitwedstrijd"] == 116
+    assert isinstance(away_rows, list)
     ref = list(csv.DictReader((root / "data" / "season_2026-2027.tsv").open(encoding="utf-8"), delimiter="\t"))
     got = {_key({k: str(v) for k, v in r.items()}) for r in rows if r["Weekdag"] == "zondag"}
     want = {_key(r) for r in ref}
@@ -24,18 +25,18 @@ def test_raw_knltb_xlsx_matches_curated_season(root):
 
 def test_normalized_tsv_and_csv_roundtrip(root, tmp_path):
     data = (root / "data" / "season_2026-2027.tsv").read_bytes()
-    rows, rep = parse_export(data, "s.tsv", "MIERLO")
+    rows, away_rows, rep = parse_export(data, "s.tsv", "MIERLO")
     assert rep["format"] == "genormaliseerd" and rep["imported"] == 55
     out = tmp_path / "s.tsv"
     out.write_text(to_tsv(rows), encoding="utf-8")
     assert len(load_season_tsv(out, "MIERLO").fixtures) == 55
     csv_text = data.decode().replace("\t", ";")
-    rows2, _ = parse_export(csv_text.encode(), "s.csv", "MIERLO")
+    rows2, _, _ = parse_export(csv_text.encode(), "s.csv", "MIERLO")
     assert len(rows2) == 55
 
 
 def test_weekday_filter_and_unknown_formats(root):
-    rows, rep = parse_export((root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes(), "w.xlsx", "MIERLO",
+    rows, away_rows, rep = parse_export((root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes(), "w.xlsx", "MIERLO",
                              {"zaterdag"})
     # Zaterdag: dubbelcompetities (4 partijen) en Gemengd 17+ (5 partijen) zijn nu bekend.
     assert len(rows) == 8 and rep["skipped"].get("onbekend formaat", 0) == 0
@@ -51,7 +52,7 @@ def test_oscar_export_all_weekdays_and_played(root):
     """Upload Oscar 10-10-2026: do/vr-avond, za en zo; gespeeld = uitslag."""
     from datetime import date
     data = (root / "tests" / "generiek" / "data" / "export_anoniem_20261010.xlsx").read_bytes()
-    rows, rep = parse_export(data, "w.xlsx", "THUISCLUB", today=date(2026, 10, 10))
+    rows, away_rows, rep = parse_export(data, "w.xlsx", "THUISCLUB", today=date(2026, 10, 10))
     assert rep["rows_in_file"] == 228 and rep["imported"] == 112
     assert rep["per_weekday"] == {"zondag": 51, "donderdag": 12, "vrijdag": 40, "zaterdag": 9}
     assert rep["skipped"] == {"uitwedstrijd": 116} and not rep["unknown_schemas"]
@@ -63,5 +64,15 @@ def test_oscar_export_all_weekdays_and_played(root):
     g = [r for r in rows if r["Status"] == "gespeeld"]
     assert all(r["Uitslag"] for r in g)
     # Round-trip via TSV behoudt status/uitslag/dagdeel.
-    rows2, rep2 = parse_export(to_tsv(rows).encode(), "s.tsv", "THUISCLUB", today=date(2026, 10, 10))
+    rows2, _, rep2 = parse_export(to_tsv(rows).encode(), "s.tsv", "THUISCLUB", today=date(2026, 10, 10))
     assert rep2["played"] == 95 and [r["Status"] for r in rows2] == [r["Status"] for r in rows]
+
+
+def test_raw_export_collects_away_matches(root):
+    rows, away, rep = parse_export((root / "docs" / "wedstrijden_2026-2027.xlsx").read_bytes(), "w.xlsx", "MIERLO")
+    assert rep["away"] == 116 and len(away) == 116
+    assert all(r["Team 2"].upper().startswith("MIERLO") for r in away)
+    assert all(not r["Team 1"].upper().startswith("MIERLO") for r in away)
+    # Zondag-uitwedstrijden zijn beschikbaar om thuis te markeren.
+    sun = [r for r in away if r["Weekdag"] == "zondag"]
+    assert len(sun) >= 10
