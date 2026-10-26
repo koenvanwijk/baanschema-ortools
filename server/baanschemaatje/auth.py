@@ -6,8 +6,9 @@ Besluit Oscar 26-10-2026:
   pas als auth geconfigureerd is én de club ``auth_required`` heeft
   (of globale BS_AUTH_ENFORCE=1). Tot die tijd blijft schrijven open
   (interim), behalve club-aanmaken: dat is nooit anoniem open.
-- Geen gedeeld clubwachtwoord. Later optioneel e-mail+wachtwoord per user
-  (I4) — hier alleen een haak; niet gebouwd.
+- Geen gedeeld clubwachtwoord. Rollen per club (I4): club_admin / commissaris;
+  platform_admin via PLATFORM_ADMIN_EMAILS. Later optioneel e-mail+wachtwoord
+  per user — hier alleen een haak; niet gebouwd.
 - TV / dag / bingolijst (GET) blijven publiek (I5).
 
 Env (Cloud Run / lokaal):
@@ -283,14 +284,60 @@ def exchange_code_for_user(request: Request, code: str) -> dict[str, str]:
 
 # ---------------------------------------------------------------- autorisatie
 
+ROLE_VIEWER = "viewer"
+ROLE_COMMISSARIS = "commissaris"
+ROLE_CLUB_ADMIN = "club_admin"
+ROLE_PLATFORM_ADMIN = "platform_admin"
 
-def club_writers(meta: dict[str, Any] | None) -> set[str]:
+ROLE_RANK = {
+    ROLE_VIEWER: 0,
+    ROLE_COMMISSARIS: 1,
+    ROLE_CLUB_ADMIN: 2,
+    ROLE_PLATFORM_ADMIN: 3,
+}
+
+ROLE_LABELS_NL = {
+    ROLE_VIEWER: "Alleen kijken",
+    ROLE_COMMISSARIS: "Baancommissaris",
+    ROLE_CLUB_ADMIN: "Clubbeheerder",
+    ROLE_PLATFORM_ADMIN: "Platformbeheerder",
+}
+
+# Welke minimum-rol voor welke actiegroep (API).
+# commissaris: speeldag tikken (bingo/dashboard/demo-reset/herplan-voorstel)
+# club_admin: instellingen, import, toegang, verzetten, host-away, schema opslaan, berekenen
+ASSIGNABLE_ROLES = (ROLE_CLUB_ADMIN, ROLE_COMMISSARIS)
+
+
+def _legacy_writer_emails(meta: dict[str, Any] | None) -> set[str]:
     if not meta:
         return set()
     raw = meta.get("writers") or meta.get("writer_emails") or []
     if isinstance(raw, str):
         raw = [x.strip() for x in raw.split(",")]
-    return {str(e).strip().lower() for e in raw if str(e).strip()}
+    return {str(e).strip().lower() for e in raw if str(e).strip() and "@" in str(e)}
+
+
+def club_roles(meta: dict[str, Any] | None) -> dict[str, str]:
+    """E-mail → rol (club_admin | commissaris). Legacy ``writers`` = club_admin."""
+    out: dict[str, str] = {}
+    if not meta:
+        return out
+    raw = meta.get("roles") or {}
+    if isinstance(raw, dict):
+        for email, role in raw.items():
+            e = str(email).strip().lower()
+            r = str(role).strip().lower()
+            if e and "@" in e and r in ASSIGNABLE_ROLES:
+                out[e] = r
+    for e in _legacy_writer_emails(meta):
+        out.setdefault(e, ROLE_CLUB_ADMIN)
+    return out
+
+
+def club_writers(meta: dict[str, Any] | None) -> set[str]:
+    """Alle e-mails met een schrijfrol (club_admin of commissaris)."""
+    return set(club_roles(meta).keys())
 
 
 def club_auth_required(meta: dict[str, Any] | None) -> bool:
@@ -301,15 +348,26 @@ def club_auth_required(meta: dict[str, Any] | None) -> bool:
     return bool(meta.get("auth_required"))
 
 
-def can_write_club(email: str | None, club_id: str, meta: dict[str, Any] | None) -> bool:
+def resolve_role(email: str | None, meta: dict[str, Any] | None) -> str:
+    """Effectieve rol van deze gebruiker voor de club (platform_admin wint)."""
     if is_platform_admin(email):
-        return True
+        return ROLE_PLATFORM_ADMIN
     if not email:
-        return False
-    # Democlubs blijven open tot Q4 besloten is, tenzij auth_required expliciet aan staat.
-    if meta and meta.get("demo") and not club_auth_required(meta):
-        return True
-    return email.strip().lower() in club_writers(meta)
+        return ROLE_VIEWER
+    return club_roles(meta).get(email.strip().lower(), ROLE_VIEWER)
+
+
+def role_at_least(role: str, minimum: str) -> bool:
+    return ROLE_RANK.get(role, 0) >= ROLE_RANK.get(minimum, 0)
+
+
+def can_write_club(email: str | None, club_id: str, meta: dict[str, Any] | None) -> bool:
+    """Mag überhaupt iets schrijven (minstens commissaris), als auth aan staat."""
+    return role_at_least(resolve_role(email, meta), ROLE_COMMISSARIS)
+
+
+def can_manage_access(email: str | None, meta: dict[str, Any] | None) -> bool:
+    return role_at_least(resolve_role(email, meta), ROLE_CLUB_ADMIN)
 
 
 def authorize_platform_admin(request: Request | None) -> str:
@@ -330,43 +388,67 @@ def authorize_platform_admin(request: Request | None) -> str:
     return user["email"]
 
 
-def authorize_write(club_id: str, request: Request | None = None, *, meta: dict[str, Any] | None = None) -> None:
-    """Gooi 401/403 als de aanvrager deze club niet mag wijzigen.
+def _role_forbidden_message(email: str, club_id: str, role: str, min_role: str) -> str:
+    need = ROLE_LABELS_NL.get(min_role, min_role)
+    have = ROLE_LABELS_NL.get(role, role)
+    if role == ROLE_VIEWER:
+        return (
+            f"Geen schrijfrecht voor club '{club_id}' met {email}. "
+            f"Vraag de clubbeheerder om je als {need.lower()} toe te voegen."
+        )
+    return (
+        f"Rol '{have}' is onvoldoende voor club '{club_id}' (minimaal {need} nodig). "
+        f"Ingelogd als {email}."
+    )
 
-    Zonder geconfigureerde Google OAuth: open (interim), behalve dat create
-    elders geblokkeerd is. Met OAuth + auth_required (of BS_AUTH_ENFORCE):
-    sessie + allowlist (of platformbeheerder). Democlubs zonder auth_required
-    blijven open (Q4).
+
+def authorize_write(
+    club_id: str,
+    request: Request | None = None,
+    *,
+    meta: dict[str, Any] | None = None,
+    min_role: str = ROLE_COMMISSARIS,
+) -> None:
+    """Gooi 401/403 als de aanvrager deze actie niet mag.
+
+    Zonder geconfigureerde Google OAuth: open (interim), behalve create elders.
+    Met OAuth + auth_required (of BS_AUTH_ENFORCE): sessie + rol ≥ min_role.
+    Democlubs zonder auth_required blijven open (Q4).
+    min_role: commissaris (speeldag) of club_admin (beheer/import/toegang/schema).
     """
-    # Create-pad gebruikt authorize_platform_admin; hier geen speciale create-logica.
+    if min_role not in ROLE_RANK:
+        min_role = ROLE_COMMISSARIS
     if not auth_configured():
         return None
     if meta is not None and not club_auth_required(meta):
-        # Club nog niet achter login; democlubs/Mierlo blijven werken tijdens uitrol.
         return None
     if meta is None and not auth_enforce_global():
-        # Aanroeper gaf geen meta (oude tests); zonder enforce blijft open.
         return None
     user = current_user(request)
     if not user:
         raise HTTPException(401, "Inloggen vereist (Google) om te wijzigen")
-    if not can_write_club(user["email"], club_id, meta):
-        raise HTTPException(
-            403,
-            f"Geen schrijfrecht voor club '{club_id}' met {user['email']}. "
-            "Vraag de clubbeheerder om je e-mail toe te voegen.",
-        )
+    role = resolve_role(user["email"], meta)
+    if not role_at_least(role, min_role):
+        raise HTTPException(403, _role_forbidden_message(user["email"], club_id, role, min_role))
     return None
 
 
 def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = None) -> dict[str, Any]:
     user = current_user(request)
     email = user["email"] if user else None
+    role = resolve_role(email, club_meta) if club_meta is not None else (
+        ROLE_PLATFORM_ADMIN if is_platform_admin(email) else (ROLE_VIEWER if email else None)
+    )
+    open_writes = (not auth_configured()) or (
+        club_meta is not None and not club_auth_required(club_meta)
+    )
     return {
         "configured": auth_configured(),
         "enforce": auth_enforce_global(),
         "user": user,
         "is_platform_admin": is_platform_admin(email),
+        "role": role,
+        "role_label": ROLE_LABELS_NL.get(role or "", None),
         "can_create_club": bool(
             allow_open_create()
             or (auth_configured() and is_platform_admin(email))
@@ -382,12 +464,22 @@ def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = N
         ),
         "club_auth_required": club_auth_required(club_meta) if club_meta is not None else None,
         "can_write_club": (
-            (not auth_configured())
-            or (club_meta is not None and not club_auth_required(club_meta))
-            or can_write_club(email, (club_meta or {}).get("id") or "", club_meta)
+            open_writes or role_at_least(role or ROLE_VIEWER, ROLE_COMMISSARIS)
         )
         if club_meta is not None
         else None,
-        # Haak voor later (I4): e-mail + wachtwoord per user — niet gebouwd.
+        "can_admin_club": (
+            open_writes or role_at_least(role or ROLE_VIEWER, ROLE_CLUB_ADMIN)
+        )
+        if club_meta is not None
+        else None,
+        "can_manage_access": (
+            bool(email) and can_manage_access(email, club_meta)
+        )
+        if club_meta is not None
+        else None,
+        "roles": club_roles(club_meta) if club_meta is not None else None,
+        "role_labels": dict(ROLE_LABELS_NL),
+        # Haak voor later: e-mail + wachtwoord per user — niet gebouwd.
         "password_login": False,
     }

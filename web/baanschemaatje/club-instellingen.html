@@ -115,13 +115,14 @@
   </section>
 
   <section data-pane="toegang" hidden>
-    <h3>Google-login voor schrijven</h3>
-    <p class="hint">Geen gedeeld clubwachtwoord. Alleen goedgekeurde Google-e-mails mogen wijzigen (instellingen, plannen, bingo). TV, dagpagina en bingolijst blijven open zonder login. Later optioneel: e-mail + wachtwoord per gebruiker (nog niet gebouwd).</p>
+    <h3>Rollen &amp; Google-login</h3>
+    <p class="hint">Geen gedeeld clubwachtwoord. Per persoon een Google-e-mail met rol. <b>Clubbeheerder</b>: instellingen, import, plannen, toegang, verzetten. <b>Baancommissaris</b>: op de speeldag bingo/dashboard tikken (aanwezig, start, klaar). TV, dagpagina en bingolijst blijven open zonder login. Platformbeheerder (Oscar) mag altijd alles.</p>
     <div class="form">
       <label class="inline"><input id="f-auth-required" type="checkbox"> Schrijven alleen na Google-login</label>
-      <label>Toegestane e-mails (één per regel)
-        <textarea id="f-writers" rows="5" placeholder="naam@vereniging.nl"></textarea>
-      </label>
+      <div class="roles-head"><b>Leden met een rol</b>
+        <button type="button" id="role-add" class="btn2">+ Lid toevoegen</button>
+      </div>
+      <div id="roles-list" class="roles-list"></div>
       <div><button id="access-save" class="live-btn">Toegang opslaan</button> <span id="access-status" class="hint"></span></div>
     </div>
   </section>

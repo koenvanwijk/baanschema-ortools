@@ -115,8 +115,10 @@ function renderAuthBar() {
     return;
   }
   if (a.user) {
+    const roleBadge = a.is_platform_admin ? ' <span class="badge">platformbeheerder</span>'
+      : (a.role_label ? ` <span class="badge">${esc(a.role_label)}</span>` : "");
     el.innerHTML = `<span class="auth-user" title="${esc(a.user.email)}">${esc(a.user.name || a.user.email)}</span>`
-      + (a.is_platform_admin ? ' <span class="badge">beheerder</span>' : "")
+      + roleBadge
       + ` <button type="button" class="btn2" id="auth-logout">Uitloggen</button>`;
     const btn = $("auth-logout");
     if (btn) btn.onclick = async () => { await logout(); location.reload(); };

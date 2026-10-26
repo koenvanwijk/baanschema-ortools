@@ -26,8 +26,9 @@ Endpoints
   POST /scenarios                    oplossingen voor een dag die niet past → zoals <datum>.solutions.json
 
 Beveiliging (I1/I3/I5, Oscar 26-10-2026): schrijfacties via
-``auth.authorize_write``. Google OAuth + club-writers als de club
+``auth.authorize_write`` met rollen (I4). Google OAuth + clubrollen als de club
 ``auth_required`` heeft (of ``BS_AUTH_ENFORCE=1``); anders interim open.
+Rollen: club_admin (beheer) / commissaris (speeldag); platform_admin via env.
 ``POST /clubs`` alleen voor platformbeheerder (nooit anoniem open).
 TV/dag/bingolijst GET blijven publiek. Ingebouwde YAML-clubs alleen-lezen.
 
@@ -76,16 +77,23 @@ from baanschemaatje.webexport import profile_summary
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from auth import (  # noqa: E402
-    authorize_platform_admin,
-    authorize_write,
+    ASSIGNABLE_ROLES,
+    ROLE_CLUB_ADMIN,
+    ROLE_COMMISSARIS,
+    ROLE_LABELS_NL,
     auth_configured,
     auth_status,
+    authorize_platform_admin,
+    authorize_write,
+    can_manage_access,
     clear_session_cookie,
+    club_roles,
     club_writers,
     consume_oauth_state,
     current_user,
     exchange_code_for_user,
     is_platform_admin,
+    resolve_role,
     set_oauth_state_cookie,
     set_session_cookie,
     start_oauth_url,
@@ -212,12 +220,12 @@ def _profile(raw: dict, source: str) -> ClubProfile:
         raise HTTPException(422, f"ongeldig clubprofiel: {exc}") from exc
 
 
-def _writable(club_id: str, request: Request | None) -> dict[str, Any]:
+def _writable(club_id: str, request: Request | None, *, min_role: str = ROLE_CLUB_ADMIN) -> dict[str, Any]:
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403,
                             f"club '{club_id}' is niet bewerkbaar (alleen-lezen voorbeeldprofiel)")
-    authorize_write(club_id, request, meta=meta)
+    authorize_write(club_id, request, meta=meta, min_role=min_role)
     return meta
 
 
@@ -238,7 +246,8 @@ def _public_meta(meta: dict[str, Any] | None) -> dict[str, Any] | None:
         "demo": bool(meta.get("demo")),
         "auth_required": bool(meta.get("auth_required")),
         "writers": sorted(club_writers(meta)),
-        # Geen wachtwoordhashes e.d. — later I4: alleen flags, nooit secrets.
+        "roles": club_roles(meta),
+        # Geen wachtwoordhashes e.d. — later optioneel e-mail+wachtwoord: alleen flags, nooit secrets.
         "password_login": False,
     }
     return out
@@ -691,8 +700,8 @@ def get_bingo(club_id: str, date: str) -> dict[str, Any]:
 
 @app.put("/clubs/{club_id}/bingo/{date}")
 async def put_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
-    # Geen login (besluit Oscar 14-10-2026): iedereen met de commissaris-link mag tikken.
-    _writable(club_id, request)
+    # Speeldag: baancommissaris (I4). Zonder auth_required blijft interim open.
+    _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     body = await _json_body(request, MAX_BINGO_BYTES)
     if not isinstance(body, dict) or not isinstance(body.get("state"), dict) or not isinstance(body.get("gen"), int):
@@ -709,7 +718,7 @@ async def put_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]
 
 @app.delete("/clubs/{club_id}/bingo/{date}")
 def delete_bingo(club_id: str, date: str, request: Request) -> dict[str, Any]:
-    _writable(club_id, request)
+    _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     return {"deleted": STORE.delete(_bingo_key(club_id, date))}
 
@@ -738,8 +747,8 @@ def get_dayrun(club_id: str, date: str) -> dict[str, Any]:
 
 @app.put("/clubs/{club_id}/dayrun/{date}")
 async def put_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
-    # Eén baancommissaris op één apparaat (besluit Oscar 16-10-2026, V1); geen login, zoals bingo.
-    _writable(club_id, request)
+    # Speeldag: baancommissaris (I4). Zonder auth_required blijft interim open.
+    _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     body = await _json_body(request, MAX_BINGO_BYTES)
     if not isinstance(body, dict) or not isinstance(body.get("state"), dict) or not isinstance(body.get("gen"), int):
@@ -756,7 +765,7 @@ async def put_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any
 
 @app.delete("/clubs/{club_id}/dayrun/{date}")
 def delete_dayrun(club_id: str, date: str, request: Request) -> dict[str, Any]:
-    _writable(club_id, request)
+    _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     return {"deleted": STORE.delete(_dayrun_key(club_id, date))}
 
@@ -770,7 +779,7 @@ def _is_demo(club_id: str) -> bool:
 def demo_reset(club_id: str, date: str, request: Request) -> dict[str, Any]:
     """Alleen democlubs (meta.demo): wis het getikte verloop van die avond/dag (bingo + dashboard), zodat je opnieuw
     kunt oefenen. Schema, verzettingen en opgaven blijven staan. Echte clubs: 403."""
-    _writable(club_id, request)
+    _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     _check_date(date)
     if not _is_demo(club_id):
         raise HTTPException(403, "reset kan alleen bij een democlub")
@@ -792,9 +801,11 @@ def _iso_to_min(iso: str) -> int | None:
 
 
 @app.post("/clubs/{club_id}/replan/{date}")
-def replan(club_id: str, date: str, req: ReplanRequest) -> dict[str, Any]:
+def replan(club_id: str, date: str, req: ReplanRequest, request: Request) -> dict[str, Any]:
     """SD5 "Herplan rest van de dag": rekent alleen een voorstel uit (slaat niets op). Gespeelde/lopende partijen
-    (uit het verloop) staan vast; banen buiten gebruik, gestaakte teams en "later starten" tellen mee."""
+    (uit het verloop) staan vast; banen buiten gebruik, gestaakte teams en "later starten" tellen mee.
+    Speeldag-actie: baancommissaris mag dit (I4)."""
+    _writable(club_id, request, min_role=ROLE_COMMISSARIS)
     from baanschemaatje.planner import replan_day
 
     _known_club(club_id)
@@ -1122,13 +1133,15 @@ def create_club(body: CreateClub, request: Request) -> dict[str, Any]:
         raise HTTPException(429, "maximum aantal clubs bereikt")
     now = _now()
     STORE.put(f"clubs/{cid}/profile.json", json.dumps(body.profile, ensure_ascii=False, indent=1).encode(), "application/json")
-    # Platformbeheerder staat standaard in writers; auth_required default uit (geleidelijke uitrol).
+    # Platformbeheerder staat standaard als club_admin; auth_required default uit (geleidelijke uitrol).
+    roles = {admin_email: ROLE_CLUB_ADMIN} if admin_email != "test@localhost" else {}
     meta = {
         "id": cid,
         "name": prof.name,
         "created_at": now,
         "season": None,
-        "writers": [admin_email] if admin_email != "test@localhost" else [],
+        "roles": roles,
+        "writers": sorted(roles.keys()),
         "auth_required": False,
         "created_by": admin_email,
     }
@@ -1157,8 +1170,15 @@ def put_profile(club_id: str, raw: dict[str, Any], request: Request) -> dict[str
     return {"ok": True, "summary": profile_summary(prof, club_id)}
 
 
+class ClubAccessMember(BaseModel):
+    email: str
+    role: str = ROLE_CLUB_ADMIN
+
+
 class ClubAccess(BaseModel):
-    """Schrijfrechten per club (I3). Geen gedeeld wachtwoord; later I4 evt. e-mail+wachtwoord per user."""
+    """Rollen per club (I4). Geen gedeeld wachtwoord; later evt. e-mail+wachtwoord per user."""
+    members: list[ClubAccessMember] | None = None
+    # Backward compat: platte writers-lijst → club_admin
     writers: list[str] | None = None
     auth_required: bool | None = None
 
@@ -1168,17 +1188,24 @@ def get_access(club_id: str, request: Request) -> dict[str, Any]:
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
+    roles = club_roles(meta)
+    members = [{"email": e, "role": r, "label": ROLE_LABELS_NL.get(r, r)} for e, r in sorted(roles.items())]
     return {
         "id": club_id,
-        "writers": sorted(club_writers(meta)),
+        "members": members,
+        "roles": roles,
+        "writers": sorted(roles.keys()),
         "auth_required": bool(meta.get("auth_required")),
+        "assignable_roles": [
+            {"id": r, "label": ROLE_LABELS_NL[r]} for r in ASSIGNABLE_ROLES
+        ],
         "auth": auth_status(request, club_meta=meta),
     }
 
 
 @app.put("/clubs/{club_id}/access")
 def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, Any]:
-    """Alleen platformbeheerder, of (als auth al aan staat) een bestaande writer."""
+    """Alleen platformbeheerder of clubbeheerder mag rollen beheren."""
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
@@ -1188,24 +1215,49 @@ def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, An
         raise HTTPException(503, "Google-login is nog niet geconfigureerd")
     if not email:
         raise HTTPException(401, "Inloggen vereist")
-    allowed = is_platform_admin(email) or (
-        bool(meta.get("auth_required")) and email in club_writers(meta)
-    )
-    if not allowed:
-        raise HTTPException(403, "Geen recht om toegang van deze club te beheren")
-    if body.writers is not None:
-        cleaned = sorted({e.strip().lower() for e in body.writers if e and "@" in e.strip()})
+    if not can_manage_access(email, meta):
+        raise HTTPException(403, "Geen recht om rollen van deze club te beheren (alleen clubbeheerder)")
+    if body.members is not None or body.writers is not None:
+        cleaned: dict[str, str] = {}
+        if body.members is not None:
+            for m in body.members:
+                e = (m.email or "").strip().lower()
+                r = (m.role or ROLE_CLUB_ADMIN).strip().lower()
+                if not e or "@" not in e:
+                    continue
+                if r not in ASSIGNABLE_ROLES:
+                    raise HTTPException(
+                        422,
+                        f"Onbekende rol '{m.role}'. Kies Clubbeheerder of Baancommissaris.",
+                    )
+                cleaned[e] = r
+        elif body.writers is not None:
+            for w in body.writers:
+                e = (w or "").strip().lower()
+                if e and "@" in e:
+                    cleaned[e] = ROLE_CLUB_ADMIN
         if is_platform_admin(email) and email not in cleaned:
-            cleaned.append(email)  # beheerder kan zichzelf niet per ongeluk eruit gooien bij eerste setup
-            cleaned = sorted(set(cleaned))
-        meta["writers"] = cleaned
+            cleaned[email] = ROLE_CLUB_ADMIN
+        # Voorkom dat de laatste clubbeheerder zichzelf weghaalt.
+        if not any(r == ROLE_CLUB_ADMIN for r in cleaned.values()) and not is_platform_admin(email):
+            raise HTTPException(422, "Er moet minstens één clubbeheerder overblijven")
+        meta["roles"] = cleaned
+        meta["writers"] = sorted(cleaned.keys())
     if body.auth_required is not None:
         meta["auth_required"] = bool(body.auth_required)
-        if meta["auth_required"] and not club_writers(meta):
-            # Zorg dat er minstens één writer is als we auth aanzetten.
+        if meta["auth_required"] and not club_roles(meta):
+            meta["roles"] = {email: ROLE_CLUB_ADMIN}
             meta["writers"] = [email]
     _put_meta(club_id, meta)
-    return {"ok": True, "writers": sorted(club_writers(meta)), "auth_required": bool(meta.get("auth_required"))}
+    roles = club_roles(meta)
+    members = [{"email": e, "role": r, "label": ROLE_LABELS_NL.get(r, r)} for e, r in sorted(roles.items())]
+    return {
+        "ok": True,
+        "members": members,
+        "roles": roles,
+        "writers": sorted(roles.keys()),
+        "auth_required": bool(meta.get("auth_required")),
+    }
 
 
 @app.post("/clubs/{club_id}/season")
@@ -1277,10 +1329,15 @@ def dates(club: str = Query("", description="club-id; bepaalt thuisteam en seizo
 
 
 @app.post("/plan")
-def plan(req: PlanRequest) -> dict[str, Any]:
+def plan(req: PlanRequest, request: Request) -> dict[str, Any]:
     from baanschemaatje.planner import plan_day
 
     club_id, prof, raw, season, spath = _resolve(req)
+    # Berekenen is clubbeheer; commissaris niet (I4). Inline/builtin zonder meta blijft open.
+    if isinstance(getattr(req, "club", None), str) and req.club:
+        meta = _meta(req.club)
+        if meta is not None:
+            authorize_write(req.club, request, meta=meta, min_role=ROLE_CLUB_ADMIN)
     day_fx = season.day(req.date)
     wd = WEEKDAYS_NL[datetime.strptime(req.date, "%d-%m-%Y").weekday()]
     if prof.day_mode(wd) == "bingo":
@@ -1346,11 +1403,15 @@ def _played_view(fx: list) -> list[dict[str, Any]]:
 
 
 @app.post("/scenarios")
-def scenarios(req: PlanRequest, combos: bool = Query(False, description="ook combinaties proberen (duurt langer)")) -> dict[str, Any]:
+def scenarios(req: PlanRequest, request: Request, combos: bool = Query(False, description="ook combinaties proberen (duurt langer)")) -> dict[str, Any]:
     from baanschemaatje.planner import plan_day
     from baanschemaatje.scenarios import candidate_scenarios, propose_solutions
 
     club_id, prof, raw, season, spath = _resolve(req)
+    if isinstance(getattr(req, "club", None), str) and req.club:
+        meta = _meta(req.club)
+        if meta is not None:
+            authorize_write(req.club, request, meta=meta, min_role=ROLE_CLUB_ADMIN)
     tl = _time_limit(req)
     key = _key(f"scenarios:{combos}", raw, req, tl, spath)
     if (hit := _cached(key)) is not None:

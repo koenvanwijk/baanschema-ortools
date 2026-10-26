@@ -287,11 +287,11 @@ function updateCreateGate() {
 async function saveAccess() {
   const st = $("access-status");
   if (!CLUB || !CLUB.editable) { st.textContent = "Deze club is niet bewerkbaar."; return; }
-  const writers = ($("f-writers").value || "").split(/[\n,;]+/).map((s) => s.trim()).filter(Boolean);
+  const members = readRolesFromUi();
   const auth_required = $("f-auth-required").checked;
   st.textContent = "Opslaan…";
   try {
-    await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`, jsonOpts("PUT", { writers, auth_required }));
+    await api(`/clubs/${encodeURIComponent(CLUB.id)}/access`, jsonOpts("PUT", { members, auth_required }));
     await loadClub();
     st.textContent = "Toegang opgeslagen.";
   } catch (e) {
@@ -300,18 +300,63 @@ async function saveAccess() {
   }
 }
 
+function roleOptions(selected) {
+  const opts = [
+    ["club_admin", "Clubbeheerder"],
+    ["commissaris", "Baancommissaris"],
+  ];
+  return opts.map(([v, l]) => `<option value="${v}"${selected === v ? " selected" : ""}>${l}</option>`).join("");
+}
+
+function readRolesFromUi() {
+  const rows = $("roles-list") ? $("roles-list").querySelectorAll(".role-row") : [];
+  const out = [];
+  for (const row of rows) {
+    const email = (row.querySelector('input[type="email"]')?.value || "").trim().toLowerCase();
+    const role = row.querySelector("select")?.value || "club_admin";
+    if (email && email.includes("@")) out.push({ email, role });
+  }
+  return out;
+}
+
+function addRoleRow(email, role) {
+  const list = $("roles-list");
+  if (!list) return;
+  const row = document.createElement("div");
+  row.className = "role-row";
+  row.innerHTML = `<input type="email" placeholder="naam@vereniging.nl" value="${esc(email || "")}" autocomplete="off">`
+    + `<select aria-label="Rol">${roleOptions(role || "club_admin")}</select>`
+    + `<button type="button" class="btn2 role-remove" title="Verwijderen">✕</button>`;
+  row.querySelector(".role-remove").onclick = () => { row.remove(); };
+  list.appendChild(row);
+}
+
 function fillAccess() {
   const meta = (CLUB && CLUB.meta) || {};
   const a = (CLUB && CLUB.auth) || AUTH || {};
   if ($("f-auth-required")) $("f-auth-required").checked = !!meta.auth_required;
-  if ($("f-writers")) $("f-writers").value = (meta.writers || []).join("\n");
-  const can = a.is_platform_admin || (a.user && meta.auth_required && (meta.writers || []).includes(a.user.email));
+  const list = $("roles-list");
+  if (list) {
+    list.innerHTML = "";
+    const roles = meta.roles || {};
+    const emails = Object.keys(roles).length ? Object.keys(roles).sort()
+      : (meta.writers || []).slice().sort();
+    if (emails.length) {
+      for (const e of emails) addRoleRow(e, roles[e] || "club_admin");
+    } else {
+      addRoleRow("", "club_admin");
+    }
+  }
+  const can = !!(a.is_platform_admin || a.can_manage_access
+    || (a.user && (a.role === "club_admin" || a.role === "platform_admin")));
   const disabled = !CLUB.editable || !a.configured || !can;
   if ($("f-auth-required")) $("f-auth-required").disabled = disabled;
-  if ($("f-writers")) $("f-writers").disabled = disabled;
   if ($("access-save")) $("access-save").disabled = disabled;
+  if ($("role-add")) $("role-add").disabled = disabled;
+  if (list) for (const el of list.querySelectorAll("input, select, button")) el.disabled = disabled;
   if ($("access-status") && !a.configured) $("access-status").textContent = "Google-login nog niet geconfigureerd — toegang opslaan kan pas daarna.";
-  else if ($("access-status") && disabled && a.configured) $("access-status").textContent = can ? "" : "Alleen platformbeheerder of club-schrijver mag toegang beheren.";
+  else if ($("access-status") && disabled && a.configured) $("access-status").textContent = can ? "" : "Alleen platformbeheerder of clubbeheerder mag rollen beheren.";
+  else if ($("access-status") && !disabled) $("access-status").textContent = "";
 }
 
 // ---------------------------------------------------------------- seizoen
@@ -377,6 +422,7 @@ async function init() {
   $("new-cancel").onclick = () => { $("new-sec").hidden = true; };
   $("new-create").onclick = createClub;
   if ($("access-save")) $("access-save").onclick = saveAccess;
+  if ($("role-add")) $("role-add").onclick = () => addRoleRow("", "commissaris");
   for (const b of $("tabs").querySelectorAll("button")) b.onclick = () => showTab(b.dataset.tab);
   document.querySelector("main").addEventListener("input", (e) => { if (e.target.closest("[data-pane]") && e.target.id !== "file") setDirty(true); });
   window.addEventListener("beforeunload", (e) => { if (DIRTY) { e.preventDefault(); e.returnValue = ""; } });

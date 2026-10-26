@@ -286,3 +286,12 @@ body.view-list .view-hint { display: inline; }
 .find-it { all: unset; display: block; cursor: pointer; padding: 6px 8px; border-radius: 8px; width: 100%; box-sizing: border-box; }
 .find-it:hover, .find-it.on { background: #fff4d6; }
 .hl-find { outline: 3px solid #e0a100 !important; outline-offset: 1px; box-shadow: 0 0 0 6px #e0a10055 !important; z-index: 5; }
+
+/* Rollen (I4) */
+.roles-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: .75rem 0 .35rem; }
+.roles-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .75rem; }
+.role-row { display: grid; grid-template-columns: 1fr minmax(10rem, 12rem) auto; gap: .4rem; align-items: center; }
+.role-row input[type="email"] { width: 100%; }
+@media (max-width: 560px) {
+  .role-row { grid-template-columns: 1fr; }
+}
