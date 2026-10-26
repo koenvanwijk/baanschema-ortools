@@ -1,49 +1,311 @@
-/* Product-frontpage (/) — zelfde kleuren/typografie als style.css */
-body.home { min-height: 100vh; display: flex; flex-direction: column; }
-body.home main { flex: 1; max-width: 960px; }
+/* Product-frontpage — tennisclub-gevoel, geen stockfoto's */
+:root {
+  --home-clay: #c45c26;
+  --home-clay-soft: #fff4e8;
+  --home-ink: #152018;
+  --home-panel: #f3f7f4;
+}
 
-.home-top { position: sticky; top: 0; z-index: 5; background: var(--accent); color: #fff;
-  padding: 12px 18px; display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; }
-.home-top h1 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
-.home-top .sub { opacity: .9; font-size: 13px; }
+body.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(1200px 480px at 90% -10%, rgba(196, 92, 38, .08), transparent 55%),
+    radial-gradient(900px 420px at -10% 20%, rgba(47, 111, 79, .12), transparent 50%),
+    var(--bg);
+  color: var(--home-ink);
+}
+body.home main {
+  flex: 1;
+  max-width: 1040px;
+  padding: 0 20px 40px;
+}
+
+/* —— header —— */
+.home-top {
+  position: sticky; top: 0; z-index: 5;
+  background: linear-gradient(180deg, #275c41 0%, var(--accent) 100%);
+  color: #fff;
+  padding: 12px 20px;
+  display: flex; flex-wrap: wrap; gap: 10px 20px;
+  align-items: center; justify-content: space-between;
+  box-shadow: 0 1px 0 rgba(0,0,0,.08);
+}
+.brand-link {
+  display: flex; align-items: center; gap: 10px;
+  color: inherit; text-decoration: none;
+}
+.brand-mark { display: flex; opacity: .95; }
+.brand-text { display: flex; flex-direction: column; gap: 1px; }
+.brand-name { font-size: 20px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.home-top .sub { opacity: .85; font-size: 12px; }
+.home-top h1 { margin: 0; font-size: 20px; } /* fallback als oude markup */
 .home-top .auth-bar { margin-left: 0; }
-.home-top .auth-bar .live-btn { background: #fff; color: var(--accent); border-color: #fff; }
-.home-top .auth-bar .btn2 { border-color: rgba(255,255,255,.7); color: #fff; background: transparent; }
+.home-top .auth-bar .live-btn,
+.home-top .auth-bar .cta-primary {
+  background: #fff; color: var(--accent); border: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12);
+}
+.home-top .auth-bar .btn2,
+.home-top .auth-bar .cta-secondary {
+  border-color: rgba(255,255,255,.65); color: #fff; background: transparent;
+}
 
-.hero { padding: 28px 4px 8px; }
-.eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
-.hero h2 { margin: 0 0 10px; font-size: clamp(24px, 4.5vw, 34px); line-height: 1.2; letter-spacing: -.02em; }
-.lede { margin: 0 0 18px; font-size: 17px; color: var(--muted); max-width: 38rem; }
-.cta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 10px; }
-.cta-row .cta { padding: 10px 18px; font-size: 15px; text-decoration: none; display: inline-block; }
-.cta-row .btn2 { text-decoration: none; display: inline-block; padding: 8px 14px; }
+/* —— hero —— */
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 28px 36px;
+  align-items: center;
+  margin: 28px 0 8px;
+  padding: 28px 28px 32px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.92) 0%, rgba(243,247,244,.95) 100%);
+  border: 1px solid rgba(47, 111, 79, .14);
+  border-radius: 20px;
+  box-shadow: 0 18px 40px -28px rgba(21, 32, 24, .45);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(47,111,79,.06) 48% 52%, transparent 52%),
+    linear-gradient(0deg, transparent 0 48%, rgba(47,111,79,.05) 48% 52%, transparent 52%);
+  background-size: 64px 64px;
+  opacity: .45;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
+}
+.hero-copy, .hero-visual { position: relative; z-index: 1; }
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.hero h2 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 4.8vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -.03em;
+  font-weight: 750;
+  max-width: 16ch;
+}
+.lede {
+  margin: 0 0 22px;
+  font-size: 17px; line-height: 1.5;
+  color: var(--muted);
+  max-width: 36rem;
+}
+.cta-row {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center; margin: 0 0 12px;
+}
+.cta-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(180deg, #d96a2e 0%, var(--home-clay) 100%);
+  color: #fff !important;
+  font: inherit; font-weight: 700; font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -8px rgba(196, 92, 38, .7), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.cta-primary:hover { filter: brightness(1.05); }
+.cta-primary:active { transform: translateY(1px); }
+.cta-primary.compact { padding: 8px 14px; font-size: 14px; }
+.cta-icon { flex: none; }
+.cta-secondary {
+  display: inline-flex; align-items: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(47, 111, 79, .35);
+  background: rgba(255,255,255,.7);
+  color: var(--accent);
+  font-weight: 600; font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cta-secondary:hover { background: #fff; border-color: var(--accent); }
+.login-hint { margin: 0; max-width: 34rem; }
 
-.clubs-panel { margin: 18px 0 8px; }
-.clubs-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-.clubs-head h2 { margin: 0; }
-.club-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
-.club-card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
-  text-decoration: none; color: inherit; transition: border-color .12s, box-shadow .12s; }
-.club-card:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(47,111,79,.12); }
+/* mini tv/court preview */
+.hero-visual { justify-self: stretch; }
+.court {
+  display: grid; gap: 8px;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #2f6f4f 0%, #1f4d36 100%);
+  color: #fff;
+  box-shadow: 0 16px 32px -18px rgba(31, 77, 54, .8);
+  border: 1px solid rgba(255,255,255,.12);
+}
+.court-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.1);
+  border: 1px dashed rgba(255,255,255,.28);
+  min-height: 52px;
+}
+.court-inner.mid { background: rgba(255,255,255,.16); }
+.court-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; opacity: .85; min-width: 3.6rem;
+}
+.court-chip {
+  justify-self: start;
+  font-size: 12px; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px;
+  background: #fff; color: #1d2420;
+}
+.court-chip.c1 { background: #dff0e5; color: #1f5135; }
+.court-chip.c2 { background: #e7eef8; color: #24519a; }
+.court-chip.c3 { background: var(--home-clay-soft); color: #7a2f0d; }
+.court-chip.soft { background: rgba(255,255,255,.2); color: #fff; font-weight: 600; }
+.visual-caption {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 12px; color: var(--muted);
+}
+
+/* —— clubs (logged in) —— */
+.clubs-panel { margin: 22px 0 8px; }
+.clubs-head {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  align-items: center; justify-content: space-between;
+}
+.clubs-head h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+.club-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; margin-top: 12px;
+}
+.club-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  text-decoration: none; color: inherit;
+  transition: border-color .12s, box-shadow .12s, transform .12s;
+}
+.club-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px -16px rgba(47,111,79,.55);
+  transform: translateY(-1px);
+}
 .club-card.recent { border-color: #7b4fc9; background: #faf8ff; }
 .club-card .name { font-size: 17px; font-weight: 700; margin: 0 0 4px; }
 .club-card .meta { font-size: 13px; color: var(--muted); margin: 0; }
 .club-card .role { margin-top: 8px; }
 
-.cardish { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+.cardish {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 14px 0;
+}
 .cardish .form { max-width: 420px; }
 
-.features { margin: 36px 0 24px; }
-.features h2 { margin: 0 0 12px; }
-.feat-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-.feat-grid li { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
-.feat-grid strong { font-size: 15px; color: var(--accent); }
-.feat-grid span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+/* —— features —— */
+.features { margin: 40px 0 8px; }
+.features-head { margin-bottom: 16px; }
+.features h2, .how h2 {
+  margin: 0 0 6px;
+  font-size: 22px; letter-spacing: -.02em;
+}
+.feat-grid {
+  list-style: none; padding: 0; margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.feat-grid li {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  box-shadow: 0 8px 20px -18px rgba(21,32,24,.5);
+  transition: border-color .12s, box-shadow .12s;
+}
+.feat-grid li:hover {
+  border-color: rgba(47,111,79,.35);
+  box-shadow: 0 14px 28px -18px rgba(47,111,79,.35);
+}
+.feat-icon {
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background: var(--home-panel);
+}
+.feat-grid strong { font-size: 16px; color: var(--home-ink); }
+.feat-grid span:last-child { font-size: 14px; color: var(--muted); line-height: 1.45; }
 
-.home-foot { color: var(--muted); font-size: 12px; padding: 20px 16px 28px; text-align: center; border-top: 1px solid var(--line); background: #eef1ec; }
-.home-foot p { margin: 4px 0; max-width: 40rem; margin-left: auto; margin-right: auto; }
+/* —— how steps —— */
+.how { margin: 36px 0 12px; }
+.how-steps {
+  list-style: none; padding: 0; margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.how-steps li {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 14px 14px 12px;
+}
+.how-n {
+  flex: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 700;
+}
+.how-steps strong { display: block; font-size: 15px; margin-bottom: 2px; }
+.how-steps span { font-size: 13px; color: var(--muted); line-height: 1.4; }
 
+/* —— footer —— */
+.home-foot {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 22px 16px 30px;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, #e8eee9, #e3eae5);
+}
+.home-foot p { margin: 4px auto; max-width: 42rem; }
+
+/* logged-out: hide hero visual clutter on very small if needed; keep CTA */
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 22px 18px 24px;
+    gap: 20px;
+  }
+  .hero h2 { max-width: none; font-size: clamp(26px, 7vw, 34px); }
+  .feat-grid { grid-template-columns: 1fr; }
+  .how-steps { grid-template-columns: 1fr; }
+}
 @media (max-width: 560px) {
-  .hero { padding-top: 18px; }
-  .home-top { padding: 10px 12px; }
+  body.home main { padding: 0 14px 28px; }
+  .home-top { padding: 10px 14px; }
+  .brand-name { font-size: 18px; }
+  .home-top .sub { display: none; }
+  .cta-primary { width: 100%; justify-content: center; }
+  .cta-secondary { width: 100%; justify-content: center; }
+  .hero { margin-top: 16px; border-radius: 16px; }
+  .court-inner { grid-template-columns: 1fr; gap: 6px; }
 }
