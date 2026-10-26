@@ -8,7 +8,7 @@ en de seizoensexport en schrijft niets terug.
 Endpoints
   GET  /health                       status + versie
   GET  /clubs                        clubs (ingebouwd + opgeslagen) met samenvatting
-  POST /clubs                        nieuwe club → eenmalig de bewerk-sleutel
+  POST /clubs                        nieuwe club (profiel in store; login volgt I3)
   GET  /clubs/{id}                   profiel (ruw + samenvatting), seizoen-info
   PUT  /clubs/{id}/profile           profiel opslaan
   POST /clubs/{id}/season            KNLTB-export uploaden (alle weekdagen; ruwe upload wordt bewaard)

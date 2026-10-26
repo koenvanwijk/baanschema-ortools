@@ -3,7 +3,7 @@
 ``BS_STORE`` = ``gs://<bucket>`` (Cloud Run) of een lokale map (tests/lokaal).
 Indeling per club::
 
-    clubs/<id>/meta.json      id, tijden, gehashte bewerk-sleutel, seizoen-info
+    clubs/<id>/meta.json      id, tijden, seizoen-info, demo-vlag (login/hash volgt: I3)
     clubs/<id>/profile.json   clubprofiel (zelfde schema als clubs/*.yaml)
     clubs/<id>/season.tsv     genormaliseerd seizoen (uit de KNLTB-export)
     clubs/<id>/schedules/<dd-mm-YYYY>.json   opgeslagen baanschema van een dag

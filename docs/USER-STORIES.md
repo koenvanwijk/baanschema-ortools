@@ -13,7 +13,7 @@ Laatst bijgewerkt: 26-10-2026 (D3 iedere dag / bingo).
 - Detailregels (KNLTB, parameters) blijven in [`SPEC-core.md`](./SPEC-core.md) en [`SPEC-mierlo.md`](./SPEC-mierlo.md); dit document verwijst ernaar.
 - Werkwijze: **kleine stappen**; `main` en de live Mierlo-pagina worden nooit gebroken.
 
-Rollen: **TC** (technische commissie / planner van de club), **commissaris** (baancommissaris op de avond), **captain**, **lid/bar**, **beheerder** (ontwikkelaar).
+Rollen: **TC** (technische commissie / planner van de club), **commissaris** (baancommissaris op de avond), **captain**, **lid/bar**, **clubbeheerder** (toegang/rollen per club, zie I4), **beheerder** (platform/ontwikkelaar).
 
 ---
 
@@ -66,6 +66,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-17 | Ingetrokken modelgrens "jeugd 13-17 vanaf 11:00" (VENSTER-JEUGD, "ingetrokken") telt in Baanschemaatje niet meer als "Kan mooier" — ook in al opgeslagen schema's (18-10 Mierlo: 4 → 0). Gedeeld validatorscript (`scripts/validate_schedule.py`, CI main) ongewijzigd | Oscar |
 | 2026-10-17 | Bingo oefenen op democlub Demo TV (Oscar): vrijdag = bingo (sluiting 01:00, laatste start 23:30); fictieve thuiswedstrijden op vr 23-10 (7) en vr 30-10 (6) 2026, mix GD 17+/35+, DD 17+/35+, HD 35+, Heren 17+ (S+D). Bingo/commissaris/tv/dashboard zijn bij Demo TV gewoon beschrijfbaar (testdata mag daar); knop "Reset demo-avond/-dag" (`POST /clubs/{club}/demo-reset/{datum}`) wist bingo- en dashboardverloop van die datum, alleen bij democlubs (meta.demo; echte clubs 403) | Oscar |
 | 2026-10-26 | Uitwedstrijd → thuis gespeeld (D3): knop in dagweergave; away.tsv + host_away.json; zelfde plannerregels | Oscar |
+| 2026-10-26 | Productrichting: zelf nieuwe clubs toevoegen + per club logins/access management (I1–I5). Eerdere "geen login voorlopig" blijft gelden tot fase 2 live is; implementatie gefaseerd. Publieke deel-links (tv/dag) blijven open vraag. | Oscar |
 | 2026-10-26 | D3 geldt op **iedere** competitiedag (Oscar: "ja, dit zou in principe op iedere dag kunnen"): gepland én bingo (vrijdag e.d.), donderdagavond enz. Gemarkeerde uitwedstrijd verschijnt in bingo-wachtrij/TV/commissaris net als een thuiswedstrijd | Oscar |
 | 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
 
@@ -86,8 +87,8 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 - Status: gereed · Bron: ROADMAP fase 1.
 
 **A4 — Geen login nu, democlub.** Als bezoeker wil ik zonder account kunnen proberen (democlub), zodat de drempel laag is.
-- AC: schrijven staat open; ingebouwde voorbeeldprofielen zijn alleen-lezen. Login per club = later (issue 27).
-- Status: gereed (login: gepland) · Bron: Oscar 09-10-2026.
+- AC: schrijven staat open tot login-fase live is; ingebouwde voorbeeldprofielen zijn alleen-lezen; democlubs (meta.demo) blijven om te oefenen.
+- Status: gereed voor democlub/open testen · **productrichting login/access: zie I3–I5** (eerdere "geen login voorlopig" / backlog #12/#19 / ROADMAP issue 27 blijft interim tot fase 2) · Bron: Oscar 09/14-10-2026; richting bijgesteld Oscar 26-10-2026.
 
 ## B. KNLTB-regels en planner (zie SPEC-core / SPEC-mierlo)
 
@@ -261,6 +262,62 @@ Antwoorden Oscar 16-10-2026.
 | V6 | Tv-scherm ook voor geplande dagen? | SD6, SD9 | Ja. → SD9. |
 | V7 | Captains automatisch informeren of alleen via gedeelde link? | SD7 | Niet automatisch; de gedeelde link volstaat. SD7 vervalt. |
 
+## I. [Beheer] Clubs toevoegen & toegang (epic)
+
+Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + access management**. Past op de bestaande stack (Cloud Run + GCS `gs://baanschemaatje-clubs`); geen aparte user-database nodig in fase 1–2. Neon alleen overwegen als fase 3 echte multi-user accounts met rollenlijst vraagt.
+
+### Wat er al is (overlap)
+
+| Onderdeel | Stand | Story/ref |
+|---|---|---|
+| Clubprofiel als YAML/JSON, Mierlo eerste profiel | gereed | A1, `clubs/*.yaml` |
+| Opslag per club in bucket (profile, season, schedules, bingo, dayrun) | gereed | server `store.py` |
+| `POST /clubs` + UI "+ Nieuwe club" (naam, KNLTB-naam, #banen) zonder code-deploy | gedeeltelijk | I1 |
+| Instellingen-UI: weekdagen, sluiting, bingo vs gepland, reserveringen, clubafspraken, import | gereed na aanmaken | I2, G1 |
+| Ingebouwde YAML-clubs alleen-lezen; opgeslagen club bewerkbaar | gereed | A4 |
+| Schrijfhook `auth.authorize_write` (nu: alles open) | gereed als haak | I3, ROADMAP #27 |
+| "Geen login; iedereen met commissaris-link mag tikken" | interim-besluit | A4, backlog #12 → I3/I5 |
+| Login per club | alleen backlog | backlog #19 → I3 |
+
+### Gefaseerd plan (ter goedkeuring)
+
+1. **Fase 1 — Club aanmaken afronden (geen auth).** Wizard/aanmaak + volledige profielvelden; optioneel beheerder-gate (env-geheim) zodat niet iedereen clubs spamt. Stack: Cloud Run + GCS. *Geen* Neon.
+2. **Fase 2 — Eenvoudige club-login.** Schrijven (instellingen, import, berekenen, bingo/dashboard-tikken) via `authorize_write`. Voorstel A: één clubwachtwoord (hash in `meta.json`). Voorstel B: Google OAuth begrensd tot goedgekeurde e-mails per club. TV/dag/bingolijst: zie open vraag I5.
+3. **Fase 3 — Rollen & access management.** Rollen: clubbeheerder / TC / commissaris / alleen-lezen. Uitnodigen/intrekken. Publieke deel-tokens voor tv/dag blijven mogelijk. Neon (of vergelijkbaar) alleen als een echte user-tabel nodig is; tot die tijd volstaat GCS + sessie/cookie.
+
+**I1 — [Beheer] Nieuwe club zonder code-deploy.** Als beheerder/TC wil ik een nieuwe club aanmaken (profiel in de bucket) zonder een deploy of YAML in git, zodat we zelf clubs kunnen toevoegen.
+- AC: unieke club-id (slug); profiel + meta in store; club verschijnt in clubkeuze en onder `/club/<id>`; geen schrijven naar live Mierlo-testdata; max-clubs-vangrail blijft; ingebouwde YAML blijft alleen-lezen.
+- Stand nu: `POST /clubs` + knop "+ Nieuwe club" bestaan (naam, KNLTB-naam, aantal banen); weekdagen/bingo/sluiting daarna via Instellingen (I2). Ontbreekt: wie mag aanmaken (open), rijkere wizard, duidelijke "klaar voor seizoen"-check.
+- Status: **gedeeltelijk gereed** · rest **gepland** (fase 1) · Datum: 2026-10-26 · Bron: Oscar ("zelf nieuwe clubs toevoegen").
+- Besluitlog: eerdere edit-key per club is destijds bewust geschrapt (open testen); vervangen door I3 i.p.v. opnieuw een losse sleutel zonder login.
+
+**I2 — [Beheer] [UX] Clubprofiel volledig via UI.** Als TC wil ik na aanmaken banen, speeldagen, bingo vs gepland, sluitingstijden, avondmarge, reserveringen en clubafspraken instellen en opslaan, zodat de club zonder codewijziging kan draaien.
+- AC: zelfde velden als clubprofiel/YAML; opslaan via bestaande `PUT /clubs/{id}/profile`; geen herberekening zonder expliciete knop (A3); democlubs mogen reset.
+- Status: **grotendeels gereed** (Instellingen-tabs); wizard bij aanmaken mag fase 1 verbeteren · Datum: 2026-10-26 · Bron: Oscar.
+
+**I3 — [Beheer] Login per club (schrijven beveiligen).** Als clubbeheerder wil ik dat wijzigen van onze club alleen na inloggen kan, zodat vreemden ons schema/bingo niet kunnen aanpassen.
+- AC: alle schrijfroutes via `authorize_write`; 401/403 zonder geldige club-sessie; lezen van publieke schermen volgens I5; democlubs: beleid open vraag (vrij houden of ook locken); Mierlo niet breken tijdens uitrol (feature-flag of per-club `auth_required`).
+- Status: **gepland** (fase 2) · vervangt/concretiseert backlog #19 / ROADMAP issue 27 · Datum: 2026-10-26 · Bron: Oscar ("per club logins").
+- Besluitlog: "Geen login voorlopig; iedereen met de commissaris-link mag tikken" (09/14-10-2026) blijft **interim** tot fase 2 voor die club aan staat — productrichting is wél login; implementatie gefaseerd.
+
+**I4 — [Beheer] Rollen & access management.** Als clubbeheerder wil ik rollen toekennen (clubbeheerder, TC, commissaris, alleen-lezen) en toegang intrekken, zodat niet iedereen hetzelfde mag.
+- AC: clubbeheerder beheert gebruikers/rollen voor die club; TC: import/instellingen/plannen; commissaris: bingo/dashboard tikken; alleen-lezen: schema/tv; geen cross-club rechten; audit/log lichtgewicht (wie wijzigde wat) wenselijk maar niet blocker voor MVP.
+- Status: **gepland** (fase 3) · Datum: 2026-10-26 · Bron: Oscar ("access management").
+
+**I5 — [Beheer] [UX] Publieke deel-links naast login.** Als TC wil ik tv-scherm, dagpagina en bingolijst (alleen-lezen) kunnen delen zonder dat die personen inloggen, zodat bar/captains meekijken terwijl schrijven wél beveiligd is.
+- AC: alleen-lezen routes blijven bereikbaar via bestaande `/tv`, `/dag`, `/bingolijst` (of via apart deel-token als we URLs willen roteren); schrijven vereist I3; commissaris-schrijflink is níet publiek hetzelfde als tv.
+- Status: **open vraag** (aanbevolen: ja, houden) · Datum: 2026-10-26 · Bron: afgeleid uit F1/G4/G5 + Oscar login-wens.
+
+### Open vragen (Oscar)
+
+| # | Vraag | Raakt |
+|---|---|---|
+| Q1 | Wie mag nieuwe clubs toevoegen: alleen Oscar/beheerder, of elke club zelf (self-service)? | I1 fase 1 |
+| Q2 | Login-vorm fase 2: gedeeld clubwachtwoord, Google-login (e-maillijst), of meteen per-persoon accounts? | I3 |
+| Q3 | Blijven tv / dagpagina / bingolijst publiek deelbaar zonder login? (voorstel: ja) | I5 |
+| Q4 | Democlubs (Demo TV, TV Voorbeeld): open laten zonder login, of ook beveiligen? TV Voorbeeld uit clubkeuze verbergen? | I3, A4 |
+| Q5 | Mag commissaris-tikken (bingo/dashboard) op een kortere code/PIN i.p.v. volledige club-login? | I3/I4 |
+
 ## Beslisvolgorde (14-10-2026)
 
 1. Opruimen (F5) → 2. Bingo stap 1 (G1) → 3. Bingo stap 2 (G2).
@@ -282,13 +339,17 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 9 | [Bingo] | Stap 4: tv/beamer-scherm (alleen-lezen), vóór meekijken op telefoon | G4 | klaar (14-10-2026) |
 | 10 | [Bingo] | Stap 5: print/verslag van de avond | G5 | klaar (14-10-2026) |
 | 11 | [Bingo] | Mierlo-vrijdag op bingo | G1 | klaar (besluit 14-10-2026) |
-| 12 | [Bingo] | Zonder login: iedereen met de commissaris-link mag tikken (besloten); aparte alleen-kijken tv-link volgt bij stap 4 | G2/G4 | besloten |
+| 12 | [Bingo] | Zonder login: iedereen met de commissaris-link mag tikken — **interim** tot I3 fase 2; tv alleen-kijken = G4 (klaar). Productrichting login: I3–I5 | G2/G4 / I3 | interim / besloten tot fase 2 |
 | 13 | [Planner] | Laatste start avond = sluiting − 1:30; donderdag eind 00:00 | B8 | klaar (besluit 14-10-2026) |
 | 14 | [Planner] | 27-09 herberekenen op verzoek | — | open |
 | 15 | [Planner] | Reisafstand per tegenstander (80 km-regel) | B6 | uitgesteld |
 | 16 | [Dashboard] | Speeldag-dashboard met herplannen (ROADMAP fase 3): SD1–SD9 (SD7 vervallen), vragen V1–V7 beantwoord behalve V4 (omwisselen tussen teams) | H | klaar (16-10-2026); V4 open |
 | 17 | [Beheer] | Openbaar testbestand met teamnamen/uitslagen geanonimiseerd (`tests/generiek/data/export_anoniem_20261010.xlsx`); origineel nog in git-geschiedenis (39f5781) — history-rewrite alleen op verzoek | — | klaar (14-10-2026) |
 | 18 | [Beheer] | CI op `main` rood (validate-schedules-plafonds) — bij Koen | — | open |
-| 19 | [Beheer] | Login per club (issue 27) | A4 | gepland |
+| 19 | [Beheer] | Login per club (ROADMAP #27) — zie I3; interim "open" tot fase 2 | I3 / A4 | gepland (fase 2) |
 | 20 | [Bingo] | Naar een bingo-avond verzette wedstrijden verschijnen bij de commissaris | G2 | klaar (14-10-2026) |
 | 21 | [Bingo] | Democlub Demo TV: bingo-vrijdagen 23-10/30-10 om te oefenen + "Reset demo-avond" | G | klaar (17-10-2026) |
+| 22 | [Beheer] | Nieuwe club zonder deploy afronden (wizard, wie mag aanmaken) | I1 | gepland (fase 1); API/UI-basis klaar |
+| 23 | [Beheer] [UX] Clubprofiel-wizard bij aanmaken (speeldagen/bingo/sluiting) | I2 | gepland (fase 1) |
+| 24 | [Beheer] | Rollen & access management (clubbeheerder / TC / commissaris / read-only) | I4 | gepland (fase 3) |
+| 25 | [Beheer] [UX] Publieke deel-links tv/dag naast login | I5 | open vraag (voorstel: houden) |

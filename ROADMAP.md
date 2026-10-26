@@ -144,7 +144,7 @@ Een AI-assistent in Baanschemaatje die de KNLTB-competitiereglementen kent en ac
 13. Chore: configureerbare API-basis-URL in frontend + docs (geen vaste club-URL in code)
 14. Feature: generieke editor (speeldagen + verplaatsen) op club/seizoen-storage
 15. Feature: OR-draft syncen met handmatig verplaatste partijen (geen valse TEAM-ONTBREEKT)
-27. Security: **Login per club** — schrijven (clubinstellingen, seizoen-upload, later schema's) alleen na inloggen voor die club. Nu staat de clubpagina bewust open (besluit Oscar 09-10-2026); alle schrijfroutes van de live-backend lopen al via één hook (`server/baanschemaatje/auth.py`, `authorize_write`), zodat login daar zonder routewijziging in kan.
+27. Security: **Login per club** — uitgewerkt in [`docs/USER-STORIES.md`](docs/USER-STORIES.md) sectie **I** (I3 fase 2, I4 rollen fase 3, I1 club aanmaken, I5 deel-links). Interim: clubpagina open (Oscar 09/14-10-2026); schrijfroutes via `auth.authorize_write`. Productrichting login bevestigd Oscar 26-10-2026; implementatie gefaseerd.
 
 ### Fase 3
 
