@@ -57,6 +57,7 @@ import os
 import threading
 import time
 from collections import OrderedDict
+import contextvars
 import re
 import sys
 import tempfile
@@ -67,6 +68,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, PrivateAttr
 
 import baanschemaatje
@@ -150,6 +152,61 @@ _CACHE: OrderedDict[str, dict[str, Any]] = OrderedDict()
 _CACHE_MAX = 64
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,40}$")
 
+# ---------------------------------------------------------------- democlubs alleen platformbeheerder (Q4)
+# Besluit Oscar 29-10-2026: Demo TV en TV Voorbeeld (en elke club met meta.demo) zijn alleen
+# zichtbaar/bruikbaar voor de platformbeheerder: niet in 'Mijn clubs' van anderen, kijken én
+# schrijven vereisen login als platformbeheerder; deellinks geven geen toegang.
+PLATFORM_ONLY_CLUBS = {c.strip() for c in os.environ.get(
+    "BS_PLATFORM_ONLY_CLUBS", "demo-tv,voorbeeld-6-banen").split(",") if c.strip()}
+_CUR_REQ: contextvars.ContextVar[Request | None] = contextvars.ContextVar("bs_cur_req", default=None)
+
+
+@app.middleware("http")
+async def _request_context(request: Request, call_next):
+    """Onthoud het lopende request (voor de democlub-guard diep in de helpers) en sluit de
+    statische, vooraf berekende data van platform-only clubs af (/app/data/<club>/...)."""
+    tok = _CUR_REQ.set(request)
+    try:
+        path = request.url.path
+        if path.startswith("/app/data/"):
+            seg = path[len("/app/data/"):].split("/", 1)[0]
+            if seg in PLATFORM_ONLY_CLUBS and auth_configured():
+                user = current_user(request)
+                if not user or not is_platform_admin(user["email"]):
+                    return JSONResponse({"detail": "Democlub: alleen voor de platformbeheerder"},
+                                        status_code=401 if not user else 403)
+        return await call_next(request)
+    finally:
+        _CUR_REQ.reset(tok)
+
+
+def _platform_only(club_id: str | None) -> bool:
+    if not club_id:
+        return False
+    if club_id in PLATFORM_ONLY_CLUBS:
+        return True
+    m = _meta(club_id)
+    return bool(m and (m.get("demo") or m.get("platform_only")))
+
+
+def _platform_viewer_ok(request: Request | None = None) -> bool:
+    if not auth_configured():
+        return True  # lokale tests zonder OAuth
+    req = request if request is not None else _CUR_REQ.get()
+    user = current_user(req) if req is not None else None
+    return bool(user and is_platform_admin(user["email"]))
+
+
+def _guard_platform_only(club_id: str | None, request: Request | None = None) -> None:
+    """401/403 voor democlubs als de aanvrager niet de ingelogde platformbeheerder is."""
+    if not _platform_only(club_id) or _platform_viewer_ok(request):
+        return
+    req = request if request is not None else _CUR_REQ.get()
+    if req is None or current_user(req) is None:
+        raise HTTPException(401, "Democlub: log in met Google als platformbeheerder")
+    raise HTTPException(403, "Democlub: alleen toegankelijk voor de platformbeheerder")
+
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -185,6 +242,7 @@ def _all_ids() -> list[str]:
 
 def _club_raw(club_id: str) -> dict[str, Any]:
     """Opgeslagen profiel gaat voor het ingebouwde (clubs/*.yaml)."""
+    _guard_platform_only(club_id)
     if _meta(club_id) is not None:
         raw = _get_json(f"clubs/{club_id}/profile.json")
         if raw is not None:
@@ -228,6 +286,7 @@ def _profile(raw: dict, source: str) -> ClubProfile:
 
 
 def _writable(club_id: str, request: Request | None, *, min_role: str = ROLE_CLUB_ADMIN) -> dict[str, Any]:
+    _guard_platform_only(club_id, request)
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403,
@@ -246,7 +305,9 @@ def _share_from_request(request: Request | None) -> str | None:
 
 
 def _viewable(club_id: str, request: Request | None) -> dict[str, Any] | None:
-    """Controleer kijkrecht (deellink of login+rol); geeft meta terug."""
+    """Controleer kijkrecht (deellink of login+rol); geeft meta terug.
+    Democlubs: deellink telt niet, alleen platformbeheerder (Q4)."""
+    _guard_platform_only(club_id, request)
     meta = _meta(club_id)
     authorize_view(club_id, request, meta=meta, share_token=_share_from_request(request))
     return meta
@@ -270,6 +331,10 @@ def _share_links(club_id: str, request: Request, token: str) -> dict[str, str]:
         "bingolijst_template": f"{base}/bingolijst/{club_id}/{{datum}}?s={token}",
         "hint": "Vervang {datum} door bv. 23-10-2026. Regenereren maakt oude links ongeldig.",
     }
+
+
+_DEMO_SHARE_OFF = {"disabled": True, "has_token": False,
+                   "hint": "Democlub: alleen jij als platformbeheerder hebt toegang; deellinks zijn uitgeschakeld."}
 
 
 def _put_meta(club_id: str, meta: dict[str, Any]) -> None:
@@ -396,6 +461,7 @@ def _sched_key(club_id: str, date: str) -> str:
 def _known_club(club_id: str) -> None:
     if club_id not in _builtin_files() and _meta(club_id) is None:
         raise HTTPException(404, f"onbekende club '{club_id}'")
+    _guard_platform_only(club_id)
 
 
 class SaveSchedule(BaseModel):
@@ -1153,7 +1219,10 @@ def clubs(request: Request, mine: bool = Query(False, description="alleen clubs 
     user = current_user(request)
     email = user["email"] if user else None
     out = []
+    admin_ok = _platform_viewer_ok(request)
     for cid in _all_ids():
+        if not admin_ok and _platform_only(cid):
+            continue  # democlubs: alleen voor de platformbeheerder (Q4)
         meta = _meta(cid)
         try:
             prof = _profile(_club_raw(cid), cid)
@@ -1260,13 +1329,16 @@ class ClubAccess(BaseModel):
 
 @app.get("/clubs/{club_id}/access")
 def get_access(club_id: str, request: Request) -> dict[str, Any]:
+    _guard_platform_only(club_id, request)
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
     user = current_user(request)
     email = user["email"] if user else None
     show_share = bool(email) and can_manage_access(email, meta)
-    if show_share:
+    if _platform_only(club_id):
+        share = dict(_DEMO_SHARE_OFF)
+    elif show_share:
         had = share_token_of(meta)
         tok = _ensure_share_token(meta)
         if not had:
@@ -1293,6 +1365,7 @@ def get_access(club_id: str, request: Request) -> dict[str, Any]:
 @app.put("/clubs/{club_id}/access")
 def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, Any]:
     """Alleen platformbeheerder of clubbeheerder mag rollen beheren."""
+    _guard_platform_only(club_id, request)
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
@@ -1345,13 +1418,17 @@ def put_access(club_id: str, body: ClubAccess, request: Request) -> dict[str, An
         "roles": roles,
         "writers": sorted(roles.keys()),
         "auth_required": True if auth_configured() else bool(meta.get("auth_required")),
-        "share": _share_links(club_id, request, share_token_of(meta)),
+        "share": dict(_DEMO_SHARE_OFF) if _platform_only(club_id)
+        else _share_links(club_id, request, share_token_of(meta)),
     }
 
 
 @app.post("/clubs/{club_id}/share-token")
 def regenerate_share_token(club_id: str, request: Request) -> dict[str, Any]:
     """Nieuwe deellink; oude links meteen ongeldig. Alleen clubbeheerder."""
+    _guard_platform_only(club_id, request)
+    if _platform_only(club_id):
+        raise HTTPException(409, _DEMO_SHARE_OFF["hint"])
     meta = _meta(club_id)
     if meta is None:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
@@ -1661,6 +1738,8 @@ from fastapi.responses import FileResponse, RedirectResponse  # noqa: E402
 @app.get("/auth/status")
 def get_auth_status(request: Request, club: str | None = None) -> dict[str, Any]:
     meta = _meta(club) if club and _ID_RE.match(club) else None
+    if club and meta is not None and _platform_only(club) and not _platform_viewer_ok(request):
+        meta = None  # democlub: geen rollen/e-mails lekken
     return auth_status(request, club_meta=meta)
 
 

@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 26-10-2026 (frontpage visueel aangescherpt).
+Laatst bijgewerkt: 29-10-2026 (democlubs alleen platformbeheerder, "voorbeeld"-link weg).
 
 ## Werkprincipe
 
@@ -76,6 +76,9 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-26 | Product-frontpage op `/` (alsof baanschemaatje.nl): marketing/CTA **Inloggen met Google**, daarna alleen clubs waar de user rol heeft (platformbeheerder: alle + nieuwe club). Geen publieke clubdirectory op de homepage; geen wachtwoorden op de pagina. Custom domain baanschemaatje.nl kan later naar dezelfde Cloud Run-service wijzen (DNS nog niet live). Clubpagina blijft via `/club/<id>` (en deellink-werk elders). | Oscar |
 | 2026-10-17 | Bingo 2 "meer intelligentie" (Oscar): zelfde teambezettingsregels als planner/herplannen, hard in wachtrij/voorstel (geblokkeerd met reden, "toch starten" alleen bewust met bevestiging + logregel); partijsoort HE/DE/HD/DD/GD overal zichtbaar; voortgang per team (x/y klaar, z bezig, balk) bij commissaris en tv; wachtrij gesorteerd zodat bovenaan het meest logische staat (volgorde: zie G6). Gemengd Dubbel = DD-HD-2GD (D1 = DD, D2 = HD) en Gemengd 17+/35+ zaterdag (S1 = DE, S2 = HE) krijgen heren/dames-behoefte, ook in planner en sleepcheck (was alleen "gemengd zondag") | Oscar |
 | 2026-10-26 | Toegang aangescherpt (Oscar: "iemand zonder login kan nog steeds alles zien en wijzigen"): (1) **schrijven altijd** achter Google-login + rol zodra OAuth aan staat — open-schrijven via `auth_required=false` vervalt; (2) tv/dag/bingolijst **niet meer publiek** op alleen club-id — wel via **geheime deellink** `?s=TOKEN` (Instellingen → Toegang: kopiëren/vernieuwen) of ingelogde rol. Regenereren maakt oude links ongeldig. Vervangt eerdere I5-besluit "tv/dag publiek". | Oscar |
+| 2026-10-29 | Backlog #5/F2 (Oscar: "haal maar weg"): link "voorbeeld (vooraf berekend)" uit de kop van de clubpagina verwijderd → #5 volledig klaar | Oscar |
+| 2026-10-29 | Q4 besloten (Oscar: "beide alleen voor mij account"): democlubs **Demo TV** (`demo-tv`) en **TV Voorbeeld** (`voorbeeld-6-banen`), plus elke club met `meta.demo`, zijn alleen voor de platformbeheerder (oscarreynhout@gmail.com): niet in de clubkeuze/"Mijn clubs" van anderen; kijken én schrijven vereisen Google-login als platformbeheerder (anoniem 401, anderen 403, ook met een rol in de democlub); deellinks geven geen toegang en staan uit (vernieuwen 409); statische vooraf-berekende data `/app/data/voorbeeld-6-banen/…` idem dicht. Instelbaar via env `BS_PLATFORM_ONLY_CLUBS` | Oscar |
+| 2026-10-29 | Backlog #22: Google OAuth is live; status "live aanmaken wacht op Google OAuth" achterhaald → klaar | Oscar |
 
 ---
 
@@ -174,7 +177,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 - AC: geen bewerkknoppen; lijst per team (aanvang, banen); printbaar. Gebouwd: `dag.html#<club>/<datum>`, telefoon-eerst, toont alleen het opgeslagen (definitieve) schema (anders "nog geen definitief schema"); Kopieer link, WhatsApp, Printen; knop "Delen" in de dagweergave. · Status: klaar (14-10-2026).
 
 **F2 — Vaste clublink.** Als TC wil ik een vaste link zonder githack-tussenpagina, zonder "voorbeeld" in de kop, en index = clubkeuze, zodat duidelijk is waar ik begin.
-- Gebouwd: de bestaande Cloud Run-service serveert ook de web-app (`/app/...`) met vaste links `/club/<id>`, `/dag/<id>/<datum>`, `/bingo/<id>/<datum>`, `/tv/<id>/<datum>`, `/bingolijst/<id>/<datum>`; `/` = clubpagina met clubkeuze. Geen tussenpagina, zelfde origin als de API, geen extra kosten (zelfde service, min 0). GitHub Pages op Koens repo blijft ongemoeid. Web-wijzigingen gaan live bij een deploy (net als de server). Open: link "voorbeeld (vooraf berekend)" in de kop. Later eventueel eigen domein (Cloud Run domain mapping of Firebase Hosting). · Status: klaar (14-10-2026).
+- Gebouwd: de bestaande Cloud Run-service serveert ook de web-app (`/app/...`) met vaste links `/club/<id>`, `/dag/<id>/<datum>`, `/bingo/<id>/<datum>`, `/tv/<id>/<datum>`, `/bingolijst/<id>/<datum>`; `/` = clubpagina met clubkeuze. Geen tussenpagina, zelfde origin als de API, geen extra kosten (zelfde service, min 0). GitHub Pages op Koens repo blijft ongemoeid. Web-wijzigingen gaan live bij een deploy (net als de server). Link "voorbeeld (vooraf berekend)" in de kop verwijderd 29-10-2026 (Oscar: "haal maar weg"). Later eventueel eigen domein (Cloud Run domain mapping of Firebase Hosting). · Status: klaar (14-10-2026).
 
 **F3 — Telefoon: dagschema als lijst.** Als captain wil ik op mijn telefoon een lijst per tijd (tijd · baan · team) i.p.v. een grid van 10 banen.
 - AC: schakelaar Lijst/Rooster boven het dagschema; standaard Lijst op schermen ≤ 700 px, Rooster op groter; keuze onthouden op het apparaat; slepen kan alleen in het rooster (hint). · Status: klaar (14-10-2026).
@@ -337,7 +340,15 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 - AC: clubbeheerder kopieert/vernieuwt links onder Instellingen → Toegang; `POST /clubs/{id}/share-token` regenereert (oude links ongeldig).
 - AC: kale `/tv/<club>/<datum>` zonder `?s=` levert geen data; commissaris-schrijven blijft login+rol.
 - Status: **gereed** · Datum: 2026-10-26 · Bron: Oscar ("deelbare link, maar niet zo publiek toegankelijk").
-- Besluitlog: **Besluit 26-10-2026 (ochtend):** tv/dag publiek. **Ingetrokken 26-10-2026 (avond):** geheime deellink-model.
+- Besluitlog: **Besluit 26-10-2026 (ochtend):** tv/dag publiek. **Ingetrokken 26-10-2026 (avond):** geheime deellink-model. **29-10-2026 (Q4):** deellinks werken niet voor democlubs (zie I6).
+
+**I6 — [Beheer] Democlubs alleen voor de platformbeheerder.** Als platformbeheerder (Oscar) wil ik Demo TV en TV Voorbeeld voor mezelf houden, zodat anderen ze niet zien of gebruiken.
+- AC: `demo-tv`, `voorbeeld-6-banen` (env `BS_PLATFORM_ONLY_CLUBS`) en elke club met `meta.demo`/`meta.platform_only` zijn platform-only.
+- AC: niet in `GET /clubs` (clubkeuze) of `?mine=1` voor anoniem/niet-beheerder; `/auth/status?club=` lekt geen rollen.
+- AC: alle club-API's (profiel, seizoen, `/dates`, `/plan`, schema's, bingo, dayrun, moves, opgaven, host-away, toegang) → 401 anoniem, 403 ingelogd-niet-beheerder — ook met een rol in de democlub of een geldige deellink-token.
+- AC: deellinks uit (Toegang toont "deellinks zijn uitgeschakeld"; `POST …/share-token` → 409); statische `/app/data/<democlub>/…` ook dicht.
+- AC: Mierlo en andere echte clubs ongewijzigd (deellink/rollen werken als voorheen).
+- Status: **gereed** · Datum: 2026-10-29 · Bron: Oscar ("Q4 beide alleen voor mij account").
 
 ### Open / besloten vragen (Oscar)
 
@@ -346,7 +357,7 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 | Q1 | Wie mag nieuwe clubs toevoegen: alleen Oscar/beheerder, of elke club zelf (self-service)? | I1 fase 1 | **Besloten 26-10-2026:** alleen Oscar/platformbeheerder (env-allowlist). |
 | Q2 | Login-vorm: gedeeld clubwachtwoord, Google, of per-persoon accounts? | I3 / I4 | **Besloten 26-10-2026:** fase 2 = Google OAuth per club (geen gedeeld clubwachtwoord). Later optioneel: e-mail + wachtwoord **per gebruiker**. |
 | Q3 | Blijven tv / dagpagina / bingolijst publiek deelbaar zonder login? | I5 | **Herzien 26-10-2026:** nee publiek; wel geheime deellink (`?s=TOKEN`) of login. |
-| Q4 | Democlubs (Demo TV, TV Voorbeeld): open laten zonder login, of ook beveiligen? TV Voorbeeld uit clubkeuze verbergen? | I3, A4 | **Open** |
+| Q4 | Democlubs (Demo TV, TV Voorbeeld): open laten zonder login, of ook beveiligen? TV Voorbeeld uit clubkeuze verbergen? | I3, A4 | **Besloten 29-10-2026:** beide alleen voor Oscar (platformbeheerder): verborgen voor anderen, kijken+schrijven alleen na login als platformbeheerder, deellinks uit. |
 | Q5 | Mag commissaris-tikken (bingo/dashboard) op een kortere code/PIN i.p.v. volledige club-login? | I3/I4 | **Open** |
 
 ## Beslisvolgorde (14-10-2026)
@@ -363,7 +374,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 2 | [Bingo] | Stap 1: keuze gepland/bingo per speeldag, label, "Avond openen" | G1 | klaar (commit 94a32a7) |
 | 3 | [Bingo] | Stap 2: MVP commissarisscherm (aanmelden, banen, wachtrij, start/klaar, één apparaat) | G2 | klaar |
 | 4 | [UX] | Deelbare dagpagina (alleen-lezen + WhatsApp/kopieerlink) | F1 | klaar (14-10-2026) |
-| 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | klaar: /club/<id> op de Cloud Run-service (14-10-2026); "voorbeeld"-link in kop nog open |
+| 5 | [UX] | Vaste clublink (geen githack-tussenpagina, "voorbeeld" weg, index = clubkeuze) | F2 | klaar: /club/<id> op de Cloud Run-service (14-10-2026); "voorbeeld"-link uit de kop (29-10-2026) |
 | 6 | [UX] | Dagschema als lijst op telefoon | F3 | klaar (14-10-2026) |
 | 7 | [UX] | Overal hetzelfde opslaan (statusregel, badge "definitief schema") | F4 | klaar (14-10-2026) |
 | 8 | [Bingo] | Stap 3: voorstel volgende partij + ongedaan maken | G3 | klaar (14-10-2026) |
@@ -380,7 +391,7 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 19 | [Beheer] | Login per club (ROADMAP #27) — schrijven altijd achter Google+rol | I3 / A4 | gereed (aangescherpt 26-10) |
 | 20 | [Bingo] | Naar een bingo-avond verzette wedstrijden verschijnen bij de commissaris | G2 | klaar (14-10-2026) |
 | 21 | [Bingo] | Democlub Demo TV: bingo-vrijdagen 23-10/30-10 om te oefenen + "Reset demo-avond" | G | klaar (17-10-2026) |
-| 22 | [Beheer] | Nieuwe club zonder deploy afronden (wizard + Oscar-only gate) | I1 | grotendeels klaar (code); live aanmaken wacht op Google OAuth |
+| 22 | [Beheer] | Nieuwe club zonder deploy afronden (wizard + Oscar-only gate) | I1 | klaar (Google OAuth live sinds 26-10-2026; Oscar maakt clubs aan) |
 | 23 | [Beheer] [UX] Clubprofiel-wizard bij aanmaken (speeldagen/bingo/sluiting) | I2 | klaar (wizard uitgebreid 26-10-2026) |
 | 24 | [Beheer] | Rollen & access management (clubbeheerder / baancommissaris); later optioneel e-mail+wachtwoord per user | I4 | gereed (MVP 26-10-2026) |
 | 25 | [Beheer] [UX] Geheime deellinks tv/dag/bingolijst (`?s=TOKEN`) | I5 | gereed (26-10-2026) |

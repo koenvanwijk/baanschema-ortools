@@ -308,13 +308,19 @@ function sampleDate() {
   return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
 }
 
+let SHARE_OFF = false; // democlub: deellinks uit (Q4)
 function fillShareFrom(share) {
   if (!$("share-tv")) return;
   if (!share || !share.token) {
     $("share-tv").value = "";
     $("share-dag").value = "";
     $("share-bingo").value = "";
-    if ($("share-hint")) $("share-hint").textContent = "Log in als clubbeheerder om de deellinks te zien.";
+    if ($("share-hint")) $("share-hint").textContent = (share && share.disabled && share.hint) || "Log in als clubbeheerder om de deellinks te zien.";
+    if (share && share.disabled) {
+      SHARE_OFF = true;
+      if ($("share-regen")) $("share-regen").disabled = true;
+      if ($("share-copy-tv")) $("share-copy-tv").disabled = true;
+    }
     return;
   }
   const datum = sampleDate();
@@ -411,8 +417,8 @@ function fillAccess() {
   const disabled = !CLUB.editable || !a.configured || !can;
   if ($("access-save")) $("access-save").disabled = disabled;
   if ($("role-add")) $("role-add").disabled = disabled;
-  if ($("share-regen")) $("share-regen").disabled = disabled;
-  if ($("share-copy-tv")) $("share-copy-tv").disabled = disabled;
+  if ($("share-regen")) $("share-regen").disabled = disabled || SHARE_OFF;
+  if ($("share-copy-tv")) $("share-copy-tv").disabled = disabled || SHARE_OFF;
   if (list) for (const el of list.querySelectorAll("input, select, button")) el.disabled = disabled;
   if ($("access-status") && !a.configured) $("access-status").textContent = "Google-login nog niet geconfigureerd — toegang opslaan kan pas daarna.";
   else if ($("access-status") && disabled && a.configured) $("access-status").textContent = can ? "" : "Alleen platformbeheerder of clubbeheerder mag rollen beheren.";

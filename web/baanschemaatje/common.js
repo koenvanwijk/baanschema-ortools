@@ -78,7 +78,7 @@ async function loadClubList(select) {
   AUTH = j.auth || AUTH;
   $("club").innerHTML = CLUBS.map((c) =>
     `<option value="${esc(c.id)}">${esc(c.name)}${c.demo ? " — demo" : ""}${c.stored ? "" : " (alleen lezen)"}</option>`).join("");
-  const dflt = (CLUBS.find((c) => c.id === "mierlo") || CLUBS[0]).id;
+  const dflt = (CLUBS.find((c) => c.id === "mierlo") || CLUBS[0] || {}).id || "";
   const want = select || parseHash().club || dflt;
   $("club").value = CLUBS.some((c) => c.id === want) ? want : dflt;
   renderAuthBar();

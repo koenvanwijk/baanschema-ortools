@@ -705,3 +705,84 @@ def test_writes_always_require_login_when_oauth_configured(root, tmp_path_factor
     tok = r.json()["share"]["token"]
     c.cookies.clear()
     assert c.get(f"/clubs/{cid}/bingo/23-10-2026", params={"s": tok}).status_code == 200
+
+
+def test_demo_clubs_platform_admin_only(root, tmp_path_factory, monkeypatch):
+    """Q4 (Oscar 29-10-2026): democlubs alleen voor de platformbeheerder; deellink opent ze niet."""
+    import importlib
+    import time
+    import json
+    import base64
+    import hashlib
+    import hmac
+
+    monkeypatch.setenv("BS_STORE", str(tmp_path_factory.mktemp("store-demo-only")))
+    monkeypatch.setenv("BS_ALLOW_OPEN_CREATE", "0")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", "test-client")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_SECRET", "test-secret")
+    monkeypatch.setenv("BS_SESSION_SECRET", "test-session-secret-32chars!!")
+    monkeypatch.setenv("PLATFORM_ADMIN_EMAILS", "admin@example.com")
+    for name in list(sys.modules):
+        if name in ("auth", "bs_server_app_demo") or name.endswith(".auth"):
+            sys.modules.pop(name, None)
+    sys.path.insert(0, str(root / "server" / "baanschemaatje"))
+    import auth as auth_mod
+    importlib.reload(auth_mod)
+    spec = importlib.util.spec_from_file_location("bs_server_app_demo", root / "server" / "baanschemaatje" / "app.py")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["bs_server_app_demo"] = mod
+    spec.loader.exec_module(mod)
+    c = TestClient(mod.app)
+
+    def session_cookie(email):
+        now = int(time.time())
+        payload = json.dumps({"email": email, "name": "", "iat": now, "exp": now + 3600}, separators=(",", ":")).encode()
+        sig = hmac.new(b"test-session-secret-32chars!!", payload, hashlib.sha256).digest()
+        b64 = lambda b: base64.urlsafe_b64encode(b).rstrip(b"=").decode()  # noqa: E731
+        return f"{b64(payload)}.{b64(sig)}"
+
+    prof = {"club": {"name": "Demo X"}, "courts": {"count": 4},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    assert c.post("/clubs", json={"id": "demo-tv", "profile": prof}).status_code == 201
+    assert c.post("/clubs", json={"id": "echte-club", "profile": {**prof, "club": {"name": "Echt"}}}).status_code == 201
+    meta = json.loads(mod.STORE.get("clubs/demo-tv/meta.json"))
+    meta["demo"] = True
+    meta["roles"] = {"admin@example.com": "club_admin", "lid@club.nl": "club_admin"}
+    mod.STORE.put("clubs/demo-tv/meta.json", json.dumps(meta).encode(), "application/json")
+    tok = meta["share_token"]
+    acc = c.get("/clubs/demo-tv/access").json()
+    assert acc["share"].get("disabled") and not acc["share"].get("token")
+    assert c.post("/clubs/demo-tv/share-token").status_code == 409
+    assert c.get("/clubs/demo-tv").status_code == 200
+    assert c.get("/clubs/voorbeeld-6-banen").status_code == 200
+    ids = {x["id"] for x in c.get("/clubs", params={"mine": 1}).json()["clubs"]}
+    assert {"demo-tv", "voorbeeld-6-banen", "echte-club"} <= ids
+
+    d = "23-10-2026"
+    paths = ["/clubs/demo-tv", "/clubs/voorbeeld-6-banen", "/clubs/demo-tv/moves", "/clubs/demo-tv/season",
+             f"/clubs/demo-tv/bingo/{d}", "/clubs/voorbeeld-6-banen/schedules", "/clubs/demo-tv/host-away",
+             "/clubs/demo-tv/cancellations", "/app/data/voorbeeld-6-banen/11-10-2026.json"]
+    # anoniem (ook met deellink): 401
+    c.cookies.clear()
+    for pth in paths:
+        assert c.get(pth).status_code == 401, pth
+    assert c.get(f"/clubs/demo-tv/bingo/{d}", params={"s": tok}).status_code == 401
+    assert c.get("/dates", params={"club": "demo-tv"}).status_code == 401
+    assert c.post("/plan", json={"club": "voorbeeld-6-banen", "date": "11-10-2026", "time_limit_s": 1}).status_code == 401
+    assert c.put(f"/clubs/demo-tv/bingo/{d}", json={"state": {}, "gen": 0}).status_code == 401
+    ids = {x["id"] for x in c.get("/clubs").json()["clubs"]}
+    assert "demo-tv" not in ids and "voorbeeld-6-banen" not in ids
+    # ingelogd met rol in de democlub, maar geen platformbeheerder: 403 en niet in de lijst
+    c.cookies.set("bs_session", session_cookie("lid@club.nl"))
+    for pth in paths:
+        assert c.get(pth).status_code == 403, pth
+    assert c.get(f"/clubs/demo-tv/bingo/{d}", params={"s": tok}).status_code == 403
+    assert c.put("/clubs/demo-tv/profile", json=prof).status_code == 403
+    ids = {x["id"] for x in c.get("/clubs", params={"mine": 1}).json()["clubs"]}
+    assert "demo-tv" not in ids
+    assert c.get("/auth/status", params={"club": "demo-tv"}).json().get("roles") is None
+    # echte club onaangetast: deellink werkt nog
+    c.cookies.clear()
+    etok = json.loads(mod.STORE.get("clubs/echte-club/meta.json"))["share_token"]
+    assert c.get(f"/clubs/echte-club/bingo/{d}", params={"s": etok}).status_code == 200
