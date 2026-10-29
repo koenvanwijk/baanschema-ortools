@@ -68,7 +68,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field, PrivateAttr
 
 import baanschemaatje
@@ -110,6 +110,7 @@ from auth import (  # noqa: E402
     new_share_token,
     public_base_url,
     resolve_role,
+    role_at_least,
     set_oauth_state_cookie,
     set_session_cookie,
     share_token_of,
@@ -176,13 +177,14 @@ async def _request_context(request: Request, call_next):
     tok = _CUR_REQ.set(request)
     try:
         path = request.url.path
-        if path.startswith("/app/data/"):
-            seg = path[len("/app/data/"):].split("/", 1)[0]
-            if seg in PLATFORM_ONLY_CLUBS and auth_configured():
-                user = current_user(request)
-                if not user or not is_platform_admin(user["email"]):
-                    return JSONResponse({"detail": "Democlub: alleen voor de platformbeheerder"},
-                                        status_code=401 if not user else 403)
+        # Oude statische voorbeeldpagina (vooraf berekend, met oude Mierlo-data) is uitgefaseerd (I5, 29-10).
+        if path in ("/app", "/app/", "/app/index.html", "/app/app.js"):
+            return RedirectResponse("/", status_code=307)
+        # Vooraf berekende statische data (/app/data/...): alleen platformbeheerder.
+        if path.startswith("/app/data/") and auth_configured():
+            user = current_user(request)
+            if not user or not is_platform_admin(user["email"]):
+                return JSONResponse({"detail": "Inloggen vereist"}, status_code=401 if not user else 403)
         return await call_next(request)
     finally:
         _CUR_REQ.reset(tok)
@@ -213,6 +215,29 @@ def _guard_platform_only(club_id: str | None, request: Request | None = None) ->
     if req is None or current_user(req) is None:
         raise HTTPException(401, "Democlub: log in met Google als platformbeheerder")
     raise HTTPException(403, "Democlub: alleen toegankelijk voor de platformbeheerder")
+
+
+def _is_member(club_id: str | None, request: Request | None = None) -> bool:
+    """Google-ingelogd met rol ≥ commissaris bij deze club (of platformbeheerder). Zonder OAuth: True (tests)."""
+    if not auth_configured():
+        return True
+    req = request if request is not None else _CUR_REQ.get()
+    user = current_user(req) if req is not None else None
+    if not user:
+        return False
+    return role_at_least(resolve_role(user["email"], _meta(club_id) if club_id else None), ROLE_COMMISSARIS)
+
+
+def _require_member(club_id: str, request: Request | None = None) -> None:
+    """Clubdata (profiel, seizoen, verzettingen, opgaven, …) alleen voor leden met Google-login (I5, 29-10).
+    Deellink en PIN-sessie gelden hier niet; die openen alleen tv/dag/bingolijst resp. bingo/dashboard."""
+    _guard_platform_only(club_id, request)
+    if _is_member(club_id, request):
+        return
+    req = request if request is not None else _CUR_REQ.get()
+    if req is None or current_user(req) is None:
+        raise HTTPException(401, "Inloggen vereist (Google) om deze clubgegevens te zien")
+    raise HTTPException(403, f"Geen rol bij club '{club_id}'")
 
 
 
@@ -555,8 +580,9 @@ def delete_schedule(club_id: str, date: str, request: Request) -> dict[str, Any]
 
 
 @app.get("/clubs/{club_id}/moves")
-def get_moves(club_id: str) -> dict[str, Any]:
+def get_moves(club_id: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _require_member(club_id, request)
     j = _get_json(f"clubs/{club_id}/moves.json")
     return j or {"club": club_id, "moves": [], "saved_at": None}
 
@@ -974,8 +1000,9 @@ CANCEL_TYPES = ("eigen", "tegenstander")  # eigen opgave / tegenstander opgave
 
 
 @app.get("/clubs/{club_id}/cancellations")
-def get_cancellations(club_id: str) -> dict[str, Any]:
+def get_cancellations(club_id: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _require_member(club_id, request)
     j = _get_json(f"clubs/{club_id}/cancellations.json")
     return j or {"club": club_id, "cancellations": [], "saved_at": None}
 
@@ -1010,8 +1037,9 @@ async def put_cancellations(club_id: str, request: Request) -> dict[str, Any]:
 
 
 @app.get("/clubs/{club_id}/host-away")
-def get_host_away(club_id: str) -> dict[str, Any]:
+def get_host_away(club_id: str, request: Request) -> dict[str, Any]:
     _known_club(club_id)
+    _require_member(club_id, request)
     j = _get_json(f"clubs/{club_id}/host_away.json")
     return j or {"club": club_id, "hosted": [], "saved_at": None}
 
@@ -1228,9 +1256,14 @@ def clubs(request: Request, mine: bool = Query(False, description="alleen clubs 
     email = user["email"] if user else None
     out = []
     admin_ok = _platform_viewer_ok(request)
+    if auth_configured() and not email:
+        # Anoniem: geen clubdirectory (I5, 29-10-2026).
+        return {"season_file": None, "clubs": [], "auth": auth_status(request), "mine": bool(mine)}
     for cid in _all_ids():
         if not admin_ok and _platform_only(cid):
             continue  # democlubs: alleen voor de platformbeheerder (Q4)
+        if auth_configured() and not admin_ok and not _is_member(cid, request):
+            continue  # alleen clubs waar je een rol hebt
         meta = _meta(cid)
         try:
             prof = _profile(_club_raw(cid), cid)
@@ -1302,6 +1335,15 @@ def create_club(body: CreateClub, request: Request) -> dict[str, Any]:
 
 @app.get("/clubs/{club_id}")
 def get_club(club_id: str, request: Request) -> dict[str, Any]:
+    _known_club(club_id)
+    if not _is_member(club_id, request):
+        # Deellink (dag/tv) of PIN-sessie: alleen de clubnaam; anders 401/403.
+        meta = _viewable(club_id, request)
+        name = _profile(_club_raw(club_id), club_id).name
+        return {"id": club_id, "profile": {"club": {"name": name}}, "summary": {"name": name},
+                "stored": meta is not None, "builtin": club_id in _builtin_files(), "editable": False,
+                "meta": None, "limited": True,
+                "auth": auth_status(request, club_meta=meta if meta else {"id": club_id})}
     raw = _club_raw(club_id)
     prof = _profile(raw, club_id)
     meta = _meta(club_id)
@@ -1619,7 +1661,8 @@ def _import_season(club_id: str, meta: dict[str, Any], data: bytes, filename: st
 
 
 @app.get("/clubs/{club_id}/season")
-def get_season(club_id: str) -> dict[str, Any]:
+def get_season(club_id: str, request: Request) -> dict[str, Any]:
+    _require_member(club_id, request)
     prof = _profile(_club_raw(club_id), club_id)
     spath = _season_path(club_id)
     meta = _meta(club_id)
@@ -1629,9 +1672,13 @@ def get_season(club_id: str) -> dict[str, Any]:
 
 
 @app.get("/dates")
-def dates(club: str = Query("", description="club-id; bepaalt thuisteam en seizoen")) -> dict[str, Any]:
+def dates(request: Request, club: str = Query("", description="club-id; bepaalt thuisteam en seizoen")) -> dict[str, Any]:
     home, spath = "", SEASON_FILE
+    if not club and auth_configured() and not _platform_viewer_ok(request):
+        raise HTTPException(401 if current_user(request) is None else 403, "Inloggen vereist")
     if club:
+        _known_club(club)
+        _require_member(club, request)
         home = _profile(_club_raw(club), club).knltb_name
         spath = _season_path(club)
     s = _season(home, spath)
@@ -1639,16 +1686,27 @@ def dates(club: str = Query("", description="club-id; bepaalt thuisteam en seizo
             "dates": [{"date": d, "fixtures": len(fx)} for d, fx in s.by_date().items()]}
 
 
+def _plan_gate(req: "PlanRequest", request: Request) -> None:
+    """Berekenen = clubbeheer (I4), vóór _resolve zodat ook foutmeldingen (datums) niets lekken.
+    Inline profiel (rekent op het standaardseizoen) alleen voor de platformbeheerder."""
+    if isinstance(req.club, str):
+        _known_club(req.club)
+        meta = _meta(req.club)
+        if meta is not None:
+            authorize_write(req.club, request, meta=meta, min_role=ROLE_CLUB_ADMIN)
+        elif auth_configured() and not _platform_viewer_ok(request):
+            raise HTTPException(401 if current_user(request) is None else 403, "Inloggen vereist")
+    elif auth_configured() and not _platform_viewer_ok(request):
+        raise HTTPException(401 if current_user(request) is None else 403,
+                            "Rekenen met een los profiel kan alleen de platformbeheerder")
+
+
 @app.post("/plan")
 def plan(req: PlanRequest, request: Request) -> dict[str, Any]:
     from baanschemaatje.planner import plan_day
 
+    _plan_gate(req, request)
     club_id, prof, raw, season, spath = _resolve(req)
-    # Berekenen is clubbeheer; commissaris niet (I4). Inline/builtin zonder meta blijft open.
-    if isinstance(getattr(req, "club", None), str) and req.club:
-        meta = _meta(req.club)
-        if meta is not None:
-            authorize_write(req.club, request, meta=meta, min_role=ROLE_CLUB_ADMIN)
     day_fx = season.day(req.date)
     wd = WEEKDAYS_NL[datetime.strptime(req.date, "%d-%m-%Y").weekday()]
     if prof.day_mode(wd) == "bingo":
@@ -1718,11 +1776,8 @@ def scenarios(req: PlanRequest, request: Request, combos: bool = Query(False, de
     from baanschemaatje.planner import plan_day
     from baanschemaatje.scenarios import candidate_scenarios, propose_solutions
 
+    _plan_gate(req, request)
     club_id, prof, raw, season, spath = _resolve(req)
-    if isinstance(getattr(req, "club", None), str) and req.club:
-        meta = _meta(req.club)
-        if meta is not None:
-            authorize_write(req.club, request, meta=meta, min_role=ROLE_CLUB_ADMIN)
     tl = _time_limit(req)
     key = _key(f"scenarios:{combos}", raw, req, tl, spath)
     if (hit := _cached(key)) is not None:
@@ -1821,8 +1876,8 @@ def _regel_rate(ip: str) -> None:
 
 
 def _club_context(club_id: str | None) -> dict[str, Any] | None:
-    if not club_id:
-        return None
+    if not club_id or not _is_member(club_id):
+        return None  # clubafspraken alleen voor leden
     try:
         raw = _club_raw(club_id)
         summ = profile_summary(_profile(raw, club_id), club_id)

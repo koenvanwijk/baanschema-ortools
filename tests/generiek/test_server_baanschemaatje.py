@@ -893,3 +893,85 @@ def test_commissaris_pin(root, tmp_path_factory, monkeypatch):
     assert c.put("/clubs/demo-tv/commissaris-pin", json={}).status_code == 409
     c.cookies.clear()
     assert c.post("/clubs/demo-tv/pin-login", json={"pin": "123456"}).status_code == 401
+
+
+def test_no_anonymous_reads(root, tmp_path_factory, monkeypatch):
+    """I5 (Oscar 26/29-10-2026): zonder login niets zien; deellink alleen voor tv/dag/bingolijst, PIN voor bingo/dashboard."""
+    import importlib
+    import time
+    import json
+    import base64
+    import hashlib
+    import hmac
+
+    monkeypatch.setenv("BS_STORE", str(tmp_path_factory.mktemp("store-reads")))
+    monkeypatch.setenv("BS_ALLOW_OPEN_CREATE", "0")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", "test-client")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_SECRET", "test-secret")
+    monkeypatch.setenv("BS_SESSION_SECRET", "test-session-secret-32chars!!")
+    monkeypatch.setenv("PLATFORM_ADMIN_EMAILS", "admin@example.com")
+    for name in list(sys.modules):
+        if name in ("auth", "bs_server_app_reads") or name.endswith(".auth"):
+            sys.modules.pop(name, None)
+    sys.path.insert(0, str(root / "server" / "baanschemaatje"))
+    import auth as auth_mod
+    importlib.reload(auth_mod)
+    spec = importlib.util.spec_from_file_location("bs_server_app_reads", root / "server" / "baanschemaatje" / "app.py")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["bs_server_app_reads"] = mod
+    spec.loader.exec_module(mod)
+    c = TestClient(mod.app)
+
+    def session_cookie(email):
+        now = int(time.time())
+        payload = json.dumps({"email": email, "name": "", "iat": now, "exp": now + 3600}, separators=(",", ":")).encode()
+        sig = hmac.new(b"test-session-secret-32chars!!", payload, hashlib.sha256).digest()
+        b64 = lambda b: base64.urlsafe_b64encode(b).rstrip(b"=").decode()  # noqa: E731
+        return f"{b64(payload)}.{b64(sig)}"
+
+    prof = {"club": {"name": "TV Lees"}, "courts": {"count": 4},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    assert c.post("/clubs", json={"id": "tv-lees", "profile": prof}).status_code == 201
+    assert c.put("/clubs/tv-lees/access", json={"members": [{"email": "admin@example.com", "role": "club_admin"},
+                                                            {"email": "com@club.nl", "role": "commissaris"}]}).status_code == 200
+    tok = c.get("/clubs/tv-lees/access").json()["share"]["token"]
+    pin = c.put("/clubs/tv-lees/commissaris-pin", json={}).json()["pin"]
+    d = "23-10-2026"
+    member_only = ["/clubs/tv-lees/season", "/clubs/tv-lees/moves", "/clubs/tv-lees/cancellations",
+                   "/clubs/tv-lees/host-away", "/dates?club=tv-lees", "/dates"]
+    share_ok = [f"/clubs/tv-lees/bingo/{d}", f"/clubs/tv-lees/dayrun/{d}", "/clubs/tv-lees"]
+    # anoniem: alles 401, clublijst leeg, statische oude pagina weg
+    c.cookies.clear()
+    for pth in member_only + share_ok + ["/app/data/index.json"]:
+        assert c.get(pth).status_code == 401, pth
+    assert c.get("/clubs").json()["clubs"] == [] and c.get("/clubs?mine=1").json()["clubs"] == []
+    assert c.get("/app/index.html", follow_redirects=False).status_code == 307
+    assert c.post("/plan", json={"club": "tv-lees", "date": "11-10-2026", "time_limit_s": 1}).status_code == 401
+    assert c.post("/plan", json={"club": prof, "date": "11-10-2026", "time_limit_s": 1}).status_code == 401
+    assert c.get("/auth/status", params={"club": "tv-lees"}).json()["roles"] is None
+    assert c.get("/").status_code == 200  # frontpage blijft publiek
+    # deellink: tv/dag/bingolijst-fetches werken, clubgegevens niet
+    for pth in share_ok:
+        assert c.get(pth, params={"s": tok}).status_code == 200, pth
+    lim = c.get("/clubs/tv-lees", params={"s": tok}).json()
+    assert lim["limited"] and lim["summary"]["name"] == "TV Lees" and lim["meta"] is None and "courts" not in lim["profile"]
+    for pth in member_only:
+        sep = "&" if "?" in pth else "?"
+        assert c.get(f"{pth}{sep}s={tok}").status_code == 401, pth
+    # PIN-sessie: bingo/dashboard laden, clubgegevens niet
+    assert c.post("/clubs/tv-lees/pin-login", json={"pin": pin}).status_code == 200
+    assert c.get(f"/clubs/tv-lees/bingo/{d}").status_code == 200
+    assert c.get(f"/clubs/tv-lees/dayrun/{d}").status_code == 200
+    assert c.get("/clubs/tv-lees/moves").status_code == 401
+    assert c.get("/clubs").json()["clubs"] == []
+    # ingelogd zonder rol: 403 en lege lijst; commissaris (Google): wel
+    c.cookies.clear()
+    c.cookies.set("bs_session", session_cookie("vreemde@x.nl"))
+    for pth in member_only[:-1]:
+        assert c.get(pth).status_code == 403, pth
+    assert c.get("/clubs").json()["clubs"] == []
+    c.cookies.set("bs_session", session_cookie("com@club.nl"))
+    for pth in member_only[:-1] + share_ok:
+        assert c.get(pth).status_code == 200, pth
+    assert [x["id"] for x in c.get("/clubs").json()["clubs"]] == ["tv-lees"]

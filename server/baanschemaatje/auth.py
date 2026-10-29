@@ -623,7 +623,8 @@ def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = N
         )
         if club_meta is not None
         else None,
-        "roles": club_roles(club_meta) if club_meta is not None else None,
+        # Rollen/e-mails alleen voor wie toegang beheert (geen lek naar anoniem/PIN/deellink).
+        "roles": club_roles(club_meta) if (club_meta is not None and email and can_manage_access(email, club_meta)) else None,
         "role_labels": dict(ROLE_LABELS_NL),
         "password_login": False,
         "pin_enabled": (pin_record(club_meta) is not None) if club_meta is not None else None,

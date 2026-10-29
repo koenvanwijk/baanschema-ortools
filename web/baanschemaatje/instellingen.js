@@ -7,6 +7,7 @@ const WD_ALL = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zater
 
 async function loadClub() {
   const id = $("club").value;
+  if (!id) { renderAuthBar(); status((AUTH && AUTH.user) ? "Je hebt nog geen rol bij een club. Vraag je clubbeheerder om toegang." : "Log in met Google om je club te zien.", "err"); return; }
   setHash(id);
   $("back-club").href = $("back-club2").href = `club.html${location.search}#${encodeURIComponent(id)}`;
   status("Club laden…", "busy");

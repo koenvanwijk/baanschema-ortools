@@ -24,6 +24,7 @@ async function loadClubs(select) {
 
 async function loadClub() {
   const id = $("club").value;
+  if (!id) { renderAuthBar(); status((AUTH && AUTH.user) ? "Je hebt nog geen rol bij een club. Vraag je clubbeheerder om toegang." : "Log in met Google om je club te zien.", "err"); return; }
   if (CLUB && CLUB.id !== id && anyDirty() && !confirm("Er zijn niet-opgeslagen wijzigingen voor deze club. Toch van club wisselen?")) { $("club").value = CLUB.id; return; }
   if (!/^#regel/.test(location.hash) || CLUB) setHash(id, COMP);
   status("Club laden…", "busy");

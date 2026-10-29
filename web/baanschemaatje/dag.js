@@ -29,7 +29,7 @@ async function dgLoad() {
     catch (_) { prompt("Kopieer deze link:", link); }
   };
   let name = club;
-  try { const c = await (await fetch(`${API}/clubs/${encodeURIComponent(club)}`)).json(); name = (c.summary && c.summary.name) || (c.profile && c.profile.club && c.profile.club.name) || club; } catch (_) { /* naam optioneel */ }
+  try { const c = await (await fetch(`${API}${withShare(`/clubs/${encodeURIComponent(club)}`)}`, { credentials: "include" })).json(); name = (c.summary && c.summary.name) || (c.profile && c.profile.club && c.profile.club.name) || club; } catch (_) { /* naam optioneel */ }
   $("dg-title").textContent = `Baanschema ${date}`;
   $("dg-sub").textContent = name;
   document.title = `Baanschema ${date} · ${name}`;
