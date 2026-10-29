@@ -41,6 +41,10 @@ from fastapi import HTTPException, Request, Response
 
 COOKIE_SESSION = "bs_session"
 COOKIE_OAUTH = "bs_oauth"
+COOKIE_PIN = "bs_pin"          # commissaris-PIN-sessie (Q5), per club
+PIN_SESSION_TTL_S = 60 * 60 * 12  # 12 uur
+PIN_MIN_LEN = 6
+PIN_MAX_LEN = 12
 SESSION_TTL_S = 60 * 60 * 24 * 14  # 14 dagen
 OAUTH_STATE_TTL_S = 600
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -168,6 +172,92 @@ def set_session_cookie(response: Response, request: Request, email: str, name: s
 def clear_session_cookie(response: Response) -> None:
     response.delete_cookie(COOKIE_SESSION, path="/")
     response.delete_cookie(COOKIE_OAUTH, path="/")
+    response.delete_cookie(COOKIE_PIN, path="/")
+
+
+# ---------------------------------------------------------------- commissaris-PIN (Q5)
+# Besluit Oscar 29-10-2026: clubbeheerder zet per club een commissaris-PIN (min. 6 cijfers).
+# Opslag alleen als salted scrypt-hash in meta; PIN zelf nooit opgeslagen/gelogd.
+# PIN-sessie = alleen commissarisrechten voor die ene club, 12 uur; nieuwe PIN → oude sessies ongeldig.
+
+_SCRYPT = {"n": 2 ** 14, "r": 8, "p": 1, "dklen": 32}
+
+
+def valid_pin_format(pin: str | None) -> bool:
+    return bool(pin) and pin.isdigit() and pin.isascii() and PIN_MIN_LEN <= len(pin) <= PIN_MAX_LEN
+
+
+def generate_pin() -> str:
+    return f"{secrets.randbelow(10 ** PIN_MIN_LEN):0{PIN_MIN_LEN}d}"
+
+
+def hash_pin(pin: str) -> dict[str, Any]:
+    salt = secrets.token_bytes(16)
+    h = hashlib.scrypt(pin.encode("utf-8"), salt=salt, n=_SCRYPT["n"], r=_SCRYPT["r"], p=_SCRYPT["p"],
+                       dklen=_SCRYPT["dklen"])
+    return {"alg": "scrypt", **{k: _SCRYPT[k] for k in ("n", "r", "p")},
+            "salt": _b64url(salt), "hash": _b64url(h)}
+
+
+def verify_pin(pin: str, rec: dict[str, Any] | None) -> bool:
+    if not rec or rec.get("alg") != "scrypt" or not pin:
+        return False
+    try:
+        salt = _b64url_decode(rec["salt"])
+        expect = _b64url_decode(rec["hash"])
+        h = hashlib.scrypt(pin.encode("utf-8"), salt=salt, n=int(rec["n"]), r=int(rec["r"]),
+                           p=int(rec["p"]), dklen=len(expect))
+    except (KeyError, ValueError, TypeError):
+        return False
+    return hmac.compare_digest(h, expect)
+
+
+def pin_record(meta: dict[str, Any] | None) -> dict[str, Any] | None:
+    rec = (meta or {}).get("commissaris_pin")
+    return rec if isinstance(rec, dict) and rec.get("hash") else None
+
+
+def set_pin_cookie(response: Response, request: Request, club_id: str, gen: int) -> int:
+    now = int(time.time())
+    exp = now + PIN_SESSION_TTL_S
+    payload = json.dumps({"kind": "pin", "club": club_id, "gen": int(gen), "iat": now, "exp": exp},
+                         separators=(",", ":")).encode("utf-8")
+    response.set_cookie(COOKIE_PIN, _sign(payload), max_age=PIN_SESSION_TTL_S, httponly=True,
+                        secure=_cookie_secure(request), samesite="lax", path="/")
+    return exp
+
+
+def clear_pin_cookie(response: Response) -> None:
+    response.delete_cookie(COOKIE_PIN, path="/")
+
+
+def _verify_pin_cookie(token: str) -> dict[str, Any] | None:
+    if not token or "." not in token or not session_secret():
+        return None
+    try:
+        body_b64, sig_b64 = token.rsplit(".", 1)
+        payload = _b64url_decode(body_b64)
+        expect = hmac.new(session_secret(), payload, hashlib.sha256).digest()
+        if not hmac.compare_digest(expect, _b64url_decode(sig_b64)):
+            return None
+        data = json.loads(payload.decode("utf-8"))
+    except (ValueError, json.JSONDecodeError, TypeError):
+        return None
+    if data.get("kind") != "pin" or int(data.get("exp", 0)) < int(time.time()):
+        return None
+    return data
+
+
+def pin_session(request: Request | None, club_id: str | None, meta: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Geldige PIN-sessie voor precies deze club (PIN nog gezet, zelfde generatie)?"""
+    if request is None or not club_id or not auth_configured() or pin_record(meta) is None:
+        return None
+    data = _verify_pin_cookie(request.cookies.get(COOKIE_PIN) or "")
+    if not data or data.get("club") != club_id:
+        return None
+    if int(data.get("gen", -1)) != int((meta or {}).get("pin_gen") or 0):
+        return None
+    return data
 
 
 def current_user(request: Request | None) -> dict[str, Any] | None:
@@ -438,10 +528,15 @@ def authorize_write(
     if not auth_configured():
         return None
     user = current_user(request)
+    pin_ok = role_at_least(ROLE_COMMISSARIS, min_role) and pin_session(request, club_id, meta) is not None
     if not user:
+        if pin_ok:
+            return None  # commissaris-PIN: alleen speeldag-acties (Q5)
         raise HTTPException(401, "Inloggen vereist (Google) om te wijzigen")
     role = resolve_role(user["email"], meta)
     if not role_at_least(role, min_role):
+        if pin_ok:
+            return None
         raise HTTPException(403, _role_forbidden_message(user["email"], club_id, role, min_role))
     return None
 
@@ -461,6 +556,8 @@ def authorize_view(
     if not auth_configured():
         return None
     if share_token_ok(meta, share_token):
+        return None
+    if pin_session(request, club_id, meta) is not None:
         return None
     user = current_user(request)
     if user and role_at_least(resolve_role(user["email"], meta), ROLE_COMMISSARIS):
@@ -482,6 +579,9 @@ def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = N
     role = resolve_role(email, club_meta) if club_meta is not None else (
         ROLE_PLATFORM_ADMIN if is_platform_admin(email) else (ROLE_VIEWER if email else None)
     )
+    pin = pin_session(request, (club_meta or {}).get("id"), club_meta) if club_meta is not None else None
+    if pin and not role_at_least(role or ROLE_VIEWER, ROLE_COMMISSARIS):
+        role = ROLE_COMMISSARIS
     open_writes = not auth_configured()
     has_share = bool(share_token_of(club_meta)) if club_meta is not None else None
     return {
@@ -526,4 +626,7 @@ def auth_status(request: Request | None, *, club_meta: dict[str, Any] | None = N
         "roles": club_roles(club_meta) if club_meta is not None else None,
         "role_labels": dict(ROLE_LABELS_NL),
         "password_login": False,
+        "pin_enabled": (pin_record(club_meta) is not None) if club_meta is not None else None,
+        "pin_session": bool(pin),
+        "pin_session_exp": int(pin["exp"]) if pin else None,
     }

@@ -149,8 +149,9 @@ function openAssign(partId) {
 
 function init() {
   $("bg-undo").onclick = () => act((s) => bgUndo(s));
-  window.addEventListener("hashchange", () => load());
+  window.addEventListener("hashchange", () => { load(); pinBar(bgParse().club, () => load()); });
   load();
+  pinBar(bgParse().club, () => load());
   setInterval(() => { if (!BUSY && !$("bg-dlg").open) load(true).catch(() => {}); else render(); }, POLL_MS);
 }
 if (typeof document !== "undefined") init();

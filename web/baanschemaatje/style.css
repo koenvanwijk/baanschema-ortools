@@ -300,3 +300,9 @@ body.view-list .view-hint { display: inline; }
 @media (max-width: 560px) {
   .role-row { grid-template-columns: 1fr; }
 }
+
+/* Commissaris-PIN-balk (bingo/dashboard, Q5) */
+.pin-bar { margin: .5rem 0; padding: .6rem .8rem; border: 1px solid #d6c9a8; border-radius: 8px; background: #fffaf0; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.pin-bar .pin-form { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.pin-bar input { font-size: 1.2rem; width: 9em; letter-spacing: .2em; margin-left: .4rem; }
+.pin-show { background:#fffaf0; border:1px solid #d6c9a8; border-radius:8px; padding:.5rem .8rem; } .pin-code { font-size:1.4rem; letter-spacing:.2em; }

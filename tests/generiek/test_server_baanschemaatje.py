@@ -786,3 +786,110 @@ def test_demo_clubs_platform_admin_only(root, tmp_path_factory, monkeypatch):
     c.cookies.clear()
     etok = json.loads(mod.STORE.get("clubs/echte-club/meta.json"))["share_token"]
     assert c.get(f"/clubs/echte-club/bingo/{d}", params={"s": etok}).status_code == 200
+
+
+def test_commissaris_pin(root, tmp_path_factory, monkeypatch):
+    """Q5 (Oscar 29-10-2026): commissaris-PIN per club; alleen speeldag-rechten; hash-only; rate-limit."""
+    import importlib
+    import time
+    import json
+    import base64
+    import hashlib
+    import hmac
+
+    monkeypatch.setenv("BS_STORE", str(tmp_path_factory.mktemp("store-pin")))
+    monkeypatch.setenv("BS_ALLOW_OPEN_CREATE", "0")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", "test-client")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_SECRET", "test-secret")
+    monkeypatch.setenv("BS_SESSION_SECRET", "test-session-secret-32chars!!")
+    monkeypatch.setenv("PLATFORM_ADMIN_EMAILS", "admin@example.com")
+    for name in list(sys.modules):
+        if name in ("auth", "bs_server_app_pin") or name.endswith(".auth"):
+            sys.modules.pop(name, None)
+    sys.path.insert(0, str(root / "server" / "baanschemaatje"))
+    import auth as auth_mod
+    importlib.reload(auth_mod)
+    spec = importlib.util.spec_from_file_location("bs_server_app_pin", root / "server" / "baanschemaatje" / "app.py")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["bs_server_app_pin"] = mod
+    spec.loader.exec_module(mod)
+    c = TestClient(mod.app)
+
+    def session_cookie(email):
+        now = int(time.time())
+        payload = json.dumps({"email": email, "name": "", "iat": now, "exp": now + 3600}, separators=(",", ":")).encode()
+        sig = hmac.new(b"test-session-secret-32chars!!", payload, hashlib.sha256).digest()
+        b64 = lambda b: base64.urlsafe_b64encode(b).rstrip(b"=").decode()  # noqa: E731
+        return f"{b64(payload)}.{b64(sig)}"
+
+    prof = {"club": {"name": "TV Pin"}, "courts": {"count": 4},
+            "day": {"start": "09:00", "last_start": "19:30", "end": "20:00"}}
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    assert c.post("/clubs", json={"id": "tv-pin", "profile": prof}).status_code == 201
+    assert c.post("/clubs", json={"id": "tv-ander", "profile": {**prof, "club": {"name": "Ander"}}}).status_code == 201
+    assert c.put("/clubs/tv-pin/commissaris-pin", json={"pin": "123"}).status_code == 422
+    assert c.put("/clubs/tv-pin/commissaris-pin", json={"pin": "12a456"}).status_code == 422
+    r = c.put("/clubs/tv-pin/commissaris-pin", json={})
+    assert r.status_code == 200, r.text
+    pin = r.json()["pin"]
+    assert len(pin) == 6 and pin.isdigit()
+    raw_meta = mod.STORE.get("clubs/tv-pin/meta.json").decode()
+    assert pin not in raw_meta and "scrypt" in raw_meta
+    assert c.get("/clubs/tv-pin/commissaris-pin").json()["enabled"] is True
+    assert pin not in c.get("/clubs/tv-pin").text and "commissaris_pin" not in c.get("/clubs/tv-pin").text
+    r = c.put("/clubs/tv-pin/commissaris-pin", json={"pin": "24681357"})
+    pin = r.json()["pin"]
+    assert pin == "24681357"
+
+    d = "23-10-2026"
+    c.cookies.clear()
+    assert c.put(f"/clubs/tv-pin/bingo/{d}", json={"state": {"log": []}, "gen": 0}).status_code == 401
+    assert c.post("/clubs/tv-ander/pin-login", json={"pin": pin}).status_code == 400  # geen PIN daar
+    r = c.post("/clubs/tv-pin/pin-login", json={"pin": pin})
+    assert r.status_code == 200, r.text
+    assert "bs_pin" in r.cookies or c.cookies.get("bs_pin")
+    st = c.get("/auth/status", params={"club": "tv-pin"}).json()
+    assert st["pin_session"] and st["role"] == "commissaris" and st["can_write_club"] and not st["can_admin_club"]
+    g = c.get(f"/clubs/tv-pin/bingo/{d}").json()["gen"]
+    assert c.put(f"/clubs/tv-pin/bingo/{d}", json={"state": {"log": []}, "gen": g}).status_code == 200
+    # geen beheerrechten
+    assert c.put("/clubs/tv-pin/profile", json=prof).status_code == 401
+    assert c.get("/clubs/tv-pin/access").status_code in (401, 403)
+    assert c.put("/clubs/tv-pin/commissaris-pin", json={}).status_code == 401
+    assert c.post("/clubs/tv-pin/share-token").status_code == 401
+    assert c.put("/clubs/tv-pin/moves", json={"moves": []}).status_code == 401
+    # alleen deze club
+    assert c.get(f"/clubs/tv-ander/bingo/{d}").status_code == 401
+    assert c.put(f"/clubs/tv-ander/bingo/{d}", json={"state": {"log": []}, "gen": 0}).status_code == 401
+    # PIN vernieuwen → oude sessie ongeldig
+    pin_cookie = c.cookies.get("bs_pin")
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    pin2 = c.put("/clubs/tv-pin/commissaris-pin", json={}).json()["pin"]
+    c.cookies.clear()
+    c.cookies.set("bs_pin", pin_cookie)
+    assert c.get(f"/clubs/tv-pin/bingo/{d}").status_code == 401
+    assert c.post("/clubs/tv-pin/pin-login", json={"pin": pin}).status_code == 401  # oude PIN
+    # rate-limit: 5 fout per IP → 429, ook de goede PIN
+    for i in range(3):
+        assert c.post("/clubs/tv-pin/pin-login", json={"pin": "000000"}).status_code == 401
+    r = c.post("/clubs/tv-pin/pin-login", json={"pin": "000001"})
+    assert r.status_code == 429 and "Te veel" in r.json()["detail"]
+    assert c.post("/clubs/tv-pin/pin-login", json={"pin": pin2}).status_code == 429
+    # beheerder zet nieuwe PIN → teller gereset
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    pin3 = c.put("/clubs/tv-pin/commissaris-pin", json={}).json()["pin"]
+    c.cookies.clear()
+    assert c.post("/clubs/tv-pin/pin-login", json={"pin": pin3}).status_code == 200
+    # PIN uitzetten → sessie weg
+    keep = c.cookies.get("bs_pin")
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    assert c.delete("/clubs/tv-pin/commissaris-pin").json()["deleted"] is True
+    c.cookies.clear()
+    c.cookies.set("bs_pin", keep)
+    assert c.get(f"/clubs/tv-pin/bingo/{d}").status_code == 401
+    # democlub: PIN kan niet en opent niets
+    c.cookies.set("bs_session", session_cookie("admin@example.com"))
+    assert c.post("/clubs", json={"id": "demo-tv", "profile": prof}).status_code == 201
+    assert c.put("/clubs/demo-tv/commissaris-pin", json={}).status_code == 409
+    c.cookies.clear()
+    assert c.post("/clubs/demo-tv/pin-login", json={"pin": "123456"}).status_code == 401

@@ -92,7 +92,15 @@ from auth import (  # noqa: E402
     authorize_view,
     authorize_write,
     can_manage_access,
+    clear_pin_cookie,
     clear_session_cookie,
+    generate_pin,
+    hash_pin,
+    pin_record,
+    pin_session,
+    set_pin_cookie,
+    valid_pin_format,
+    verify_pin,
     club_roles,
     club_writers,
     consume_oauth_state,
@@ -1335,6 +1343,12 @@ def get_access(club_id: str, request: Request) -> dict[str, Any]:
         raise HTTPException(404 if club_id not in _builtin_files() else 403, "club niet bewerkbaar")
     user = current_user(request)
     email = user["email"] if user else None
+    if auth_configured():
+        # Ledenlijst (e-mails) alleen voor Google-ingelogde leden met een rol; PIN-sessie telt niet.
+        if not email:
+            raise HTTPException(401, "Inloggen vereist (Google) om de toegang te zien")
+        if resolve_role(email, meta) == ROLE_VIEWER:
+            raise HTTPException(403, "Geen rol bij deze club")
     show_share = bool(email) and can_manage_access(email, meta)
     if _platform_only(club_id):
         share = dict(_DEMO_SHARE_OFF)
@@ -1443,6 +1457,118 @@ def regenerate_share_token(club_id: str, request: Request) -> dict[str, Any]:
     meta["share_token"] = new_share_token()
     _put_meta(club_id, meta)
     return {"ok": True, "share": _share_links(club_id, request, meta["share_token"])}
+
+
+# ---------------------------------------------------------------- commissaris-PIN (Q5, Oscar 29-10-2026)
+PIN_WINDOW_S = 600          # 10 minuten
+PIN_MAX_PER_IP = 5          # mislukte pogingen per IP per club per venster
+PIN_MAX_PER_CLUB = 20       # mislukte pogingen per club (alle IP's) per venster
+
+
+class PinBody(BaseModel):
+    pin: str | None = Field(None, description="6–12 cijfers; leeg = server kiest 6 cijfers")
+
+
+def _client_ip(request: Request) -> str:
+    return (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+
+
+def _pin_attempts_key(club_id: str) -> str:
+    return f"clubs/{club_id}/pin_attempts.json"
+
+
+def _pin_attempts(club_id: str) -> dict[str, list[float]]:
+    now = time.time()
+    j = _get_json(_pin_attempts_key(club_id)) or {}
+    out: dict[str, list[float]] = {}
+    for ip, ts in (j.get("fails") or {}).items():
+        keep = [t for t in ts if isinstance(t, (int, float)) and now - t < PIN_WINDOW_S]
+        if keep:
+            out[ip] = keep
+    return out
+
+
+def _pin_lock_msg(oldest: float) -> str:
+    mins = max(1, int((PIN_WINDOW_S - (time.time() - oldest)) // 60) + 1)
+    return f"Te veel onjuiste pogingen. Probeer het over {mins} minuten opnieuw of vraag de clubbeheerder."
+
+
+@app.put("/clubs/{club_id}/commissaris-pin")
+def set_commissaris_pin(club_id: str, request: Request, body: PinBody | None = None) -> dict[str, Any]:
+    """Clubbeheerder zet/vernieuwt de commissaris-PIN. De PIN wordt éénmalig teruggegeven;
+    opgeslagen wordt alleen een salted scrypt-hash. Oude PIN-sessies vervallen."""
+    meta = _writable(club_id, request, min_role=ROLE_CLUB_ADMIN)
+    if _platform_only(club_id):
+        raise HTTPException(409, "Democlub: alleen de platformbeheerder; een commissaris-PIN is hier niet mogelijk.")
+    pin = (body.pin if body else None) or ""
+    pin = pin.strip()
+    if pin and not valid_pin_format(pin):
+        raise HTTPException(422, "PIN moet uit 6 tot 12 cijfers bestaan.")
+    if not pin:
+        pin = generate_pin()
+    user = current_user(request)
+    meta["commissaris_pin"] = {**hash_pin(pin), "set_at": _now(), "set_by": user["email"] if user else None}
+    meta["pin_gen"] = int(meta.get("pin_gen") or 0) + 1
+    _put_meta(club_id, meta)
+    STORE.delete(_pin_attempts_key(club_id))
+    return {"ok": True, "pin": pin, "set_at": meta["commissaris_pin"]["set_at"],
+            "hint": "Noteer deze PIN nu: hij wordt niet opnieuw getoond. Een nieuwe PIN maakt oude PIN-sessies ongeldig."}
+
+
+@app.delete("/clubs/{club_id}/commissaris-pin")
+def delete_commissaris_pin(club_id: str, request: Request) -> dict[str, Any]:
+    meta = _writable(club_id, request, min_role=ROLE_CLUB_ADMIN)
+    had = meta.pop("commissaris_pin", None) is not None
+    meta["pin_gen"] = int(meta.get("pin_gen") or 0) + 1
+    _put_meta(club_id, meta)
+    return {"ok": True, "deleted": had}
+
+
+@app.get("/clubs/{club_id}/commissaris-pin")
+def get_commissaris_pin(club_id: str, request: Request) -> dict[str, Any]:
+    """Alleen of er een PIN is en wanneer gezet (nooit de PIN of hash)."""
+    meta = _writable(club_id, request, min_role=ROLE_CLUB_ADMIN)
+    rec = pin_record(meta)
+    return {"enabled": rec is not None, "set_at": (rec or {}).get("set_at"), "set_by": (rec or {}).get("set_by")}
+
+
+@app.post("/clubs/{club_id}/pin-login")
+def pin_login(club_id: str, body: PinBody, request: Request, response: Response) -> dict[str, Any]:
+    """Commissaris logt in met de club-PIN → 12 uur commissarisrechten voor deze club (HTTP-only cookie)."""
+    _known_club(club_id)  # democlubs: alleen platformbeheerder (PIN opent ze niet)
+    if not auth_configured():
+        raise HTTPException(503, "Inloggen is nog niet geconfigureerd")
+    meta = _meta(club_id)
+    if _platform_only(club_id) or pin_record(meta) is None:
+        raise HTTPException(400, "Deze club heeft geen commissaris-PIN. Vraag de clubbeheerder of log in met Google.")
+    ip = _client_ip(request)
+    fails = _pin_attempts(club_id)
+    mine = fails.get(ip, [])
+    total = [t for ts in fails.values() for t in ts]
+    if len(mine) >= PIN_MAX_PER_IP:
+        raise HTTPException(429, _pin_lock_msg(min(mine)))
+    if len(total) >= PIN_MAX_PER_CLUB:
+        raise HTTPException(429, _pin_lock_msg(min(total)))
+    pin = (body.pin or "").strip()
+    if not valid_pin_format(pin) or not verify_pin(pin, pin_record(meta)):
+        mine = mine + [time.time()]
+        fails[ip] = mine
+        STORE.put(_pin_attempts_key(club_id), json.dumps({"fails": fails}).encode(), "application/json")
+        left = PIN_MAX_PER_IP - len(mine)
+        if left <= 0:
+            raise HTTPException(429, _pin_lock_msg(min(mine)))
+        raise HTTPException(401, f"Onjuiste PIN. Nog {left} {'poging' if left == 1 else 'pogingen'}.")
+    if ip in fails:
+        fails.pop(ip, None)
+        STORE.put(_pin_attempts_key(club_id), json.dumps({"fails": fails}).encode(), "application/json")
+    exp = set_pin_cookie(response, request, club_id, int(meta.get("pin_gen") or 0))
+    return {"ok": True, "club": club_id, "role": ROLE_COMMISSARIS, "exp": exp}
+
+
+@app.post("/auth/pin-logout")
+def pin_logout(response: Response) -> dict[str, Any]:
+    clear_pin_cookie(response)
+    return {"ok": True}
 
 
 @app.post("/clubs/{club_id}/season")

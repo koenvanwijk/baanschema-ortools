@@ -141,3 +141,39 @@ function withShare(path) {
   if (!s) return path;
   return path + (path.includes("?") ? "&" : "?") + "s=" + encodeURIComponent(s);
 }
+
+/** Commissaris-PIN (Q5): op bingo/dashboard kan iemand zonder Google-login de club-PIN invullen
+ *  en krijgt dan 12 uur commissarisrechten voor alleen deze club. */
+async function pinBar(clubId, onChange) {
+  const el = $("pin-bar");
+  if (!el || !clubId) return;
+  let a = null;
+  try { a = await api(`/auth/status?club=${encodeURIComponent(clubId)}`); } catch (_) { el.hidden = true; return; }
+  const hm = (ts) => new Date(ts * 1000).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+  if (a.pin_session) {
+    el.hidden = false;
+    el.innerHTML = `<span>🔑 Baancommissaris via PIN · geldig tot ${esc(hm(a.pin_session_exp))}</span> <button type="button" class="btn2" id="pin-out">Afmelden</button>`;
+    $("pin-out").onclick = async () => { try { await api("/auth/pin-logout", { method: "POST" }); } catch (_) { /* */ } pinBar(clubId, onChange); if (onChange) onChange(); };
+    return;
+  }
+  if (!a.configured || a.can_write_club || !a.pin_enabled) { el.hidden = true; el.innerHTML = ""; return; }
+  el.hidden = false;
+  el.innerHTML = `<form id="pin-form" class="pin-form" autocomplete="off">
+    <label>Baancommissaris? Vul de club-PIN in
+      <input id="pin-in" type="password" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="12" required></label>
+    <button class="btn" type="submit">Ontgrendel</button>
+    <a class="hint" href="${esc(loginUrl(null, clubId))}">of log in met Google</a>
+    <span id="pin-msg" class="hint"></span></form>`;
+  $("pin-form").onsubmit = async (ev) => {
+    ev.preventDefault();
+    const pin = $("pin-in").value.trim();
+    try {
+      await api(`/clubs/${encodeURIComponent(clubId)}/pin-login`, jsonOpts("POST", { pin }));
+      await pinBar(clubId, onChange);
+      if (onChange) onChange();
+    } catch (e) {
+      $("pin-msg").textContent = e.message;
+      $("pin-in").value = "";
+    }
+  };
+}

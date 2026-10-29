@@ -137,6 +137,18 @@
         <span id="share-status" class="hint"></span>
       </div>
     </div>
+    <h3 style="margin-top:1.5rem">Commissaris-PIN (speeldag)</h3>
+    <p class="hint">Met deze PIN kan een baancommissaris zonder Google-account op het bingo- en dashboardscherm tikken (aanwezig, start, klaar), 12 uur lang en alleen voor deze club. Geen instellingen, import, berekenen of rollen. We bewaren alleen een versleutelde hash: de PIN zie je <b>één keer</b> na instellen. Een nieuwe PIN meldt alle bestaande PIN-sessies af.</p>
+    <div class="form" id="pin-box">
+      <p id="pin-state" class="hint"></p>
+      <label>Eigen PIN (6–12 cijfers, leeg = zelf kiezen door het systeem) <input id="pin-new" type="password" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="12" autocomplete="new-password"></label>
+      <div>
+        <button type="button" id="pin-set" class="btn2">Nieuwe PIN instellen</button>
+        <button type="button" id="pin-del" class="btn2">PIN uitzetten</button>
+        <span id="pin-status" class="hint"></span>
+      </div>
+      <p id="pin-show" class="pin-show" hidden></p>
+    </div>
   </section>
 
   <section data-pane="import" hidden>

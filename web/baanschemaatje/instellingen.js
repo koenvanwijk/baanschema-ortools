@@ -310,6 +310,7 @@ function sampleDate() {
 
 let SHARE_OFF = false; // democlub: deellinks uit (Q4)
 function fillShareFrom(share) {
+  SHARE_OFF = !!(share && share.disabled);
   if (!$("share-tv")) return;
   if (!share || !share.token) {
     $("share-tv").value = "";
@@ -339,6 +340,46 @@ async function fillShare() {
     fillShareFrom(null);
     if ($("share-status")) $("share-status").textContent = e.status === 401 || e.status === 403 ? "Geen recht om deellinks te zien." : "";
   }
+}
+
+// Commissaris-PIN (Q5): instellen/vernieuwen/uitzetten; PIN alleen éénmalig zichtbaar.
+async function fillPin() {
+  if (!$("pin-box") || !CLUB || !CLUB.id) return;
+  $("pin-show").hidden = true; $("pin-show").textContent = "";
+  const off = (msg) => { $("pin-state").textContent = msg; $("pin-set").disabled = true; $("pin-del").disabled = true; $("pin-new").disabled = true; };
+  if (SHARE_OFF) return off("Democlub: geen commissaris-PIN (alleen jij als platformbeheerder).");
+  try {
+    const j = await api(`/clubs/${encodeURIComponent(CLUB.id)}/commissaris-pin`);
+    $("pin-set").disabled = false; $("pin-new").disabled = false; $("pin-del").disabled = !j.enabled;
+    $("pin-state").textContent = j.enabled
+      ? `PIN staat aan (ingesteld ${j.set_at ? new Date(j.set_at).toLocaleString("nl-NL") : ""}${j.set_by ? ` door ${j.set_by}` : ""}).`
+      : "Er is nog geen commissaris-PIN; commissarissen loggen dan in met Google.";
+  } catch (e) {
+    off(e.status === 401 || e.status === 403 ? "Alleen een clubbeheerder kan de PIN beheren." : `PIN-status onbekend: ${e.message}`);
+  }
+}
+
+async function setPin() {
+  const own = $("pin-new").value.trim();
+  if (own && !/^[0-9]{6,12}$/.test(own)) { $("pin-status").textContent = "PIN moet 6 tot 12 cijfers zijn."; return; }
+  if (!confirm("Nieuwe commissaris-PIN instellen? Wie nu met de oude PIN is ingelogd, wordt afgemeld.")) return;
+  try {
+    const j = await api(`/clubs/${encodeURIComponent(CLUB.id)}/commissaris-pin`, jsonOpts("PUT", own ? { pin: own } : {}));
+    $("pin-new").value = "";
+    await fillPin();
+    $("pin-show").hidden = false;
+    $("pin-show").innerHTML = `Nieuwe PIN: <b class="pin-code">${esc(j.pin)}</b> — noteer hem nu, hij wordt niet opnieuw getoond.`;
+    $("pin-status").textContent = "PIN ingesteld ✓";
+  } catch (e) { $("pin-status").textContent = e.message; }
+}
+
+async function delPin() {
+  if (!confirm("Commissaris-PIN uitzetten? Bestaande PIN-sessies vervallen meteen.")) return;
+  try {
+    await api(`/clubs/${encodeURIComponent(CLUB.id)}/commissaris-pin`, { method: "DELETE" });
+    await fillPin();
+    $("pin-status").textContent = "PIN uitgezet ✓";
+  } catch (e) { $("pin-status").textContent = e.message; }
 }
 
 async function regenShare() {
@@ -423,7 +464,7 @@ function fillAccess() {
   if ($("access-status") && !a.configured) $("access-status").textContent = "Google-login nog niet geconfigureerd — toegang opslaan kan pas daarna.";
   else if ($("access-status") && disabled && a.configured) $("access-status").textContent = can ? "" : "Alleen platformbeheerder of clubbeheerder mag rollen beheren.";
   else if ($("access-status") && !disabled) $("access-status").textContent = "";
-  fillShare();
+  fillShare().then(fillPin);
 }
 
 // ---------------------------------------------------------------- seizoen
@@ -492,6 +533,8 @@ async function init() {
   if ($("role-add")) $("role-add").onclick = () => addRoleRow("", "commissaris");
   if ($("share-regen")) $("share-regen").onclick = regenShare;
   if ($("share-copy-tv")) $("share-copy-tv").onclick = copyShareTv;
+  if ($("pin-set")) $("pin-set").onclick = setPin;
+  if ($("pin-del")) $("pin-del").onclick = delPin;
   for (const b of $("tabs").querySelectorAll("button")) b.onclick = () => showTab(b.dataset.tab);
   document.querySelector("main").addEventListener("input", (e) => { if (e.target.closest("[data-pane]") && e.target.id !== "file") setDirty(true); });
   window.addEventListener("beforeunload", (e) => { if (DIRTY) { e.preventDefault(); e.returnValue = ""; } });

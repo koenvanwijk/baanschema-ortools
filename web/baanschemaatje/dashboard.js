@@ -264,8 +264,9 @@ function openStart(r) {
 
 function init() {
   $("ds-diff-ok").onclick = confirmProposal;
-  window.addEventListener("hashchange", () => { GEN = -1; load(); });
+  window.addEventListener("hashchange", () => { GEN = -1; load(); pinBar(dsParse().club, () => load()); });
   load();
+  pinBar(dsParse().club, () => load());
   setInterval(() => { if (!BUSY && !document.querySelector("dialog[open]")) load(true).catch(() => {}); else render(); }, DS_POLL);
 }
 if (typeof document !== "undefined") init();

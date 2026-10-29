@@ -1,7 +1,7 @@
 # User stories & beslissingen — Baanschemaatje
 
 Levend brondocument voor **alle** beslissingen en requirements van het project (branch `product/generiek`).
-Laatst bijgewerkt: 29-10-2026 (democlubs alleen platformbeheerder, "voorbeeld"-link weg).
+Laatst bijgewerkt: 29-10-2026 (democlubs alleen platformbeheerder, "voorbeeld"-link weg, commissaris-PIN).
 
 ## Werkprincipe
 
@@ -79,6 +79,7 @@ Rollen: **TC** (technische commissie / planner van de club), **commissaris** (ba
 | 2026-10-29 | Backlog #5/F2 (Oscar: "haal maar weg"): link "voorbeeld (vooraf berekend)" uit de kop van de clubpagina verwijderd → #5 volledig klaar | Oscar |
 | 2026-10-29 | Q4 besloten (Oscar: "beide alleen voor mij account"): democlubs **Demo TV** (`demo-tv`) en **TV Voorbeeld** (`voorbeeld-6-banen`), plus elke club met `meta.demo`, zijn alleen voor de platformbeheerder (oscarreynhout@gmail.com): niet in de clubkeuze/"Mijn clubs" van anderen; kijken én schrijven vereisen Google-login als platformbeheerder (anoniem 401, anderen 403, ook met een rol in de democlub); deellinks geven geen toegang en staan uit (vernieuwen 409); statische vooraf-berekende data `/app/data/voorbeeld-6-banen/…` idem dicht. Instelbaar via env `BS_PLATFORM_ONLY_CLUBS` | Oscar |
 | 2026-10-29 | Backlog #22: Google OAuth is live; status "live aanmaken wacht op Google OAuth" achterhaald → klaar | Oscar |
+| 2026-10-29 | Q5 besloten (Oscar: ja): **commissaris-PIN per club** (I7). Clubbeheerder zet/vernieuwt in Instellingen → Toegang; min. 6 cijfers; alleen salted scrypt-hash in meta (nooit PIN in GCS/logs/git), PIN éénmalig getoond. Op bingo/dashboard PIN invullen → HTTP-only cookie, 12 uur, alleen die club, alleen commissarisrechten (bingo/dashboard/herplan-voorstel), nooit instellingen/import/berekenen/rollen. Rate-limit: 5 mislukte pogingen per IP per club per 10 min (+ 20 per club totaal), daarna 429-blokkade. Nieuwe PIN of PIN uitzetten maakt bestaande PIN-sessies ongeldig. Democlubs: geen PIN (blijven Oscar-only). Ledenlijst (`GET …/access`) voortaan alleen voor Google-ingelogde leden met rol (was open) | Oscar |
 
 ---
 
@@ -350,6 +351,15 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 - AC: Mierlo en andere echte clubs ongewijzigd (deellink/rollen werken als voorheen).
 - Status: **gereed** · Datum: 2026-10-29 · Bron: Oscar ("Q4 beide alleen voor mij account").
 
+**I7 — [Beheer] [Bingo] Commissaris-PIN voor de speeldag.** Als baancommissaris wil ik op de bingo-/dashboardtablet met een korte club-PIN kunnen tikken zonder Google-account, zodat de speeldag niet stokt op inloggen; als clubbeheerder wil ik dat die PIN niets anders opent.
+- AC: clubbeheerder (of platformbeheerder) zet in Instellingen → Toegang → "Commissaris-PIN" een eigen PIN (6–12 cijfers) of laat het systeem 6 cijfers kiezen (`PUT /clubs/{id}/commissaris-pin`); PIN wordt **één keer** getoond; `DELETE` zet hem uit; `GET` toont alleen aan/uit + wanneer/door wie.
+- AC opslag: alleen salted **scrypt**-hash (n=2^14, r=8, p=1, 16-byte salt) in `meta.commissaris_pin`; nooit de PIN in GCS, logs, git of API-responses (behalve het éénmalige antwoord op instellen); `meta.pin_gen` telt op bij elke wijziging.
+- AC inloggen: op bingo.html en dashboard.html verschijnt voor wie geen schrijfrecht heeft een balk "Baancommissaris? Vul de club-PIN in"; `POST /clubs/{id}/pin-login` zet HTTP-only cookie `bs_pin` (Secure, SameSite=Lax, HMAC-gesigneerd, 12 uur) met club + pin_gen; "Afmelden" wist hem.
+- AC rechten: PIN-sessie = commissaris voor **alleen die club**: kijken + bingo/dayrun/herplan-voorstel; **niet** instellingen, import, verzetten, opgaven, host-away, schema opslaan, berekenen, toegang/rollen, deellinks, PIN wijzigen.
+- AC beveiliging: max 5 mislukte pogingen per IP per club per 10 min en 20 per club totaal (opgeslagen in de store, dus over Cloud Run-instances heen) → 429 "Te veel onjuiste pogingen. Probeer het over N minuten opnieuw…"; nieuwe PIN reset de teller; nieuwe PIN/uitzetten → oude PIN-sessies ongeldig.
+- AC democlubs: geen PIN mogelijk (409) en PIN opent ze niet (I6).
+- Status: **gereed** · Datum: 2026-10-29 · Bron: Oscar (Q5: "ja").
+
 ### Open / besloten vragen (Oscar)
 
 | # | Vraag | Raakt | Stand |
@@ -358,7 +368,7 @@ Doel (Oscar 26-10-2026): **zelf nieuwe clubs toevoegen** en **per club logins + 
 | Q2 | Login-vorm: gedeeld clubwachtwoord, Google, of per-persoon accounts? | I3 / I4 | **Besloten 26-10-2026:** fase 2 = Google OAuth per club (geen gedeeld clubwachtwoord). Later optioneel: e-mail + wachtwoord **per gebruiker**. |
 | Q3 | Blijven tv / dagpagina / bingolijst publiek deelbaar zonder login? | I5 | **Herzien 26-10-2026:** nee publiek; wel geheime deellink (`?s=TOKEN`) of login. |
 | Q4 | Democlubs (Demo TV, TV Voorbeeld): open laten zonder login, of ook beveiligen? TV Voorbeeld uit clubkeuze verbergen? | I3, A4 | **Besloten 29-10-2026:** beide alleen voor Oscar (platformbeheerder): verborgen voor anderen, kijken+schrijven alleen na login als platformbeheerder, deellinks uit. |
-| Q5 | Mag commissaris-tikken (bingo/dashboard) op een kortere code/PIN i.p.v. volledige club-login? | I3/I4 | **Open** |
+| Q5 | Mag commissaris-tikken (bingo/dashboard) op een kortere code/PIN i.p.v. volledige club-login? | I3/I4 | **Besloten 29-10-2026:** ja — commissaris-PIN per club, 12 uur, alleen speeldag-rechten (I7). |
 
 ## Beslisvolgorde (14-10-2026)
 
@@ -396,3 +406,5 @@ Alle openstaande items, van hoog naar laag. Label: [UX] · [Bingo] · [Planner] 
 | 24 | [Beheer] | Rollen & access management (clubbeheerder / baancommissaris); later optioneel e-mail+wachtwoord per user | I4 | gereed (MVP 26-10-2026) |
 | 25 | [Beheer] [UX] Geheime deellinks tv/dag/bingolijst (`?s=TOKEN`) | I5 | gereed (26-10-2026) |
 | 26 | [UX] [Beheer] | Product-frontpage op `/` (login → mijn clubs; alsof baanschemaatje.nl); visuele polish | A5 | klaar (26-10-2026) |
+| 27 | [Beheer] | Democlubs Demo TV + TV Voorbeeld alleen voor Oscar (Q4) | I6 | klaar (29-10-2026) |
+| 28 | [Beheer] [Bingo] | Commissaris-PIN per club voor bingo/dashboard (Q5) | I7 | klaar (29-10-2026) |
